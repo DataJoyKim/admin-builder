@@ -1,22 +1,32 @@
 package com.datajoy.web_builder.apibuilder;
 
+import com.datajoy.web_builder.apibuilder.message.ResponseMessage;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
-@RequestMapping("/api")
 public class ApiBuilderController {
+    @Autowired
+    ApiBuilderService apiService;
 
-    @RequestMapping(value = "/{applicationName}/**", method = {RequestMethod.GET,RequestMethod.POST,RequestMethod.PUT,RequestMethod.DELETE})
+    @RequestMapping(value = "/{applicationName}/api/**", method = {RequestMethod.GET,RequestMethod.POST,RequestMethod.PUT,RequestMethod.DELETE})
     public ResponseEntity<?> callRestAPI(
-            @PathVariable String applicationName
+            HttpServletRequest request,
+            @PathVariable String applicationName,
+            @RequestParam Map<String, Object> requestParams,
+            @RequestBody Object requestBody
     ) {
-        System.out.println("callRestAPI");
+        String path = request.getRequestURI();
+        HttpMethod method = HttpMethod.valueOf(request.getMethod());
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        ResponseMessage<?> response = apiService.build(applicationName, path, method, requestParams, requestBody);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
