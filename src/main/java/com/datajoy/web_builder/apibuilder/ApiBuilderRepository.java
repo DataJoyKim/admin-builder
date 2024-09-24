@@ -4,16 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Repository;
 
-import java.io.FileReader;
-import java.io.Reader;
-
 @Repository
 @RequiredArgsConstructor
 public class ApiBuilderRepository {
     private static final String DATA_DIRECTORY_PATH = "";
 
-    private final JsonRepository jsonRepository;
+    private final JsonFilePersistence jsonFilePersistence;
     public ApiBuilder findApiBuilderBy(String applicationName, String path, HttpMethod method) {
-        return jsonRepository.read(DATA_DIRECTORY_PATH);
+        return jsonFilePersistence.selectList(DATA_DIRECTORY_PATH);
     }
 }
