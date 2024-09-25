@@ -4,6 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Repository;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Repository
 @RequiredArgsConstructor
 public class ApiBuilderRepository {
@@ -11,6 +14,8 @@ public class ApiBuilderRepository {
 
     private final JsonFilePersistence jsonFilePersistence;
     public ApiBuilder findApiBuilderBy(String applicationName, String path, HttpMethod method) {
-        return jsonFilePersistence.selectList(DATA_DIRECTORY_PATH);
+        Map<String ,Object> params = new HashMap<>();
+
+        return jsonFilePersistence.selectList(DATA_DIRECTORY_PATH, params);
     }
 }

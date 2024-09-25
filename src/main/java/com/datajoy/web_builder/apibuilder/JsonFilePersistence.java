@@ -1,26 +1,38 @@
 package com.datajoy.web_builder.apibuilder;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.springframework.stereotype.Component;
 
+import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
 
 @Component
 @Slf4j
 public class JsonFilePersistence {
 
-    public <T> T selectList(String path) {
-        ObjectMapper objectMapper = new ObjectMapper();
+    public List<Map<String, Object>> selectList(String path, Map<String ,Object> params) {
+        JSONParser parser = new JSONParser();
 
+        FileReader reader;
         try {
-            String jsonString = new String(Files.readAllBytes(Paths.get(path)));
-            log.info("jsonData: "+ jsonString);
+            reader = new FileReader(path);
+            JSONArray jsonArray = (JSONArray) parser.parse(reader);
 
-            return  (T) objectMapper.readValue(jsonString, Object.class);
-        } catch (IOException e) {
+            reader.close();
+
+            for(int i=0; i<jsonArray.size(); i++) {
+
+            }
+
+            return null;
+        }
+        catch (IOException | ParseException e) {
             throw new RuntimeException(e);
         }
     }
