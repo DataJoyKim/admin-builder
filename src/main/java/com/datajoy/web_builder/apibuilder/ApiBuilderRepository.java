@@ -16,6 +16,6 @@ public class ApiBuilderRepository {
     public ApiBuilder findApiBuilderBy(String applicationName, String path, HttpMethod method) {
         Map<String ,Object> params = new HashMap<>();
 
-        return jsonFilePersistence.selectList(DATA_DIRECTORY_PATH, params);
+        return jsonFilePersistence.selectOne(DATA_DIRECTORY_PATH, params);
     }
 }
