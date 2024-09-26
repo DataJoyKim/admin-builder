@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -22,49 +21,28 @@ public class JsonFilePersistence {
 
     public <T> T selectOne(String path, Map<String ,Object> params) {
         ObjectMapper objectMapper = new ObjectMapper();
-        JSONParser parser = new JSONParser();
 
-        FileReader reader;
-        try {
-            reader = new FileReader(path);
-            JSONArray jsonArray = (JSONArray) parser.parse(reader);
+        List<Map<String, Object>> results = select(path, params, objectMapper);
 
-            reader.close();
+        Map<String, Object> result = results.get(0);
 
-            List<Map<String, Object>> results = new ArrayList<>();
-            for (Object o : jsonArray) {
-                JSONObject jsonObject = (JSONObject) o;
-
-                boolean hasData = false;
-                for (Object keyObj : jsonObject.keySet()) {
-                    String key = (String) keyObj;
-
-                    String valueStr = (String) params.get(key);
-
-                    String jsonValueStr = (String) jsonObject.get(key);
-
-                    if (valueStr.equals(jsonValueStr)) {
-                        hasData = true;
-                    }
-                }
-
-                if (hasData) {
-                    results.add(objectMapper.readValue(jsonObject.toString(), new TypeReference<>() {}));
-                }
-            }
-
-            Map<String, Object> result = results.get(0);
-
-            return objectMapper.convertValue(result, new TypeReference<>() {});
-        }
-        catch (IOException | ParseException e) {
-            throw new RuntimeException(e);
-        }
+        return objectMapper.convertValue(result, new TypeReference<>() {});
     }
 
     public <T> List<T> selectList(String path, Map<String ,Object> params) {
         ObjectMapper objectMapper = new ObjectMapper();
+
+        List<Map<String, Object>> results = select(path, params, objectMapper);
+        return objectMapper.convertValue(results, new TypeReference<>() {});
+    }
+
+    public void write(String path) {
+    }
+
+    private List<Map<String, Object>> select(String path, Map<String, Object> params, ObjectMapper objectMapper) {
         JSONParser parser = new JSONParser();
+
+        List<Map<String, Object>> results = new ArrayList<>();
 
         FileReader reader;
         try {
@@ -73,7 +51,6 @@ public class JsonFilePersistence {
 
             reader.close();
 
-            List<Map<String, Object>> results = new ArrayList<>();
             for (Object o : jsonArray) {
                 JSONObject jsonObject = (JSONObject) o;
 
@@ -94,14 +71,10 @@ public class JsonFilePersistence {
                     results.add(objectMapper.readValue(jsonObject.toString(), new TypeReference<>() {}));
                 }
             }
-
-            return objectMapper.convertValue(results, new TypeReference<>() {});
         }
         catch (IOException | ParseException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public void write(String path) {
+        return results;
     }
 }
