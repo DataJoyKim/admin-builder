@@ -19,21 +19,22 @@ import java.util.Map;
 @Slf4j
 public class JsonFilePersistence {
 
-    public <T> T selectOne(String path, Map<String ,Object> params) {
+    public <T> T selectOne(String path, Map<String ,Object> params, TypeReference<T> typeReference) {
         ObjectMapper objectMapper = new ObjectMapper();
 
         List<Map<String, Object>> results = select(path, params, objectMapper);
 
         Map<String, Object> result = results.get(0);
 
-        return objectMapper.convertValue(result, new TypeReference<>() {});
+        return objectMapper.convertValue(result, typeReference);
     }
 
-    public <T> List<T> selectList(String path, Map<String ,Object> params) {
+    public <T> List<T> selectList(String path, Map<String ,Object> params, TypeReference<List<T>> typeReference) {
         ObjectMapper objectMapper = new ObjectMapper();
 
         List<Map<String, Object>> results = select(path, params, objectMapper);
-        return objectMapper.convertValue(results, new TypeReference<>() {});
+
+        return objectMapper.convertValue(results, typeReference);
     }
 
     public void write(String path) {
@@ -60,9 +61,11 @@ public class JsonFilePersistence {
 
                     String valueStr = (String) params.get(key);
 
-                    String jsonValueStr = (String) jsonObject.get(key);
+                    String jsonValueStr = String.valueOf(jsonObject.get(key));
 
-                    if (valueStr.equals(jsonValueStr)) {
+                    if((valueStr == null && jsonValueStr == null)
+                            || (valueStr != null && valueStr.equals(jsonValueStr))
+                    ) {
                         hasData = true;
                     }
                 }

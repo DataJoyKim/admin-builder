@@ -1,5 +1,6 @@
 package com.datajoy.web_builder.apibuilder;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Repository;
@@ -19,6 +20,6 @@ public class ApiBuilderRepository {
         params.put("path", path);
         params.put("method", method.name());
 
-        return jsonFilePersistence.selectOne(DATA_DIRECTORY_PATH, params);
+        return jsonFilePersistence.selectOne(DATA_DIRECTORY_PATH, params, new TypeReference<>() {});
     }
 }

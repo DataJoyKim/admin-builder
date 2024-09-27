@@ -8,7 +8,7 @@ public class ApiBuilder {
     private Long id;
     private String applicationName;
     private String path;
-    private HttpMethod method;
+    private String method;
     private Boolean useAuth;
     private String commandBeanName;
 }
