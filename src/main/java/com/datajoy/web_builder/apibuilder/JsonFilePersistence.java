@@ -1,5 +1,6 @@
 package com.datajoy.web_builder.apibuilder;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +11,7 @@ import org.json.simple.parser.ParseException;
 import org.springframework.stereotype.Component;
 
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,47 +39,75 @@ public class JsonFilePersistence {
         return objectMapper.convertValue(results, typeReference);
     }
 
-    public void write(String path) {
-    }
+    public <T> void insert(String path, T params) {
+        JSONArray jsonArray = getJsonData(path);
 
-    private List<Map<String, Object>> select(String path, Map<String, Object> params, ObjectMapper objectMapper) {
+        ObjectMapper objectMapper = new ObjectMapper();
         JSONParser parser = new JSONParser();
 
-        List<Map<String, Object>> results = new ArrayList<>();
-
-        FileReader reader;
         try {
-            reader = new FileReader(path);
-            JSONArray jsonArray = (JSONArray) parser.parse(reader);
+            JSONObject jsonObject = (JSONObject) parser.parse(objectMapper.writeValueAsString(params));
 
-            reader.close();
+            jsonArray.add(jsonObject);
 
-            for (Object o : jsonArray) {
-                JSONObject jsonObject = (JSONObject) o;
+            FileWriter fileWriter = new FileWriter(path);
 
-                boolean hasData = false;
-                for (Object keyObj : jsonObject.keySet()) {
-                    String key = (String) keyObj;
+            fileWriter.append(jsonArray.toJSONString());
 
-                    String valueStr = (String) params.get(key);
-
-                    String jsonValueStr = String.valueOf(jsonObject.get(key));
-
-                    if((valueStr == null && jsonValueStr == null)
-                            || (valueStr != null && valueStr.equals(jsonValueStr))
-                    ) {
-                        hasData = true;
-                    }
-                }
-
-                if (hasData) {
-                    results.add(objectMapper.readValue(jsonObject.toString(), new TypeReference<>() {}));
-                }
-            }
+            fileWriter.close();
         }
         catch (IOException | ParseException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private List<Map<String, Object>> select(String path, Map<String, Object> params, ObjectMapper objectMapper) {
+        JSONArray jsonArray = getJsonData(path);
+
+        List<Map<String, Object>> results = new ArrayList<>();
+        for (Object o : jsonArray) {
+            JSONObject jsonObject = (JSONObject) o;
+
+            boolean hasData = false;
+            for (Object keyObj : jsonObject.keySet()) {
+                String key = (String) keyObj;
+
+                String valueStr = (String) params.get(key);
+
+                String jsonValueStr = String.valueOf(jsonObject.get(key));
+
+                if((valueStr == null && jsonValueStr == null)
+                        || (valueStr != null && valueStr.equals(jsonValueStr))
+                ) {
+                    hasData = true;
+                }
+            }
+
+            if (hasData) {
+                try {
+                    results.add(objectMapper.readValue(jsonObject.toString(), new TypeReference<>() {}));
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+
         return results;
+    }
+
+    private JSONArray getJsonData(String path) {
+        JSONParser parser = new JSONParser();
+
+        JSONArray jsonArray;
+        try {
+            FileReader reader = new FileReader(path);
+            jsonArray = (JSONArray) parser.parse(reader);
+
+            reader.close();
+        }
+        catch (IOException | ParseException e) {
+            throw new RuntimeException(e);
+        }
+        return jsonArray;
     }
 }

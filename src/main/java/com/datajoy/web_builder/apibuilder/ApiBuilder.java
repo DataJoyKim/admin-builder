@@ -1,9 +1,11 @@
 package com.datajoy.web_builder.apibuilder;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import org.springframework.http.HttpMethod;
+import lombok.NoArgsConstructor;
 
-@Getter
+@Getter @Builder @AllArgsConstructor @NoArgsConstructor
 public class ApiBuilder {
     private Long id;
     private String applicationName;

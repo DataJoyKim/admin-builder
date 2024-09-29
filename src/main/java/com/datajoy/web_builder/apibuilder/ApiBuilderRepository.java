@@ -22,4 +22,8 @@ public class ApiBuilderRepository {
 
         return jsonFilePersistence.selectOne(DATA_DIRECTORY_PATH, params, new TypeReference<>() {});
     }
+
+    public void saveApiBuilder(ApiBuilder params) {
+        jsonFilePersistence.insert(DATA_DIRECTORY_PATH, params);
+    }
 }

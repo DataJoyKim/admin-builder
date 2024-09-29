@@ -40,6 +40,16 @@ class JsonFilePersistenceTest {
     }
 
     @Test
-    public void writeTest() {
+    public void insertTest() {
+        ApiBuilder params = ApiBuilder.builder()
+                .applicationName("netmarble-ehr")
+                .id(3L)
+                .path("/api/goals")
+                .useAuth(true)
+                .commandBeanName("com.datajoy")
+                .method("GET")
+                .build();
+
+        jsonFilePersistence.insert(filePath, params);
     }
 }
