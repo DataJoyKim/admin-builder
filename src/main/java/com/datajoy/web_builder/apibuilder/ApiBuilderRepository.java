@@ -1,11 +1,13 @@
 package com.datajoy.web_builder.apibuilder;
 
+import com.datajoy.persistence.JsonFilePersistence;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Repository
@@ -24,6 +26,6 @@ public class ApiBuilderRepository {
     }
 
     public void saveApiBuilder(ApiBuilder params) {
-        jsonFilePersistence.insert(DATA_DIRECTORY_PATH, params);
+        jsonFilePersistence.insert(DATA_DIRECTORY_PATH, params, List.of("id"));
     }
 }
