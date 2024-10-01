@@ -21,7 +21,7 @@ public class ApiBuilderService {
             Map<String, Object> requestParams,
             Object requestBody
     ) {
-        ApiBuilder apiBuilder = apiBuilderRepository.findApiBuilderBy(applicationName, path, method);
+        ApiBuilder apiBuilder = apiBuilderRepository.findBy(applicationName, path, method);
 
         Object contents = businessCommandExecutor.execute(apiBuilder, requestParams, requestBody);
 

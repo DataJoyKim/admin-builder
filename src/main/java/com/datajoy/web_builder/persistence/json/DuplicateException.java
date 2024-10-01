@@ -1,4 +1,4 @@
-package com.datajoy.persistence;
+package com.datajoy.web_builder.persistence.json;
 
 public class DuplicateException extends RuntimeException {
     public DuplicateException(){

@@ -1,10 +1,10 @@
-package com.datajoy.persistence;
+package com.datajoy.web_builder.persistence.json;
 
 import com.datajoy.web_builder.apibuilder.ApiBuilder;
+import com.datajoy.web_builder.persistence.json.JsonFilePersistence;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashMap;
 import java.util.List;
@@ -12,7 +12,6 @@ import java.util.Map;
 
 class JsonFilePersistenceTest {
     private final String filePath = "C:\\web-builder\\data\\api_builder.json";
-
     JsonFilePersistence jsonFilePersistence = new JsonFilePersistence();
 
     @Test
@@ -41,29 +40,34 @@ class JsonFilePersistenceTest {
     public void insertTest() {
         ApiBuilder params = ApiBuilder.builder()
                 .applicationName("netmarble-ehr")
-                .id(4L)
+                .id(5L)
                 .path("/api/goals")
                 .useAuth(true)
                 .commandBeanName("com.datajoy")
                 .method("GET")
                 .build();
 
-        jsonFilePersistence.insert(filePath, params, List.of("id"));
+        PrimaryKey primaryKey = PrimaryKey.builder()
+                .key("id")
+                .autoIncrement(true)
+                .build();
+
+        jsonFilePersistence.insert(filePath, params, primaryKey);
     }
 
     @Test
     public void updateTest() {
         ApiBuilder params = ApiBuilder.builder()
                 .applicationName("netmarble-ehr")
-                .id(3L)
+                .id(5L)
                 .path("/api/goals")
                 .useAuth(false)
                 .commandBeanName("com.datajoy.update")
                 .method("POST")
                 .build();
 
-        List<String> keys = List.of("id");
+        PrimaryKey primaryKey = PrimaryKey.builder().key("id").build();
 
-        jsonFilePersistence.update(filePath, params, keys);
+        jsonFilePersistence.update(filePath, params, primaryKey);
     }
 }

@@ -1,4 +1,4 @@
-package com.datajoy.persistence;
+package com.datajoy.web_builder.persistence.json;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -39,7 +39,7 @@ public class JsonFilePersistence {
         return objectMapper.convertValue(results, typeReference);
     }
 
-    public <T> void insert(String path, T params, List<String> keys) {
+    public <T> void insert(String path, T params, PrimaryKey primaryKey) {
         JSONArray savedJsonArray = getJsonData(path);
 
         ObjectMapper objectMapper = new ObjectMapper();
@@ -47,38 +47,28 @@ public class JsonFilePersistence {
 
         JSONObject paramsJsonObject = toJsonObject(params, objectMapper, parser);
 
-        String paramsKeyValue = createKeyValue(keys, paramsJsonObject);
+        validateInsert(primaryKey.getKey(), savedJsonArray, paramsJsonObject);
+
+        savedJsonArray.add(paramsJsonObject);
+
+        persist(path, savedJsonArray);
+    }
+
+    private void validateInsert(String primaryKey, JSONArray savedJsonArray, JSONObject paramsJsonObject) {
+        String paramsKeyValue = createKeyValue(primaryKey, paramsJsonObject);
 
         for (Object o : savedJsonArray) {
             JSONObject savedJsonObject = (JSONObject) o;
 
-            String savedKeyValue = createKeyValue(keys, savedJsonObject);
+            String savedKeyValue = createKeyValue(primaryKey, savedJsonObject);
 
             if (savedKeyValue.equals(paramsKeyValue)) {
                 throw new DuplicateException();
             }
         }
-
-        savedJsonArray.add(paramsJsonObject);
-
-        write(path, savedJsonArray);
     }
 
-    private void write(String path, JSONArray jsonArray) {
-        try {
-
-            FileWriter fileWriter = new FileWriter(path);
-
-            fileWriter.append(jsonArray.toJSONString());
-
-            fileWriter.close();
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public <T> void update(String path, T params, List<String> keys) {
+    public <T> void update(String path, T params, PrimaryKey primaryKey) {
         JSONArray savedJsonArray = getJsonData(path);
 
         ObjectMapper objectMapper = new ObjectMapper();
@@ -86,19 +76,19 @@ public class JsonFilePersistence {
 
         JSONObject paramsJsonObject = toJsonObject(params, objectMapper, parser);
 
-        String paramsKeyValue = createKeyValue(keys, paramsJsonObject);
+        String paramsKeyValue = createKeyValue(primaryKey.getKey(), paramsJsonObject);
 
         for(int i=0; i<savedJsonArray.size(); i++) {
             JSONObject savedJsonObject = (JSONObject) savedJsonArray.get(i);
 
-            String savedKeyValue = createKeyValue(keys, savedJsonObject);
+            String savedKeyValue = createKeyValue(primaryKey.getKey(), savedJsonObject);
 
             if(savedKeyValue.equals(paramsKeyValue)) {
                 savedJsonArray.set(i, paramsJsonObject);
             }
         }
 
-        write(path, savedJsonArray);
+        persist(path, savedJsonArray);
     }
 
     private List<Map<String, Object>> select(String path, Map<String, Object> params, ObjectMapper objectMapper) {
@@ -149,6 +139,20 @@ public class JsonFilePersistence {
         return jsonArray;
     }
 
+    private void persist(String path, JSONArray jsonArray) {
+        try {
+
+            FileWriter fileWriter = new FileWriter(path);
+
+            fileWriter.append(jsonArray.toJSONString());
+
+            fileWriter.close();
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private <T> JSONObject toJsonObject(T params, ObjectMapper objectMapper, JSONParser parser) {
         try {
             return (JSONObject) parser.parse(objectMapper.writeValueAsString(params));
@@ -158,14 +162,12 @@ public class JsonFilePersistence {
         }
     }
 
-    private String createKeyValue(List<String> keys, JSONObject jsonObject) {
-        StringBuilder keyValue = new StringBuilder();
-        int idx = 0;
-        for(String key : keys) {
-            keyValue.append((idx > 0) ? "-" : "").append(jsonObject.get(key));
-            idx++;
+    private String createKeyValue(String primaryKey, JSONObject jsonObject) {
+        Object value = jsonObject.get(primaryKey);
+        if(value == null) {
+            return null;
         }
 
-        return keyValue.toString();
+        return String.valueOf(value);
     }
 }
