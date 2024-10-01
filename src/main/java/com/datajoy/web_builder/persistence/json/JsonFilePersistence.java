@@ -14,17 +14,17 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Component
 @Slf4j
 public class JsonFilePersistence {
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public <T> T selectOne(String path, Map<String ,Object> params, TypeReference<T> typeReference) {
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        List<Map<String, Object>> results = select(path, params, objectMapper);
+        List<Map<String, Object>> results = select(path, params);
 
         Map<String, Object> result = results.get(0);
 
@@ -32,29 +32,56 @@ public class JsonFilePersistence {
     }
 
     public <T> List<T> selectList(String path, Map<String ,Object> params, TypeReference<List<T>> typeReference) {
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        List<Map<String, Object>> results = select(path, params, objectMapper);
+        List<Map<String, Object>> results = select(path, params);
 
         return objectMapper.convertValue(results, typeReference);
     }
 
     public <T> void insert(String path, T params, PrimaryKey primaryKey) {
         JSONArray savedJsonArray = getJsonData(path);
-
-        ObjectMapper objectMapper = new ObjectMapper();
         JSONParser parser = new JSONParser();
 
-        JSONObject paramsJsonObject = toJsonObject(params, objectMapper, parser);
+        JSONObject paramsJsonObject = toJsonObject(params, parser);
 
-        validateInsert(primaryKey.getKey(), savedJsonArray, paramsJsonObject);
+        if(primaryKey.getAutoIncrement()){
+            Long generatedValue = autoIncrement(path, primaryKey.getKey());
+            paramsJsonObject.put(primaryKey.getKey(), generatedValue);
+        }
+
+        validateDuplicate(primaryKey.getKey(), savedJsonArray, paramsJsonObject);
 
         savedJsonArray.add(paramsJsonObject);
 
         persist(path, savedJsonArray);
     }
 
-    private void validateInsert(String primaryKey, JSONArray savedJsonArray, JSONObject paramsJsonObject) {
+    private Long autoIncrement(String path, String primaryKey) {
+
+        List<Map<String, Object>> results = select(path, new HashMap<>());
+
+        List<Long> primaryKeys = new ArrayList<>();
+        for(Map<String, Object> r : results) {
+            Object valueObj = r.get(primaryKey);
+            if(valueObj == null) {
+                continue;
+            }
+
+            Long primaryKeyValue = Long.valueOf(valueObj.toString());
+
+            primaryKeys.add(primaryKeyValue);
+        }
+
+        if(primaryKeys.isEmpty()) {
+            return 1L;
+        }
+        else {
+            Long maxKey = primaryKeys.stream().max(Long::compare).get();
+
+            return maxKey+1L;
+        }
+    }
+
+    private void validateDuplicate(String primaryKey, JSONArray savedJsonArray, JSONObject paramsJsonObject) {
         String paramsKeyValue = createKeyValue(primaryKey, paramsJsonObject);
 
         for (Object o : savedJsonArray) {
@@ -71,10 +98,9 @@ public class JsonFilePersistence {
     public <T> void update(String path, T params, PrimaryKey primaryKey) {
         JSONArray savedJsonArray = getJsonData(path);
 
-        ObjectMapper objectMapper = new ObjectMapper();
         JSONParser parser = new JSONParser();
 
-        JSONObject paramsJsonObject = toJsonObject(params, objectMapper, parser);
+        JSONObject paramsJsonObject = toJsonObject(params, parser);
 
         String paramsKeyValue = createKeyValue(primaryKey.getKey(), paramsJsonObject);
 
@@ -91,31 +117,44 @@ public class JsonFilePersistence {
         persist(path, savedJsonArray);
     }
 
-    private List<Map<String, Object>> select(String path, Map<String, Object> params, ObjectMapper objectMapper) {
+    private List<Map<String, Object>> select(String path, Map<String, Object> params) {
+        List<Map<String, Object>> results = new ArrayList<>();
+
         JSONArray jsonArray = getJsonData(path);
 
-        List<Map<String, Object>> results = new ArrayList<>();
-        for (Object o : jsonArray) {
-            JSONObject jsonObject = (JSONObject) o;
-
-            boolean hasData = false;
-            for (Object keyObj : jsonObject.keySet()) {
-                String key = (String) keyObj;
-
-                String valueStr = (String) params.get(key);
-
-                String jsonValueStr = String.valueOf(jsonObject.get(key));
-
-                if((valueStr == null && jsonValueStr == null) || (valueStr != null && valueStr.equals(jsonValueStr))) {
-                    hasData = true;
-                }
-            }
-
-            if (hasData) {
+        if(params.isEmpty()) {
+            for (Object o : jsonArray) {
+                JSONObject jsonObject = (JSONObject) o;
                 try {
                     results.add(objectMapper.readValue(jsonObject.toString(), new TypeReference<>() {}));
                 } catch (JsonProcessingException e) {
                     throw new RuntimeException(e);
+                }
+            }
+        }
+        else {
+            for (Object o : jsonArray) {
+                JSONObject jsonObject = (JSONObject) o;
+
+                boolean hasData = false;
+                for (Object keyObj : jsonObject.keySet()) {
+                    String key = (String) keyObj;
+
+                    String valueStr = (String) params.get(key);
+
+                    String jsonValueStr = String.valueOf(jsonObject.get(key));
+
+                    if ((valueStr == null && jsonValueStr == null) || (valueStr != null && valueStr.equals(jsonValueStr))) {
+                        hasData = true;
+                    }
+                }
+
+                if (hasData) {
+                    try {
+                        results.add(objectMapper.readValue(jsonObject.toString(), new TypeReference<>() {}));
+                    } catch (JsonProcessingException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
         }
@@ -153,7 +192,7 @@ public class JsonFilePersistence {
         }
     }
 
-    private <T> JSONObject toJsonObject(T params, ObjectMapper objectMapper, JSONParser parser) {
+    private <T> JSONObject toJsonObject(T params, JSONParser parser) {
         try {
             return (JSONObject) parser.parse(objectMapper.writeValueAsString(params));
         }
