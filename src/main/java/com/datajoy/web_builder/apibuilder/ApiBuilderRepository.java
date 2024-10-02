@@ -14,8 +14,7 @@ import java.util.Map;
 @Repository
 @RequiredArgsConstructor
 public class ApiBuilderRepository {
-    private static final String DATA_DIRECTORY_PATH = "";
-
+    private static final String FILENAME = "api_builder";
     private final JsonFilePersistence jsonFilePersistence;
     public ApiBuilder findBy(String applicationName, String path, HttpMethod method) {
         Map<String ,Object> params = new HashMap<>();
@@ -23,10 +22,10 @@ public class ApiBuilderRepository {
         params.put("path", path);
         params.put("method", method.name());
 
-        return jsonFilePersistence.selectOne(DATA_DIRECTORY_PATH, params, new TypeReference<>() {});
+        return jsonFilePersistence.selectOne(FILENAME, params, new TypeReference<>() {});
     }
     public List<ApiBuilder> findAll() {
-        return jsonFilePersistence.selectList(DATA_DIRECTORY_PATH, new HashMap<>(), new TypeReference<>() {});
+        return jsonFilePersistence.selectList(FILENAME, new HashMap<>(), new TypeReference<>() {});
     }
 
     public void save(ApiBuilder params) {
@@ -36,10 +35,10 @@ public class ApiBuilderRepository {
                 .build();
 
         if(params.getId() == null) {
-            jsonFilePersistence.insert(DATA_DIRECTORY_PATH, params, primaryKey);
+            jsonFilePersistence.insert(FILENAME, params, primaryKey);
         }
         else {
-            jsonFilePersistence.update(DATA_DIRECTORY_PATH, params, primaryKey);
+            jsonFilePersistence.update(FILENAME, params, primaryKey);
         }
     }
 }

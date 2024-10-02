@@ -3,6 +3,7 @@ package com.datajoy.web_builder.persistence.json;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -10,6 +11,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -18,33 +20,39 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Component
 @Slf4j
+@Component
+@RequiredArgsConstructor
 public class JsonFilePersistence {
     private static final ObjectMapper objectMapper = new ObjectMapper();
+    private final String repositoryPath;
 
-    public <T> T selectOne(String path, Map<String ,Object> params, TypeReference<T> typeReference) {
-        List<Map<String, Object>> results = select(path, params);
+    private String getFilePath(String filename) {
+        return repositoryPath + File.separator + filename + ".json";
+    }
+
+    public <T> T selectOne(String filename, Map<String ,Object> params, TypeReference<T> typeReference) {
+        List<Map<String, Object>> results = select(getFilePath(filename), params);
 
         Map<String, Object> result = results.get(0);
 
         return objectMapper.convertValue(result, typeReference);
     }
 
-    public <T> List<T> selectList(String path, Map<String ,Object> params, TypeReference<List<T>> typeReference) {
-        List<Map<String, Object>> results = select(path, params);
+    public <T> List<T> selectList(String filename, Map<String ,Object> params, TypeReference<List<T>> typeReference) {
+        List<Map<String, Object>> results = select(getFilePath(filename), params);
 
         return objectMapper.convertValue(results, typeReference);
     }
 
-    public <T> void insert(String path, T params, PrimaryKey primaryKey) {
-        JSONArray savedJsonArray = getJsonData(path);
+    public <T> void insert(String filename, T params, PrimaryKey primaryKey) {
+        JSONArray savedJsonArray = getJsonData(getFilePath(filename));
         JSONParser parser = new JSONParser();
 
         JSONObject paramsJsonObject = toJsonObject(params, parser);
 
         if(primaryKey.getAutoIncrement()){
-            Long generatedValue = autoIncrement(path, primaryKey.getKey());
+            Long generatedValue = autoIncrement(getFilePath(filename), primaryKey.getKey());
             paramsJsonObject.put(primaryKey.getKey(), generatedValue);
         }
 
@@ -52,7 +60,7 @@ public class JsonFilePersistence {
 
         savedJsonArray.add(paramsJsonObject);
 
-        persist(path, savedJsonArray);
+        persist(getFilePath(filename), savedJsonArray);
     }
 
     private Long autoIncrement(String path, String primaryKey) {
@@ -95,8 +103,8 @@ public class JsonFilePersistence {
         }
     }
 
-    public <T> void update(String path, T params, PrimaryKey primaryKey) {
-        JSONArray savedJsonArray = getJsonData(path);
+    public <T> void update(String filename, T params, PrimaryKey primaryKey) {
+        JSONArray savedJsonArray = getJsonData(getFilePath(filename));
 
         JSONParser parser = new JSONParser();
 
@@ -114,7 +122,7 @@ public class JsonFilePersistence {
             }
         }
 
-        persist(path, savedJsonArray);
+        persist(getFilePath(filename), savedJsonArray);
     }
 
     private List<Map<String, Object>> select(String path, Map<String, Object> params) {

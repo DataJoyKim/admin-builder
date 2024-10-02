@@ -1,7 +1,6 @@
 package com.datajoy.web_builder.persistence.json;
 
 import com.datajoy.web_builder.apibuilder.ApiBuilder;
-import com.datajoy.web_builder.persistence.json.JsonFilePersistence;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -11,8 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 class JsonFilePersistenceTest {
-    private final String filePath = "C:\\web-builder\\data\\api_builder.json";
-    JsonFilePersistence jsonFilePersistence = new JsonFilePersistence();
+    JsonFilePersistence jsonFilePersistence = new JsonFilePersistence("C:\\web-builder\\data");
 
     @Test
     public void selectOneTest() {
@@ -21,7 +19,7 @@ class JsonFilePersistenceTest {
         params.put("path", "/api/goals");
         params.put("method", "POST");
 
-        ApiBuilder apiBuilder = jsonFilePersistence.selectOne(filePath, params, new TypeReference<>(){});
+        ApiBuilder apiBuilder = jsonFilePersistence.selectOne("api_builder", params, new TypeReference<>(){});
 
         Assertions.assertNotNull(apiBuilder);
     }
@@ -31,7 +29,7 @@ class JsonFilePersistenceTest {
         Map<String ,Object> params = new HashMap<>();
         params.put("applicationName", "netmarble-ehr");
 
-        List<ApiBuilder> apiBuilders = jsonFilePersistence.selectList(filePath, params, new TypeReference<>(){});
+        List<ApiBuilder> apiBuilders = jsonFilePersistence.selectList("api_builder", params, new TypeReference<>(){});
 
         Assertions.assertNotNull(apiBuilders);
     }
@@ -52,7 +50,7 @@ class JsonFilePersistenceTest {
                 .autoIncrement(true)
                 .build();
 
-        jsonFilePersistence.insert(filePath, params, primaryKey);
+        jsonFilePersistence.insert("api_builder", params, primaryKey);
     }
 
     @Test
@@ -68,6 +66,6 @@ class JsonFilePersistenceTest {
 
         PrimaryKey primaryKey = PrimaryKey.builder().key("id").build();
 
-        jsonFilePersistence.update(filePath, params, primaryKey);
+        jsonFilePersistence.update("api_builder", params, primaryKey);
     }
 }
