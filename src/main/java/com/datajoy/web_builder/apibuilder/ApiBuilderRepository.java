@@ -16,6 +16,20 @@ import java.util.Map;
 public class ApiBuilderRepository {
     private static final String FILENAME = "api_builder";
     private final JsonFilePersistence jsonFilePersistence;
+
+    public ApiBuilder findBy(String applicationName, Long id) {
+        Map<String ,Object> params = new HashMap<>();
+        params.put("id", id);
+        params.put("applicationName", applicationName);
+        return jsonFilePersistence.selectOne(FILENAME, params, new TypeReference<>() {});
+    }
+
+    public List<ApiBuilder> findBy(String applicationName) {
+        Map<String ,Object> params = new HashMap<>();
+        params.put("applicationName", applicationName);
+        return jsonFilePersistence.selectList(FILENAME, params, new TypeReference<>() {});
+    }
+
     public ApiBuilder findBy(String applicationName, String path, HttpMethod method) {
         Map<String ,Object> params = new HashMap<>();
         params.put("applicationName", applicationName);
