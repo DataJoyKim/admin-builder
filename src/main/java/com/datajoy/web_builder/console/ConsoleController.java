@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/console/{applicationName}/**")
+@RequestMapping("/console/{applicationName}")
 public class ConsoleController {
     @Autowired
     private ApiBuilderRepository apiBuilderRepository;
