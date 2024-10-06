@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>title</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <link rel="stylesheet" href="../../plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="../../plugins/jsgrid/jsgrid.min.css">
+    <link rel="stylesheet" href="../../plugins/jsgrid/jsgrid-theme.min.css">
+    <link rel="stylesheet" href="../../dist/css/adminlte.min.css">
+</head>
+<body>
+    <div class="content-wrapper">
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">DataSource1</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="jsGrid1"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">DataSource-content</h3>
+                    </div>
+                    <div class="card-body">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../../plugins/jquery/jquery.min.js"></script>
+    <script src="../../plugins/jquery-ui/jquery-ui.min.js"></script>
+    <script>$.widget.bridge('uibutton', $.ui.button)</script>
+    <script src="../../plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../../plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
+    <script src="../../plugins/jsgrid/jsgrid.min.js"></script>
+    <script src="../../dist/js/adminlte.js"></script>
+    <script>
+      $(function () {
+        $("#jsGrid1").jsGrid({
+            height: "200px",
+            width: "100%",
+            sorting: true,
+            paging: true,
+            data: [],
+            fields: [
+                { name: "Name", type: "text", width: 150 },
+                { name: "Age", type: "number", width: 50 },
+                { name: "Address", type: "text", width: 200 },
+                { name: "Country", type: "select", items: db.countries, valueField: "Id", textField: "Name" },
+                { name: "Married", type: "checkbox", title: "Is Married" }
+            ]
+        });
+      });
+    </script>
+</body>
+</html>

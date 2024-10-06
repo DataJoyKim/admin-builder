@@ -2,12 +2,19 @@ package com.datajoy.web_builder.console;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
+@RequestMapping("/console")
 public class ConsoleViewController {
 
-    @GetMapping("/console")
+    @GetMapping("")
     public String moveIndex() {
         return "index";
+    }
+
+    @GetMapping("/dataSource")
+    public String moveDataSource() {
+        return "database/datasource";
     }
 }
