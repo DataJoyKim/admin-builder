@@ -176,6 +176,7 @@ public class JsonFilePersistence {
         JSONArray jsonArray;
         try {
             FileReader reader = new FileReader(path);
+
             jsonArray = (JSONArray) parser.parse(reader);
 
             reader.close();

@@ -11,12 +11,19 @@
     <link rel="stylesheet" href="../../dist/css/adminlte.min.css">
 </head>
 <body>
+    <div id="loading-bar" class="overlay d-flex justify-content-center align-items-center" style="display: none;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+
     <div class="content-wrapper">
         <div class="row">
             <div class="col-lg-6">
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">DataSource1</h3>
+                        <h3 class="card-title">DataSource</h3>
+                        <button type="button" class="btn btn-block btn-default" onclick="getDataSource()">조회</button>
                     </div>
                     <div class="card-body">
                         <div id="jsGrid1"></div>
@@ -28,8 +35,7 @@
                     <div class="card-header">
                         <h3 class="card-title">DataSource-content</h3>
                     </div>
-                    <div class="card-body">
-                    </div>
+                    <div class="card-body"></div>
                 </div>
             </div>
         </div>
@@ -50,14 +56,30 @@
             paging: true,
             data: [],
             fields: [
-                { name: "Name", type: "text", width: 150 },
-                { name: "Age", type: "number", width: 50 },
-                { name: "Address", type: "text", width: 200 },
-                { name: "Country", type: "select", items: db.countries, valueField: "Id", textField: "Name" },
-                { name: "Married", type: "checkbox", title: "Is Married" }
+                {name: "id", type: "number", width: 50 },
+                {name: "dataSourceName", type: "text", width: 150 },
+                {name: "displayName", type: "text", width: 200 },
+                {name: "note", type: "text", width: 300 }
             ]
         });
       });
+
+      function getDataSource() {
+        $.ajax({
+          type: "GET",
+          url: "/console/api/dataSource",
+          data: {},
+          beforeSend: function() {
+            $("#loading-bar").fadeIn();
+          },
+          success: function(response) {
+            $("#jsGrid1").jsGrid("option", "data", response);
+          },
+          complete: function() {
+            $("#loading-bar").fadeOut();
+          }
+        })
+      }
     </script>
 </body>
 </html>
