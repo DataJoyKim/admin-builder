@@ -148,7 +148,11 @@ public class JsonFilePersistence {
                 for (Object keyObj : jsonObject.keySet()) {
                     String key = (String) keyObj;
 
-                    String valueStr = (String) params.get(key);
+                    if(!params.containsKey(key)){
+                        continue;
+                    }
+
+                    String valueStr = String.valueOf(params.get(key));
 
                     String jsonValueStr = String.valueOf(jsonObject.get(key));
 

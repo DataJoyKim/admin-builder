@@ -15,24 +15,29 @@ public class DataSourceRepository {
     private static final String FILENAME = "data_source";
     private final JsonFilePersistence jsonFilePersistence;
 
-    public List<Map<String, Object>> findBy() {
-        Map<String ,Object> params = new HashMap<>();
-        return jsonFilePersistence.selectList(FILENAME, params, new TypeReference<>() {});
-    }
-
-    public void save(Map<String, Object> params) {
+    public void insert(Map<String, Object> params) {
         PrimaryKey primaryKey = PrimaryKey.builder()
                 .key("id")
                 .autoIncrement(true)
                 .build();
 
-        Long id = (Long) params.get("id");
+        jsonFilePersistence.insert(FILENAME, params, primaryKey);
+    }
 
-        if(id == null) {
-            jsonFilePersistence.insert(FILENAME, params, primaryKey);
+    public void update(Map<String, Object> params) {
+        PrimaryKey primaryKey = PrimaryKey.builder()
+                .key("id")
+                .build();
+
+        jsonFilePersistence.update(FILENAME, params, primaryKey);
+    }
+
+    public List<Map<String, Object>> findBy(Long id) {
+        Map<String ,Object> params = new HashMap<>();
+        
+        if(id != null) {
+            params.put("id",id);
         }
-        else {
-            jsonFilePersistence.update(FILENAME, params, primaryKey);
-        }
+        return jsonFilePersistence.selectList(FILENAME, params, new TypeReference<>() {});
     }
 }

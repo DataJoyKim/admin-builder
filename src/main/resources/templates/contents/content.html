@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>title</title>
+    <link rel="stylesheet" href="/plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="/plugins/jsgrid/jsgrid.min.css">
+    <link rel="stylesheet" href="/plugins/jsgrid/jsgrid-theme.min.css">
+    <link rel="stylesheet" href="/dist/css/adminlte.min.css">
+</head>
+<body>
+<div class="content-wrapper">
+    <div th:replace="~{${contentPath}::view}"></div>
+</div>
+<script src="/plugins/jquery/jquery.min.js"></script>
+<script src="/plugins/jquery-ui/jquery-ui.min.js"></script>
+<script>$.widget.bridge('uibutton', $.ui.button)</script>
+<script src="/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
+<script src="/plugins/jsgrid/jsgrid.min.js"></script>
+<script src="/dist/js/adminlte.js"></script>
+<script src="/core/loading-bar.js"></script>
+<script src="/core/httpclient.js"></script>
+<script src="/core/sheet.js"></script>
+<script>
+    const sheet = new Sheet();
+    const httpClient = new HttpClient();
+    _initLoadingBar();
+</script>
+<script th:replace="~{/contents/components}"></script>
+<script th:replace="~{${contentPath}::script}"></script>
+</body>
+</html>

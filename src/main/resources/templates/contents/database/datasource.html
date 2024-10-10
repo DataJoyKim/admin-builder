@@ -1,0 +1,157 @@
+<html xmlns:th="http://www.thymeleaf.org">
+    <script th:fragment="script">
+            function getDataSource() {
+                httpClient.get({
+                    url:"/console/api/dataSource",
+                    success:function(response){
+                        sheet.setSheetData('jsGrid1', response);
+                    },
+                    error:function(error){
+                        alert('error');
+                    }
+                });
+            }
+
+          function selectedContent(item) {
+            httpClient.get({
+                url:"/console/api/dataSource/"+item.id,
+                success:function(response){
+                    $("#id").val(response[0].id);
+                    $("#dataSourceName").val(response[0].dataSourceName);
+                    $("#displayName").val(response[0].displayName);
+                    $("#note").val(response[0].note);
+                },
+                error:function(error){
+                    alert('error');
+                }
+            });
+          }
+
+          function newContent(){
+            $("#id").val('');
+            $("#displayName").val('');
+            $("#dataSourceName").val('');
+            $("#note").val('');
+          }
+
+          function save() {
+            let id = $("#id").val();
+            if(id != null && id != '') {
+                updateContent(id)
+            }
+            else {
+                insertContent();
+            }
+          }
+
+          function insertContent() {
+            httpClient.post({
+                url:"/console/api/dataSource",
+                data:{
+                    "displayName":$("#displayName").val(),
+                    "dataSourceName":$("#dataSourceName").val(),
+                    "note":$("#note").val()
+                },
+                success:function(response){
+                    alert("저장완료되었습니다.");
+                    getDataSource();
+                },
+                error:function(error){
+                    alert('error');
+                }
+            });
+          }
+
+          function updateContent(id) {
+            httpClient.put({
+                url:"/console/api/dataSource/"+id,
+                data:{
+                    "displayName":$("#displayName").val(),
+                    "dataSourceName":$("#dataSourceName").val(),
+                    "note":$("#note").val()
+                },
+                success:function(response){
+                    alert("저장완료되었습니다.");
+                    getDataSource();
+                },
+                error:function(error){
+                    alert('error');
+                }
+            });
+          }
+        $(function () {
+            sheet.initSheet('jsGrid1', "100%","500px",
+            [
+                {name: "id", title:"ID", type: "number", width: 50 },
+                {name: "dataSourceName", title:"dataSource 명", type: "text", width: 150 },
+                {name: "displayName", title:"화면노출명", type: "text", width: 200 },
+                {name: "note", title:"비고", type: "text", width: 300 }
+            ],
+            function(args) {
+                selectedContent(args.item);
+            });
+        });
+    </script>
+    <div th:fragment="view">
+        1.6
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">DataSource</h3>
+                        <wb-action-button elementId="search" actionName="getDataSource()" icon="fas fa-search"></wb-action-button>
+                    </div>
+                    <div class="card-body">
+                        <div id="jsGrid1"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">상세 내용</h3>
+                        <wb-action-button elementId="new" actionName="newContent()" icon="fas fa-plus"></wb-action-button>
+                        <wb-action-button elementId="save" actionName="save()" icon="fas fa-save"></wb-action-button>
+                        <wb-action-button elementId="delete" actionName="getDataSource()" icon="fas fa-trash"></wb-action-button>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-1">
+                                <wb-text-input elementId="id" label="ID" enable="false"></wb-text-input>
+                            </div>
+                            <div class="col-md-3">
+                                <wb-text-input elementId="dataSourceName" label="DataSource 명" enable="true"></wb-text-input>
+                            </div>
+                            <div class="col-md-3">
+                                <wb-text-input elementId="displayName" label="화면 노출명" enable="true" ></wb-text-input>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-5">
+                                <wb-text-input elementId="url" label="url" enable="true"></wb-text-input>
+                            </div>
+                            <div class="col-md-1">
+                                <wb-text-input elementId="port" label="port" enable="true"></wb-text-input>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <wb-text-input elementId="note" label="note" enable="true"></wb-text-input>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2">
+                                <wb-text-input elementId="username" label="username" enable="true"></wb-text-input>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2">
+                                <wb-text-input elementId="password" label="password" enable="true"></wb-text-input>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</html>
