@@ -1,84 +1,5 @@
 <html xmlns:th="http://www.thymeleaf.org">
-    <script th:fragment="script">
-            function getDataSource() {
-                httpClient.get({
-                    url:"/console/api/dataSource",
-                    success:function(response){
-                        sheet.setSheetData('jsGrid1', response);
-                    },
-                    error:function(error){
-                        alert('error');
-                    }
-                });
-            }
-
-          function selectedContent(item) {
-            httpClient.get({
-                url:"/console/api/dataSource/"+item.id,
-                success:function(response){
-                    $("#id").val(response[0].id);
-                    $("#dataSourceName").val(response[0].dataSourceName);
-                    $("#displayName").val(response[0].displayName);
-                    $("#note").val(response[0].note);
-                },
-                error:function(error){
-                    alert('error');
-                }
-            });
-          }
-
-          function newContent(){
-            $("#id").val('');
-            $("#displayName").val('');
-            $("#dataSourceName").val('');
-            $("#note").val('');
-          }
-
-          function save() {
-            let id = $("#id").val();
-            if(id != null && id != '') {
-                updateContent(id)
-            }
-            else {
-                insertContent();
-            }
-          }
-
-          function insertContent() {
-            httpClient.post({
-                url:"/console/api/dataSource",
-                data:{
-                    "displayName":$("#displayName").val(),
-                    "dataSourceName":$("#dataSourceName").val(),
-                    "note":$("#note").val()
-                },
-                success:function(response){
-                    alert("저장완료되었습니다.");
-                    getDataSource();
-                },
-                error:function(error){
-                    alert('error');
-                }
-            });
-          }
-
-          function updateContent(id) {
-            httpClient.put({
-                url:"/console/api/dataSource/"+id,
-                data:{
-                    "displayName":$("#displayName").val(),
-                    "dataSourceName":$("#dataSourceName").val(),
-                    "note":$("#note").val()
-                },
-                success:function(response){
-                    alert("저장완료되었습니다.");
-                    getDataSource();
-                },
-                error:function(error){
-                    alert('error');
-                }
-            });
-          }
+<script th:fragment="script">
         $(function () {
             sheet.initSheet('jsGrid1', "100%","500px",
             [
@@ -91,10 +12,129 @@
                 selectedContent(args.item);
             });
         });
+
+        function getDataSource() {
+            httpClient.get("/console/api/dataSource", {},
+                function(response){
+                    sheet.setSheetData('jsGrid1', response);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function selectedContent(item) {
+            httpClient.get("/console/api/dataSource/"+item.id, {},
+                function(response){
+                    setContent({
+                        id:response.id,
+                        displayName:response.displayName,
+                        dataSourceName:response.dataSourceName,
+                        note:response.note,
+                        url:response.url,
+                        port:response.port,
+                        username:response.username,
+                        password:response.password
+                      });
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function isEmpty(v) {
+            return (v == undefined || v == null || v == '');
+        }
+
+        function save() {
+            let id = $("#id").val();
+
+            if(isEmpty(id))
+                insertContent();
+            else
+                updateContent(id);
+        }
+
+        function insertContent() {
+            httpClient.post("/console/api/dataSource",{},getContent(),
+                function(response){
+                    alert("저장완료되었습니다.");
+                    getDataSource();
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function updateContent(id) {
+          httpClient.put("/console/api/dataSource/"+id, {}, getContent(),
+              function(response){
+                  alert("저장완료되었습니다.");
+                  getDataSource();
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+        function deleteContent() {
+          let id = $("#id").val();
+
+          httpClient.delete("/console/api/dataSource/"+id, {},
+              function(response){
+                  alert("삭제 처리 완료되었습니다.");
+                  getDataSource();
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+        function getContent() {
+            return {
+                id: $("#id").val(),
+                displayName: $("#displayName").val(),
+                dataSourceName: $("#dataSourceName").val(),
+                note: $("#note").val(),
+                url: $("#url").val(),
+                port: $("#port").val(),
+                username: $("#username").val(),
+                password: $("#password").val()
+            }
+        }
+
+        function setContent(params) {
+            $("#id").val(params.id);
+            $("#displayName").val(params.displayName);
+            $("#dataSourceName").val(params.dataSourceName);
+            $("#note").val(params.note);
+            $("#url").val(params.url);
+            $("#port").val(params.port);
+            $("#username").val(params.username);
+            $("#password").val(params.password);
+          }
+
+          function newContent(){
+            setContent({
+                id:'',
+                displayName:'',
+                dataSourceName:'',
+                note:'',
+                url:'',
+                port:'',
+                username:'',
+                password:''
+              });
+          }
     </script>
-    <div th:fragment="view">
-        1.6
-        <div class="row">
+<div th:fragment="view">
+    1.13
+    <div class="row">
             <div class="col-lg-6">
                 <div class="card">
                     <div class="card-header">
@@ -112,7 +152,7 @@
                         <h3 class="card-title">상세 내용</h3>
                         <wb-action-button elementId="new" actionName="newContent()" icon="fas fa-plus"></wb-action-button>
                         <wb-action-button elementId="save" actionName="save()" icon="fas fa-save"></wb-action-button>
-                        <wb-action-button elementId="delete" actionName="getDataSource()" icon="fas fa-trash"></wb-action-button>
+                        <wb-action-button elementId="delete" actionName="deleteContent()" icon="fas fa-trash"></wb-action-button>
                     </div>
                     <div class="card-body">
                         <div class="row">
@@ -146,7 +186,7 @@
                         </div>
                         <div class="row">
                             <div class="col-md-2">
-                                <wb-text-input elementId="password" label="password" enable="true"></wb-text-input>
+                                <wb-text-input elementType="password" elementId="password" label="password" enable="true"></wb-text-input>
                             </div>
                         </div>
                     </div>

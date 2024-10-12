@@ -4,9 +4,14 @@ class WbTextInput extends HTMLElement {
         let placeholder = this.getAttribute('placeholder');
         let label = this.getAttribute('label');
         let enable = this.getAttribute('enable');
+        let elementType = this.getAttribute('elementType');
 
         if(placeholder == null) {
             placeholder = '';
+        }
+
+        if(elementType == null) {
+            elementType = "text";
         }
 
         enable = (enable == null) ? false : ((enable.toLowerCase() == "true") ? true : false);
@@ -24,7 +29,8 @@ class WbTextInput extends HTMLElement {
             html += `<label>${label}</label>`;
         }
 
-        html += `<input type="text" class="form-control rounded-0" id="${id}" placeholder="${placeholder}" ${disabledHtml}>`;
+        html += `<input type="${elementType}" class="form-control rounded-0" id="${id}" placeholder="${placeholder}" ${disabledHtml}>`;
+
         html += `</div>`;
 
         this.innerHTML = html;

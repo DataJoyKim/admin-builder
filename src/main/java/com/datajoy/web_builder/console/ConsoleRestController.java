@@ -1,5 +1,6 @@
 package com.datajoy.web_builder.console;
 
+import com.datajoy.web_builder.apibuilder.datasource.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,14 +17,26 @@ public class ConsoleRestController {
 
     @GetMapping("/dataSource")
     public ResponseEntity<?> getDataSource() {
-        List<Map<String, Object>> results = dataSourceRepository.findBy(null);
+        List<DataSource> results = dataSourceRepository.findAll();
 
         return new ResponseEntity<>(results, HttpStatus.OK);
     }
 
     @GetMapping("/dataSource/{id}")
     public ResponseEntity<?> getDataSource(@PathVariable("id") Long id) {
-        List<Map<String, Object>> results = dataSourceRepository.findBy(id);
+        DataSource results = dataSourceRepository.findById(id)
+                                        .orElseThrow(RuntimeException::new);
+
+        return new ResponseEntity<>(results, HttpStatus.OK);
+    }
+
+    @PostMapping("/dataSource")
+    public ResponseEntity<?> postDataSource(
+            @RequestBody Map<String,Object> params
+    ) {
+        DataSource dataSource = DataSource.createDataSource(params);
+
+        DataSource results = dataSourceRepository.save(dataSource);
 
         return new ResponseEntity<>(results, HttpStatus.OK);
     }
@@ -33,28 +46,24 @@ public class ConsoleRestController {
             @PathVariable("id") Long id,
             @RequestBody Map<String,Object> params
     ) {
-        List<Map<String, Object>> results = dataSourceRepository.findBy(id);
-        if(results.isEmpty()) {
-            throw new RuntimeException();
-        }
+        DataSource dataSource = dataSourceRepository.findById(id)
+                .orElseThrow(RuntimeException::new);
 
-        Map<String, Object> savedData = results.get(0);
+        dataSource.update(params);
 
-        savedData.put("dataSourceName",params.get("dataSourceName"));
-        savedData.put("displayName",params.get("displayName"));
-        savedData.put("note",params.get("note"));
+        DataSource results = dataSourceRepository.save(dataSource);
 
-        dataSourceRepository.update(savedData);
-
-        return new ResponseEntity<>(savedData, HttpStatus.OK);
+        return new ResponseEntity<>(results, HttpStatus.OK);
     }
-
-    @PostMapping("/dataSource")
-    public ResponseEntity<?> postDataSource(
-            @RequestBody Map<String,Object> params
+    @DeleteMapping("/dataSource/{id}")
+    public ResponseEntity<?> deleteDataSource(
+            @PathVariable("id") Long id
     ) {
-        dataSourceRepository.insert(params);
+        DataSource dataSource = dataSourceRepository.findById(id)
+                .orElseThrow(RuntimeException::new);
 
-        return new ResponseEntity<>(params, HttpStatus.OK);
+        dataSourceRepository.deleteById(dataSource.getId());
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

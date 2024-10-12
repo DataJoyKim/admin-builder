@@ -1,19 +1,22 @@
 class HttpClient {
-    constructor() {}
+    constructor() {
+        this.timeout = 10000;
+    }
 
-  get(_params) {
+  get(_url, _requestParams, _success, _error) {
     $.ajax({
       type: 'GET',
-      url: _params.url,
-      data: {},
+      url: _url,
+      data: _requestParams,
+      timeout: this.timeout,
       beforeSend: function() {
         _showLoadingBar(true);
       },
       success: function(response) {
-        _params.success(response);
+        _success(response);
       },
       error: function(error) {
-        _params.error(error);
+        _error(error);
       },
       complete: function() {
         _showLoadingBar(false);
@@ -21,43 +24,65 @@ class HttpClient {
     });
   }
 
-  put(_params) {
-    $.ajax({
-      type: 'PUT',
-      url: _params.url,
-      dataType: 'json',
-      contentType: 'application/json; charset=utf8',
-      data: JSON.stringify(_params.data),
-      beforeSend: function() {
-        _showLoadingBar(true);
-      },
-      success: function(response) {
-        _params.success(response);
-      },
-      error: function(error) {
-        _params.error(error);
-      },
-      complete: function() {
-        _showLoadingBar(false);
-      }
-    });
-  }
-
-  post(_params) {
+  post(_url, _requestParams, _requestBody, _success, _error) {
     $.ajax({
       type: 'POST',
-      url: _params.url,
+      url: _url,
       dataType: 'json',
       contentType: 'application/json; charset=utf8',
-      data: JSON.stringify(_params.data),
+      data: JSON.stringify(_requestBody),
+      timeout: this.timeout,
       beforeSend: function() {
         _showLoadingBar(true);
       },
       success: function(response) {
-        _params.success(response);
+        _success(response);
       },
       error: function(error) {
-        _params.error(error);
+        _error(error);
+      },
+      complete: function() {
+        _showLoadingBar(false);
+      }
+    });
+  }
+
+  put(_url, _requestParams, _requestBody, _success, _error) {
+    $.ajax({
+      type: 'PUT',
+      url: _url,
+      dataType: 'json',
+      contentType: 'application/json; charset=utf8',
+      data: JSON.stringify(_requestBody),
+      timeout: this.timeout,
+      beforeSend: function() {
+        _showLoadingBar(true);
+      },
+      success: function(response) {
+        _success(response);
+      },
+      error: function(error) {
+        _error(error);
+      },
+      complete: function() {
+        _showLoadingBar(false);
+      }
+    });
+  }
+
+  delete(_url, _requestParams, _success, _error) {
+    $.ajax({
+      type: 'DELETE',
+      url: _url,
+      timeout: this.timeout,
+      beforeSend: function() {
+        _showLoadingBar(true);
+      },
+      success: function(response) {
+        _success(response);
+      },
+      error: function(error) {
+        _error(error);
       },
       complete: function() {
         _showLoadingBar(false);
