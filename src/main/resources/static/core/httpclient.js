@@ -4,6 +4,11 @@ class HttpClient {
     }
 
   get(_url, _requestParams, _success, _error) {
+    console.log('httpClient.get.request',{
+        url:_url,
+        requestParams:_requestParams
+    });
+
     $.ajax({
       type: 'GET',
       url: _url,
@@ -13,6 +18,8 @@ class HttpClient {
         _showLoadingBar(true);
       },
       success: function(response) {
+        console.log('httpClient.get.response',response);
+
         _success(response);
       },
       error: function(error) {
@@ -25,6 +32,12 @@ class HttpClient {
   }
 
   post(_url, _requestParams, _requestBody, _success, _error) {
+    console.log('httpClient.post.request',{
+        url:_url,
+        requestParams:_requestParams,
+        requestBody:_requestBody
+    });
+
     $.ajax({
       type: 'POST',
       url: _url,
@@ -36,6 +49,8 @@ class HttpClient {
         _showLoadingBar(true);
       },
       success: function(response) {
+        console.log('httpClient.post.response',response);
+
         _success(response);
       },
       error: function(error) {
@@ -48,6 +63,12 @@ class HttpClient {
   }
 
   put(_url, _requestParams, _requestBody, _success, _error) {
+    console.log('httpClient.put.request',{
+        url:_url,
+        requestParams:_requestParams,
+        requestBody:_requestBody
+    });
+
     $.ajax({
       type: 'PUT',
       url: _url,
@@ -59,6 +80,8 @@ class HttpClient {
         _showLoadingBar(true);
       },
       success: function(response) {
+        console.log('httpClient.put.response',response);
+
         _success(response);
       },
       error: function(error) {
@@ -71,6 +94,11 @@ class HttpClient {
   }
 
   delete(_url, _requestParams, _success, _error) {
+    console.log('httpClient.delete.request',{
+        url:_url,
+        requestParams:_requestParams
+    });
+
     $.ajax({
       type: 'DELETE',
       url: _url,
@@ -79,6 +107,8 @@ class HttpClient {
         _showLoadingBar(true);
       },
       success: function(response) {
+        console.log('httpClient.put.response',response);
+
         _success(response);
       },
       error: function(error) {

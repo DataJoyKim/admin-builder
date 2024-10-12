@@ -1,6 +1,12 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <script th:fragment="script">
-        $(function () {
+        $( document ).ready(function() {
+            init();
+        });
+
+        function init() {
+            setCodes();
+
             sheet.initSheet('jsGrid1', "100%","500px",
             [
                 {name: "id", title:"ID", type: "number", width: 50 },
@@ -11,7 +17,19 @@
             function(args) {
                 selectedContent(args.item);
             });
-        });
+
+            getDataSource();
+        }
+
+        function setCodes() {
+            var codes = {"DATABASE_TYPE":[
+                {cd:"MYSQL",cdNm:"Mysql"},
+                {cd:"MSSQL",cdNm:"Mssql"},
+                {cd:"ORACLE",cdNm:"Oracle"}
+            ]};
+
+            setCodeBox("databaseKind", codes["DATABASE_TYPE"]);
+        }
 
         function getDataSource() {
             httpClient.get("/console/api/dataSource", {},
@@ -27,16 +45,7 @@
         function selectedContent(item) {
             httpClient.get("/console/api/dataSource/"+item.id, {},
                 function(response){
-                    setContent({
-                        id:response.id,
-                        displayName:response.displayName,
-                        dataSourceName:response.dataSourceName,
-                        note:response.note,
-                        url:response.url,
-                        port:response.port,
-                        username:response.username,
-                        password:response.password
-                      });
+                    setContentData(response);
                 },
                 function(error){
                     alert('error');
@@ -95,6 +104,23 @@
           );
         }
 
+        function setContentData(response) {
+            setContent({
+                id:response.id,
+                displayName:response.displayName,
+                dataSourceName:response.dataSourceName,
+                note:response.note,
+                url:response.url,
+                username:response.username,
+                password:response.password,
+                databaseKind:response.databaseKind,
+                maximumPoolSize:response.maximumPoolSize,
+                minimumIdle:response.minimumIdle,
+                connectionTimeout:response.connectionTimeout,
+                validationTimeout:response.validationTimeout
+              });
+        }
+
         function getContent() {
             return {
                 id: $("#id").val(),
@@ -102,9 +128,13 @@
                 dataSourceName: $("#dataSourceName").val(),
                 note: $("#note").val(),
                 url: $("#url").val(),
-                port: $("#port").val(),
                 username: $("#username").val(),
-                password: $("#password").val()
+                password: $("#password").val(),
+                databaseKind: $("#databaseKind").val(),
+                maximumPoolSize:$("#maximumPoolSize").val(),
+                minimumIdle:$("#minimumIdle").val(),
+                connectionTimeout:$("#connectionTimeout").val(),
+                validationTimeout:$("#validationTimeout").val()
             }
         }
 
@@ -114,9 +144,13 @@
             $("#dataSourceName").val(params.dataSourceName);
             $("#note").val(params.note);
             $("#url").val(params.url);
-            $("#port").val(params.port);
             $("#username").val(params.username);
             $("#password").val(params.password);
+            $("#databaseKind").val(params.databaseKind);
+            $("#maximumPoolSize").val(params.maximumPoolSize);
+            $("#minimumIdle").val(params.minimumIdle);
+            $("#connectionTimeout").val(params.connectionTimeout);
+            $("#validationTimeout").val(params.validationTimeout);
           }
 
           function newContent(){
@@ -126,14 +160,18 @@
                 dataSourceName:'',
                 note:'',
                 url:'',
-                port:'',
                 username:'',
-                password:''
+                password:'',
+                databaseKind:'',
+                maximumPoolSize:100,
+                minimumIdle:100,
+                connectionTimeout:30000,
+                validationTimeout:5000
               });
           }
     </script>
 <div th:fragment="view">
-    1.13
+    1.17
     <div class="row">
             <div class="col-lg-6">
                 <div class="card">
@@ -167,11 +205,11 @@
                             </div>
                         </div>
                         <div class="row">
+                            <div class="col-md-2">
+                                <wb-select elementId="databaseKind" label="데이터베이스 종류" enable="true" useFirstItem="true" firstItemLabel="" firstItemValue=""></wb-select>
+                            </div>
                             <div class="col-md-5">
                                 <wb-text-input elementId="url" label="url" enable="true"></wb-text-input>
-                            </div>
-                            <div class="col-md-1">
-                                <wb-text-input elementId="port" label="port" enable="true"></wb-text-input>
                             </div>
                         </div>
                         <div class="row">
@@ -187,6 +225,20 @@
                         <div class="row">
                             <div class="col-md-2">
                                 <wb-text-input elementType="password" elementId="password" label="password" enable="true"></wb-text-input>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2">
+                                <wb-text-input elementType="number" elementId="maximumPoolSize" label="maximumPoolSize" enable="true"></wb-text-input>
+                            </div>
+                            <div class="col-md-2">
+                                <wb-text-input elementType="number" elementId="minimumIdle" label="minimumIdle" enable="true"></wb-text-input>
+                            </div>
+                            <div class="col-md-2">
+                                <wb-text-input elementType="number" elementId="connectionTimeout" label="connectionTimeout" enable="true"></wb-text-input>
+                            </div>
+                            <div class="col-md-2">
+                                <wb-text-input elementType="number" elementId="validationTimeout" label="validationTimeout" enable="true"></wb-text-input>
                             </div>
                         </div>
                     </div>

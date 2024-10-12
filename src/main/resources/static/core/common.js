@@ -9,3 +9,12 @@ function _initLoadingBar() {
     document.write('  <span class="sr-only" >Loading...</span>');
     document.write('</div>');
 }
+
+function setCodeBox(id, codes) {
+    let sHtml = '';
+    for(let i=0; i<codes.length; i++) {
+        sHtml += `<option value='${codes[i].cd}'>${codes[i].cdNm}</option>`;
+    }
+
+    $("#"+id).append(sHtml);
+}
