@@ -16,6 +16,9 @@ public class DatabaseFactory {
         else if(DatabaseKind.ORACLE.equals(databaseKind)) {
             return new DatabaseOracle();
         }
+        else if(DatabaseKind.MARIADB.equals(databaseKind)) {
+            return new DatabaseMariaDB();
+        }
         else {
             return null;
         }

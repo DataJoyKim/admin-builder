@@ -24,6 +24,7 @@
         function setCodes() {
             var codes = {"DATABASE_TYPE":[
                 {cd:"MYSQL",cdNm:"Mysql"},
+                {cd:"MARIADB",cdNm:"MariaDB"},
                 {cd:"MSSQL",cdNm:"Mssql"},
                 {cd:"ORACLE",cdNm:"Oracle"}
             ]};
@@ -32,7 +33,7 @@
         }
 
         function getDataSource() {
-            httpClient.get("/console/api/dataSource", {},
+            httpClient.get(`/console/api/datasource`, {},
                 function(response){
                     sheet.setSheetData('jsGrid1', response);
                 },
@@ -43,7 +44,7 @@
         }
 
         function selectedContent(item) {
-            httpClient.get("/console/api/dataSource/"+item.id, {},
+            httpClient.get(`/console/api/datasource/${item.id}`, {},
                 function(response){
                     setContentData(response);
                 },
@@ -67,7 +68,7 @@
         }
 
         function insertContent() {
-            httpClient.post("/console/api/dataSource",{},getContent(),
+            httpClient.post(`/console/api/datasource`,{},getContent(),
                 function(response){
                     alert("저장완료되었습니다.");
                     getDataSource();
@@ -79,7 +80,7 @@
         }
 
         function updateContent(id) {
-          httpClient.put("/console/api/dataSource/"+id, {}, getContent(),
+          httpClient.put(`/console/api/datasource/${id}`, {}, getContent(),
               function(response){
                   alert("저장완료되었습니다.");
                   getDataSource();
@@ -93,10 +94,41 @@
         function deleteContent() {
           let id = $("#id").val();
 
-          httpClient.delete("/console/api/dataSource/"+id, {},
+          httpClient.delete(`/console/api/datasource/${id}`, {},
               function(response){
                   alert("삭제 처리 완료되었습니다.");
                   getDataSource();
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+        function refreshDataSource() {
+          let id = $("#id").val();
+
+          httpClient.post(`/console/api/datasource/${id}/refresh`,{},{},
+              function(response){
+                  alert("갱신 완료되었습니다.");
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+        function validateConnectDataSource() {
+          let id = $("#id").val();
+
+          httpClient.get(`/console/api/datasource/${id}/connect-valid`, {},
+              function(response){
+                    if(response != null && response.result == true) {
+                        alert("연결 성공");
+                    }
+                    else {
+                        alert("연결 실패");
+                    }
               },
               function(error){
                   alert('error');
@@ -171,7 +203,7 @@
           }
     </script>
 <div th:fragment="view">
-    1.17
+    1.22
     <div class="row">
             <div class="col-lg-6">
                 <div class="card">
@@ -191,6 +223,8 @@
                         <wb-action-button elementId="new" actionName="newContent()" icon="fas fa-plus"></wb-action-button>
                         <wb-action-button elementId="save" actionName="save()" icon="fas fa-save"></wb-action-button>
                         <wb-action-button elementId="delete" actionName="deleteContent()" icon="fas fa-trash"></wb-action-button>
+                        <wb-action-button elementId="refresh" actionName="refreshDataSource()" icon="fas fa-arrow-up"></wb-action-button>
+                        <wb-action-button elementId="validate" actionName="validateConnectDataSource()" icon="fas fa-check"></wb-action-button>
                     </div>
                     <div class="card-body">
                         <div class="row">

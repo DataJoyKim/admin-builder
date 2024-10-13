@@ -20,6 +20,7 @@ public class DataSourceMeta {
     @Column(nullable = false, length = 100)
     private String dataSourceName;
 
+    @Enumerated(value = EnumType.STRING)
     @Column(nullable = false, length = 100)
     private DatabaseKind databaseKind;
 
