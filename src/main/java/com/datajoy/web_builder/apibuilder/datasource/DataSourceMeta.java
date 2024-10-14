@@ -10,8 +10,8 @@ import java.util.Map;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-@Entity
 @Table(uniqueConstraints = {@UniqueConstraint(name="DATA_SOURCE_META_UQ",columnNames={"DATA_SOURCE_NAME"})})
+@Entity
 public class DataSourceMeta {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
