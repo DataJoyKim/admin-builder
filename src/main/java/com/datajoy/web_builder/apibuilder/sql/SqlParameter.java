@@ -10,14 +10,17 @@ import lombok.Getter;
 public class SqlParameter {
     private String parameterName;
     private Integer parameterIndex;
+    private Object value;
 
     public static SqlParameter createSqlParameter(
             String parameterName,
-            Integer parameterIndex
+            Integer parameterIndex,
+            Object value
     ) {
         return SqlParameter.builder()
                 .parameterName(parameterName)
                 .parameterIndex(parameterIndex)
+                .value(value)
                 .build();
     }
 }

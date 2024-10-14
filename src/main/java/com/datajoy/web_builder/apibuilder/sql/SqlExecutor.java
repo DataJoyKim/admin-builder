@@ -6,10 +6,9 @@ import com.datajoy.web_builder.apibuilder.sql.parameterbind.ParameterBinderFacto
 import lombok.RequiredArgsConstructor;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,9 +16,11 @@ import java.util.Map;
 public class SqlExecutor {
     private final DataSource dataSource;
 
-    public List<Map<String, Object>> selectList(SqlQuery sqlQuery, ParameterBindType paramBindingType) {
+    public List<Map<String, Object>> execute(SqlQuery sqlQuery, ParameterBindType paramBindingType) {
+        List<Map<String, Object>> resultList;
         Connection conn = null;
         PreparedStatement stmt = null;
+        ResultSet rs = null;
 
         ParameterBinder parameterBinder = ParameterBinderFactory.instance(paramBindingType);
 
@@ -29,7 +30,16 @@ public class SqlExecutor {
 
         try {
             conn = dataSource.getConnection();
+
             stmt = conn.prepareStatement(sqlQuery.getSql());
+
+            for(SqlParameter sqlParameter : sqlQuery.getSqlParameters()) {
+                stmt.setObject(sqlParameter.getParameterIndex(), sqlParameter.getValue());
+            }
+
+            rs = stmt.executeQuery();
+
+            resultList = mapping(rs);
         }
         catch (SQLException e) {
             throw new RuntimeException(e);
@@ -38,14 +48,34 @@ public class SqlExecutor {
             try {
                 assert conn != null;
                 assert stmt != null;
+                assert rs != null;
 
                 conn.close();
                 stmt.close();
+                rs.close();
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
         }
 
-        return new ArrayList<>();
+        return resultList;
+    }
+
+    private List<Map<String, Object>> mapping(ResultSet rs) throws SQLException {
+        List<Map<String, Object>> resultList = new ArrayList<>();
+
+        ResultSetMetaData rsMeta = rs.getMetaData();
+        int columnCount = rsMeta.getColumnCount();
+
+        while(rs.next()) {
+            Map<String, Object> rows = new HashMap<>();
+            for (int i = 1; i <= columnCount; i++) {
+                rows.put(rsMeta.getColumnName(i), rs.getObject(i));
+            }
+
+            resultList.add(rows);
+        }
+
+        return resultList;
     }
 }

@@ -48,7 +48,7 @@ public class BusinessDataSource {
         registry(lookupKey, dataSource);
     }
 
-    private static DataSource toDataSource(DataSourceMeta meta) {
+    public static DataSource toDataSource(DataSourceMeta meta) {
         Database database = DatabaseFactory.instance(meta.getDatabaseKind());
 
         HikariDataSource dataSource = new HikariDataSource();

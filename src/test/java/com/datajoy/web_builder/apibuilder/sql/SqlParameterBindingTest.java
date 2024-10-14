@@ -37,10 +37,10 @@ class SqlParameterBindingTest {
         String sql = "select * from emp where company_cd = #{company_cd} and emp_id = #{emp_id} and org_id= #{org_id} and appr_emp_id = #{emp_id} order by emp_id";
 
         List<SqlParameter> sqlParameters = new ArrayList<>();
-        sqlParameters.add(SqlParameter.createSqlParameter("emp_id", 1));
-        sqlParameters.add(SqlParameter.createSqlParameter("company_cd", 2));
-        sqlParameters.add(SqlParameter.createSqlParameter("org_id", 3));
-        sqlParameters.add(SqlParameter.createSqlParameter("emp_id", 4));
+        sqlParameters.add(SqlParameter.createSqlParameter("emp_id", 1,1155991));
+        sqlParameters.add(SqlParameter.createSqlParameter("company_cd", 2,"01"));
+        sqlParameters.add(SqlParameter.createSqlParameter("org_id", 3, 12422));
+        sqlParameters.add(SqlParameter.createSqlParameter("emp_id", 4,1155991));
 
         // when
         SqlQuery sqlQuery = SqlQuery.createSqlQuery(sql, sqlParameters);
@@ -78,10 +78,10 @@ class SqlParameterBindingTest {
         String sql = "select * from emp where company_cd = #{companyCd} and emp_id = #{empId} and org_id= #{orgId} and appr_emp_id = #{empid} order by emp_id";
 
         List<SqlParameter> sqlParameters = new ArrayList<>();
-        sqlParameters.add(SqlParameter.createSqlParameter("companyCd", 1));
-        sqlParameters.add(SqlParameter.createSqlParameter("empId", 2));
-        sqlParameters.add(SqlParameter.createSqlParameter("orgId", 3));
-        sqlParameters.add(SqlParameter.createSqlParameter("empid", 4));
+        sqlParameters.add(SqlParameter.createSqlParameter("companyCd", 1,"01"));
+        sqlParameters.add(SqlParameter.createSqlParameter("empId", 2,1155991));
+        sqlParameters.add(SqlParameter.createSqlParameter("orgId", 3, 12321));
+        sqlParameters.add(SqlParameter.createSqlParameter("empid", 4, 1155991));
 
         // when
         SqlQuery sqlQuery = SqlQuery.createSqlQuery(sql, sqlParameters);

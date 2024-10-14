@@ -26,7 +26,7 @@ public class NameBind implements ParameterBinder {
 
         String convertedSql = convertSql(sqlQuery.getSql(), removedDuplicateParameters);
 
-        Map<String, SqlParameter> sqlParameterMap = toSqlParameterMap(sqlQuery);
+        Map<String, SqlParameter> sqlParameterMap = toSqlParameterMap(sqlQuery.getSqlParameters());
 
         List<SqlParameter> convertedSqlParameters = convertSqlParameters(extractedParameters, sqlParameterMap);
 
@@ -39,7 +39,7 @@ public class NameBind implements ParameterBinder {
     private List<SqlParameter> convertSqlParameters(List<String> extractedParameters, Map<String, SqlParameter> sqlParameterMap) {
         List<SqlParameter> convertedSqlParameters = new ArrayList<>();
 
-        int index = 0;
+        int index = 1;
         for(String parameterName : extractedParameters) {
             if(!sqlParameterMap.containsKey(parameterName)) {
                 continue;
@@ -50,15 +50,21 @@ public class NameBind implements ParameterBinder {
             convertedSqlParameters.add(
                     SqlParameter.createSqlParameter(
                             parameterName,
-                            index
+                            index,
+                            sqlParameter.getValue()
                     ));
+
+            index++;
         }
 
         return convertedSqlParameters;
     }
 
-    private static Map<String, SqlParameter> toSqlParameterMap(SqlQuery sqlQuery) {
-        List<SqlParameter> sqlParameters = sqlQuery.getSqlParameters();
+    private static Map<String, SqlParameter> toSqlParameterMap(List<SqlParameter> sqlParameters) {
+        if(sqlParameters == null) {
+            return new HashMap<>();
+        }
+
         Map<String, SqlParameter> sqlParameterMap = new HashMap<>();
         for(SqlParameter sqlParameter : sqlParameters) {
             sqlParameterMap.put(sqlParameter.getParameterName(), sqlParameter);
