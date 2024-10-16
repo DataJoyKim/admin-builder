@@ -30,6 +30,6 @@ public class Entity {
     private String tableName;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn
+    @JoinColumn(name = "ENTITY_NAME")
     private List<EntityColumn> entityColumns = new ArrayList<>();
 }
