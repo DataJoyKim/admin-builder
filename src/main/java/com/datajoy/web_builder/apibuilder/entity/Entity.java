@@ -1,10 +1,13 @@
 package com.datajoy.web_builder.apibuilder.entity;
 
+import com.datajoy.web_builder.apibuilder.entity.code.EntityStatus;
+import com.datajoy.web_builder.apibuilder.sql.SqlQuery;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -32,4 +35,12 @@ public class Entity {
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "ENTITY_NAME")
     private List<EntityColumn> entityColumns = new ArrayList<>();
+
+    public List<SqlQuery> generateQuery(EntityParameter params, EntityConfig config) {
+        List<Map<String, Object>> contents = params.getContents();
+        for(Map<String, Object> content : contents) {
+            EntityStatus status = EntityStatus.valueOf((String) content.get(config.getStatusParamKeyName()));
+            //TODO query 생성기
+        }
+    }
 }

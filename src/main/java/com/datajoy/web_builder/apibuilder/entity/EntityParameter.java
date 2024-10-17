@@ -8,5 +8,5 @@ import java.util.Map;
 
 @Getter
 public class EntityParameter {
-    private List<Map<String, Object>> body = new ArrayList<>();
+    private List<Map<String, Object>> contents = new ArrayList<>();
 }
