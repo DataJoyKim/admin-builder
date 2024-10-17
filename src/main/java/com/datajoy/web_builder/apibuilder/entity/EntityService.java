@@ -11,6 +11,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EntityService {
     private final EntityRepository entityRepository;
+    private final EntityConfig entityConfig;
 
     public EntityResult execute(String entityName, EntityParameter params) {
         Entity entity = entityRepository.findByEntityName(entityName)
@@ -19,7 +20,7 @@ public class EntityService {
         //TODO 파라미터 바인딩
         
         //TODO 쿼리 생성
-        List<SqlQuery> sqlQueryList =  entity.generateQuery(params);
+        List<SqlQuery> sqlQueryList =  entity.generateQuery(entityConfig, params);
 
 
 

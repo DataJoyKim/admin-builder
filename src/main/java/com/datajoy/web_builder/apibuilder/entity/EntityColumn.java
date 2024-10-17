@@ -12,15 +12,15 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-@Table(uniqueConstraints = {@UniqueConstraint(name="ENTITY_COLUMN_UQ",columnNames={"ENTITY_NAME","COLUMN_NAME"})})
+@Table(uniqueConstraints = {@UniqueConstraint(name="ENTITY_COLUMN_UQ",columnNames={"ENTITY_ID","COLUMN_NAME"})})
 @Entity
 public class EntityColumn {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name="ENTITY_NAME", nullable = false, length = 100)
-    private String entityName;
+    @Column(name="ENTITY_ID", nullable = false)
+    private Long entityId;
 
     @Column(nullable = false, length = 100)
     private String columnName;
@@ -34,10 +34,6 @@ public class EntityColumn {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 100)
     private ColumnType columnType;
-
-    @Enumerated(EnumType.STRING)
-    @Column(length = 100)
-    private NullResolveType nullResolveType;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 100)
@@ -58,10 +54,18 @@ public class EntityColumn {
 
     @Enumerated(EnumType.STRING)
     @Column(length = 100)
+    private NullResolveType insertNullResolveType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 100)
     private AutoValueType updateAutoValueType;
 
     @Column(length = 300)
     private String updateAutoValue;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 100)
+    private NullResolveType updateNullResolveType;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 100)

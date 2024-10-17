@@ -1,6 +1,9 @@
 package com.datajoy.web_builder.apibuilder.entity;
 
 import com.datajoy.web_builder.apibuilder.entity.code.EntityStatus;
+import com.datajoy.web_builder.apibuilder.entity.query.EntityQueryGenerator;
+import com.datajoy.web_builder.apibuilder.entity.query.EntityQueryGeneratorFactory;
+import com.datajoy.web_builder.apibuilder.entity.query.FailedQueryGenerationException;
 import com.datajoy.web_builder.apibuilder.sql.SqlQuery;
 import jakarta.persistence.*;
 import lombok.*;
@@ -33,14 +36,31 @@ public class Entity {
     private String tableName;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "ENTITY_NAME")
+    @JoinColumn(name = "ENTITY_ID")
     private List<EntityColumn> entityColumns = new ArrayList<>();
 
-    public List<SqlQuery> generateQuery(EntityParameter params, EntityConfig config) {
+    public List<SqlQuery> generateQuery(EntityConfig config, EntityParameter params) {
         List<Map<String, Object>> contents = params.getContents();
+
+        List<SqlQuery> sqlQueryList = new ArrayList<>();
         for(Map<String, Object> content : contents) {
             EntityStatus status = EntityStatus.valueOf((String) content.get(config.getStatusParamKeyName()));
-            //TODO query 생성기
+
+            EntityQueryGenerator entityQueryGenerator = EntityQueryGeneratorFactory.instance(status);
+
+            String sql;
+            try {
+                sql = entityQueryGenerator.generate(this.tableName, this.entityColumns);
+            }
+            catch (FailedQueryGenerationException e) {
+                throw new RuntimeException(e);
+            }
+
+            sqlQueryList.add(SqlQuery.builder()
+                    .sql(sql)
+                    .build());
         }
+
+        return sqlQueryList;
     }
 }
