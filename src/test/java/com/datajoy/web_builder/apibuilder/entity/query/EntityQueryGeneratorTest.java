@@ -3,6 +3,8 @@ package com.datajoy.web_builder.apibuilder.entity.query;
 import com.datajoy.web_builder.apibuilder.entity.EntityColumn;
 import com.datajoy.web_builder.apibuilder.entity.code.ColumnType;
 import com.datajoy.web_builder.apibuilder.entity.code.NullResolveType;
+import com.datajoy.web_builder.apibuilder.entity.code.SelectWhereType;
+import com.datajoy.web_builder.apibuilder.entity.code.SortOrder;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -75,6 +77,61 @@ class EntityQueryGeneratorTest {
 
         // When
         EntityQueryGenerator generator = new UpdateQuery();
+
+        String query = generator.generate(tableName, entityColumns);
+
+        // Then
+        System.out.println(query);
+    }
+
+    @Test
+    void generateSelectQuery() {
+        // Given
+        String tableName = "goal";
+
+        List<EntityColumn> entityColumns = new ArrayList<>();
+        entityColumns.add(EntityColumn.builder()
+                .useKey(true)
+                .columnName("goalId")
+                .value(1L)
+                .columnType(ColumnType.NUMBER)
+                .selectWhereCompareOperator("=")
+                .selectWhereType(SelectWhereType.COMPARE_REQUIRED)
+                .build());
+
+        entityColumns.add(EntityColumn.builder()
+                .useKey(false)
+                .columnName("goalName")
+                .value("테스트")
+                .columnType(ColumnType.STRING)
+                .selectWhereCompareOperator("like")
+                .selectWhereType(SelectWhereType.COMPARE_NOT_REQUIRED)
+                .build());
+
+        entityColumns.add(EntityColumn.builder()
+                .useKey(false)
+                .columnName("goalKind")
+                .value("EVAL")
+                .columnType(ColumnType.STRING)
+                .selectWhereCompareOperator("=")
+                .selectWhereType(SelectWhereType.COMPARE_NOT_REQUIRED)
+                .selectOrderByNum(1)
+                .selectOrderBySortOrder(SortOrder.DESC)
+                .build());
+
+        entityColumns.add(EntityColumn.builder()
+                .useKey(false)
+                .columnName("weight")
+                .value(100)
+                .columnType(ColumnType.NUMBER)
+                .selectWhereCompareOperator(">")
+                .selectWhereType(SelectWhereType.COMPARE_NOT_REQUIRED)
+                .selectOrderByNum(2)
+                .selectOrderBySortOrder(SortOrder.ASC)
+                .build());
+
+        // When
+        EntityQueryGenerator generator = new SelectQuery();
 
         String query = generator.generate(tableName, entityColumns);
 

@@ -1,6 +1,7 @@
 package com.datajoy.web_builder.apibuilder.entity.query;
 
 import com.datajoy.web_builder.apibuilder.entity.EntityColumn;
+import com.datajoy.web_builder.apibuilder.entity.code.SelectWhereType;
 import com.datajoy.web_builder.apibuilder.entity.code.SortOrder;
 
 import java.util.ArrayList;
@@ -31,12 +32,19 @@ public class SelectQuery extends AbstractEntityQuery {
                 .collect(Collectors.toList());
 
         String sql = "";
+
         sql += "select " + System.lineSeparator();
+        sql += selectColumns(resolvedEntityColumns);
         sql += "from " + tableName + System.lineSeparator();
-        sql += "where 1=1 " + System.lineSeparator();
+
+        if(!whereColumns.isEmpty()) {
+            sql += "where 1=1 " + System.lineSeparator();
+            sql += where(whereColumns);
+        }
 
         if(!orderColumns.isEmpty()) {
-            sql += "order by " + orderBy(orderColumns) + System.lineSeparator();
+            sql += "order by" + System.lineSeparator();
+            sql += orderBy(orderColumns);
         }
 
         sql += ";";
@@ -44,29 +52,68 @@ public class SelectQuery extends AbstractEntityQuery {
         return sql;
     }
 
+    private String selectColumns(List<EntityColumn> columns) {
+        StringBuilder queryStr = new StringBuilder();
+        int i =0;
+        for(EntityColumn col : columns) {
+            queryStr.append("\t")
+                    .append(separator(i))
+                    .append(col.getColumnName())
+                    .append(System.lineSeparator());
+            i++;
+        }
+        return queryStr.toString();
+    }
+
+    private String where(List<EntityColumn> whereColumns) {
+        StringBuilder queryStr = new StringBuilder();
+        for(EntityColumn col : whereColumns) {
+            if(SelectWhereType.COMPARE_REQUIRED.equals(col.getSelectWhereType())) {
+                queryStr.append("\t")
+                        .append("and ")
+                        .append(col.getColumnName())
+                        .append(" ").append(col.getSelectWhereCompareOperator()).append(" ")
+                        .append(parameter(col.getColumnName()))
+                        .append(System.lineSeparator());
+            }
+            else if(SelectWhereType.COMPARE_NOT_REQUIRED.equals(col.getSelectWhereType())) {
+                queryStr.append("\t")
+                        .append("and ")
+                        .append("(")
+                        .append(parameter(col.getColumnName()))
+                        .append(" is null or ")
+                        .append(col.getColumnName())
+                        .append(" ").append(col.getSelectWhereCompareOperator()).append(" ")
+                        .append(parameter(col.getColumnName()))
+                        .append(")")
+                        .append(System.lineSeparator());
+            }
+        }
+
+        return queryStr.toString();
+    }
+
     private String orderBy(List<EntityColumn> orderColumns) {
-        StringBuilder orderBy = new StringBuilder();
+        StringBuilder queryStr = new StringBuilder();
 
         int i=0;
         for(EntityColumn col : orderColumns) {
+            queryStr.append("\t")
+                    .append(separator(i))
+                    .append(col.getColumnName());
+
             if(SortOrder.ASC.equals(col.getSelectOrderBySortOrder())) {
-                orderBy.append(separator(i))
-                        .append(col.getColumnName())
-                        .append(" asc");
+                queryStr.append(" asc");
             }
             else if(SortOrder.DESC.equals(col.getSelectOrderBySortOrder())) {
-                orderBy.append(separator(i))
-                        .append(col.getColumnName())
-                        .append(" desc");
+                queryStr.append(" desc");
             }
-            else {
-                orderBy.append(separator(i))
-                        .append(col.getColumnName());
-            }
+
+            queryStr.append(System.lineSeparator());
 
             i++;
         }
 
-        return orderBy.toString();
+        return queryStr.toString();
     }
 }

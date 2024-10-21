@@ -32,7 +32,7 @@ public class DeleteQuery extends AbstractEntityQuery {
                     .append("and ")
                     .append(col.getColumnName())
                     .append(" = ")
-                    .append(generateParams(col.getColumnName()))
+                    .append(parameter(col.getColumnName()))
                     .append(System.lineSeparator());
         }
 

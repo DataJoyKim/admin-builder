@@ -39,7 +39,7 @@ public class InsertQuery extends AbstractEntityQuery {
         for(EntityColumn col : entityColumns) {
             queryStr.append(tabSeparator)
                     .append(separator(i))
-                    .append(generateParams(col.getColumnName()))
+                    .append(parameter(col.getColumnName()))
                     .append(System.lineSeparator());
             i++;
         }
