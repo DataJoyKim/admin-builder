@@ -1,9 +1,6 @@
 package com.datajoy.web_builder.apibuilder.entity;
 
-import com.datajoy.web_builder.apibuilder.entity.code.AutoValueType;
-import com.datajoy.web_builder.apibuilder.entity.code.ColumnType;
-import com.datajoy.web_builder.apibuilder.entity.code.NullResolveType;
-import com.datajoy.web_builder.apibuilder.entity.code.SelectWhereType;
+import com.datajoy.web_builder.apibuilder.entity.code.*;
 import jakarta.persistence.Entity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -44,6 +41,10 @@ public class EntityColumn {
 
     @Column
     private Integer selectOrderByNum;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 100)
+    private SortOrder selectOrderBySortOrder;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 100)
