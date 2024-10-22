@@ -37,6 +37,10 @@ public class BusinessDataSource {
         return businessDataSource;
     }
 
+    public DataSource getDataSource(LookupKey lookupKey) {
+        return dataSourceMap.get(lookupKey);
+    }
+
     public void registry(LookupKey lookupKey, DataSource dataSource) {
         dataSourceMap.put(lookupKey, dataSource);
     }

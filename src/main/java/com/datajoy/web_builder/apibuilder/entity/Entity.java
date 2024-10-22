@@ -40,40 +40,49 @@ public class Entity {
     @JoinColumn(name = "ENTITY_ID")
     private List<EntityColumn> entityColumns = new ArrayList<>();
 
-    public List<SqlQuery> generateQuery(EntityConfig config, EntityParameter params) {
+    public List<EntitySqlQuery> generateQuery(EntityConfig config, EntityParameter params) {
         List<Map<String, Object>> contents = params.getContents();
 
-        List<SqlQuery> sqlQueryList = new ArrayList<>();
+        List<EntitySqlQuery> entitySqlQueryList = new ArrayList<>();
+
         for(Map<String, Object> content : contents) {
+            String seq = (String) content.get(config.getSeqParamKeyName());
             EntityStatus status = EntityStatus.valueOf((String) content.get(config.getStatusParamKeyName()));
 
-            EntityQueryGenerator entityQueryGenerator = EntityQueryGeneratorFactory.instance(status);
+            String sql = createSql(status);
 
-            String sql;
-            try {
-                sql = entityQueryGenerator.generate(this.tableName, this.entityColumns);
-            }
-            catch (FailedQueryGenerationException e) {
-                throw new RuntimeException(e);
-            }
+            List<SqlParameter> sqlParameters = createSqlParameters(content);
 
-            List<SqlParameter> sqlParameters = new ArrayList<>();
-            int i=0;
-            for(String parameterName : content.keySet()) {
-                sqlParameters.add(SqlParameter.createSqlParameter(
-                        parameterName,
-                        i,
-                        content.get(parameterName)
-                ));
-                i++;
-            }
-
-            sqlQueryList.add(SqlQuery.builder()
-                    .sql(sql)
-                    .sqlParameters(sqlParameters)
-                    .build());
+            entitySqlQueryList.add(EntitySqlQuery.createEntitySqlQuery(seq, sql, sqlParameters));
         }
 
-        return sqlQueryList;
+        return entitySqlQueryList;
+    }
+
+    private String createSql(EntityStatus status) {
+        EntityQueryGenerator entityQueryGenerator = EntityQueryGeneratorFactory.instance(status);
+
+        String sql;
+        try {
+            sql = entityQueryGenerator.generate(this.tableName, this.entityColumns);
+        }
+        catch (FailedQueryGenerationException e) {
+            throw new RuntimeException(e);
+        }
+        return sql;
+    }
+
+    private static List<SqlParameter> createSqlParameters(Map<String, Object> content) {
+        List<SqlParameter> sqlParameters = new ArrayList<>();
+        int i=0;
+        for(String parameterName : content.keySet()) {
+            sqlParameters.add(SqlParameter.createSqlParameter(
+                    parameterName,
+                    i,
+                    content.get(parameterName)
+            ));
+            i++;
+        }
+        return sqlParameters;
     }
 }
