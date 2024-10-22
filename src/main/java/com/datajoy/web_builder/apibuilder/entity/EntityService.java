@@ -22,7 +22,9 @@ public class EntityService {
         //TODO 쿼리 생성
         List<SqlQuery> sqlQueryList =  entity.generateQuery(entityConfig, params);
 
+        for(SqlQuery sqlQuery : sqlQueryList) {
 
+        }
 
         return null;
     }

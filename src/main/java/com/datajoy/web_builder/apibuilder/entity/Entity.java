@@ -4,6 +4,7 @@ import com.datajoy.web_builder.apibuilder.entity.code.EntityStatus;
 import com.datajoy.web_builder.apibuilder.entity.query.EntityQueryGenerator;
 import com.datajoy.web_builder.apibuilder.entity.query.EntityQueryGeneratorFactory;
 import com.datajoy.web_builder.apibuilder.entity.query.FailedQueryGenerationException;
+import com.datajoy.web_builder.apibuilder.sql.SqlParameter;
 import com.datajoy.web_builder.apibuilder.sql.SqlQuery;
 import jakarta.persistence.*;
 import lombok.*;
@@ -56,8 +57,20 @@ public class Entity {
                 throw new RuntimeException(e);
             }
 
+            List<SqlParameter> sqlParameters = new ArrayList<>();
+            int i=0;
+            for(String parameterName : content.keySet()) {
+                sqlParameters.add(SqlParameter.createSqlParameter(
+                        parameterName,
+                        i,
+                        content.get(parameterName)
+                ));
+                i++;
+            }
+
             sqlQueryList.add(SqlQuery.builder()
                     .sql(sql)
+                    .sqlParameters(sqlParameters)
                     .build());
         }
 
