@@ -4,8 +4,6 @@ import com.datajoy.web_builder.apibuilder.datasource.database.DatabaseKind;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.Map;
-
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
@@ -50,35 +48,4 @@ public class DataSourceMeta {
 
     @Column
     private Integer validationTimeout = 5000;
-
-    public static DataSourceMeta createDataSource(Map<String, Object> params) {
-        return DataSourceMeta.builder()
-                .dataSourceName((String) params.get("dataSourceName"))
-                .displayName((String) params.get("displayName"))
-                .note((String) params.get("note"))
-                .url((String) params.get("url"))
-                .username((String) params.get("username"))
-                .password((String) params.get("password"))
-                .databaseKind(DatabaseKind.valueOf((String) params.get("databaseKind")))
-                .maximumPoolSize(Integer.valueOf((String) params.get("maximumPoolSize")))
-                .minimumIdle(Integer.valueOf((String) params.get("minimumIdle")))
-                .connectionTimeout(Integer.valueOf((String) params.get("connectionTimeout")))
-                .validationTimeout(Integer.valueOf((String) params.get("validationTimeout")))
-                .build();
-    }
-
-    public void update(Map<String, Object> params) {
-        this.dataSourceName = (String) params.get("dataSourceName");
-        this.displayName = (String) params.get("displayName");
-        this.note = (String) params.get("note");
-        this.url = (String) params.get("url");
-        this.username = (String) params.get("username");
-        this.password = (String) params.get("password");
-        this.databaseKind = DatabaseKind.valueOf((String) params.get("databaseKind"));
-        this.maximumPoolSize = Integer.valueOf((String) params.get("maximumPoolSize"));
-        this.minimumIdle = Integer.valueOf((String) params.get("minimumIdle"));
-        this.connectionTimeout = Integer.valueOf((String) params.get("connectionTimeout"));
-        this.validationTimeout = Integer.valueOf((String) params.get("validationTimeout"));
-
-    }
 }

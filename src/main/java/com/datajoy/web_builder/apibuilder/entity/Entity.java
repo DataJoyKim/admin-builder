@@ -5,7 +5,6 @@ import com.datajoy.web_builder.apibuilder.entity.query.EntityQueryGenerator;
 import com.datajoy.web_builder.apibuilder.entity.query.EntityQueryGeneratorFactory;
 import com.datajoy.web_builder.apibuilder.entity.query.FailedQueryGenerationException;
 import com.datajoy.web_builder.apibuilder.sql.SqlParameter;
-import com.datajoy.web_builder.apibuilder.sql.SqlQuery;
 import jakarta.persistence.*;
 import lombok.*;
 

@@ -2,6 +2,7 @@ package com.datajoy.web_builder.apibuilder.sql;
 
 import com.datajoy.web_builder.apibuilder.datasource.BusinessDataSource;
 import com.datajoy.web_builder.apibuilder.datasource.DataSourceMeta;
+import com.datajoy.web_builder.apibuilder.datasource.database.DatabaseKind;
 import com.datajoy.web_builder.apibuilder.sql.parameterbind.ParameterBindType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -90,7 +91,19 @@ class SqlExecutorTest {
         String dropSql = "DROP TABLE `test`;";
 
         // When
-        DataSourceMeta meta = DataSourceMeta.createDataSource(params);
+        DataSourceMeta meta = DataSourceMeta.builder()
+                .dataSourceName((String) params.get("dataSourceName"))
+                .displayName((String) params.get("displayName"))
+                .note((String) params.get("note"))
+                .url((String) params.get("url"))
+                .username((String) params.get("username"))
+                .password((String) params.get("password"))
+                .databaseKind(DatabaseKind.valueOf((String) params.get("databaseKind")))
+                .maximumPoolSize(Integer.valueOf((String) params.get("maximumPoolSize")))
+                .minimumIdle(Integer.valueOf((String) params.get("minimumIdle")))
+                .connectionTimeout(Integer.valueOf((String) params.get("connectionTimeout")))
+                .validationTimeout(Integer.valueOf((String) params.get("validationTimeout")))
+                .build();
 
         DataSource dataSource = BusinessDataSource.toDataSource(meta);
 
