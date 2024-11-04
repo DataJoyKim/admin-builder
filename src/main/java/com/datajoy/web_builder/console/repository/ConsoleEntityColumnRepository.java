@@ -8,7 +8,27 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface ConsoleEntityColumnRepository extends JpaRepository<EntityColumn, Long> {
+
+    @Transactional
+    @Modifying
+    @Query(" insert EntityColumn a (entityId,columnName,displayName,useKey,columnType)" +
+            " values ( " +
+            ":entityId," +
+            ":columnName," +
+            ":displayName," +
+            ":useKey," +
+            ":columnType" +
+            ")")
+    void insert(
+            @Param("entityId") Long entityId,
+            @Param("columnName") String columnName,
+            @Param("displayName") String displayName,
+            @Param("useKey") Boolean useKey,
+            @Param("columnType") ColumnType columnType
+    );
 
     @Transactional
     @Modifying
@@ -53,4 +73,5 @@ public interface ConsoleEntityColumnRepository extends JpaRepository<EntityColum
             @Param("deleteAutoValue") String deleteAutoValue
     );
 
+    List<EntityColumn> findByEntityId(Long entityId);
 }

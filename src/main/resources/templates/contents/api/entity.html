@@ -6,7 +6,12 @@
         });
 
         function init() {
-            setCodes();
+            let columnTypeCodes = [
+                {id:"STRING",name:"String"},
+                {id:"NUMBER",name:"Number"},
+                {id:"DATE",name:"Date"},
+                {id:"DATETIME",name:"Datetime"}
+            ]
 
             sheet.initSheet('jsGrid1', "100%","500px",
             [
@@ -20,35 +25,38 @@
 
             sheet.initSheet('jsGrid2', "100%","500px",
             [
-                {name: "status", type: "text", width: 20, readOnly: true },
                 {name: "id", title:"ID", type: "number", width: 50, editable: true, edittype: "text" },
                 {name: "columnName", title:"column", type: "text", width: 150 , editable: true, edittype: "text" },
                 {name: "displayName", title:"화면노출명", type: "text", width: 150 , editable: true, edittype: "text" },
-                {name: "useKey", title:"key", type: "text", width: 50 },
-                {name: "columnType", title:"type", type: "text", width: 50 },
+                {name: "useKey", title:"key", type: "checkbox", width: 50},
+                {name: "columnType", title:"type", type: "select", width: 50, items: columnTypeCodes, valueField: "id", textField: "name" },
                 { type: "control", editButton: false, modeSwitchButton: false }
             ],
             function(args) {},
             {
                 inserting: true,
                 editing: true,
+                onItemInserting: function(args) {
+                    insertEntityColumn($("#id").val(), args.item);
+                },
                 onItemUpdated: function(args) {
-                    alert('클릭');
+                    updateEntityColumn(args.item);
+                },
+                onItemDeleting: function(args) {
+                    alert('삭제');
                 }
             });
 
             getEntity();
         }
 
-        function setCodes() {
-            var codes = {"DATABASE_TYPE":[
-                {cd:"MYSQL",cdNm:"Mysql"},
-                {cd:"MARIADB",cdNm:"MariaDB"},
-                {cd:"MSSQL",cdNm:"Mssql"},
-                {cd:"ORACLE",cdNm:"Oracle"}
-            ]};
+        function save() {
+            let id = $("#id").val();
 
-            setCodeBox("databaseKind", codes["DATABASE_TYPE"]);
+            if(isEmpty(id))
+                insertContent();
+            else
+                updateContent(id);
         }
 
         function getEntity() {
@@ -66,24 +74,12 @@
             httpClient.get(`/console/api/entity/${item.id}`, {},
                 function(response){
                     setContentData(response);
+                    getEntityColumn(item.id);
                 },
                 function(error){
                     alert('error');
                 }
             );
-        }
-
-        function isEmpty(v) {
-            return (v == undefined || v == null || v == '');
-        }
-
-        function save() {
-            let id = $("#id").val();
-
-            if(isEmpty(id))
-                insertContent();
-            else
-                updateContent(id);
         }
 
         function insertContent() {
@@ -161,9 +157,63 @@
                 tableName:''
                 });
           }
+
+        function getEntityColumn(entityId) {
+            httpClient.get(`/console/api/entity-column/${entityId}`, {},
+                function(response){
+                    sheet.setSheetData('jsGrid2', response);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function insertEntityColumn(entityId, item) {
+            httpClient.post(`/console/api/entity-column`,{},
+                {
+                   entityId:entityId,
+                   columnName:item.columnName,
+                   displayName:item.displayName,
+                   useKey:item.useKey,
+                   columnType:item.columnType
+                },
+                function(response){
+                    alert("저장완료되었습니다.");
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function updateEntityColumn(item) {
+          httpClient.put(`/console/api/entity-column/${item.id}`, {},
+              {
+              },
+              function(response){
+                  alert("저장완료되었습니다.");
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+        function deleteEntityColumn(item) {
+          httpClient.delete(`/console/api/entity-column/${item.id}`, {},
+              function(response){
+                  alert("삭제 처리 완료되었습니다.");
+                  getEntity();
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
     </script>
 <div th:fragment="view">
-    1.35
+    1.36
     <div class="row">
             <div class="col-lg-4">
                 <div class="card">

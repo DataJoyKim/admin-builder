@@ -1,10 +1,8 @@
 package com.datajoy.web_builder.console.rest;
 
-import com.datajoy.web_builder.apibuilder.entity.Entity;
 import com.datajoy.web_builder.apibuilder.entity.EntityColumn;
 import com.datajoy.web_builder.apibuilder.entity.code.*;
 import com.datajoy.web_builder.console.repository.ConsoleEntityColumnRepository;
-import com.datajoy.web_builder.console.repository.ConsoleEntityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,28 +18,22 @@ public class EntityColumnRestController {
     @Autowired
     private ConsoleEntityColumnRepository entityColumnRepository;
 
-    @GetMapping("")
-    public ResponseEntity<?> getEntity() {
-        List<EntityColumn> results = entityColumnRepository.findAll();
-
-        return new ResponseEntity<>(results, HttpStatus.OK);
-    }
-
     @PostMapping("")
     public ResponseEntity<?> createEntityColumn(@RequestBody Map<String,Object> params) {
+        entityColumnRepository.insert(
+                Long.valueOf((String) params.get("entityId")),
+                (String) params.get("columnName"),
+                (String) params.get("displayName"),
+                Boolean.valueOf((String) params.get("useKey")),
+                ColumnType.valueOf((String) params.get("columnType"))
+        );
 
-        EntityColumn entityColumn = EntityColumn.builder()
-                .build();
-
-        EntityColumn results = entityColumnRepository.save(entityColumn);
-
-        return new ResponseEntity<>(results, HttpStatus.OK);
+        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getEntityColumn(@PathVariable("id") Long id) {
-        EntityColumn results = entityColumnRepository.findById(id)
-                .orElseThrow(RuntimeException::new);
+    @GetMapping("/{entityId}")
+    public ResponseEntity<?> getEntityColumn(@PathVariable("entityId") Long entityId) {
+        List<EntityColumn> results = entityColumnRepository.findByEntityId(entityId);
 
         return new ResponseEntity<>(results, HttpStatus.OK);
     }
