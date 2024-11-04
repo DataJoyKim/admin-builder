@@ -1,0 +1,215 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<script th:fragment="script">
+
+        $( document ).ready(function() {
+            init();
+        });
+
+        function init() {
+            setCodes();
+
+            sheet.initSheet('jsGrid1', "100%","500px",
+            [
+                {name: "id", title:"ID", type: "number", width: 50 },
+                {name: "entityName", title:"entity", type: "text", width: 150 },
+                {name: "displayName", title:"화면노출명", type: "text", width: 200 }
+            ],
+            function(args) {
+                selectedContent(args.item);
+            });
+
+            sheet.initSheet('jsGrid2', "100%","500px",
+            [
+                {name: "status", type: "text", width: 20, readOnly: true },
+                {name: "id", title:"ID", type: "number", width: 50, editable: true, edittype: "text" },
+                {name: "columnName", title:"column", type: "text", width: 150 , editable: true, edittype: "text" },
+                {name: "displayName", title:"화면노출명", type: "text", width: 150 , editable: true, edittype: "text" },
+                {name: "useKey", title:"key", type: "text", width: 50 },
+                {name: "columnType", title:"type", type: "text", width: 50 },
+                { type: "control", editButton: false, modeSwitchButton: false }
+            ],
+            function(args) {},
+            {
+                inserting: true,
+                editing: true,
+                onItemUpdated: function(args) {
+                    alert('클릭');
+                }
+            });
+
+            getEntity();
+        }
+
+        function setCodes() {
+            var codes = {"DATABASE_TYPE":[
+                {cd:"MYSQL",cdNm:"Mysql"},
+                {cd:"MARIADB",cdNm:"MariaDB"},
+                {cd:"MSSQL",cdNm:"Mssql"},
+                {cd:"ORACLE",cdNm:"Oracle"}
+            ]};
+
+            setCodeBox("databaseKind", codes["DATABASE_TYPE"]);
+        }
+
+        function getEntity() {
+            httpClient.get(`/console/api/entity`, {},
+                function(response){
+                    sheet.setSheetData('jsGrid1', response);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function selectedContent(item) {
+            httpClient.get(`/console/api/entity/${item.id}`, {},
+                function(response){
+                    setContentData(response);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function isEmpty(v) {
+            return (v == undefined || v == null || v == '');
+        }
+
+        function save() {
+            let id = $("#id").val();
+
+            if(isEmpty(id))
+                insertContent();
+            else
+                updateContent(id);
+        }
+
+        function insertContent() {
+            httpClient.post(`/console/api/entity`,{},getContent(),
+                function(response){
+                    alert("저장완료되었습니다.");
+                    getEntity();
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function updateContent(id) {
+          httpClient.put(`/console/api/entity/${id}`, {}, getContent(),
+              function(response){
+                  alert("저장완료되었습니다.");
+                  getEntity();
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+        function deleteContent() {
+          let id = $("#id").val();
+
+          httpClient.delete(`/console/api/entity/${id}`, {},
+              function(response){
+                  alert("삭제 처리 완료되었습니다.");
+                  getEntity();
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+        function setContentData(response) {
+            setContent({
+                id:response.id,
+                entityName:response.entityName,
+                displayName:response.displayName,
+                dataSourceName:response.dataSourceName,
+                tableName:response.tableName
+              });
+        }
+
+        function getContent() {
+            return {
+                id: $("#id").val(),
+                entityName: $("#entityName").val(),
+                displayName: $("#displayName").val(),
+                dataSourceName: $("#dataSourceName").val(),
+                tableName: $("#tableName").val()
+            }
+        }
+
+        function setContent(params) {
+            $("#id").val(params.id);
+            $("#entityName").val(params.entityName);
+            $("#displayName").val(params.displayName);
+            $("#dataSourceName").val(params.dataSourceName);
+            $("#tableName").val(params.tableName);
+          }
+
+          function newContent(){
+            setContent({
+                id:'',
+                entityName:'',
+                displayName:'',
+                dataSourceName:'',
+                tableName:''
+                });
+          }
+    </script>
+<div th:fragment="view">
+    1.35
+    <div class="row">
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Entity</h3>
+                        <wb-action-button elementId="search" actionName="getEntity()" icon="fas fa-search"></wb-action-button>
+                    </div>
+                    <div class="card-body">
+                        <div id="jsGrid1"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">상세 내용</h3>
+                        <wb-action-button elementId="new" actionName="newContent()" icon="fas fa-plus"></wb-action-button>
+                        <wb-action-button elementId="save" actionName="save()" icon="fas fa-save"></wb-action-button>
+                        <wb-action-button elementId="delete" actionName="deleteContent()" icon="fas fa-trash"></wb-action-button>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-1">
+                                <wb-text-input elementId="id" label="ID" enable="false"></wb-text-input>
+                            </div>
+                            <div class="col-md-3">
+                                <wb-text-input elementId="entityName" label="entity" enable="true"></wb-text-input>
+                            </div>
+                            <div class="col-md-3">
+                                <wb-text-input elementId="displayName" label="화면 노출명" enable="true" ></wb-text-input>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <wb-text-input elementId="dataSourceName" label="dataSource" enable="true"></wb-text-input>
+                            </div>
+                            <div class="col-md-2">
+                                <wb-text-input elementId="tableName" label="table" enable="true"></wb-text-input>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="jsGrid2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</html>

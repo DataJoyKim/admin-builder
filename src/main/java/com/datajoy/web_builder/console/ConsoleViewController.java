@@ -19,4 +19,10 @@ public class ConsoleViewController {
         model.addAttribute("contentPath","/contents/database/datasource");
         return "contents/content";
     }
+
+    @GetMapping("/entity")
+    public String moveEntity(Model model) {
+        model.addAttribute("contentPath","/contents/api/entity");
+        return "contents/content";
+    }
 }
