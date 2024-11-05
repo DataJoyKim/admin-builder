@@ -1,7 +1,7 @@
 package com.datajoy.web_builder.console.rest;
 
 import com.datajoy.web_builder.apibuilder.entity.EntityColumn;
-import com.datajoy.web_builder.apibuilder.entity.code.*;
+import com.datajoy.web_builder.apibuilder.entity.code.ColumnType;
 import com.datajoy.web_builder.console.repository.ConsoleEntityColumnRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -45,23 +45,10 @@ public class EntityColumnRestController {
 
         entityColumnRepository.update(
                 entityColumn.getId(),
-                Long.valueOf((String) params.get("entityId")),
                 (String) params.get("columnName"),
                 (String) params.get("displayName"),
                 Boolean.valueOf((String) params.get("useKey")),
-                ColumnType.valueOf((String) params.get("columnType")),
-                SelectWhereType.valueOf((String) params.get("selectWhereType")),
-                (String) params.get("selectWhereCompareOperator"),
-                Integer.valueOf((String) params.get("selectOrderByNum")),
-                SortOrder.valueOf((String) params.get("selectOrderBySortOrder")),
-                AutoValueType.valueOf((String) params.get("insertAutoValueType")),
-                (String) params.get("insertAutoValue"),
-                NullResolveType.valueOf((String) params.get("insertNullResolveType")),
-                AutoValueType.valueOf((String) params.get("updateAutoValueType")),
-                (String) params.get("updateAutoValue"),
-                NullResolveType.valueOf((String) params.get("updateNullResolveType")),
-                AutoValueType.valueOf((String) params.get("deleteAutoValueType")),
-                (String) params.get("deleteAutoValue")
+                ColumnType.valueOf((String) params.get("columnType"))
         );
 
         return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);

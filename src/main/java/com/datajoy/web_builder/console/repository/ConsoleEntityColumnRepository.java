@@ -34,41 +34,75 @@ public interface ConsoleEntityColumnRepository extends JpaRepository<EntityColum
     @Modifying
     @Query(" update EntityColumn a " +
             " set " +
-                "a.entityId = :entityId," +
                 "a.columnName = :columnName," +
                 "a.displayName = :displayName," +
                 "a.useKey = :useKey," +
                 "a.columnType = :columnType," +
-                "a.selectWhereType = :selectWhereType," +
-                "a.selectWhereCompareOperator = :selectWhereCompareOperator," +
-                "a.selectOrderByNum = :selectOrderByNum," +
-                "a.selectOrderBySortOrder = :selectOrderBySortOrder," +
-                "a.insertAutoValueType = :insertAutoValueType," +
-                "a.insertAutoValue = :insertAutoValue," +
-                "a.insertNullResolveType = :insertNullResolveType," +
-                "a.updateAutoValueType = :updateAutoValueType," +
-                "a.updateAutoValue = :updateAutoValue," +
-                "a.updateNullResolveType = :updateNullResolveType," +
-                "a.deleteAutoValueType = :deleteAutoValueType," +
-                "a.deleteAutoValue = :deleteAutoValue" +
             " where a.id = :id")
     void update(
             @Param("id") Long id,
-            @Param("entityId") Long entityId,
             @Param("columnName") String columnName,
             @Param("displayName") String displayName,
             @Param("useKey") Boolean useKey,
-            @Param("columnType") ColumnType columnType,
+            @Param("columnType") ColumnType columnType
+    );
+
+    @Transactional
+    @Modifying
+    @Query(" update EntityColumn a " +
+            " set " +
+            "a.selectWhereType = :selectWhereType," +
+            "a.selectWhereCompareOperator = :selectWhereCompareOperator," +
+            "a.selectOrderByNum = :selectOrderByNum," +
+            "a.selectOrderBySortOrder = :selectOrderBySortOrder," +
+            " where a.id = :id")
+    void updateSelectSetting(
+            @Param("id") Long id,
             @Param("selectWhereType") SelectWhereType selectWhereType,
             @Param("selectWhereCompareOperator") String selectWhereCompareOperator,
             @Param("selectOrderByNum") Integer selectOrderByNum,
-            @Param("selectOrderBySortOrder") SortOrder selectOrderBySortOrder,
+            @Param("selectOrderBySortOrder") SortOrder selectOrderBySortOrder
+    );
+
+    @Transactional
+    @Modifying
+    @Query(" update EntityColumn a " +
+            " set " +
+            "a.insertAutoValueType = :insertAutoValueType," +
+            "a.insertAutoValue = :insertAutoValue," +
+            "a.insertNullResolveType = :insertNullResolveType," +
+            " where a.id = :id")
+    void updateInsertSetting(
+            @Param("id") Long id,
             @Param("insertAutoValueType") AutoValueType insertAutoValueType,
             @Param("insertAutoValue") String insertAutoValue,
-            @Param("insertNullResolveType") NullResolveType insertNullResolveType,
+            @Param("insertNullResolveType") NullResolveType insertNullResolveType
+    );
+
+    @Transactional
+    @Modifying
+    @Query(" update EntityColumn a " +
+            " set " +
+            "a.updateAutoValueType = :updateAutoValueType," +
+            "a.updateAutoValue = :updateAutoValue," +
+            "a.updateNullResolveType = :updateNullResolveType," +
+            " where a.id = :id")
+    void updateUpdateSetting(
+            @Param("id") Long id,
             @Param("updateAutoValueType") AutoValueType updateAutoValueType,
             @Param("updateAutoValue") String updateAutoValue,
-            @Param("updateNullResolveType") NullResolveType updateNullResolveType,
+            @Param("updateNullResolveType") NullResolveType updateNullResolveType
+    );
+
+    @Transactional
+    @Modifying
+    @Query(" update EntityColumn a " +
+            " set " +
+            "a.deleteAutoValueType = :deleteAutoValueType," +
+            "a.deleteAutoValue = :deleteAutoValue" +
+            " where a.id = :id")
+    void updateDeleteSetting(
+            @Param("id") Long id,
             @Param("deleteAutoValueType") AutoValueType deleteAutoValueType,
             @Param("deleteAutoValue") String deleteAutoValue
     );

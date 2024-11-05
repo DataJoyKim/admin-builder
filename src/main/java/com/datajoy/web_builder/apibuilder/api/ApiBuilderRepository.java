@@ -1,4 +1,4 @@
-package com.datajoy.web_builder.apibuilder;
+package com.datajoy.web_builder.apibuilder.api;
 
 import com.datajoy.web_builder.persistence.json.JsonFilePersistence;
 import com.datajoy.web_builder.persistence.json.PrimaryKey;

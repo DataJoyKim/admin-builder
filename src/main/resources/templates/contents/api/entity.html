@@ -43,7 +43,7 @@
                     updateEntityColumn(args.item);
                 },
                 onItemDeleting: function(args) {
-                    alert('삭제');
+                    deleteEntityColumn(args.item);
                 }
             });
 
@@ -179,7 +179,7 @@
                    columnType:item.columnType
                 },
                 function(response){
-                    alert("저장완료되었습니다.");
+                    alert("생성 완료되었습니다.");
                 },
                 function(error){
                     alert('error');
@@ -190,9 +190,13 @@
         function updateEntityColumn(item) {
           httpClient.put(`/console/api/entity-column/${item.id}`, {},
               {
+                   columnName:item.columnName,
+                   displayName:item.displayName,
+                   useKey:item.useKey,
+                   columnType:item.columnType
               },
               function(response){
-                  alert("저장완료되었습니다.");
+                  alert("변경 완료되었습니다.");
               },
               function(error){
                   alert('error');
@@ -204,7 +208,6 @@
           httpClient.delete(`/console/api/entity-column/${item.id}`, {},
               function(response){
                   alert("삭제 처리 완료되었습니다.");
-                  getEntity();
               },
               function(error){
                   alert('error');

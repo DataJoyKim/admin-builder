@@ -1,6 +1,6 @@
 package com.datajoy.web_builder.apibuilder.command;
 
-import com.datajoy.web_builder.apibuilder.ApiBuilder;
+import com.datajoy.web_builder.apibuilder.api.ApiBuilder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;

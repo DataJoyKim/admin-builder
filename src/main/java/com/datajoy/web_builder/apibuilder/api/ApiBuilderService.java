@@ -1,4 +1,4 @@
-package com.datajoy.web_builder.apibuilder;
+package com.datajoy.web_builder.apibuilder.api;
 
 import com.datajoy.web_builder.apibuilder.command.BusinessCommandExecutor;
 import com.datajoy.web_builder.apibuilder.message.ResponseMessage;

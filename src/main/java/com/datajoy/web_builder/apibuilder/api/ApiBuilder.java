@@ -1,4 +1,4 @@
-package com.datajoy.web_builder.apibuilder;
+package com.datajoy.web_builder.apibuilder.api;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
