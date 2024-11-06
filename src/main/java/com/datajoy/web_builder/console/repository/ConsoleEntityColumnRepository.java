@@ -16,11 +16,11 @@ public interface ConsoleEntityColumnRepository extends JpaRepository<EntityColum
     @Modifying
     @Query(" insert EntityColumn a (entityId,columnName,displayName,useKey,columnType)" +
             " values ( " +
-            ":entityId," +
-            ":columnName," +
-            ":displayName," +
-            ":useKey," +
-            ":columnType" +
+                ":entityId," +
+                ":columnName," +
+                ":displayName," +
+                ":useKey," +
+                ":columnType" +
             ")")
     void insert(
             @Param("entityId") Long entityId,
@@ -37,7 +37,7 @@ public interface ConsoleEntityColumnRepository extends JpaRepository<EntityColum
                 "a.columnName = :columnName," +
                 "a.displayName = :displayName," +
                 "a.useKey = :useKey," +
-                "a.columnType = :columnType," +
+                "a.columnType = :columnType" +
             " where a.id = :id")
     void update(
             @Param("id") Long id,
@@ -51,10 +51,10 @@ public interface ConsoleEntityColumnRepository extends JpaRepository<EntityColum
     @Modifying
     @Query(" update EntityColumn a " +
             " set " +
-            "a.selectWhereType = :selectWhereType," +
-            "a.selectWhereCompareOperator = :selectWhereCompareOperator," +
-            "a.selectOrderByNum = :selectOrderByNum," +
-            "a.selectOrderBySortOrder = :selectOrderBySortOrder," +
+                "a.selectWhereType = :selectWhereType," +
+                "a.selectWhereCompareOperator = :selectWhereCompareOperator," +
+                "a.selectOrderByNum = :selectOrderByNum," +
+                "a.selectOrderBySortOrder = :selectOrderBySortOrder" +
             " where a.id = :id")
     void updateSelectSetting(
             @Param("id") Long id,
@@ -68,9 +68,9 @@ public interface ConsoleEntityColumnRepository extends JpaRepository<EntityColum
     @Modifying
     @Query(" update EntityColumn a " +
             " set " +
-            "a.insertAutoValueType = :insertAutoValueType," +
-            "a.insertAutoValue = :insertAutoValue," +
-            "a.insertNullResolveType = :insertNullResolveType," +
+                "a.insertAutoValueType = :insertAutoValueType," +
+                "a.insertAutoValue = :insertAutoValue," +
+                "a.insertNullResolveType = :insertNullResolveType" +
             " where a.id = :id")
     void updateInsertSetting(
             @Param("id") Long id,
@@ -83,9 +83,9 @@ public interface ConsoleEntityColumnRepository extends JpaRepository<EntityColum
     @Modifying
     @Query(" update EntityColumn a " +
             " set " +
-            "a.updateAutoValueType = :updateAutoValueType," +
-            "a.updateAutoValue = :updateAutoValue," +
-            "a.updateNullResolveType = :updateNullResolveType," +
+                "a.updateAutoValueType = :updateAutoValueType," +
+                "a.updateAutoValue = :updateAutoValue," +
+                "a.updateNullResolveType = :updateNullResolveType" +
             " where a.id = :id")
     void updateUpdateSetting(
             @Param("id") Long id,
@@ -98,8 +98,8 @@ public interface ConsoleEntityColumnRepository extends JpaRepository<EntityColum
     @Modifying
     @Query(" update EntityColumn a " +
             " set " +
-            "a.deleteAutoValueType = :deleteAutoValueType," +
-            "a.deleteAutoValue = :deleteAutoValue" +
+                "a.deleteAutoValueType = :deleteAutoValueType," +
+                "a.deleteAutoValue = :deleteAutoValue" +
             " where a.id = :id")
     void updateDeleteSetting(
             @Param("id") Long id,

@@ -24,7 +24,7 @@ public class EntityColumnRestController {
                 Long.valueOf((String) params.get("entityId")),
                 (String) params.get("columnName"),
                 (String) params.get("displayName"),
-                Boolean.valueOf((String) params.get("useKey")),
+                (Boolean) params.get("useKey"),
                 ColumnType.valueOf((String) params.get("columnType"))
         );
 
@@ -47,7 +47,7 @@ public class EntityColumnRestController {
                 entityColumn.getId(),
                 (String) params.get("columnName"),
                 (String) params.get("displayName"),
-                Boolean.valueOf((String) params.get("useKey")),
+                (Boolean) params.get("useKey"),
                 ColumnType.valueOf((String) params.get("columnType"))
         );
 

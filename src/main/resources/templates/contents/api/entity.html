@@ -26,8 +26,8 @@
             sheet.initSheet('jsGrid2', "100%","500px",
             [
                 {name: "id", title:"ID", type: "number", width: 50, editable: true, edittype: "text" },
-                {name: "columnName", title:"column", type: "text", width: 150 , editable: true, edittype: "text" },
-                {name: "displayName", title:"화면노출명", type: "text", width: 150 , editable: true, edittype: "text" },
+                {name: "columnName", title:"column", type: "text", width: 100 , editable: true, edittype: "text" },
+                {name: "displayName", title:"화면노출명", type: "text", width: 100 , editable: true, edittype: "text" },
                 {name: "useKey", title:"key", type: "checkbox", width: 50},
                 {name: "columnType", title:"type", type: "select", width: 50, items: columnTypeCodes, valueField: "id", textField: "name" },
                 { type: "control", editButton: false, modeSwitchButton: false }
@@ -40,10 +40,10 @@
                     insertEntityColumn($("#id").val(), args.item);
                 },
                 onItemUpdated: function(args) {
-                    updateEntityColumn(args.item);
+                    updateEntityColumn($("#id").val(), args.item);
                 },
                 onItemDeleting: function(args) {
-                    deleteEntityColumn(args.item);
+                    deleteEntityColumn($("#id").val(), args.item);
                 }
             });
 
@@ -180,6 +180,7 @@
                 },
                 function(response){
                     alert("생성 완료되었습니다.");
+                    getEntityColumn(entityId);
                 },
                 function(error){
                     alert('error');
@@ -187,7 +188,7 @@
             );
         }
 
-        function updateEntityColumn(item) {
+        function updateEntityColumn(entityId, item) {
           httpClient.put(`/console/api/entity-column/${item.id}`, {},
               {
                    columnName:item.columnName,
@@ -197,6 +198,7 @@
               },
               function(response){
                   alert("변경 완료되었습니다.");
+                  getEntityColumn(entityId);
               },
               function(error){
                   alert('error');
@@ -204,10 +206,11 @@
           );
         }
 
-        function deleteEntityColumn(item) {
+        function deleteEntityColumn(entityId, item) {
           httpClient.delete(`/console/api/entity-column/${item.id}`, {},
               function(response){
-                  alert("삭제 처리 완료되었습니다.");
+                  alert("삭제 완료되었습니다.");
+                  getEntityColumn(entityId);
               },
               function(error){
                   alert('error');
@@ -216,9 +219,9 @@
         }
     </script>
 <div th:fragment="view">
-    1.36
+    1.37
     <div class="row">
-            <div class="col-lg-4">
+            <div class="col-lg-5">
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Entity</h3>
@@ -229,7 +232,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-8">
+            <div class="col-lg-7">
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">상세 내용</h3>
