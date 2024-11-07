@@ -26,6 +26,9 @@ public class EntityColumn {
     private String displayName;
 
     @Column
+    private Integer orderNum;
+
+    @Column
     private Boolean useKey;
 
     @Enumerated(EnumType.STRING)

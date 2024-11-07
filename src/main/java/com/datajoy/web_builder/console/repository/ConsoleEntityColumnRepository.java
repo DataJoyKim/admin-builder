@@ -38,13 +38,15 @@ public interface ConsoleEntityColumnRepository extends JpaRepository<EntityColum
                 "a.displayName = :displayName," +
                 "a.useKey = :useKey," +
                 "a.columnType = :columnType" +
+                "a.orderNum = :orderNum" +
             " where a.id = :id")
     void update(
             @Param("id") Long id,
             @Param("columnName") String columnName,
             @Param("displayName") String displayName,
             @Param("useKey") Boolean useKey,
-            @Param("columnType") ColumnType columnType
+            @Param("columnType") ColumnType columnType,
+            @Param("orderNum") Integer orderNum
     );
 
     @Transactional
