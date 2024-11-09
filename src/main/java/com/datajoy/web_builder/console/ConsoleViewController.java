@@ -25,4 +25,10 @@ public class ConsoleViewController {
         model.addAttribute("contentPath","/contents/api/entity");
         return "contents/content";
     }
+
+    @GetMapping("/function")
+    public String moveFunction(Model model) {
+        model.addAttribute("contentPath","/contents/api/function");
+        return "contents/content";
+    }
 }

@@ -33,7 +33,7 @@ public class EntityColumnRestController {
 
     @GetMapping("/{entityId}")
     public ResponseEntity<?> getEntityColumn(@PathVariable("entityId") Long entityId) {
-        List<EntityColumn> results = entityColumnRepository.findByEntityId(entityId);
+        List<EntityColumn> results = entityColumnRepository.findByEntityIdOrderByOrderNum(entityId);
 
         return new ResponseEntity<>(results, HttpStatus.OK);
     }

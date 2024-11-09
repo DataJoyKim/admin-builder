@@ -37,7 +37,7 @@ public interface ConsoleEntityColumnRepository extends JpaRepository<EntityColum
                 "a.columnName = :columnName," +
                 "a.displayName = :displayName," +
                 "a.useKey = :useKey," +
-                "a.columnType = :columnType" +
+                "a.columnType = :columnType," +
                 "a.orderNum = :orderNum" +
             " where a.id = :id")
     void update(
@@ -109,5 +109,5 @@ public interface ConsoleEntityColumnRepository extends JpaRepository<EntityColum
             @Param("deleteAutoValue") String deleteAutoValue
     );
 
-    List<EntityColumn> findByEntityId(Long entityId);
+    List<EntityColumn> findByEntityIdOrderByOrderNum(Long entityId);
 }
