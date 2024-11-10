@@ -1,322 +1,272 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <script th:fragment="script">
-    /* global $ */
-    $(document).ready(function() {
-        var $flowchart = $('#flowchartworkspace');
-        var $container = $flowchart.parent();
 
-
-        // Apply the plugin on a standard, empty div...
-        $flowchart.flowchart({
-            data: defaultFlowchartData,
-            defaultSelectedLinkColor: '#000055',
-            grid: 10,
-            multipleLinksOnInput: true,
-            multipleLinksOnOutput: true
+        $( document ).ready(function() {
+            init();
         });
 
-
-        function getOperatorData($element) {
-            var nbInputs = parseInt($element.data('nb-inputs'), 10);
-            var nbOutputs = parseInt($element.data('nb-outputs'), 10);
-            var data = {
-                properties: {
-                    title: $element.text(),
-                    inputs: {},
-                    outputs: {}
-                }
+        function init() {
+            let codes = {
+                "FunctionType":[
+                    {id:"ENTITY",name:"Entity"},
+                    {id:"SQL",name:"SQL"},
+                    {id:"REST_CLIENT",name:"Rest Client"}
+                ]
             };
 
-            var i = 0;
-            for (i = 0; i < nbInputs; i++) {
-                data.properties.inputs['input_' + i] = {
-                    label: 'Input ' + (i + 1)
-                };
-            }
-            for (i = 0; i < nbOutputs; i++) {
-                data.properties.outputs['output_' + i] = {
-                    label: 'Output ' + (i + 1)
-                };
-            }
+            sheet.initSheet('jsGrid1', "100%","600px",
+            [
+                {name: "id", title:"ID", type: "number", width: 50 },
+                {name: "serviceName", title:"service", type: "text", width: 150 },
+                {name: "displayName", title:"화면노출명", type: "text", width: 200 }
+            ],
+            function(args) {
+                selectedContent(args.item);
+            });
 
-            return data;
-        }
-
-
-
-        //-----------------------------------------
-        //--- operator and link properties
-        //--- start
-        var $operatorProperties = $('#operator_properties');
-        $operatorProperties.hide();
-        var $linkProperties = $('#link_properties');
-        $linkProperties.hide();
-        var $operatorTitle = $('#operator_title');
-        var $linkColor = $('#link_color');
-
-        $flowchart.flowchart({
-            onOperatorSelect: function(operatorId) {
-                $operatorProperties.show();
-                $operatorTitle.val($flowchart.flowchart('getOperatorTitle', operatorId));
-                return true;
-            },
-            onOperatorUnselect: function() {
-                $operatorProperties.hide();
-                return true;
-            },
-            onLinkSelect: function(linkId) {
-                $linkProperties.show();
-                $linkColor.val($flowchart.flowchart('getLinkMainColor', linkId));
-                return true;
-            },
-            onLinkUnselect: function() {
-                $linkProperties.hide();
-                return true;
-            }
-        });
-
-        $operatorTitle.keyup(function() {
-            var selectedOperatorId = $flowchart.flowchart('getSelectedOperatorId');
-            if (selectedOperatorId != null) {
-                $flowchart.flowchart('setOperatorTitle', selectedOperatorId, $operatorTitle.val());
-            }
-        });
-
-        $linkColor.change(function() {
-            var selectedLinkId = $flowchart.flowchart('getSelectedLinkId');
-            if (selectedLinkId != null) {
-                $flowchart.flowchart('setLinkMainColor', selectedLinkId, $linkColor.val());
-            }
-        });
-        //--- end
-        //--- operator and link properties
-        //-----------------------------------------
-
-        //-----------------------------------------
-        //--- delete operator / link button
-        //--- start
-        $flowchart.parent().siblings('.delete_selected_button').click(function() {
-            $flowchart.flowchart('deleteSelected');
-        });
-        //--- end
-        //--- delete operator / link button
-        //-----------------------------------------
-
-
-
-        //-----------------------------------------
-        //--- create operator button
-        //--- start
-        var operatorI = 0;
-        $flowchart.parent().siblings('.create_operator').click(function() {
-            var operatorId = 'created_operator_' + operatorI;
-            var operatorData = {
-                top: ($flowchart.height() / 2) - 30,
-                left: ($flowchart.width() / 2) - 100 + (operatorI * 10),
-                properties: {
-                    title: 'Operator ' + (operatorI + 3),
-                    inputs: {
-                        input_1: {
-                            label: 'Input 1',
-                        }
-                    },
-                    outputs: {
-                        output_1: {
-                            label: 'Output 1',
-                        }
-                    }
+            sheet.initSheet('serviceFunctionGrid', "100%","500px",
+            [
+                {name: "id", title:"ID", type: "number", width: 20, editing: false, inserting: false},
+                {name: "functionType", title:"type", type: "select", width: 50, items: codes["FunctionType"], valueField: "id", textField: "name" },
+                {name: "functionName", title:"function", type: "text", width: 100},
+                {name: "requestMessageId", title:"요청메시지ID", type: "text", width: 100},
+                {name: "responseMessageId", title:"응답메시지ID", type: "text", width: 100},
+                {name: "isLogging", title:"로깅", type: "checkbox", width: 50},
+                {name: "orderNum", title:"순서", type: "number", width: 30},
+                { type: "control", editButton: true, width: 30, modeSwitchButton: false }
+            ],
+            function(args) {},
+            {
+                inserting: true,
+                editing: true,
+                onItemInserting: function(args) {
+                    insertServiceFunction($("#id").val(), args.item);
+                },
+                onItemUpdated: function(args) {
+                    updateServiceFunction($("#id").val(),args.item);
+                },
+                onItemDeleting: function(args) {
+                    deleteServiceFunction($("#id").val(), args.item);
                 }
-            };
+            });
 
-            operatorI++;
+            getService();
+        }
 
-            $flowchart.flowchart('createOperator', operatorId, operatorData);
+        function save() {
+            let id = $("#id").val();
 
-        });
-        //--- end
-        //--- create operator button
-        //-----------------------------------------
+            if(isEmpty(id))
+                insertContent();
+            else
+                updateContent(id);
+        }
 
-
-
-
-        //-----------------------------------------
-        //--- draggable operators
-        //--- start
-        //var operatorId = 0;
-        var $draggableOperators = $('.draggable_operator');
-        $draggableOperators.draggable({
-            cursor: "move",
-            opacity: 0.7,
-
-            // helper: 'clone',
-            appendTo: 'body',
-            zIndex: 1000,
-
-            helper: function(e) {
-                var $this = $(this);
-                var data = getOperatorData($this);
-                return $flowchart.flowchart('getOperatorElement', data);
-            },
-            stop: function(e, ui) {
-                var $this = $(this);
-                var elOffset = ui.offset;
-                var containerOffset = $container.offset();
-                if (elOffset.left > containerOffset.left &&
-                    elOffset.top > containerOffset.top &&
-                    elOffset.left < containerOffset.left + $container.width() &&
-                    elOffset.top < containerOffset.top + $container.height()) {
-
-                    var flowchartOffset = $flowchart.offset();
-
-                    var relativeLeft = elOffset.left - flowchartOffset.left;
-                    var relativeTop = elOffset.top - flowchartOffset.top;
-
-                    var positionRatio = $flowchart.flowchart('getPositionRatio');
-                    relativeLeft /= positionRatio;
-                    relativeTop /= positionRatio;
-
-                    var data = getOperatorData($this);
-                    data.left = relativeLeft;
-                    data.top = relativeTop;
-
-                    $flowchart.flowchart('addOperator', data);
+        function getService() {
+            httpClient.get(`/console/api/service`, {},
+                function(response){
+                    sheet.setSheetData('jsGrid1', response);
+                },
+                function(error){
+                    alert('error');
                 }
-            }
-        });
-        //--- end
-        //--- draggable operators
-        //-----------------------------------------
-
-
-        //-----------------------------------------
-        //--- save and load
-        //--- start
-        function Flow2Text() {
-            var data = $flowchart.flowchart('getData');
-            $('#flowchart_data').val(JSON.stringify(data, null, 2));
+            );
         }
-        $('#get_data').click(Flow2Text);
 
-        function Text2Flow() {
-            var data = JSON.parse($('#flowchart_data').val());
-            $flowchart.flowchart('setData', data);
-        }
-        $('#set_data').click(Text2Flow);
-
-        /*global localStorage*/
-        function SaveToLocalStorage() {
-            if (typeof localStorage !== 'object') {
-                alert('local storage not available');
-                return;
-            }
-            Flow2Text();
-            localStorage.setItem("stgLocalFlowChart", $('#flowchart_data').val());
-        }
-        $('#save_local').click(SaveToLocalStorage);
-
-        function LoadFromLocalStorage() {
-            if (typeof localStorage !== 'object') {
-                alert('local storage not available');
-                return;
-            }
-            var s = localStorage.getItem("stgLocalFlowChart");
-            if (s != null) {
-                $('#flowchart_data').val(s);
-                Text2Flow();
-            }
-            else {
-                alert('local storage empty');
-            }
-        }
-        $('#load_local').click(LoadFromLocalStorage);
-        //--- end
-        //--- save and load
-        //-----------------------------------------
-
-
-    });
-
-    var defaultFlowchartData = {
-        operators: {
-            operator1: {
-                top: 20,
-                left: 20,
-                properties: {
-                    title: 'Operator 1',
-                    inputs: {
-                        input_1: {
-                            label: 'in',
-                        }
-                    },
-                    outputs: {
-                        output_1: {
-                            label: 'out',
-                        }
-                    }
+        function selectedContent(item) {
+            httpClient.get(`/console/api/service/${item.id}`, {},
+                function(response){
+                    setContentData(response);
+                    getServiceFunction(item.id);
+                },
+                function(error){
+                    alert('error');
                 }
-            },
-            operator2: {
-                top: 80,
-                left: 300,
-                properties: {
-                    title: 'Operator 2',
-                    inputs: {
-                        input_2: {
-                            label: 'in',
-                        }
-                    },
-                    outputs: {
-                        output_2: {
-                            label: 'out',
-                        }
-                    }
-                }
-            },
-        },
-        links: {
-            link_1: {
-                fromOperator: 'operator1',
-                fromConnector: 'output_1',
-                toOperator: 'operator2',
-                toConnector: 'input_2',
-            },
+            );
         }
-    };
-</script>
+
+        function insertContent() {
+            httpClient.post(`/console/api/service`,{},getContent(),
+                function(response){
+                    alert("저장완료되었습니다.");
+                    getService();
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function updateContent(id) {
+          httpClient.put(`/console/api/service/${id}`, {}, getContent(),
+              function(response){
+                  alert("저장완료되었습니다.");
+                  getService();
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+        function deleteContent() {
+          let id = $("#id").val();
+
+          httpClient.delete(`/console/api/service/${id}`, {},
+              function(response){
+                  alert("삭제 처리 완료되었습니다.");
+                  getService();
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+        function setContentData(response) {
+            setContent({
+                id:response.id,
+                serviceName:response.serviceName,
+                displayName:response.displayName,
+                note:response.note
+              });
+        }
+
+        function getContent() {
+            return {
+                id: $("#id").val(),
+                serviceName: $("#serviceName").val(),
+                displayName: $("#displayName").val(),
+                note: $("#note").val()
+            }
+        }
+
+        function setContent(params) {
+            $("#id").val(params.id);
+            $("#serviceName").val(params.serviceName);
+            $("#displayName").val(params.displayName);
+            $("#note").val(params.note);
+          }
+
+          function newContent(){
+            setContent({
+                id:'',
+                serviceName:'',
+                displayName:'',
+                note:'',
+                });
+          }
+
+        function getServiceFunction(serviceId) {
+            httpClient.get(`/console/api/service-function/${serviceId}`, {},
+                function(response){
+                    sheet.setSheetData('serviceFunctionGrid', response);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function insertServiceFunction(serviceId, item) {
+            httpClient.post(`/console/api/service-function`,{},
+                {
+                   serviceId:serviceId,
+                   functionName:item.functionName,
+                   functionType:item.functionType,
+                   orderNum:item.orderNum,
+                   isLogging:item.isLogging,
+                   requestMessageId:item.requestMessageId,
+                   responseMessageId:item.responseMessageId
+                },
+                function(response){
+                    alert("생성 완료되었습니다.");
+                    getServiceFunction(serviceId);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function updateServiceFunction(serviceId, item) {
+          httpClient.put(`/console/api/service-function/${item.id}`, {},
+              {
+                   serviceId:serviceId,
+                   functionName:item.functionName,
+                   functionType:item.functionType,
+                   orderNum:item.orderNum,
+                   isLogging:item.isLogging,
+                   requestMessageId:item.requestMessageId,
+                   responseMessageId:item.responseMessageId
+              },
+              function(response){
+                  alert("변경 완료되었습니다.");
+                  getServiceFunction(serviceId);
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+        function deleteServiceFunction(serviceId, item) {
+          httpClient.delete(`/console/api/service-function/${item.id}`, {},
+              function(response){
+                  alert("삭제 완료되었습니다.");
+                  getServiceFunction(serviceId);
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+    </script>
 <div th:fragment="view">
-    1.8
-    <h4>Flowchart</h4>
-    <div id="chart_container">
-        <div class="flowchart-example-container" id="flowchartworkspace"></div>
-    </div>
-    <div class="draggable_operators">
-        <div class="draggable_operators_label">
-            Operators (drag and drop them in the flowchart):
+    1.1
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Service</h3>
+                    <wb-action-button elementId="search" actionName="getService()" icon="fas fa-search"></wb-action-button>
+                </div>
+                <div class="card-body">
+                    <div id="jsGrid1"></div>
+                </div>
+            </div>
         </div>
-        <div class="draggable_operators_divs">
-            <div class="draggable_operator" data-nb-inputs="1" data-nb-outputs="0">1 input</div>
-            <div class="draggable_operator" data-nb-inputs="0" data-nb-outputs="1">1 output</div>
-            <div class="draggable_operator" data-nb-inputs="1" data-nb-outputs="1">1 input &amp; 1 output</div>
-            <div class="draggable_operator" data-nb-inputs="1" data-nb-outputs="2">1 in &amp; 2 out</div>
-            <div class="draggable_operator" data-nb-inputs="2" data-nb-outputs="1">2 in &amp; 1 out</div>
-            <div class="draggable_operator" data-nb-inputs="2" data-nb-outputs="2">2 in &amp; 2 out</div>
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">상세 내용</h3>
+                    <wb-action-button elementId="new" actionName="newContent()" icon="fas fa-plus"></wb-action-button>
+                    <wb-action-button elementId="save" actionName="save()" icon="fas fa-save"></wb-action-button>
+                    <wb-action-button elementId="delete" actionName="deleteContent()" icon="fas fa-trash"></wb-action-button>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-1">
+                            <wb-text-input elementId="id" label="ID" enable="false"></wb-text-input>
+                        </div>
+                        <div class="col-md-3">
+                            <wb-text-input elementId="serviceName" label="service" enable="true"></wb-text-input>
+                        </div>
+                        <div class="col-md-3">
+                            <wb-text-input elementId="displayName" label="화면 노출명" enable="true" ></wb-text-input>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <wb-text-input elementId="note" label="note" enable="true"></wb-text-input>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="serviceFunctionGrid"></div>
+                </div>
+            </div>
         </div>
-    </div>
-    <button class="create_operator">Create operator</button>
-    <button class="delete_selected_button">Delete selected operator / link</button>
-    <div id="operator_properties" style="display: block;">
-        <label for="operator_title">Operator's title: </label><input id="operator_title" type="text">
-    </div>
-    <div id="link_properties" style="display: block;">
-        <label for="link_color">Link's color: </label><input id="link_color" type="color">
-    </div>
-    <button class="get_data" id="get_data">Get data</button>
-    <button class="set_data" id="set_data">Set data</button>
-    <button id="save_local">Save to local storage</button>
-    <button id="load_local">Load from local storage</button>
-    <div>
-        <textarea id="flowchart_data"></textarea>
     </div>
 </div>
 </html>
