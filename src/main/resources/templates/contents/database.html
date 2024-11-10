@@ -1,0 +1,285 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<script th:fragment="script">
+        $( document ).ready(function() {
+            init();
+        });
+
+        function init() {
+            var codes = {
+                "DatabaseKind":[
+                    {id:"MYSQL",name:"Mysql"},
+                    {id:"MARIADB",name:"MariaDB"},
+                    {id:"MSSQL",name:"Mssql"},
+                    {id:"ORACLE",name:"Oracle"}
+                ]
+            };
+
+            setCodes(codes);
+
+            sheet.initSheet('jsGrid1', "100%","500px",
+            [
+                {name: "id", title:"ID", type: "number", width: 50, editing: false, inserting: false},
+                {name: "dataSourceName", title:"dataSource 명", type: "text", width: 150 },
+                {name: "displayName", title:"화면노출명", type: "text", width: 200 },
+                {name: "note", title:"비고", type: "text", width: 200 }
+            ],
+            function(args) {
+                selectedContent(args.item);
+            });
+
+            getDataSource();
+        }
+
+        function setCodes(codes) {
+            setCodeBox("databaseKind", codes["DatabaseKind"]);
+        }
+
+        function getDataSource() {
+            httpClient.get(`/console/api/datasource/database`, {},
+                function(response){
+                    sheet.setSheetData('jsGrid1', response);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function selectedContent(item) {
+            httpClient.get(`/console/api/datasource/database/${item.id}`, {},
+                function(response){
+                    setContentData(response);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function isEmpty(v) {
+            return (v == undefined || v == null || v == '');
+        }
+
+        function save() {
+            let id = $("#id").val();
+
+            if(isEmpty(id))
+                insertContent();
+            else
+                updateContent(id);
+        }
+
+        function insertContent() {
+            httpClient.post(`/console/api/datasource/database`,{},getContent(),
+                function(response){
+                    alert("저장완료되었습니다.");
+                    getDataSource();
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function updateContent(id) {
+          httpClient.put(`/console/api/datasource/database/${id}`, {}, getContent(),
+              function(response){
+                  alert("저장완료되었습니다.");
+                  getDataSource();
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+        function deleteContent() {
+          let id = $("#id").val();
+
+          httpClient.delete(`/console/api/datasource/database/${id}`, {},
+              function(response){
+                  alert("삭제 처리 완료되었습니다.");
+                  getDataSource();
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+        function refreshDataSource() {
+          let id = $("#id").val();
+
+          httpClient.post(`/console/api/datasource/database/${id}/refresh`,{},{},
+              function(response){
+                  alert("갱신 완료되었습니다.");
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+        function validateConnectDataSource() {
+          let id = $("#id").val();
+
+          httpClient.get(`/console/api/datasource/database/${id}/connect-valid`, {},
+              function(response){
+                    if(response != null && response.result == true) {
+                        alert("연결 성공");
+                    }
+                    else {
+                        alert("연결 실패");
+                    }
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+        function setContentData(response) {
+            setContent({
+                id:response.id,
+                displayName:response.displayName,
+                dataSourceName:response.dataSourceName,
+                note:response.note,
+                url:response.url,
+                username:response.username,
+                password:response.password,
+                databaseKind:response.databaseKind,
+                maximumPoolSize:response.maximumPoolSize,
+                minimumIdle:response.minimumIdle,
+                connectionTimeout:response.connectionTimeout,
+                validationTimeout:response.validationTimeout
+              });
+        }
+
+        function getContent() {
+            return {
+                id: $("#id").val(),
+                displayName: $("#displayName").val(),
+                dataSourceName: $("#dataSourceName").val(),
+                note: $("#note").val(),
+                url: $("#url").val(),
+                username: $("#username").val(),
+                password: $("#password").val(),
+                databaseKind: $("#databaseKind").val(),
+                maximumPoolSize:$("#maximumPoolSize").val(),
+                minimumIdle:$("#minimumIdle").val(),
+                connectionTimeout:$("#connectionTimeout").val(),
+                validationTimeout:$("#validationTimeout").val()
+            }
+        }
+
+        function setContent(params) {
+            $("#id").val(params.id);
+            $("#displayName").val(params.displayName);
+            $("#dataSourceName").val(params.dataSourceName);
+            $("#note").val(params.note);
+            $("#url").val(params.url);
+            $("#username").val(params.username);
+            $("#password").val(params.password);
+            $("#databaseKind").val(params.databaseKind);
+            $("#maximumPoolSize").val(params.maximumPoolSize);
+            $("#minimumIdle").val(params.minimumIdle);
+            $("#connectionTimeout").val(params.connectionTimeout);
+            $("#validationTimeout").val(params.validationTimeout);
+          }
+
+          function newContent(){
+            setContent({
+                id:'',
+                displayName:'',
+                dataSourceName:'',
+                note:'',
+                url:'',
+                username:'',
+                password:'',
+                databaseKind:'',
+                maximumPoolSize:100,
+                minimumIdle:100,
+                connectionTimeout:30000,
+                validationTimeout:5000
+              });
+          }
+    </script>
+<div th:fragment="view">
+    1.26
+    <div class="row">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">DataSource</h3>
+                        <wb-action-button elementId="search" actionName="getDataSource()" icon="fas fa-search"></wb-action-button>
+                    </div>
+                    <div class="card-body">
+                        <div id="jsGrid1"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">상세 내용</h3>
+                        <wb-action-button elementId="new" actionName="newContent()" icon="fas fa-plus"></wb-action-button>
+                        <wb-action-button elementId="save" actionName="save()" icon="fas fa-save"></wb-action-button>
+                        <wb-action-button elementId="delete" actionName="deleteContent()" icon="fas fa-trash"></wb-action-button>
+                        <wb-action-button elementId="refresh" actionName="refreshDataSource()" icon="fas fa-arrow-up"></wb-action-button>
+                        <wb-action-button elementId="validate" actionName="validateConnectDataSource()" icon="fas fa-check"></wb-action-button>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-1">
+                                <wb-text-input elementId="id" label="ID" enable="false"></wb-text-input>
+                            </div>
+                            <div class="col-md-3">
+                                <wb-text-input elementId="dataSourceName" label="DataSource 명" enable="true"></wb-text-input>
+                            </div>
+                            <div class="col-md-3">
+                                <wb-text-input elementId="displayName" label="화면 노출명" enable="true" ></wb-text-input>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2">
+                                <wb-select elementId="databaseKind" label="데이터베이스 종류" enable="true" useFirstItem="true" firstItemLabel="" firstItemValue=""></wb-select>
+                            </div>
+                            <div class="col-md-5">
+                                <wb-text-input elementId="url" label="url" enable="true"></wb-text-input>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <wb-text-input elementId="note" label="note" enable="true"></wb-text-input>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2">
+                                <wb-text-input elementId="username" label="username" enable="true"></wb-text-input>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2">
+                                <wb-text-input elementType="password" elementId="password" label="password" enable="true"></wb-text-input>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2">
+                                <wb-text-input elementType="number" elementId="maximumPoolSize" label="maximumPoolSize" enable="true"></wb-text-input>
+                            </div>
+                            <div class="col-md-2">
+                                <wb-text-input elementType="number" elementId="minimumIdle" label="minimumIdle" enable="true"></wb-text-input>
+                            </div>
+                            <div class="col-md-2">
+                                <wb-text-input elementType="number" elementId="connectionTimeout" label="connectionTimeout" enable="true"></wb-text-input>
+                            </div>
+                            <div class="col-md-2">
+                                <wb-text-input elementType="number" elementId="validationTimeout" label="validationTimeout" enable="true"></wb-text-input>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</html>

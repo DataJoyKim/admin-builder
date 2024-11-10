@@ -13,7 +13,7 @@
     function setCodeBox(id, codes) {
         let sHtml = '';
         for(let i=0; i<codes.length; i++) {
-            sHtml += `<option value='${codes[i].cd}'>${codes[i].cdNm}</option>`;
+            sHtml += `<option value='${codes[i].id}'>${codes[i].name}</option>`;
         }
 
         $("#"+id).append(sHtml);
