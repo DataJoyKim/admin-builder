@@ -1,5 +1,7 @@
 package com.datajoy.admin_builder.apibuilder.service;
 
+import com.datajoy.admin_builder.apibuilder.service.code.ErrorResolveType;
+import com.datajoy.admin_builder.apibuilder.service.code.FunctionType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -23,6 +25,10 @@ public class ServiceFunction {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 100)
     private FunctionType functionType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 100)
+    private ErrorResolveType errorResolveType;
 
     @Column
     private Integer orderNum;

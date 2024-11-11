@@ -1,6 +1,6 @@
 package com.datajoy.admin_builder.console.rest;
 
-import com.datajoy.admin_builder.apibuilder.service.Service;
+import com.datajoy.admin_builder.apibuilder.service.ServiceBuilder;
 import com.datajoy.admin_builder.console.repository.ConsoleServiceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,14 +19,14 @@ public class ServiceRestController {
 
     @GetMapping("")
     public ResponseEntity<?> getService() {
-        List<Service> results = serviceRepository.findAll();
+        List<ServiceBuilder> results = serviceRepository.findAll();
 
         return new ResponseEntity<>(results, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getService(@PathVariable("id") Long id) {
-        Service results = serviceRepository.findById(id)
+        ServiceBuilder results = serviceRepository.findById(id)
                 .orElseThrow(RuntimeException::new);
 
         return new ResponseEntity<>(results, HttpStatus.OK);
@@ -35,20 +35,20 @@ public class ServiceRestController {
     @PostMapping("")
     public ResponseEntity<?> createService(@RequestBody Map<String,Object> params) {
 
-        Service service = Service.builder()
+        ServiceBuilder service = ServiceBuilder.builder()
                 .serviceName((String) params.get("serviceName"))
                 .displayName((String) params.get("displayName"))
                 .note((String) params.get("note"))
                 .build();
 
-        Service results = serviceRepository.save(service);
+        ServiceBuilder results = serviceRepository.save(service);
 
         return new ResponseEntity<>(results, HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateService(@PathVariable("id") Long id, @RequestBody Map<String,Object> params) {
-        Service service = serviceRepository.findById(id)
+        ServiceBuilder service = serviceRepository.findById(id)
                 .orElseThrow(RuntimeException::new);
 
         serviceRepository.update(
@@ -63,7 +63,7 @@ public class ServiceRestController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteService(@PathVariable("id") Long id) {
-        Service service = serviceRepository.findById(id)
+        ServiceBuilder service = serviceRepository.findById(id)
                 .orElseThrow(RuntimeException::new);
 
         serviceRepository.deleteById(service.getId());

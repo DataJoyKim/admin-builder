@@ -4,15 +4,21 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
-@Getter @AllArgsConstructor @Builder
-public class ResponseMessage<T> {
-    private T contents;
-    private String status;
-    private String message;
+import java.util.Map;
 
-    public static ResponseMessage<?> createMessage(Object contents) {
+@Getter @AllArgsConstructor @Builder
+public class ResponseMessage {
+    private Map<String, Object> contents;
+    private Integer status;
+    private String message;
+    private ResultCode resultCode;
+
+    public static ResponseMessage createSuccessMessage(Map<String, Object> contents) {
         return ResponseMessage.builder()
                 .contents(contents)
+                .status(200)
+                .resultCode(ResultCode.SUCCESS)
+                .message("응답 성공하였습니다.")
                 .build();
     }
 }

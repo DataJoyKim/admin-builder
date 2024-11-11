@@ -12,7 +12,7 @@ import java.util.List;
 @Builder
 @Table(uniqueConstraints = {@UniqueConstraint(name="SERVICE_UQ",columnNames={"SERVICE_NAME"})})
 @Entity
-public class Service {
+public class ServiceBuilder {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

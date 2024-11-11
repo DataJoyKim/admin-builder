@@ -1,6 +1,6 @@
 package com.datajoy.admin_builder.console.repository;
 
-import com.datajoy.admin_builder.apibuilder.service.FunctionType;
+import com.datajoy.admin_builder.apibuilder.service.code.FunctionType;
 import com.datajoy.admin_builder.apibuilder.service.ServiceFunction;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
