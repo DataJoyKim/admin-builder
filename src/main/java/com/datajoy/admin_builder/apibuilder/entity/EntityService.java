@@ -2,7 +2,6 @@ package com.datajoy.admin_builder.apibuilder.entity;
 
 import com.datajoy.admin_builder.apibuilder.datasource.DataSourceDatabase;
 import com.datajoy.admin_builder.apibuilder.datasource.LookupKey;
-import com.datajoy.admin_builder.apibuilder.entity.repository.EntityRepository;
 import com.datajoy.admin_builder.apibuilder.sql.SqlExecutor;
 import com.datajoy.admin_builder.apibuilder.sql.parameterbind.ParameterBindType;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +17,6 @@ import java.util.Map;
 public class EntityService {
     private final EntityRepository entityRepository;
     private final EntityConfig entityConfig;
-    private final DataSourceDatabase dataSourceDatabase;
 
     public EntityResult execute(String entityName, EntityParameter params) {
         Entity entity = entityRepository.findByEntityName(entityName)
@@ -26,7 +24,7 @@ public class EntityService {
 
         List<EntitySqlQuery> entitySqlQueryList = entity.generateQuery(entityConfig, params);
 
-        SqlExecutor sqlExecutor = createSqlExecutor(entity);
+        SqlExecutor sqlExecutor = createSqlExecutor(entity.getDataSourceName());
 
         Map<String, List<Map<String, Object>>> results = new HashMap<>();
 
@@ -39,8 +37,10 @@ public class EntityService {
         return EntityResult.createEntityResult(results);
     }
 
-    private SqlExecutor createSqlExecutor(Entity entity) {
-        DataSource dataSource = dataSourceDatabase.getDataSource(LookupKey.generateKey(entity.getDataSourceName()));
+    private SqlExecutor createSqlExecutor(String dataSourceName) {
+        LookupKey lookupKey = LookupKey.generateKey(dataSourceName);
+
+        DataSource dataSource = DataSourceDatabase.getDataSource(lookupKey);
 
         return new SqlExecutor(dataSource);
     }

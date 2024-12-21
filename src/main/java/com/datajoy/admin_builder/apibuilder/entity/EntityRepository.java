@@ -1,6 +1,5 @@
-package com.datajoy.admin_builder.apibuilder.entity.repository;
+package com.datajoy.admin_builder.apibuilder.entity;
 
-import com.datajoy.admin_builder.apibuilder.entity.Entity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

@@ -20,8 +20,6 @@ import java.util.Map;
 public class DatabaseRestController {
     @Autowired
     private ConsoleDatabaseMetaRepository databaseMetaRepository;
-    @Autowired
-    private DataSourceDatabase dataSourceDatabase;
 
     @GetMapping("")
     public ResponseEntity<?> getDataSource() {
@@ -102,7 +100,7 @@ public class DatabaseRestController {
         DataSourceDatabaseMeta metadata = databaseMetaRepository.findById(id)
                 .orElseThrow(RuntimeException::new);
 
-        dataSourceDatabase.registry(metadata);
+        DataSourceDatabase.registry(metadata);
 
         return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
     }
@@ -113,7 +111,7 @@ public class DatabaseRestController {
         DataSourceDatabaseMeta metadata = databaseMetaRepository.findById(id)
                 .orElseThrow(RuntimeException::new);
 
-        ConnectValidation validate = dataSourceDatabase.validateConnect(metadata);
+        ConnectValidation validate = DataSourceDatabase.validateConnect(metadata);
 
         return new ResponseEntity<>(validate, HttpStatus.OK);
     }
@@ -125,7 +123,7 @@ public class DatabaseRestController {
         List<DataSourceDatabaseMeta> metadata = databaseMetaRepository.findAll();
 
         results.put("metadata",metadata);
-        results.put("dataSources", dataSourceDatabase.getDataSourceMap());
+        results.put("dataSources", DataSourceDatabase.getDataSourceMap());
 
         return new ResponseEntity<>(results, HttpStatus.OK);
     }

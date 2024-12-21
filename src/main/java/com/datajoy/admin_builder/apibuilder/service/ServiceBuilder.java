@@ -10,7 +10,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-@Table(uniqueConstraints = {@UniqueConstraint(name="SERVICE_UQ",columnNames={"SERVICE_NAME"})})
+@Table(uniqueConstraints = {@UniqueConstraint(name="SERVICE_BUILDER_UQ",columnNames={"SERVICE_NAME"})})
 @Entity
 public class ServiceBuilder {
     @Id

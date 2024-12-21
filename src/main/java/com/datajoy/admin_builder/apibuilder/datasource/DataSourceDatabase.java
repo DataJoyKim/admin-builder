@@ -3,7 +3,6 @@ package com.datajoy.admin_builder.apibuilder.datasource;
 import com.datajoy.admin_builder.apibuilder.datasource.database.Database;
 import com.datajoy.admin_builder.apibuilder.datasource.database.DatabaseFactory;
 import com.zaxxer.hikari.HikariDataSource;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.sql.DataSource;
@@ -15,17 +14,15 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
-@Getter
 public class DataSourceDatabase {
-    private Map<LookupKey, DataSource> dataSourceMap;
+    private static Map<LookupKey, DataSource> dataSourceMap;
 
-    public static DataSourceDatabase initialize(List<DataSourceDatabaseMeta> metadataList) {
-        DataSourceDatabase databaseDataSource = new DataSourceDatabase();
-        databaseDataSource.dataSourceMap = new HashMap<>();
+    public static void initialize(List<DataSourceDatabaseMeta> metadataList) {
+        dataSourceMap = new HashMap<>();
 
         for(DataSourceDatabaseMeta meta : metadataList) {
             try {
-                databaseDataSource.dataSourceMap.put(LookupKey.generateKey(meta), toDataSource(meta));
+                dataSourceMap.put(LookupKey.generateKey(meta), toDataSource(meta));
                 log.info("BusinessDataSource - initialized businessDataSource : [{}]", meta.getDataSourceName());
             }
             catch (Exception e) {
@@ -33,19 +30,21 @@ public class DataSourceDatabase {
                 log.error("error", e);
             }
         }
-
-        return databaseDataSource;
     }
 
-    public DataSource getDataSource(LookupKey lookupKey) {
+    public static Map<LookupKey, DataSource> getDataSourceMap() {
+        return dataSourceMap;
+    }
+
+    public static DataSource getDataSource(LookupKey lookupKey) {
         return dataSourceMap.get(lookupKey);
     }
 
-    public void registry(LookupKey lookupKey, DataSource dataSource) {
+    public static void registry(LookupKey lookupKey, DataSource dataSource) {
         dataSourceMap.put(lookupKey, dataSource);
     }
 
-    public void registry(DataSourceDatabaseMeta meta) {
+    public static void registry(DataSourceDatabaseMeta meta) {
         DataSource dataSource = toDataSource(meta);
         LookupKey lookupKey = LookupKey.generateKey(meta);
 
@@ -68,13 +67,13 @@ public class DataSourceDatabase {
 
         return dataSource;
     }
-    public ConnectValidation validateConnect(DataSourceDatabaseMeta metadata) {
+    public static ConnectValidation validateConnect(DataSourceDatabaseMeta metadata) {
         Connection conn = null;
         Statement stmt = null;
 
         LookupKey lookupKey = LookupKey.generateKey(metadata.getDataSourceName());
 
-        DataSource dataSource = this.dataSourceMap.get(lookupKey);
+        DataSource dataSource = dataSourceMap.get(lookupKey);
 
         ConnectValidation validate = new ConnectValidation();
         try {

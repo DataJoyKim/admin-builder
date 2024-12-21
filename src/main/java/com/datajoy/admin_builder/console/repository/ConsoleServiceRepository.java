@@ -11,7 +11,7 @@ public interface ConsoleServiceRepository extends JpaRepository<ServiceBuilder, 
 
     @Transactional
     @Modifying
-    @Query(" update Service a " +
+    @Query(" update ServiceBuilder a " +
             " set " +
                 "a.serviceName = :serviceName,"+
                 "a.displayName = :displayName,"+
