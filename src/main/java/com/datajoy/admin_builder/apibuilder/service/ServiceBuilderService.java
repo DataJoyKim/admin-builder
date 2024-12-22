@@ -26,6 +26,7 @@ public class ServiceBuilderService {
         List<ServiceFunction> serviceFunctions = serviceBuilder.getServiceFunctions();
 
         Map<String, Object> contents = new HashMap<>();
+
         for(ServiceFunction func : serviceFunctions) {
             FunctionExecutor executor = functionFactory.instance(func.getFunctionType());
 

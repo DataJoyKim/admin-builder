@@ -22,6 +22,8 @@
             ],
             function(args) {
                 selectedContent(args.item);
+                $("#validServiceName").val(args.item.serviceName);
+                sheet.setSheetData('serviceExecute', [{"key":"_seq","value":"1"},{"key":"_status","value":"R"}]);
             });
 
             sheet.initSheet('serviceFunctionGrid', "100%","500px",
@@ -47,6 +49,24 @@
                 },
                 onItemDeleting: function(args) {
                     deleteServiceFunction($("#id").val(), args.item);
+                }
+            });
+
+            sheet.initSheet('serviceExecute', "300px","300px",
+            [
+                {name: "key", title:"key", type: "text", width: 100},
+                {name: "value", title:"value", type: "text", width: 100},
+                { type: "control", editButton: false, width: 30, modeSwitchButton: false }
+            ],
+            function(args) {},
+            {
+                inserting: true,
+                editing: true,
+                onItemInserting: function(args) {
+                },
+                onItemUpdated: function(args) {
+                },
+                onItemDeleting: function(args) {
                 }
             });
 
@@ -221,9 +241,43 @@
               }
           );
         }
+
+        function execute() {
+            let serviceName = $("#validServiceName").val();
+            let requestMessageId = $("#requestMessageId").val();
+
+            let contents = {};
+            let gridData = sheet.getSheetData("serviceExecute");
+            console.log('gridData',gridData);
+            for(let i=0; i<gridData.length; i++) {
+                let value = gridData[i]["value"];
+                if(value == "null") {
+                    contents[gridData[i]["key"]] = null;
+                }
+                else {
+                    contents[gridData[i]["key"]] = value;
+                }
+            }
+
+            let body = {};
+            body[requestMessageId] = contents;
+            console.log('body',body);
+
+            httpClient.post(`/service/${serviceName}`,{},
+                {
+                   body:body
+                },
+                function(response){
+                    $("#responseData").val(JSON.stringify(response,null,3));
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
     </script>
 <div th:fragment="view">
-    1.1
+    1.12
     <div class="row">
         <div class="col-lg-4">
             <div class="card">
@@ -238,32 +292,75 @@
         </div>
         <div class="col-lg-8">
             <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">상세 내용</h3>
-                    <wb-action-button elementId="new" actionName="newContent()" icon="fas fa-plus"></wb-action-button>
-                    <wb-action-button elementId="save" actionName="save()" icon="fas fa-save"></wb-action-button>
-                    <wb-action-button elementId="delete" actionName="deleteContent()" icon="fas fa-trash"></wb-action-button>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-1">
-                            <wb-text-input elementId="id" label="ID" enable="false"></wb-text-input>
+                <ul class="nav nav-tabs" id="service-tab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="service-detail-tab" data-toggle="pill" href="#service-detail" role="tab" aria-controls="service-detail" aria-selected="true">상세내용</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="service-valid-tab" data-toggle="pill" href="#service-valid" role="tab" aria-controls="service-valid" aria-selected="false">실행</a>
+                    </li>
+                </ul>
+                <div class="tab-content" id="service-tabContent">
+                    <div class="tab-pane fade show active" id="service-detail" role="tabpanel" aria-labelledby="service-detail-tab">
+                        <div class="card-header">
+                            <h3 class="card-title">상세 내용</h3>
+                            <wb-action-button elementId="new" actionName="newContent()" icon="fas fa-plus"></wb-action-button>
+                            <wb-action-button elementId="save" actionName="save()" icon="fas fa-save"></wb-action-button>
+                            <wb-action-button elementId="delete" actionName="deleteContent()" icon="fas fa-trash"></wb-action-button>
                         </div>
-                        <div class="col-md-3">
-                            <wb-text-input elementId="serviceName" label="service" enable="true"></wb-text-input>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-1">
+                                    <wb-text-input elementId="id" label="ID" enable="false"></wb-text-input>
+                                </div>
+                                <div class="col-md-3">
+                                    <wb-text-input elementId="serviceName" label="service" enable="true"></wb-text-input>
+                                </div>
+                                <div class="col-md-3">
+                                    <wb-text-input elementId="displayName" label="화면 노출명" enable="true" ></wb-text-input>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <wb-text-input elementId="note" label="note" enable="true"></wb-text-input>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-3">
-                            <wb-text-input elementId="displayName" label="화면 노출명" enable="true" ></wb-text-input>
+                        <div class="card-body">
+                            <div id="serviceFunctionGrid"></div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-4">
-                            <wb-text-input elementId="note" label="note" enable="true"></wb-text-input>
+                    <div class="tab-pane fade" id="service-valid" role="tabpanel" aria-labelledby="service-valid-tab">
+                        <div class="card-header">
+                            <h3 class="card-title">실행</h3>
+                            <wb-action-button elementId="save" actionName="execute()" icon="fas fa-check"></wb-action-button>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <wb-text-input elementId="validServiceName" label="service" enable="true"></wb-text-input>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <wb-text-input elementId="requestMessageId" label="요청메시지ID" enable="true" ></wb-text-input>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div id="serviceExecute"></div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label>응답 데이터</label>
+                                        <textarea id="responseData"  rows="20" cols="100"></textarea>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="card-body">
-                    <div id="serviceFunctionGrid"></div>
                 </div>
             </div>
         </div>

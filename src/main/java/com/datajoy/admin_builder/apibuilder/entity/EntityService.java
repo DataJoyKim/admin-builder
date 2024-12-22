@@ -24,7 +24,7 @@ public class EntityService {
 
         List<EntitySqlQuery> entitySqlQueryList = entity.generateQuery(entityConfig, params);
 
-        SqlExecutor sqlExecutor = createSqlExecutor(entity.getDataSourceName());
+        SqlExecutor sqlExecutor = SqlExecutor.createSqlExecutor(entity.getDataSourceName());
 
         Map<String, List<Map<String, Object>>> results = new HashMap<>();
 
@@ -35,13 +35,5 @@ public class EntityService {
         }
 
         return EntityResult.createEntityResult(results);
-    }
-
-    private SqlExecutor createSqlExecutor(String dataSourceName) {
-        LookupKey lookupKey = LookupKey.generateKey(dataSourceName);
-
-        DataSource dataSource = DataSourceDatabase.getDataSource(lookupKey);
-
-        return new SqlExecutor(dataSource);
     }
 }

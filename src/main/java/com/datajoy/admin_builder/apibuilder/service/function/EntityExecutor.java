@@ -21,7 +21,7 @@ public class EntityExecutor implements FunctionExecutor {
         EntityResult results = entityService.execute(functionName, entityParams);
 
         return FunctionResult.builder()
-                .results(results)
+                .results(results.getResults())
                 .build();
     }
 }

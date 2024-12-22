@@ -1,5 +1,7 @@
 package com.datajoy.admin_builder.apibuilder.sql;
 
+import com.datajoy.admin_builder.apibuilder.datasource.DataSourceDatabase;
+import com.datajoy.admin_builder.apibuilder.datasource.LookupKey;
 import com.datajoy.admin_builder.apibuilder.sql.parameterbind.ParameterBindType;
 import com.datajoy.admin_builder.apibuilder.sql.parameterbind.ParameterBinder;
 import com.datajoy.admin_builder.apibuilder.sql.parameterbind.ParameterBinderFactory;
@@ -77,5 +79,13 @@ public class SqlExecutor {
         }
 
         return resultList;
+    }
+
+    public static SqlExecutor createSqlExecutor(String dataSourceName) {
+        LookupKey lookupKey = LookupKey.generateKey(dataSourceName);
+
+        DataSource dataSource = DataSourceDatabase.getDataSource(lookupKey);
+
+        return new SqlExecutor(dataSource);
     }
 }

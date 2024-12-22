@@ -1,7 +1,5 @@
 package com.datajoy.admin_builder.apibuilder.api;
 
-import com.datajoy.admin_builder.apibuilder.message.RequestMessage;
-import com.datajoy.admin_builder.apibuilder.message.ResponseMessage;
 import com.datajoy.admin_builder.apibuilder.service.ServiceBuilderService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,16 +14,6 @@ import java.util.Map;
 public class ApiBuilderController {
     @Autowired
     ServiceBuilderService serviceBuilderService;
-
-    @PostMapping("/service/{serviceName}")
-    public ResponseEntity<?> service(
-            @PathVariable("serviceName") String serviceName,
-            @RequestBody RequestMessage requestMessage
-    ) {
-        ResponseMessage response = serviceBuilderService.execute(serviceName, requestMessage);
-
-        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
-    }
 
     @RequestMapping(value = "/{applicationName}/api/**", method = {RequestMethod.GET,RequestMethod.POST,RequestMethod.PUT,RequestMethod.DELETE})
     public ResponseEntity<?> callRestAPI(

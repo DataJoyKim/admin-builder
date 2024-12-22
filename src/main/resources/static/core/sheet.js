@@ -5,6 +5,10 @@ class Sheet {
           $("#" + _id).jsGrid("option", "data", _data);
       }
 
+      getSheetData(_id) {
+          return $("#" + _id).jsGrid("option", "data");
+      }
+
       initSheet(_id, _width, _height, _fields, _rowClick, _options) {
         let sorting = false;
         let paging = false;
