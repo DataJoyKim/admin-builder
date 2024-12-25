@@ -1,13 +1,10 @@
 package com.datajoy.admin_builder.apibuilder.entity;
 
-import com.datajoy.admin_builder.apibuilder.datasource.DataSourceDatabase;
-import com.datajoy.admin_builder.apibuilder.datasource.LookupKey;
 import com.datajoy.admin_builder.apibuilder.sql.SqlExecutor;
 import com.datajoy.admin_builder.apibuilder.sql.parameterbind.ParameterBindType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +15,7 @@ public class EntityService {
     private final EntityRepository entityRepository;
     private final EntityConfig entityConfig;
 
-    public EntityResult execute(String entityName, EntityParameter params) {
+    public EntityResult execute(String entityName, EntityRequest params) {
         Entity entity = entityRepository.findByEntityName(entityName)
                                         .orElseThrow();
 

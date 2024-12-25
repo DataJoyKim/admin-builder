@@ -39,7 +39,7 @@ public class Entity {
     @JoinColumn(name = "ENTITY_ID")
     private List<EntityColumn> entityColumns = new ArrayList<>();
 
-    public List<EntitySqlQuery> generateQuery(EntityConfig config, EntityParameter params) {
+    public List<EntitySqlQuery> generateQuery(EntityConfig config, EntityRequest params) {
         List<Map<String, Object>> contents = params.getContents();
 
         List<EntitySqlQuery> entitySqlQueryList = new ArrayList<>();

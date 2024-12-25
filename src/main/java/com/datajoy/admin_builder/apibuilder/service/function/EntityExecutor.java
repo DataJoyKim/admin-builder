@@ -1,6 +1,6 @@
 package com.datajoy.admin_builder.apibuilder.service.function;
 
-import com.datajoy.admin_builder.apibuilder.entity.EntityParameter;
+import com.datajoy.admin_builder.apibuilder.entity.EntityRequest;
 import com.datajoy.admin_builder.apibuilder.entity.EntityResult;
 import com.datajoy.admin_builder.apibuilder.entity.EntityService;
 import com.datajoy.admin_builder.apibuilder.message.MessageConvert;
@@ -14,7 +14,7 @@ public class EntityExecutor implements FunctionExecutor {
 
     @Override
     public FunctionResult execute(String functionName, Object params) {
-        EntityParameter entityParams = EntityParameter.builder()
+        EntityRequest entityParams = EntityRequest.builder()
                                         .contents(MessageConvert.toArray(params))
                                         .build();
 
