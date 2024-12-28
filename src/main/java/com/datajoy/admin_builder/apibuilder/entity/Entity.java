@@ -61,14 +61,12 @@ public class Entity {
     private String createSql(EntityStatus status) {
         EntityQueryGenerator entityQueryGenerator = EntityQueryGeneratorFactory.instance(status);
 
-        String sql;
         try {
-            sql = entityQueryGenerator.generate(this.tableName, this.entityColumns);
+            return entityQueryGenerator.generate(this.tableName, this.entityColumns);
         }
         catch (FailedQueryGenerationException e) {
             throw new RuntimeException(e);
         }
-        return sql;
     }
 
     private static List<SqlParameter> createSqlParameters(Map<String, Object> content) {

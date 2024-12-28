@@ -1,10 +1,13 @@
 package com.datajoy.admin_builder.apibuilder.query;
 
+import com.datajoy.admin_builder.apibuilder.sql.SqlParameter;
+import com.datajoy.admin_builder.apibuilder.sql.SqlQuery;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -33,4 +36,27 @@ public class Query {
     @Lob
     @Column
     private String query;
+
+    public SqlQuery generateQuery(QueryRequest params) {
+        List<SqlParameter> sqlParameters = new ArrayList<>();
+        int index = 0;
+        for(QueryParam p : this.queryParams) {
+            //TODO 자동값 기능 추가
+            Map<String, Object> content = params.getContents();
+            Object value = content.get(p.getParamName());
+
+            sqlParameters.add(SqlParameter.builder()
+                    .parameterName(p.getParamName())
+                    .parameterIndex(index)
+                    .value(value)
+                    .build());
+
+            index++;
+        }
+
+        return SqlQuery.builder()
+                .sql(this.query)
+                .sqlParameters(sqlParameters)
+                .build();
+    }
 }

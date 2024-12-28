@@ -1,6 +1,7 @@
 package com.datajoy.admin_builder.apibuilder.query;
 
 import com.datajoy.admin_builder.apibuilder.query.code.AutoValueType;
+import com.datajoy.admin_builder.apibuilder.query.code.InOut;
 import com.datajoy.admin_builder.apibuilder.query.code.ParamType;
 import jakarta.persistence.*;
 import lombok.*;
@@ -30,6 +31,7 @@ public class QueryParam {
     @Column(nullable = false, length = 100)
     private AutoValueType autoValueType;
 
-    @Column
-    private Integer orderNum;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 10)
+    private InOut inOut;
 }
