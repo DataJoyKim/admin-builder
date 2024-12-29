@@ -1,6 +1,6 @@
-package com.datajoy.admin_builder.apibuilder.service.function;
+package com.datajoy.admin_builder.apibuilder.function;
 
-import com.datajoy.admin_builder.apibuilder.service.code.ResultCode;
+import com.datajoy.admin_builder.apibuilder.function.code.ResultCode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

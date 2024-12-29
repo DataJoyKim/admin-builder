@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,7 +17,7 @@ import java.util.Map;
 class SqlExecutorTest {
 
     @Test
-    public void executeTest() {
+    public void executeTest() throws SQLException {
         // Given
         Map<String, Object> params = new HashMap<>();
         params.put("dataSourceName","dataSourceGoal");

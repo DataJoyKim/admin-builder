@@ -10,7 +10,7 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-@Table(uniqueConstraints = {@UniqueConstraint(name="ENTITY_COLUMN_UQ",columnNames={"ENTITY_ID","COLUMN_NAME"})})
+@Table
 @Entity
 public class QueryParam {
     @Id

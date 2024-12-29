@@ -1,7 +1,7 @@
 package com.datajoy.admin_builder.console.rest;
 
-import com.datajoy.admin_builder.apibuilder.service.code.FunctionType;
-import com.datajoy.admin_builder.apibuilder.service.ServiceFunction;
+import com.datajoy.admin_builder.apibuilder.function.code.FunctionType;
+import com.datajoy.admin_builder.apibuilder.function.ServiceFunction;
 import com.datajoy.admin_builder.console.repository.ConsoleServiceFunctionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

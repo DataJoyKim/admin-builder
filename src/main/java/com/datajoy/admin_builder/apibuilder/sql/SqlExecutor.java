@@ -18,7 +18,7 @@ import java.util.Map;
 public class SqlExecutor {
     private final DataSource dataSource;
 
-    public List<Map<String, Object>> execute(SqlQuery sqlQuery, ParameterBindType paramBindingType) {
+    public List<Map<String, Object>> execute(SqlQuery sqlQuery, ParameterBindType paramBindingType) throws SQLException {
         List<Map<String, Object>> resultList;
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -43,20 +43,17 @@ public class SqlExecutor {
 
             resultList = mapping(rs);
         }
-        catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
         finally {
-            try {
-                assert conn != null;
-                assert stmt != null;
-                assert rs != null;
-
-                conn.close();
-                stmt.close();
+            if(rs != null) {
                 rs.close();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
+            }
+
+            if(stmt != null) {
+                stmt.close();
+            }
+
+            if(conn != null) {
+                conn.close();
             }
         }
 

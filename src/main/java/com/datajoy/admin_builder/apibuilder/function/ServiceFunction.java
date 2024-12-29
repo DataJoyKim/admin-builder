@@ -1,7 +1,7 @@
-package com.datajoy.admin_builder.apibuilder.service;
+package com.datajoy.admin_builder.apibuilder.function;
 
-import com.datajoy.admin_builder.apibuilder.service.code.ErrorResolveType;
-import com.datajoy.admin_builder.apibuilder.service.code.FunctionType;
+import com.datajoy.admin_builder.apibuilder.function.code.ErrorResolveType;
+import com.datajoy.admin_builder.apibuilder.function.code.FunctionType;
 import jakarta.persistence.*;
 import lombok.*;
 

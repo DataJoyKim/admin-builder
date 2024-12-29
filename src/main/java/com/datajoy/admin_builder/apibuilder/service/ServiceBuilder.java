@@ -1,5 +1,6 @@
 package com.datajoy.admin_builder.apibuilder.service;
 
+import com.datajoy.admin_builder.apibuilder.function.ServiceFunction;
 import jakarta.persistence.*;
 import lombok.*;
 

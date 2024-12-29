@@ -1,4 +1,4 @@
-package com.datajoy.admin_builder.apibuilder.service.function;
+package com.datajoy.admin_builder.apibuilder.function;
 
 import com.datajoy.admin_builder.apibuilder.entity.EntityRequest;
 import com.datajoy.admin_builder.apibuilder.entity.EntityResult;
