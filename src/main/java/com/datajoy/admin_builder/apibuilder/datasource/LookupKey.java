@@ -1,6 +1,5 @@
 package com.datajoy.admin_builder.apibuilder.datasource;
 
-import com.datajoy.admin_builder.apibuilder.datasource.database.DataSourceDatabaseMeta;
 import lombok.Getter;
 
 import java.util.Objects;
@@ -8,13 +7,6 @@ import java.util.Objects;
 @Getter
 public class LookupKey {
     private String dataSourceName;
-
-    public static LookupKey generateKey(DataSourceDatabaseMeta meta) {
-        LookupKey lookupKey = new LookupKey();
-        lookupKey.dataSourceName = meta.getDataSourceName();
-
-        return lookupKey;
-    }
 
     public static LookupKey generateKey(String dataSourceName) {
         LookupKey lookupKey = new LookupKey();

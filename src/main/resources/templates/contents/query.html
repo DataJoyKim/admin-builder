@@ -6,7 +6,25 @@
             init();
         });
 
+        function setCodeBoxDataSource() {
+            httpClient.get(`/console/api/datasource/database`, {},
+                function(response){
+                    let codes = new Array();
+                    for(let i=0; i<response.length; i++) {
+                        codes.push({id:response[i].dataSourceName,name:response[i].displayName});
+                    }
+
+                    setCodeBox("dataSourceName", codes);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
         function init() {
+            setCodeBoxDataSource();
+
             let codes = {
                 "AutoValueType":[
                     {id:"DEFAULT",name:"기본"},
@@ -297,7 +315,6 @@
                     <div id="queryGrid"></div>
                 </div>
             </div>
-            1.25
         </div>
         <div class="col-lg-8">
             <div class="card">
@@ -329,7 +346,7 @@
                                     <wb-text-input elementId="displayName" label="화면 노출명" enable="true" ></wb-text-input>
                                 </div>
                                 <div class="col-md-3">
-                                    <wb-text-input elementId="dataSourceName" label="dataSource" enable="true"></wb-text-input>
+                                    <wb-select elementId="dataSourceName" label="dataSource" enable="true" useFirstItem="true" firstItemLabel="" firstItemValue=""></wb-select>
                                 </div>
                             </div>
                             <div class="row">

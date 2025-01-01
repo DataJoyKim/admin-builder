@@ -5,16 +5,6 @@
         });
 
         function init() {
-            var codes = {
-                "DatabaseKind":[
-                    {id:"MYSQL",name:"Mysql"},
-                    {id:"MARIADB",name:"MariaDB"},
-                    {id:"MSSQL",name:"Mssql"},
-                    {id:"ORACLE",name:"Oracle"}
-                ]
-            };
-
-            setCodes(codes);
 
             sheet.initSheet('jsGrid1', "100%","500px",
             [
@@ -30,12 +20,8 @@
             getDataSource();
         }
 
-        function setCodes(codes) {
-            setCodeBox("databaseKind", codes["DatabaseKind"]);
-        }
-
         function getDataSource() {
-            httpClient.get(`/console/api/datasource/database`, {},
+            httpClient.get(`/console/api/datasource/rest-server`, {},
                 function(response){
                     sheet.setSheetData('jsGrid1', response);
                 },
@@ -46,7 +32,7 @@
         }
 
         function selectedContent(item) {
-            httpClient.get(`/console/api/datasource/database/${item.id}`, {},
+            httpClient.get(`/console/api/datasource/rest-server/${item.id}`, {},
                 function(response){
                     setContentData(response);
                 },
@@ -70,7 +56,7 @@
         }
 
         function insertContent() {
-            httpClient.post(`/console/api/datasource/database`,{},getContent(),
+            httpClient.post(`/console/api/datasource/rest-server`,{},getContent(),
                 function(response){
                     alert("저장완료되었습니다.");
                     getDataSource();
@@ -82,7 +68,7 @@
         }
 
         function updateContent(id) {
-          httpClient.put(`/console/api/datasource/database/${id}`, {}, getContent(),
+          httpClient.put(`/console/api/datasource/rest-server/${id}`, {}, getContent(),
               function(response){
                   alert("저장완료되었습니다.");
                   getDataSource();
@@ -96,7 +82,7 @@
         function deleteContent() {
           let id = $("#id").val();
 
-          httpClient.delete(`/console/api/datasource/database/${id}`, {},
+          httpClient.delete(`/console/api/datasource/rest-server/${id}`, {},
               function(response){
                   alert("삭제 처리 완료되었습니다.");
                   getDataSource();
@@ -110,7 +96,7 @@
         function refreshDataSource() {
           let id = $("#id").val();
 
-          httpClient.post(`/console/api/datasource/database/${id}/refresh`,{},{},
+          httpClient.post(`/console/api/datasource/rest-server/${id}/refresh`,{},{},
               function(response){
                   alert("갱신 완료되었습니다.");
               },
@@ -123,7 +109,7 @@
         function validateConnectDataSource() {
           let id = $("#id").val();
 
-          httpClient.get(`/console/api/datasource/database/${id}/connect-valid`, {},
+          httpClient.get(`/console/api/datasource/rest-server/${id}/connect-valid`, {},
               function(response){
                     if(response != null && response.result == true) {
                         alert("연결 성공");
@@ -144,14 +130,11 @@
                 displayName:response.displayName,
                 dataSourceName:response.dataSourceName,
                 note:response.note,
-                url:response.url,
-                username:response.username,
-                password:response.password,
-                databaseKind:response.databaseKind,
-                maximumPoolSize:response.maximumPoolSize,
-                minimumIdle:response.minimumIdle,
-                connectionTimeout:response.connectionTimeout,
-                validationTimeout:response.validationTimeout
+                baseUrl:response.baseUrl,
+                connectTimeout:response.connectTimeout,
+                connectRequestTimeout:response.connectRequestTimeout,
+                connectionMaxTotal:response.connectionMaxTotal,
+                connectionDefaultMaxPerRoute:response.connectionDefaultMaxPerRoute
               });
         }
 
@@ -161,14 +144,11 @@
                 displayName: $("#displayName").val(),
                 dataSourceName: $("#dataSourceName").val(),
                 note: $("#note").val(),
-                url: $("#url").val(),
-                username: $("#username").val(),
-                password: $("#password").val(),
-                databaseKind: $("#databaseKind").val(),
-                maximumPoolSize:$("#maximumPoolSize").val(),
-                minimumIdle:$("#minimumIdle").val(),
-                connectionTimeout:$("#connectionTimeout").val(),
-                validationTimeout:$("#validationTimeout").val()
+                baseUrl: $("#baseUrl").val(),
+                connectTimeout: $("#connectTimeout").val(),
+                connectRequestTimeout: $("#connectRequestTimeout").val(),
+                connectionMaxTotal: $("#connectionMaxTotal").val(),
+                connectionDefaultMaxPerRoute:$("#connectionDefaultMaxPerRoute").val()
             }
         }
 
@@ -177,14 +157,11 @@
             $("#displayName").val(params.displayName);
             $("#dataSourceName").val(params.dataSourceName);
             $("#note").val(params.note);
-            $("#url").val(params.url);
-            $("#username").val(params.username);
-            $("#password").val(params.password);
-            $("#databaseKind").val(params.databaseKind);
-            $("#maximumPoolSize").val(params.maximumPoolSize);
-            $("#minimumIdle").val(params.minimumIdle);
-            $("#connectionTimeout").val(params.connectionTimeout);
-            $("#validationTimeout").val(params.validationTimeout);
+            $("#baseUrl").val(params.baseUrl);
+            $("#connectTimeout").val(params.connectTimeout);
+            $("#connectRequestTimeout").val(params.connectRequestTimeout);
+            $("#connectionMaxTotal").val(params.connectionMaxTotal);
+            $("#connectionDefaultMaxPerRoute").val(params.connectionDefaultMaxPerRoute);
           }
 
           function newContent(){
@@ -193,14 +170,11 @@
                 displayName:'',
                 dataSourceName:'',
                 note:'',
-                url:'',
-                username:'',
-                password:'',
-                databaseKind:'',
-                maximumPoolSize:100,
-                minimumIdle:100,
-                connectionTimeout:30000,
-                validationTimeout:5000
+                baseUrl:'',
+                connectTimeout:10000,
+                connectRequestTimeout:60000,
+                connectionMaxTotal:20,
+                connectionDefaultMaxPerRoute:2
               });
           }
     </script>
@@ -240,11 +214,8 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-md-2">
-                                <wb-select elementId="databaseKind" label="데이터베이스 종류" enable="true" useFirstItem="true" firstItemLabel="" firstItemValue=""></wb-select>
-                            </div>
                             <div class="col-md-5">
-                                <wb-text-input elementId="url" label="url" enable="true"></wb-text-input>
+                                <wb-text-input elementId="baseUrl" label="baseUrl" enable="true"></wb-text-input>
                             </div>
                         </div>
                         <div class="row">
@@ -254,26 +225,18 @@
                         </div>
                         <div class="row">
                             <div class="col-md-2">
-                                <wb-text-input elementId="username" label="username" enable="true"></wb-text-input>
+                                <wb-text-input elementType="number" elementId="connectTimeout" label="connectTimeout" enable="true"></wb-text-input>
+                            </div>
+                            <div class="col-md-2">
+                                <wb-text-input elementType="number" elementId="connectRequestTimeout" label="connectRequestTimeout" enable="true"></wb-text-input>
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-md-2">
-                                <wb-text-input elementType="password" elementId="password" label="password" enable="true"></wb-text-input>
+                            <div class="col-md-3">
+                                <wb-text-input elementType="number" elementId="connectionMaxTotal" label="connectionMaxTotal" enable="true"></wb-text-input>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-2">
-                                <wb-text-input elementType="number" elementId="maximumPoolSize" label="maximumPoolSize" enable="true"></wb-text-input>
-                            </div>
-                            <div class="col-md-2">
-                                <wb-text-input elementType="number" elementId="minimumIdle" label="minimumIdle" enable="true"></wb-text-input>
-                            </div>
-                            <div class="col-md-2">
-                                <wb-text-input elementType="number" elementId="connectionTimeout" label="connectionTimeout" enable="true"></wb-text-input>
-                            </div>
-                            <div class="col-md-2">
-                                <wb-text-input elementType="number" elementId="validationTimeout" label="validationTimeout" enable="true"></wb-text-input>
+                            <div class="col-md-3">
+                                <wb-text-input elementType="number" elementId="connectionDefaultMaxPerRoute" label="connectionDefaultMaxPerRoute" enable="true"></wb-text-input>
                             </div>
                         </div>
                     </div>

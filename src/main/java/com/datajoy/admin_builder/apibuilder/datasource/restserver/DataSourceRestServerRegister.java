@@ -1,21 +1,21 @@
-package com.datajoy.admin_builder.apibuilder.datasource.database;
+package com.datajoy.admin_builder.apibuilder.datasource.restserver;
 
 import com.datajoy.admin_builder.apibuilder.datasource.LookupKey;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.client.RestClient;
 
-import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Slf4j
-public class DataSourceDatabaseRegister {
-    private static Map<LookupKey, DataSource> dataSourceMap;
+public class DataSourceRestServerRegister {
+    private static Map<LookupKey, RestClient> dataSourceMap;
 
-    public static void initialize(List<DataSourceDatabaseMeta> metadataList) {
+    public static void initialize(List<DataSourceRestServer> metadataList) {
         dataSourceMap = new HashMap<>();
 
-        for(DataSourceDatabaseMeta meta : metadataList) {
+        for(DataSourceRestServer meta : metadataList) {
             try {
                 dataSourceMap.put(LookupKey.generateKey(meta.getDataSourceName()), meta.createDataSource());
                 log.info("BusinessDataSource - initialized businessDataSource : [{}]", meta.getDataSourceName());
@@ -27,16 +27,16 @@ public class DataSourceDatabaseRegister {
         }
     }
 
-    public static Map<LookupKey, DataSource> getDataSourceMap() {
+    public static Map<LookupKey, RestClient> getDataSourceMap() {
         return dataSourceMap;
     }
 
-    public static DataSource getDataSource(LookupKey lookupKey) {
+    public static RestClient getDataSource(LookupKey lookupKey) {
         return dataSourceMap.get(lookupKey);
     }
 
-    public synchronized static void registry(DataSourceDatabaseMeta meta) {
-        DataSource dataSource = meta.createDataSource();
+    public synchronized static void registry(DataSourceRestServer meta) {
+        RestClient dataSource = meta.createDataSource();
 
         LookupKey lookupKey = LookupKey.generateKey(meta.getDataSourceName());
 

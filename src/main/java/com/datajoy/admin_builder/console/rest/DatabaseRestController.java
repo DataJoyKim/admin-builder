@@ -3,6 +3,7 @@ package com.datajoy.admin_builder.console.rest;
 import com.datajoy.admin_builder.apibuilder.datasource.ConnectValidation;
 import com.datajoy.admin_builder.apibuilder.datasource.database.DataSourceDatabaseRegister;
 import com.datajoy.admin_builder.apibuilder.datasource.database.DataSourceDatabaseMeta;
+import com.datajoy.admin_builder.apibuilder.datasource.database.DataSourceDatabaseValidator;
 import com.datajoy.admin_builder.apibuilder.datasource.database.DatabaseKind;
 import com.datajoy.admin_builder.console.repository.ConsoleDatabaseMetaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,8 @@ import java.util.Map;
 public class DatabaseRestController {
     @Autowired
     private ConsoleDatabaseMetaRepository databaseMetaRepository;
+    @Autowired
+    private DataSourceDatabaseValidator dataSourceDatabaseValidator;
 
     @GetMapping("")
     public ResponseEntity<?> getDataSource() {
@@ -111,7 +114,7 @@ public class DatabaseRestController {
         DataSourceDatabaseMeta metadata = databaseMetaRepository.findById(id)
                 .orElseThrow(RuntimeException::new);
 
-        ConnectValidation validate = DataSourceDatabaseRegister.validateConnect(metadata);
+        ConnectValidation validate = dataSourceDatabaseValidator.validateConnect(metadata, DataSourceDatabaseRegister.getDataSourceMap());
 
         return new ResponseEntity<>(validate, HttpStatus.OK);
     }

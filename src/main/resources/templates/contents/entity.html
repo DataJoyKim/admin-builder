@@ -5,7 +5,25 @@
             init();
         });
 
+        function setCodeBoxDataSource() {
+            httpClient.get(`/console/api/datasource/database`, {},
+                function(response){
+                    let codes = new Array();
+                    for(let i=0; i<response.length; i++) {
+                        codes.push({id:response[i].dataSourceName,name:response[i].displayName});
+                    }
+
+                    setCodeBox("dataSourceName", codes);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
         function init() {
+            setCodeBoxDataSource();
+
             let codes = {
                 "ColumnType":[
                     {id:"STRING",name:"String"},
@@ -347,7 +365,6 @@
         }
     </script>
 <div th:fragment="view">
-    1.50
     <div class="row">
             <div class="col-lg-4">
                 <div class="card">
@@ -382,7 +399,7 @@
                         </div>
                         <div class="row">
                             <div class="col-md-3">
-                                <wb-text-input elementId="dataSourceName" label="dataSource" enable="true"></wb-text-input>
+                                <wb-select elementId="dataSourceName" label="dataSource" enable="true" useFirstItem="true" firstItemLabel="" firstItemValue=""></wb-select>
                             </div>
                             <div class="col-md-2">
                                 <wb-text-input elementId="tableName" label="table" enable="true"></wb-text-input>
