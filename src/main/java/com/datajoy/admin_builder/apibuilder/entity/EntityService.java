@@ -1,5 +1,6 @@
 package com.datajoy.admin_builder.apibuilder.entity;
 
+import com.datajoy.admin_builder.apibuilder.entity.code.EntityResultCode;
 import com.datajoy.admin_builder.apibuilder.sql.SqlExecutor;
 import com.datajoy.admin_builder.apibuilder.sql.parameterbind.ParameterBindType;
 import lombok.RequiredArgsConstructor;
@@ -8,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,24 +27,27 @@ public class EntityService {
 
         SqlExecutor sqlExecutor = SqlExecutor.createSqlExecutor(entity.getDataSourceName());
 
-        Map<String, List<Map<String, Object>>> results = new HashMap<>();
+        List<EntityResult.EntityResultElement> results = new ArrayList<>();
 
+        int failed = 0;
         for(EntitySqlQuery entitySqlQuery : entitySqlQueryList) {
-            List<Map<String, Object>> resultData = new ArrayList<>();
             try {
-                resultData = sqlExecutor.execute(entitySqlQuery.getSqlQuery(), ParameterBindType.NAME_BIND);
+                List<Map<String, Object>> resultData = sqlExecutor.execute(entitySqlQuery.getSqlQuery(), ParameterBindType.NAME_BIND);
+
+                results.add(EntityResult.EntityResultElement.success(entitySqlQuery.getSeq(), resultData));
             }
             catch (SQLException e) {
                 log.error("error",e);
-                Map<String, Object> error = new HashMap<>();
-                error.put("errorCode", e.getErrorCode());
-                error.put("message",e.getMessage());
-                resultData.add(error);
+                results.add(EntityResult.EntityResultElement.failed(entitySqlQuery.getSeq(), "[" +e.getErrorCode() + "] " + e.getMessage()));
+                failed++;
             }
-
-            results.put(entitySqlQuery.getSeq(), resultData);
         }
 
-        return EntityResult.createEntityResult(results);
+        if(failed > 0) {
+            return EntityResult.createEntityResult(EntityResultCode.FAILURE,results);
+        }
+        else {
+            return EntityResult.createEntityResult(EntityResultCode.SUCCESS,results);
+        }
     }
 }

@@ -1,7 +1,6 @@
 package com.datajoy.admin_builder.apibuilder.sql;
 
-import com.datajoy.admin_builder.apibuilder.datasource.DataSourceDatabase;
-import com.datajoy.admin_builder.apibuilder.datasource.DataSourceDatabaseMeta;
+import com.datajoy.admin_builder.apibuilder.datasource.database.DataSourceDatabaseMeta;
 import com.datajoy.admin_builder.apibuilder.datasource.database.DatabaseKind;
 import com.datajoy.admin_builder.apibuilder.sql.parameterbind.ParameterBindType;
 import org.junit.jupiter.api.Assertions;
@@ -106,7 +105,7 @@ class SqlExecutorTest {
                 .validationTimeout(Integer.valueOf((String) params.get("validationTimeout")))
                 .build();
 
-        DataSource dataSource = DataSourceDatabase.toDataSource(meta);
+        DataSource dataSource = meta.createDataSource();
 
         SqlExecutor executor = new SqlExecutor(dataSource);
 

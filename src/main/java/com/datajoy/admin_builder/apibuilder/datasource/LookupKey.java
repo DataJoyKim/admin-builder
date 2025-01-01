@@ -1,5 +1,6 @@
 package com.datajoy.admin_builder.apibuilder.datasource;
 
+import com.datajoy.admin_builder.apibuilder.datasource.database.DataSourceDatabaseMeta;
 import lombok.Getter;
 
 import java.util.Objects;

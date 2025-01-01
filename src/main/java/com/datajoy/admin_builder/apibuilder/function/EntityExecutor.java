@@ -3,6 +3,8 @@ package com.datajoy.admin_builder.apibuilder.function;
 import com.datajoy.admin_builder.apibuilder.entity.EntityRequest;
 import com.datajoy.admin_builder.apibuilder.entity.EntityResult;
 import com.datajoy.admin_builder.apibuilder.entity.EntityService;
+import com.datajoy.admin_builder.apibuilder.entity.code.EntityResultCode;
+import com.datajoy.admin_builder.apibuilder.function.code.ResultCode;
 import com.datajoy.admin_builder.apibuilder.message.MessageConvert;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -21,7 +23,8 @@ public class EntityExecutor implements FunctionExecutor {
         EntityResult results = entityService.execute(functionName, entityParams);
 
         return FunctionResult.builder()
-                .results(results.getResults())
+                .resultCode(EntityResultCode.SUCCESS.equals(results.getResultCode()) ? ResultCode.SUCCESS : ResultCode.FAILURE)
+                .results(results.getResultElements())
                 .build();
     }
 }

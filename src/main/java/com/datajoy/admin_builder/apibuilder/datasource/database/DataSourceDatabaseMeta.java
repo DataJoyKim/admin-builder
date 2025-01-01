@@ -1,8 +1,10 @@
-package com.datajoy.admin_builder.apibuilder.datasource;
+package com.datajoy.admin_builder.apibuilder.datasource.database;
 
-import com.datajoy.admin_builder.apibuilder.datasource.database.DatabaseKind;
+import com.zaxxer.hikari.HikariDataSource;
 import jakarta.persistence.*;
 import lombok.*;
+
+import javax.sql.DataSource;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -48,4 +50,21 @@ public class DataSourceDatabaseMeta {
 
     @Column
     private Integer validationTimeout = 5000;
+
+    public DataSource createDataSource() {
+        Database database = DatabaseFactory.instance(this.getDatabaseKind());
+
+        HikariDataSource dataSource = new HikariDataSource();
+        dataSource.setDriverClassName(database.getDriverClassName());
+        dataSource.setJdbcUrl(this.getUrl());
+        dataSource.setUsername(this.getUsername());
+        dataSource.setPassword(this.getPassword());
+        dataSource.setMaximumPoolSize(this.getMaximumPoolSize());
+        dataSource.setMinimumIdle(this.getMinimumIdle());
+        dataSource.setConnectionTimeout(this.getConnectionTimeout());
+        dataSource.setValidationTimeout(this.getValidationTimeout());
+        dataSource.setConnectionTestQuery(database.getValidationQuery());
+
+        return dataSource;
+    }
 }

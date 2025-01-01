@@ -1,14 +1,12 @@
 package com.datajoy.admin_builder.console.repository;
 
-import com.datajoy.admin_builder.apibuilder.datasource.DataSourceDatabaseMeta;
+import com.datajoy.admin_builder.apibuilder.datasource.database.DataSourceDatabaseMeta;
 import com.datajoy.admin_builder.apibuilder.datasource.database.DatabaseKind;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
-import java.util.Optional;
 
 public interface ConsoleDatabaseMetaRepository extends JpaRepository<DataSourceDatabaseMeta, Long> {
 

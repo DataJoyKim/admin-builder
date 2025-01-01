@@ -34,7 +34,7 @@ public class ServiceBuilderService {
             Object params = requestMessage.getBody().get(func.getRequestMessageId());
 
             FunctionResult result = executor.execute(func.getFunctionName(), params);
-            if(ResultCode.ERROR.equals(result.getResultCode())) {
+            if(ResultCode.FAILURE.equals(result.getResultCode())) {
                 //TODO resolved
             }
 

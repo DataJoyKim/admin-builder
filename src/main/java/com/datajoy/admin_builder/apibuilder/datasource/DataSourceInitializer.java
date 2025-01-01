@@ -1,5 +1,7 @@
 package com.datajoy.admin_builder.apibuilder.datasource;
 
+import com.datajoy.admin_builder.apibuilder.datasource.database.DataSourceDatabaseRegister;
+import com.datajoy.admin_builder.apibuilder.datasource.database.DataSourceDatabaseMeta;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,6 @@ public class DataSourceInitializer {
     public void loadDataSource() {
         List<DataSourceDatabaseMeta> metadataList = dataSourceService.getDatabaseMetadata();
 
-        DataSourceDatabase.initialize(metadataList);
+        DataSourceDatabaseRegister.initialize(metadataList);
     }
 }

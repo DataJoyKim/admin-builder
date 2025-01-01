@@ -1,8 +1,8 @@
 package com.datajoy.admin_builder.console.rest;
 
 import com.datajoy.admin_builder.apibuilder.datasource.ConnectValidation;
-import com.datajoy.admin_builder.apibuilder.datasource.DataSourceDatabase;
-import com.datajoy.admin_builder.apibuilder.datasource.DataSourceDatabaseMeta;
+import com.datajoy.admin_builder.apibuilder.datasource.database.DataSourceDatabaseRegister;
+import com.datajoy.admin_builder.apibuilder.datasource.database.DataSourceDatabaseMeta;
 import com.datajoy.admin_builder.apibuilder.datasource.database.DatabaseKind;
 import com.datajoy.admin_builder.console.repository.ConsoleDatabaseMetaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -100,7 +100,7 @@ public class DatabaseRestController {
         DataSourceDatabaseMeta metadata = databaseMetaRepository.findById(id)
                 .orElseThrow(RuntimeException::new);
 
-        DataSourceDatabase.registry(metadata);
+        DataSourceDatabaseRegister.registry(metadata);
 
         return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
     }
@@ -111,7 +111,7 @@ public class DatabaseRestController {
         DataSourceDatabaseMeta metadata = databaseMetaRepository.findById(id)
                 .orElseThrow(RuntimeException::new);
 
-        ConnectValidation validate = DataSourceDatabase.validateConnect(metadata);
+        ConnectValidation validate = DataSourceDatabaseRegister.validateConnect(metadata);
 
         return new ResponseEntity<>(validate, HttpStatus.OK);
     }
@@ -123,7 +123,7 @@ public class DatabaseRestController {
         List<DataSourceDatabaseMeta> metadata = databaseMetaRepository.findAll();
 
         results.put("metadata",metadata);
-        results.put("dataSources", DataSourceDatabase.getDataSourceMap());
+        results.put("dataSources", DataSourceDatabaseRegister.getDataSourceMap());
 
         return new ResponseEntity<>(results, HttpStatus.OK);
     }

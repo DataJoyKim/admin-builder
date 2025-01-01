@@ -1,7 +1,7 @@
-package com.datajoy.admin_builder.apibuilder.datasource;
+package com.datajoy.admin_builder.apibuilder.datasource.database;
 
-import com.datajoy.admin_builder.apibuilder.datasource.database.Database;
-import com.datajoy.admin_builder.apibuilder.datasource.database.DatabaseFactory;
+import com.datajoy.admin_builder.apibuilder.datasource.ConnectValidation;
+import com.datajoy.admin_builder.apibuilder.datasource.LookupKey;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
 
@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
-public class DataSourceDatabase {
+public class DataSourceDatabaseRegister {
     private static Map<LookupKey, DataSource> dataSourceMap;
 
     public static void initialize(List<DataSourceDatabaseMeta> metadataList) {
@@ -22,7 +22,7 @@ public class DataSourceDatabase {
 
         for(DataSourceDatabaseMeta meta : metadataList) {
             try {
-                dataSourceMap.put(LookupKey.generateKey(meta), toDataSource(meta));
+                dataSourceMap.put(LookupKey.generateKey(meta), meta.createDataSource());
                 log.info("BusinessDataSource - initialized businessDataSource : [{}]", meta.getDataSourceName());
             }
             catch (Exception e) {
@@ -45,27 +45,11 @@ public class DataSourceDatabase {
     }
 
     public static void registry(DataSourceDatabaseMeta meta) {
-        DataSource dataSource = toDataSource(meta);
+        DataSource dataSource = meta.createDataSource();
+
         LookupKey lookupKey = LookupKey.generateKey(meta);
 
         registry(lookupKey, dataSource);
-    }
-
-    public static DataSource toDataSource(DataSourceDatabaseMeta meta) {
-        Database database = DatabaseFactory.instance(meta.getDatabaseKind());
-
-        HikariDataSource dataSource = new HikariDataSource();
-        dataSource.setDriverClassName(database.getDriverClassName());
-        dataSource.setJdbcUrl(meta.getUrl());
-        dataSource.setUsername(meta.getUsername());
-        dataSource.setPassword(meta.getPassword());
-        dataSource.setMaximumPoolSize(meta.getMaximumPoolSize());
-        dataSource.setMinimumIdle(meta.getMinimumIdle());
-        dataSource.setConnectionTimeout(meta.getConnectionTimeout());
-        dataSource.setValidationTimeout(meta.getValidationTimeout());
-        dataSource.setConnectionTestQuery(database.getValidationQuery());
-
-        return dataSource;
     }
     public static ConnectValidation validateConnect(DataSourceDatabaseMeta metadata) {
         Connection conn = null;
