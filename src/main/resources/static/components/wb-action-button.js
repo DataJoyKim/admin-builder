@@ -31,7 +31,7 @@ class WbActionButton extends HTMLElement {
             idHtml = 'id="'+id+'"';
         }
 
-        return '<button type="button" class="btn btn-default" '+idHtml+' '+onclickHtml+'">'+iconHtml+'</button>';
+        return '<button type="button" class="btn btn-default btn-sm" '+idHtml+' '+onclickHtml+'">'+iconHtml+'</button>';
     }
 }
 

@@ -184,7 +184,9 @@
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">DataSource</h3>
-                        <wb-action-button elementId="search" actionName="getDataSource()" icon="fas fa-search"></wb-action-button>
+                        <div class="card-tools">
+                            <wb-action-button elementId="search" actionName="getDataSource()" icon="fas fa-search"></wb-action-button>
+                        </div>
                     </div>
                     <div class="card-body">
                         <div id="jsGrid1"></div>
@@ -195,11 +197,13 @@
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">상세 내용</h3>
-                        <wb-action-button elementId="new" actionName="newContent()" icon="fas fa-plus"></wb-action-button>
-                        <wb-action-button elementId="save" actionName="save()" icon="fas fa-save"></wb-action-button>
-                        <wb-action-button elementId="delete" actionName="deleteContent()" icon="fas fa-trash"></wb-action-button>
-                        <wb-action-button elementId="refresh" actionName="refreshDataSource()" icon="fas fa-arrow-up"></wb-action-button>
-                        <wb-action-button elementId="validate" actionName="validateConnectDataSource()" icon="fas fa-check"></wb-action-button>
+                        <div class="card-tools">
+                            <wb-action-button elementId="new" actionName="newContent()" icon="fas fa-plus"></wb-action-button>
+                            <wb-action-button elementId="save" actionName="save()" icon="fas fa-save"></wb-action-button>
+                            <wb-action-button elementId="delete" actionName="deleteContent()" icon="fas fa-trash"></wb-action-button>
+                            <wb-action-button elementId="refresh" actionName="refreshDataSource()" icon="fas fa-arrow-up"></wb-action-button>
+                            <wb-action-button elementId="validate" actionName="validateConnectDataSource()" icon="fas fa-check"></wb-action-button>
+                        </div>
                     </div>
                     <div class="card-body">
                         <div class="row">
