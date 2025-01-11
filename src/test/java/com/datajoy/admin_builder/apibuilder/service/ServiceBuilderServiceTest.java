@@ -1,6 +1,5 @@
 package com.datajoy.admin_builder.apibuilder.service;
 
-import com.datajoy.admin_builder.apibuilder.restclient.RestClient;
 import com.datajoy.admin_builder.apibuilder.restclient.RestClientBody;
 import com.datajoy.admin_builder.apibuilder.restclient.code.MessageDataType;
 import org.junit.jupiter.api.Test;
@@ -70,8 +69,8 @@ class ServiceBuilderServiceTest {
 
         Map<String, List<RestClientBody>> parent = bodys.stream().collect(Collectors.groupingBy(RestClientBody::getParentParameterName));
 
-        Map<String,Object> requestBody = RestClient.createMessage("ROOT",params,parent);
+        //Map<String,Object> requestBody = RestClient.createMessage("ROOT",params,parent);
 
-        System.out.println(requestBody.toString());
+//        System.out.println(requestBody.toString());
     }
 }

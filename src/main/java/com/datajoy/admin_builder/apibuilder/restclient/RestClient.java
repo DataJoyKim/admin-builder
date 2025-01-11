@@ -1,14 +1,21 @@
 package com.datajoy.admin_builder.apibuilder.restclient;
 
+import com.datajoy.admin_builder.apibuilder.restclient.code.BodyMessageFormat;
 import com.datajoy.admin_builder.apibuilder.restclient.code.ContentType;
+import com.datajoy.admin_builder.apibuilder.restclient.code.HttpMethod;
 import com.datajoy.admin_builder.apibuilder.restclient.code.MessageDataType;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.web.util.UriBuilder;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -17,6 +24,8 @@ import java.util.Map;
 @Table(uniqueConstraints = {@UniqueConstraint(name="REST_CLIENT_UQ",columnNames={"clientName"})})
 @Entity
 public class RestClient {
+    private final String PARENT_ROOT_NAME = "ROOT";
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -30,34 +39,66 @@ public class RestClient {
     @Column(nullable = false, length = 100)
     private String dataSourceName;
 
-    private String method;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private HttpMethod method;
 
+    @Column(nullable = false, length = 200)
     private String path;
 
-    private String authorization;
-
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 50)
     private ContentType contentType;
 
-    private String contentTypeExpend;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 50)
+    private BodyMessageFormat bodyMessageFormat;
 
-    private String bodyString;
-
-    private MessageDataType bodyDataType;
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "QUERY_ID")
     private List<RestClientBody> body = new ArrayList<>();
 
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "QUERY_ID")
     private List<RestClientHeader> headers = new ArrayList<>();
 
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "QUERY_ID")
     private List<RestClientQueryParam> queryParams = new ArrayList<>();
 
-    public static Map<String, Object> createMessage(String parentParameterName, Map<String, Object> params, Map<String, List<RestClientBody>> bodyMetaByParent) {
+    public Object createBody(Object requestBodyObj) {
+        Map<String, List<RestClientBody>> bodyMetaByParent = this.body.stream().collect(Collectors.groupingBy(RestClientBody::getParentParameterName));
+
+        if(BodyMessageFormat.ARRAY.equals(bodyMessageFormat)) {
+            List<Map<String, Object>> requestBody = (List<Map<String, Object>>) requestBodyObj;
+
+            List<Map<String, Object>> body = new ArrayList<>();
+            for(Map<String, Object> r : requestBody) {
+                body.add(createMessage(PARENT_ROOT_NAME, r, bodyMetaByParent));
+            }
+
+            return body;
+        }
+        else if(BodyMessageFormat.OBJECT.equals(bodyMessageFormat)) {
+            Map<String, Object> requestBody = (Map<String, Object>) requestBodyObj;
+
+            return createMessage(PARENT_ROOT_NAME, requestBody, bodyMetaByParent);
+        }
+        else {
+            return null;
+        }
+    }
+
+    private Map<String, Object> createMessage(
+            String parentParameterName,
+            Map<String, Object> params,
+            Map<String, List<RestClientBody>> bodyMetaByParent
+    ) {
         Map<String, Object> node = new HashMap<>();
 
         List<RestClientBody> bodyMeta = bodyMetaByParent.get(parentParameterName);
 
-        Map<String, RestClientBody> bodyMetaMap = new HashMap<>();
-        for(RestClientBody m : bodyMeta){
-            bodyMetaMap.put(m.getParameterName(), m);
-        }
+        Map<String, RestClientBody> bodyMetaMap = RestClientBody.toBodyMetaMap(bodyMeta);
 
         for(String key : params.keySet()) {
             if(!bodyMetaMap.containsKey(key)) {
@@ -92,4 +133,34 @@ public class RestClient {
         return node;
     }
 
+    public URI createUri(UriBuilder uriBuilder, Map<String, Object> params) {
+        uriBuilder.path(this.path);
+
+        for(RestClientQueryParam q : this.queryParams) {
+            uriBuilder.queryParam(q.getParameterName(), params.get(q.getParameterName()));
+        }
+
+        return uriBuilder.build(params);
+    }
+
+    public MediaType getMediaType() {
+        if(ContentType.APPLICATION_JSON.equals(this.contentType)) {
+            return MediaType.APPLICATION_JSON;
+        }
+        else if(ContentType.TEXT_PLAIN.equals(this.contentType)) {
+            return MediaType.TEXT_PLAIN;
+        }
+        else if(ContentType.APPLICATION_FORM_URLENCODED.equals(this.contentType)) {
+            return MediaType.APPLICATION_FORM_URLENCODED;
+        }
+        else {
+            return null;
+        }
+    }
+
+    public void createHeaders(HttpHeaders headers, Map<String, Object> params) {
+        for(RestClientHeader h : this.headers) {
+            headers.set(h.getKey(), h.getValue());
+        }
+    }
 }
