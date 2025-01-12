@@ -3,6 +3,7 @@ package com.datajoy.admin_builder.apibuilder.restclient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 
 @Service
 @RequiredArgsConstructor
@@ -14,10 +15,21 @@ public class RestClientService {
         RestClient clientMeta = restClientRepository.findByClientName(clientName)
                             .orElseThrow();
 
-        ResponseEntity<Object> response = restClientExecutor.execute(clientMeta, params);
+        try {
+            ResponseEntity<Object> response = restClientExecutor.execute(clientMeta, params);
 
-        return RestClientResult.builder()
-                .response(response)
-                .build();
+            return RestClientResult.builder()
+                    .headers(response.getHeaders())
+                    .body(response.getBody())
+                    .statusCode(response.getStatusCode())
+                    .build();
+        }
+        catch (HttpClientErrorException e) {
+            return RestClientResult.builder()
+                    .headers(e.getResponseHeaders())
+                    .body(e.getResponseBodyAsString())
+                    .statusCode(e.getStatusCode())
+                    .build();
+        }
     }
 }

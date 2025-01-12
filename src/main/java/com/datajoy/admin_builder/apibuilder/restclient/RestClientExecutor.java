@@ -27,6 +27,7 @@ public class RestClientExecutor {
         else if(HttpMethod.POST.equals(clientMeta.getMethod())) {
             response = restClient.post()
                     .uri(uriBuilder -> clientMeta.createUri(uriBuilder, params.getParams()))
+                    .headers(headers -> clientMeta.createHeaders(headers, params.getParams()))
                     .contentType(clientMeta.getMediaType())
                     .body(clientMeta.createBody(params.getRequestBody()))
                     .retrieve()

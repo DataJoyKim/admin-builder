@@ -1,22 +1,44 @@
 package com.datajoy.admin_builder.apibuilder.restclient;
 
+import com.datajoy.admin_builder.apibuilder.restclient.code.AutoValueType;
 import com.datajoy.admin_builder.apibuilder.restclient.code.MessageDataType;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
+import jakarta.persistence.*;
+import lombok.*;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
+@Table
+@Entity
 public class RestClientBody {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name="CLIENT_ID", nullable = false)
+    private Long clientId;
+
+    @Column(nullable = false, length = 100)
     private String parameterName;
+
+    @Column(nullable = false, length = 100)
     private String parentParameterName;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 100)
     private MessageDataType dataType;
-    private String autoValueType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 100)
+    private AutoValueType autoValueType;
+
+    @Column
     private Integer orderNum;
 
     public static Map<String, RestClientBody> toBodyMetaMap(List<RestClientBody> bodyMeta) {

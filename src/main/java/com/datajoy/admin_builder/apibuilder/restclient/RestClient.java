@@ -55,18 +55,22 @@ public class RestClient {
     private BodyMessageFormat bodyMessageFormat;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "QUERY_ID")
+    @JoinColumn(name = "CLIENT_ID")
     private List<RestClientBody> body = new ArrayList<>();
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "QUERY_ID")
+    @JoinColumn(name = "CLIENT_ID")
     private List<RestClientHeader> headers = new ArrayList<>();
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "QUERY_ID")
+    @JoinColumn(name = "CLIENT_ID")
     private List<RestClientQueryParam> queryParams = new ArrayList<>();
 
     public Object createBody(Object requestBodyObj) {
+        if(this.body == null) {
+            return null;
+        }
+
         Map<String, List<RestClientBody>> bodyMetaByParent = this.body.stream().collect(Collectors.groupingBy(RestClientBody::getParentParameterName));
 
         if(BodyMessageFormat.ARRAY.equals(bodyMessageFormat)) {
@@ -159,6 +163,10 @@ public class RestClient {
     }
 
     public void createHeaders(HttpHeaders headers, Map<String, Object> params) {
+        if(this.headers == null){
+            return;
+        }
+
         for(RestClientHeader h : this.headers) {
             headers.set(h.getKey(), h.getValue());
         }
