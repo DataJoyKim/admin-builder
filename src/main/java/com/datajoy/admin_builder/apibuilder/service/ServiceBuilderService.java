@@ -1,12 +1,12 @@
 package com.datajoy.admin_builder.apibuilder.service;
 
-import com.datajoy.admin_builder.apibuilder.function.ServiceFunction;
-import com.datajoy.admin_builder.apibuilder.message.RequestMessage;
-import com.datajoy.admin_builder.apibuilder.message.ResponseMessage;
-import com.datajoy.admin_builder.apibuilder.function.code.ResultCode;
 import com.datajoy.admin_builder.apibuilder.function.FunctionExecutor;
 import com.datajoy.admin_builder.apibuilder.function.FunctionFactory;
 import com.datajoy.admin_builder.apibuilder.function.FunctionResult;
+import com.datajoy.admin_builder.apibuilder.function.ServiceFunction;
+import com.datajoy.admin_builder.apibuilder.function.code.ResultCode;
+import com.datajoy.admin_builder.apibuilder.message.RequestMessage;
+import com.datajoy.admin_builder.apibuilder.message.ResponseMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,12 +26,12 @@ public class ServiceBuilderService {
 
         List<ServiceFunction> serviceFunctions = serviceBuilder.getServiceFunctions();
 
-        Map<String, Object> contents = new HashMap<>();
+        Map<String, List<Map<String, Object>>> contents = new HashMap<>();
 
         for(ServiceFunction func : serviceFunctions) {
             FunctionExecutor executor = functionFactory.instance(func.getFunctionType());
 
-            Object params = requestMessage.getBody().get(func.getRequestMessageId());
+            List<Map<String, Object>> params = requestMessage.getBody().get(func.getRequestMessageId());
 
             FunctionResult result = executor.execute(func.getFunctionName(), params);
             if(ResultCode.FAILURE.equals(result.getResultCode())) {

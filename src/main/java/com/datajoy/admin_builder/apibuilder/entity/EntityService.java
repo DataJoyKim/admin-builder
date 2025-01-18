@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,18 +28,26 @@ public class EntityService {
 
         SqlExecutor sqlExecutor = SqlExecutor.createSqlExecutor(entity.getDataSourceName());
 
-        List<EntityResult.EntityResultElement> results = new ArrayList<>();
+        List<Map<String,Object>> results = new ArrayList<>();
 
         int failed = 0;
         for(EntitySqlQuery entitySqlQuery : entitySqlQueryList) {
             try {
                 List<Map<String, Object>> resultData = sqlExecutor.execute(entitySqlQuery.getSqlQuery(), ParameterBindType.NAME_BIND);
 
-                results.add(EntityResult.EntityResultElement.success(entitySqlQuery.getSeq(), resultData));
+                for(Map<String, Object>  result : resultData) {
+                    result.put(entityConfig.getSeqParamKeyName(), entitySqlQuery.getSeq());
+                }
+
+                results.addAll(resultData);
             }
             catch (SQLException e) {
                 log.error("error",e);
-                results.add(EntityResult.EntityResultElement.failed(entitySqlQuery.getSeq(), "[" +e.getErrorCode() + "] " + e.getMessage()));
+                Map<String,Object> resultData = new HashMap<>();
+                resultData.put(entityConfig.getSeqParamKeyName(), entitySqlQuery.getSeq());
+                resultData.put("errorCode", e.getErrorCode());
+                resultData.put("message", e.getMessage());
+                results.add(resultData);
                 failed++;
             }
         }

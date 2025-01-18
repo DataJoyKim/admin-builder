@@ -4,16 +4,17 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.List;
 import java.util.Map;
 
 @Getter @AllArgsConstructor @Builder
 public class ResponseMessage {
-    private Map<String, Object> contents;
+    private Map<String, List<Map<String, Object>>> contents;
     private Integer status;
     private String message;
     private ResultCode resultCode;
 
-    public static ResponseMessage createSuccessMessage(Map<String, Object> contents) {
+    public static ResponseMessage createSuccessMessage(Map<String, List<Map<String, Object>>> contents) {
         return ResponseMessage.builder()
                 .contents(contents)
                 .status(200)

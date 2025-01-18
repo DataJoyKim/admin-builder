@@ -1,12 +1,13 @@
 package com.datajoy.admin_builder.apibuilder.function;
 
-import com.datajoy.admin_builder.apibuilder.message.MessageConvert;
+import com.datajoy.admin_builder.apibuilder.function.code.ResultCode;
 import com.datajoy.admin_builder.apibuilder.query.QueryRequest;
 import com.datajoy.admin_builder.apibuilder.query.QueryResult;
 import com.datajoy.admin_builder.apibuilder.query.QueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -14,19 +15,32 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class QueryExecutor implements FunctionExecutor {
     private final QueryService queryService;
+    private final FunctionConfig config;
 
     @Override
-    public FunctionResult execute(String functionName, Object params) {
-        List<Map<String, Object>> paramsArr = MessageConvert.toArray(params);
+    public FunctionResult execute(String functionName, List<Map<String, Object>> params) {
+        ResultCode resultCode = ResultCode.SUCCESS;
+        List<Map<String,Object>> results = new ArrayList<>();
 
-        QueryRequest queryParams = QueryRequest.builder()
-                .contents(paramsArr.get(0))
-                .build();
+        for(Map<String, Object> param : params) {
+            String seq = (String) param.get(config.getRequestMessageSeqKey());
 
-        QueryResult results = queryService.execute(functionName, queryParams);
+            QueryRequest queryParams = QueryRequest.builder()
+                                        .contents(param)
+                                        .build();
+
+            QueryResult queryResults = queryService.execute(functionName, queryParams);
+
+            for(Map<String,Object> result : queryResults.getResults()) {
+                result.put(config.getRequestMessageSeqKey(), seq);
+            }
+
+            results.addAll(queryResults.getResults());
+        }
 
         return FunctionResult.builder()
-                .results(results.getResults())
+                .resultCode(resultCode)
+                .results(results)
                 .build();
     }
 }

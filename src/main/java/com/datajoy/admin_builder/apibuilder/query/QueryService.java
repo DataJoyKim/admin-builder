@@ -1,5 +1,6 @@
 package com.datajoy.admin_builder.apibuilder.query;
 
+import com.datajoy.admin_builder.apibuilder.query.code.QueryResultCode;
 import com.datajoy.admin_builder.apibuilder.sql.SqlExecutor;
 import com.datajoy.admin_builder.apibuilder.sql.SqlQuery;
 import com.datajoy.admin_builder.apibuilder.sql.parameterbind.ParameterBindType;
@@ -31,6 +32,8 @@ public class QueryService {
 
         try {
             resultData = sqlExecutor.execute(sqlQuery, ParameterBindType.NAME_BIND);
+
+            return QueryResult.createQueryResult(QueryResultCode.SUCCESS, resultData);
         }
         catch (SQLException e) {
             log.error("error",e);
@@ -38,8 +41,8 @@ public class QueryService {
             error.put("errorCode", e.getErrorCode());
             error.put("message",e.getMessage());
             resultData.add(error);
-        }
 
-        return QueryResult.createQueryResult(resultData);
+            return QueryResult.createQueryResult(QueryResultCode.FAILURE, resultData);
+        }
     }
 }

@@ -5,8 +5,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.List;
+import java.util.Map;
+
 @Getter @AllArgsConstructor @Builder
 public class FunctionResult {
     private ResultCode resultCode;
-    private Object results;
+    private List<Map<String, Object>> results;
 }
