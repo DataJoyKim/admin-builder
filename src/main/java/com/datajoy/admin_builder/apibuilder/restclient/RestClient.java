@@ -71,7 +71,7 @@ public class RestClient {
             return null;
         }
 
-        Map<String, List<RestClientBody>> bodyMetaByParent = this.body.stream().collect(Collectors.groupingBy(RestClientBody::getParentParameterName));
+        Map<String, List<RestClientBody>> bodyMetaByParent = this.body.stream().collect(Collectors.groupingBy(RestClientBody::getParentParamName));
 
         if(BodyMessageFormat.ARRAY.equals(bodyMessageFormat)) {
             List<Map<String, Object>> requestBody = (List<Map<String, Object>>) requestBodyObj;
@@ -141,7 +141,7 @@ public class RestClient {
         uriBuilder.path(this.path);
 
         for(RestClientQueryParam q : this.queryParams) {
-            uriBuilder.queryParam(q.getParameterName(), params.get(q.getParameterName()));
+            uriBuilder.queryParam(q.getParamName(), params.get(q.getParamName()));
         }
 
         return uriBuilder.build(params);

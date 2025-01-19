@@ -15,16 +15,16 @@ class ServiceBuilderServiceTest {
     public void requestBody() {
         List<RestClientBody> bodys = new ArrayList<>();
 
-        bodys.add(RestClientBody.builder().parameterName("userId").parentParameterName("ROOT").build());
+        bodys.add(RestClientBody.builder().paramName("userId").parentParamName("ROOT").build());
         //bodys.add(RestClientBody.builder().parameterName("userNm").parentParameterName("ROOT").build());
-        bodys.add(RestClientBody.builder().parameterName("evalData").parentParameterName("ROOT").dataType(MessageDataType.OBJECT).build());
-        bodys.add(RestClientBody.builder().parameterName("evalEmpId").parentParameterName("evalData").build());
+        bodys.add(RestClientBody.builder().paramName("evalData").parentParamName("ROOT").dataType(MessageDataType.OBJECT).build());
+        bodys.add(RestClientBody.builder().paramName("evalEmpId").parentParamName("evalData").build());
         //bodys.add(RestClientBody.builder().parameterName("score").parentParameterName("evalData").build());
-        bodys.add(RestClientBody.builder().parameterName("desc").parentParameterName("evalData").build());
-        bodys.add(RestClientBody.builder().parameterName("goals").parentParameterName("evalData").build());
-        bodys.add(RestClientBody.builder().parameterName("goalId").parentParameterName("goals").dataType(MessageDataType.ARRAY).build());
-        bodys.add(RestClientBody.builder().parameterName("goalName").parentParameterName("goals").build());
-        bodys.add(RestClientBody.builder().parameterName("goalKind").parentParameterName("goals").build());
+        bodys.add(RestClientBody.builder().paramName("desc").parentParamName("evalData").build());
+        bodys.add(RestClientBody.builder().paramName("goals").parentParamName("evalData").build());
+        bodys.add(RestClientBody.builder().paramName("goalId").parentParamName("goals").dataType(MessageDataType.ARRAY).build());
+        bodys.add(RestClientBody.builder().paramName("goalName").parentParamName("goals").build());
+        bodys.add(RestClientBody.builder().paramName("goalKind").parentParamName("goals").build());
         // bodys.add(RestClientBody.builder().parameterName("org").parentParameterName("ROOT").dataType(MessageDataType.ARRAY).build());;
         // bodys.add(RestClientBody.builder().parameterName("orgCd").parentParameterName("org").build());
         // bodys.add(RestClientBody.builder().parameterName("orgNm").parentParameterName("org").build());
@@ -67,7 +67,7 @@ class ServiceBuilderServiceTest {
 
         params.put("org",orgs);
 
-        Map<String, List<RestClientBody>> parent = bodys.stream().collect(Collectors.groupingBy(RestClientBody::getParentParameterName));
+        Map<String, List<RestClientBody>> parent = bodys.stream().collect(Collectors.groupingBy(RestClientBody::getParentParamName));
 
         //Map<String,Object> requestBody = RestClient.createMessage("ROOT",params,parent);
 

@@ -20,7 +20,7 @@ public class RestClientQueryParam {
     private Long clientId;
 
     @Column(nullable = false, length = 100)
-    private String parameterName;
+    private String paramName;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 100)

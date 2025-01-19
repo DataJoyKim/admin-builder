@@ -33,6 +33,22 @@ public class RestClientExecutor {
                     .retrieve()
                     .toEntity(Object.class);
         }
+        else if(HttpMethod.PUT.equals(clientMeta.getMethod())) {
+            response = restClient.put()
+                    .uri(uriBuilder -> clientMeta.createUri(uriBuilder, params.getParams()))
+                    .headers(headers -> clientMeta.createHeaders(headers, params.getParams()))
+                    .contentType(clientMeta.getMediaType())
+                    .body(clientMeta.createBody(params.getRequestBody()))
+                    .retrieve()
+                    .toEntity(Object.class);
+        }
+        else if(HttpMethod.DELETE.equals(clientMeta.getMethod())) {
+            response = restClient.delete()
+                    .uri(uriBuilder -> clientMeta.createUri(uriBuilder, params.getParams()))
+                    .headers(headers -> clientMeta.createHeaders(headers, params.getParams()))
+                    .retrieve()
+                    .toEntity(Object.class);
+        }
 
         return response;
     }

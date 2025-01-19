@@ -37,7 +37,7 @@ class RestClientTest {
 
         // queryParams 설정
         List<RestClientQueryParam> queryParams = new ArrayList<>();
-        queryParams.add(RestClientQueryParam.builder().parameterName("codeKind").build());
+        queryParams.add(RestClientQueryParam.builder().paramName("codeKind").build());
 
         // header 설정
         List<RestClientHeader> headers = new ArrayList<>();
@@ -79,7 +79,7 @@ class RestClientTest {
         //queryParams.add(RestClientQueryParam.builder().parameterName("codeKind").build());
 
         List<RestClientBody> bodyMessage = new ArrayList<>();
-        bodyMessage.add(RestClientBody.builder().parameterName("carAnnoId").parentParameterName("ROOT").orderNum(1).build());
+        bodyMessage.add(RestClientBody.builder().paramName("carAnnoId").parentParamName("ROOT").orderNum(1).build());
 
         // header 설정
         List<RestClientHeader> headers = new ArrayList<>();

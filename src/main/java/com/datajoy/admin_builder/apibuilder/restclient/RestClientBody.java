@@ -25,10 +25,10 @@ public class RestClientBody {
     private Long clientId;
 
     @Column(nullable = false, length = 100)
-    private String parameterName;
+    private String paramName;
 
     @Column(nullable = false, length = 100)
-    private String parentParameterName;
+    private String parentParamName;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 100)
@@ -44,7 +44,7 @@ public class RestClientBody {
     public static Map<String, RestClientBody> toBodyMetaMap(List<RestClientBody> bodyMeta) {
         Map<String, RestClientBody> bodyMetaMap = new HashMap<>();
         for(RestClientBody m : bodyMeta){
-            bodyMetaMap.put(m.getParameterName(), m);
+            bodyMetaMap.put(m.getParamName(), m);
         }
 
         return bodyMetaMap;
