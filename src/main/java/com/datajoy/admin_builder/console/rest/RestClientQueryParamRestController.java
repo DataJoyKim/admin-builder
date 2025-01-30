@@ -24,7 +24,8 @@ public class RestClientQueryParamRestController {
         queryParamRepository.insert(
                 Long.valueOf((String) params.get("clientId")),
                 (String) params.get("paramName"),
-                AutoValueType.valueOf((String) params.get("autoValueType"))
+                AutoValueType.valueOf((String) params.get("autoValueType")),
+                (String) params.get("autoValue")
         );
 
         return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
@@ -45,7 +46,8 @@ public class RestClientQueryParamRestController {
         queryParamRepository.update(
                 queryParam.getId(),
                 (String) params.get("paramName"),
-                AutoValueType.valueOf((String) params.get("autoValueType"))
+                AutoValueType.valueOf((String) params.get("autoValueType")),
+                (String) params.get("autoValue")
         );
 
         return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);

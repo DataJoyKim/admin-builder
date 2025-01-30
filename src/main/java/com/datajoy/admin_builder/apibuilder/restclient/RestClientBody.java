@@ -38,6 +38,9 @@ public class RestClientBody {
     @Column(nullable = false, length = 100)
     private AutoValueType autoValueType;
 
+    @Column(length = 300)
+    private String autoValue;
+
     @Column
     private Integer orderNum;
 

@@ -13,16 +13,18 @@ import java.util.List;
 public interface ConsoleRestClientQueryParamRepository extends JpaRepository<RestClientQueryParam, Long> {
     @Transactional
     @Modifying
-    @Query(" insert RestClientQueryParam a (clientId,paramName,autoValueType)" +
+    @Query(" insert RestClientQueryParam a (clientId,paramName,autoValueType, autoValue)" +
             " values ( " +
                 ":clientId," +
                 ":paramName," +
-                ":autoValueType" +
+                ":autoValueType, " +
+                ":autoValue" +
             ")")
     void insert(
             @Param("clientId") Long clientId,
             @Param("paramName") String paramName,
-            @Param("autoValueType") AutoValueType autoValueType
+            @Param("autoValueType") AutoValueType autoValueType,
+            @Param("autoValue") String autoValue
     );
 
     @Transactional
@@ -30,12 +32,14 @@ public interface ConsoleRestClientQueryParamRepository extends JpaRepository<Res
     @Query(" update RestClientQueryParam a " +
             " set " +
                 "a.paramName = :paramName," +
-                "a.autoValueType = :autoValueType," +
+                "a.autoValueType = :autoValueType, " +
+                " a.autoValue = :autoValue "+
             " where a.id = :id")
     void update(
             @Param("id") Long id,
             @Param("paramName") String paramName,
-            @Param("autoValueType") AutoValueType autoValueType
+            @Param("autoValueType") AutoValueType autoValueType,
+            @Param("autoValue") String autoValue
     );
 
     List<RestClientQueryParam> findByClientId(Long clientId);

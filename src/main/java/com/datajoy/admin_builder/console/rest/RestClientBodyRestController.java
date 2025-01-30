@@ -28,7 +28,8 @@ public class RestClientBodyRestController {
                 (String) params.get("parentParamName"),
                 MessageDataType.valueOf((String) params.get("dataType")),
                 AutoValueType.valueOf((String) params.get("autoValueType")),
-                (Integer) params.get("orderNum")
+                (Integer) params.get("orderNum"),
+                (String) params.get("autoValue")
         );
 
         return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
@@ -52,7 +53,8 @@ public class RestClientBodyRestController {
                 (String) params.get("parentParamName"),
                 MessageDataType.valueOf((String) params.get("dataType")),
                 AutoValueType.valueOf((String) params.get("autoValueType")),
-                (Integer) params.get("orderNum")
+                (Integer) params.get("orderNum"),
+                (String) params.get("autoValue")
         );
 
         return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);

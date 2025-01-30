@@ -25,4 +25,7 @@ public class RestClientQueryParam {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 100)
     private AutoValueType autoValueType;
+
+    @Column(length = 300)
+    private String autoValue;
 }

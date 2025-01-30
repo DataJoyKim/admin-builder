@@ -14,15 +14,16 @@ import java.util.List;
 public interface ConsoleRestClientBodyRepository extends JpaRepository<RestClientBody, Long> {
     @Transactional
     @Modifying
-    @Query(" insert RestClientBody a (clientId,paramName,parentParamName,dataType,autoValueType,orderNum)" +
-            " values (:clientId,:paramName,:parentParamName,:dataType,:autoValueType,:orderNum)")
+    @Query(" insert RestClientBody a (clientId,paramName,parentParamName,dataType,autoValueType,orderNum,autoValue)" +
+            " values (:clientId,:paramName,:parentParamName,:dataType,:autoValueType,:orderNum,:autoValue)")
     void insert(
         @Param("clientId") Long clientId,
         @Param("paramName") String paramName,
         @Param("parentParamName") String parentParamName,
         @Param("dataType") MessageDataType dataType,
         @Param("autoValueType") AutoValueType autoValueType,
-        @Param("orderNum") Integer orderNum
+        @Param("orderNum") Integer orderNum,
+        @Param("autoValue") String autoValue
     );
 
     @Transactional
@@ -33,7 +34,8 @@ public interface ConsoleRestClientBodyRepository extends JpaRepository<RestClien
                 " a.parentParamName = :parentParamName, "+
                 " a.dataType = :dataType, "+
                 " a.autoValueType = :autoValueType, "+
-                " a.orderNum = :orderNum "+
+                " a.orderNum = :orderNum, "+
+                " a.autoValue = :autoValue "+
             " where a.id = :id")
     void update(
             @Param("id") Long id,
@@ -41,7 +43,8 @@ public interface ConsoleRestClientBodyRepository extends JpaRepository<RestClien
             @Param("parentParamName") String parentParamName,
             @Param("dataType") MessageDataType dataType,
             @Param("autoValueType") AutoValueType autoValueType,
-            @Param("orderNum") Integer orderNum
+            @Param("orderNum") Integer orderNum,
+            @Param("autoValue") String autoValue
     );
 
     List<RestClientBody> findByClientId(Long clientId);

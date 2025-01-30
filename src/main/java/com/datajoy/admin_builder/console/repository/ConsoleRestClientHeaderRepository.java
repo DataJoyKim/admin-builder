@@ -29,7 +29,7 @@ public interface ConsoleRestClientHeaderRepository extends JpaRepository<RestCli
     @Query(" update RestClientHeader a " +
             " set " +
                 "a.key = :key," +
-                "a.value = :value," +
+                "a.value = :value" +
             " where a.id = :id")
     void update(
             @Param("id") Long id,

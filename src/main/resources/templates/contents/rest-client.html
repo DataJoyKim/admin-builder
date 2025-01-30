@@ -1,0 +1,399 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<script th:fragment="script">
+
+        $( document ).ready(function() {
+            init();
+        });
+
+        function setCodeBoxDataSource() {
+            httpClient.get(`/console/api/datasource/database`, {},
+                function(response){
+                    let codes = new Array();
+                    for(let i=0; i<response.length; i++) {
+                        codes.push({id:response[i].dataSourceName,name:response[i].displayName});
+                    }
+
+                    setCodeBox("dataSourceName", codes);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function init() {
+            setCodeBoxDataSource();
+
+            let codes = {
+                "ColumnType":[
+                    {id:"STRING",name:"String"},
+                    {id:"NUMBER",name:"Number"},
+                    {id:"DATE",name:"Date"},
+                    {id:"DATETIME",name:"Datetime"}
+                ],
+                "SelectWhereType":[
+                    {id:"COMPARE_REQUIRED",name:"필수"},
+                    {id:"COMPARE_NOT_REQUIRED",name:"필수아님"}
+                ],
+                "SelectWhereCompareOperator":[
+                    {id:"=",name:"="},
+                    {id:"!=",name:"!="},
+                    {id:">",name:">"},
+                    {id:">=",name:">="},
+                    {id:"<",name:"<"},
+                    {id:"<=",name:"<="},
+                    {id:"like",name:"like"}
+                ],
+                "SortOrder":[
+                    {id:"ASC",name:"오름차순"},
+                    {id:"DESC",name:"내림차순"}
+                ],
+                "NullResolveType":[
+                    {id:"EXCEPTION",name:"예외처리"},
+                    {id:"SET_NULL",name:"null 셋팅"},
+                    {id:"EXCLUDE_QUERY",name:"제외"}
+                ],
+                "AutoValueType":[
+                    {id:"STATIC_VALUE",name:"static 값"},
+                    {id:"RESERVED_WORD",name:"예약어"}
+                ]
+            };
+
+            sheet.initSheet('jsGrid1', "100%","600px",
+            [
+                {name: "id", title:"ID", type: "number", width: 50 },
+                {name: "clientName", title:"client 명", type: "text", width: 150 },
+                {name: "displayName", title:"화면노출명", type: "text", width: 200 }
+            ],
+            function(args) {
+                selectedContent(args.item);
+            });
+
+            sheet.initSheet('queryParamsGrid', "100%","500px",
+            [
+                {name: "id", title:"ID", type: "number", width: 20, editing: false, inserting: false},
+                {name: "paramName", title:"key", type: "text", width: 100},
+                {name: "autoValueType", title:"자동값 유형", type: "select", width: 50, items: codes["AutoValueType"], valueField: "id", textField: "name" },
+                {name: "autoValue", title:"자동값", type: "text", width: 100},
+                { type: "control", editButton: true, width: 30, modeSwitchButton: false }
+            ],
+            function(args) {},
+            {
+                inserting: true,
+                editing: true,
+                onItemInserting: function(args) {
+                    insertEntityColumn($("#id").val(), args.item);
+                },
+                onItemUpdated: function(args) {
+                    updateEntityColumn("", $("#id").val(),args.item.id,
+                          {
+                               columnName:args.item.columnName,
+                               displayName:args.item.displayName,
+                               useKey:args.item.useKey,
+                               columnType:args.item.columnType,
+                               orderNum:args.item.orderNum
+                          });
+                },
+                onItemDeleting: function(args) {
+                    deleteEntityColumn($("#id").val(), args.item);
+                }
+            });
+
+            sheet.initSheet('headersGrid', "100%","500px",
+            [
+                {name: "id", title:"ID", type: "number", width: 20, editing: false, inserting: false},
+                {name: "key", title:"key", type: "text", width: 100},
+                {name: "autoValueType", title:"자동값 유형", type: "select", width: 50, items: codes["AutoValueType"], valueField: "id", textField: "name" },
+                {name: "autoValue", title:"자동값", type: "text", width: 100},
+                { type: "control", editButton: true, width: 30, modeSwitchButton: false }
+            ],
+            function(args) {},
+            {
+                inserting: true,
+                editing: true,
+                onItemInserting: function(args) {
+                    insertEntityColumn($("#id").val(), args.item);
+                },
+                onItemUpdated: function(args) {
+                    updateEntityColumn("", $("#id").val(),args.item.id,
+                          {
+                               columnName:args.item.columnName,
+                               displayName:args.item.displayName,
+                               useKey:args.item.useKey,
+                               columnType:args.item.columnType,
+                               orderNum:args.item.orderNum
+                          });
+                },
+                onItemDeleting: function(args) {
+                    deleteEntityColumn($("#id").val(), args.item);
+                }
+            });
+
+            getRestClient();
+        }
+
+        function save() {
+            let id = $("#id").val();
+
+            if(isEmpty(id))
+                insertContent();
+            else
+                updateContent(id);
+        }
+
+        function getRestClient() {
+            httpClient.get(`/console/api/rest-client`, {},
+                function(response){
+                    sheet.setSheetData('jsGrid1', response);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function selectedContent(item) {
+            httpClient.get(`/console/api/rest-client/${item.id}`, {},
+                function(response){
+                    setContentData(response);
+                    //getEntityColumn(item.id);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function insertContent() {
+            httpClient.post(`/console/api/entity`,{},getContent(),
+                function(response){
+                    alert("저장완료되었습니다.");
+                    getRestClient();
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function updateContent(id) {
+          httpClient.put(`/console/api/entity/${id}`, {}, getContent(),
+              function(response){
+                  alert("저장완료되었습니다.");
+                  getRestClient();
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+        function deleteContent() {
+          let id = $("#id").val();
+
+          httpClient.delete(`/console/api/entity/${id}`, {},
+              function(response){
+                  alert("삭제 처리 완료되었습니다.");
+                  getRestClient();
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+        function setContentData(response) {
+            setContent({
+                id:response.id,
+                clientName:response.clientName,
+                displayName:response.displayName,
+                dataSourceName:response.dataSourceName,
+                method:response.method,
+                path:response.path,
+                contentType:response.contentType,
+                bodyMessageFormat:response.bodyMessageFormat
+              });
+        }
+
+        function getContent() {
+            return {
+                id: $("#id").val(),
+                clientName: $("#clientName").val(),
+                displayName: $("#displayName").val(),
+                dataSourceName: $("#dataSourceName").val(),
+                method: $("#method").val(),
+                path: $("#path").val(),
+                contentType: $("#contentType").val(),
+                bodyMessageFormat: $("#bodyMessageFormat").val()
+            }
+        }
+
+        function setContent(params) {
+            $("#id").val(params.id);
+            $("#clientName").val(params.clientName);
+            $("#displayName").val(params.displayName);
+            $("#dataSourceName").val(params.dataSourceName);
+            $("#method").val(params.method);
+            $("#path").val(params.path);
+            $("#contentType").val(params.contentType);
+            $("#bodyMessageFormat").val(params.bodyMessageFormat);
+          }
+
+          function newContent(){
+            setContent({
+                id:'',
+                clientName:'',
+                displayName:'',
+                dataSourceName:'',
+                method:'',
+                path:'',
+                contentType:'',
+                bodyMessageFormat:''
+                });
+          }
+
+        function getEntityColumn(entityId) {
+            httpClient.get(`/console/api/entity-column/${entityId}`, {},
+                function(response){
+                    sheet.setSheetData('entityColumnGrid', response);
+                    sheet.setSheetData('entityColumnSelectGrid', response);
+                    sheet.setSheetData('entityColumnInsertGrid', response);
+                    sheet.setSheetData('entityColumnUpdateGrid', response);
+                    sheet.setSheetData('entityColumnDeleteGrid', response);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function insertEntityColumn(entityId, item) {
+            httpClient.post(`/console/api/entity-column`,{},
+                {
+                   entityId:entityId,
+                   columnName:item.columnName,
+                   displayName:item.displayName,
+                   useKey:item.useKey,
+                   columnType:item.columnType
+                },
+                function(response){
+                    alert("생성 완료되었습니다.");
+                    getEntityColumn(entityId);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function updateEntityColumn(path, entityId, entityColumnId, params) {
+          httpClient.put(`/console/api/entity-column/${entityColumnId}${path}`, {},params,
+              function(response){
+                  alert("변경 완료되었습니다.");
+                  getEntityColumn(entityId);
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+        function deleteEntityColumn(entityId, item) {
+          httpClient.delete(`/console/api/entity-column/${item.id}`, {},
+              function(response){
+                  alert("삭제 완료되었습니다.");
+                  getEntityColumn(entityId);
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+    </script>
+<div th:fragment="view">
+    <div class="row">
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Rest Client</h3>
+                        <div class="card-tools">
+                            <wb-action-button elementId="search" actionName="getRestClient()" icon="fas fa-search"></wb-action-button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="jsGrid1"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">상세 내용</h3>
+
+                        <div class="card-tools">
+                            <wb-action-button elementId="new" actionName="newContent()" icon="fas fa-plus"></wb-action-button>
+                            <wb-action-button elementId="save" actionName="save()" icon="fas fa-save"></wb-action-button>
+                            <wb-action-button elementId="delete" actionName="deleteContent()" icon="fas fa-trash"></wb-action-button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-1">
+                                <wb-text-input elementId="id" label="ID" enable="false"></wb-text-input>
+                            </div>
+                            <div class="col-md-3">
+                                <wb-text-input elementId="clientName" label="client 명" enable="true"></wb-text-input>
+                            </div>
+                            <div class="col-md-3">
+                                <wb-text-input elementId="displayName" label="화면 노출명" enable="true" ></wb-text-input>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <wb-select elementId="dataSourceName" label="dataSource" enable="true" useFirstItem="true" firstItemLabel="" firstItemValue=""></wb-select>
+                            </div>
+                            <div class="col-md-1">
+                                <wb-select elementId="method" label="method" enable="true" useFirstItem="true" firstItemLabel="" firstItemValue=""></wb-select>
+                            </div>
+                            <div class="col-md-3">
+                                <wb-text-input elementId="path" label="path" enable="true" ></wb-text-input>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2">
+                                <wb-select elementId="contentType" label="contentType" enable="true" useFirstItem="true" firstItemLabel="" firstItemValue=""></wb-select>
+                            </div>
+                            <div class="col-md-2">
+                                <wb-select elementId="bodyMessageFormat" label="body 포맷" enable="true" useFirstItem="true" firstItemLabel="" firstItemValue=""></wb-select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-9 col-sm-10">
+                                <div class="tab-content" id="vert-tabs-right-tabContent">
+                                    <div class="tab-pane fade show active" id="queryParams" role="tabpanel" aria-labelledby="queryParams-tab">
+                                        <div id="queryParamsGrid"></div>
+                                    </div>
+                                    <div class="tab-pane fade" id="headers" role="tabpanel" aria-labelledby="headers-tab">
+                                        <div id="headersGrid"></div>
+                                    </div>
+                                    <div class="tab-pane fade" id="body" role="tabpanel" aria-labelledby="body-tab">
+                                        <div id="bodyGrid"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3 col-sm-2">
+                                <div class="nav flex-column nav-tabs nav-tabs-right h-100" id="vert-tabs-right-tab" role="tablist" aria-orientation="vertical">
+                                    <a class="nav-link active" id="queryParams-tab" data-toggle="pill" href="#queryParams" role="tab" aria-controls="queryParams" aria-selected="true">Query Params</a>
+                                    <a class="nav-link" id="headers-tab" data-toggle="pill" href="#headers" role="tab" aria-controls="headers" aria-selected="false">Headers</a>
+                                    <a class="nav-link" id="body-tab" data-toggle="pill" href="#body" role="tab" aria-controls="body" aria-selected="false">Body</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</html>
