@@ -6,7 +6,7 @@
         });
 
         function setCodeBoxDataSource() {
-            httpClient.get(`/console/api/datasource/database`, {},
+            httpClient.get(`/console/api/datasource/rest-server`, {},
                 function(response){
                     let codes = new Array();
                     for(let i=0; i<response.length; i++) {
@@ -25,24 +25,20 @@
             setCodeBoxDataSource();
 
             let codes = {
-                "ColumnType":[
-                    {id:"STRING",name:"String"},
-                    {id:"NUMBER",name:"Number"},
-                    {id:"DATE",name:"Date"},
-                    {id:"DATETIME",name:"Datetime"}
+                "Method":[
+                    {id:"GET",name:"GET"},
+                    {id:"POST",name:"POST"},
+                    {id:"PUT",name:"PUT"},
+                    {id:"DELETE",name:"DELETE"}
                 ],
-                "SelectWhereType":[
-                    {id:"COMPARE_REQUIRED",name:"필수"},
-                    {id:"COMPARE_NOT_REQUIRED",name:"필수아님"}
+                "ContentType":[
+                    {id:"APPLICATION_JSON",name:"application/json"},
+                    {id:"APPLICATION_FORM_URLENCODED",name:"application/x-www-form-urlencoded"},
+                    {id:"TEXT_PLAIN",name:"text/plain"}
                 ],
-                "SelectWhereCompareOperator":[
-                    {id:"=",name:"="},
-                    {id:"!=",name:"!="},
-                    {id:">",name:">"},
-                    {id:">=",name:">="},
-                    {id:"<",name:"<"},
-                    {id:"<=",name:"<="},
-                    {id:"like",name:"like"}
+                "BodyMessageFormat":[
+                    {id:"ARRAY",name:"Array"},
+                    {id:"OBJECT",name:"Object"}
                 ],
                 "SortOrder":[
                     {id:"ASC",name:"오름차순"},
@@ -54,10 +50,15 @@
                     {id:"EXCLUDE_QUERY",name:"제외"}
                 ],
                 "AutoValueType":[
+                    {id:"DEFAULT",name:"기본"},
                     {id:"STATIC_VALUE",name:"static 값"},
                     {id:"RESERVED_WORD",name:"예약어"}
                 ]
             };
+
+            setCodeBox("method", codes["Method"]);
+            setCodeBox("contentType", codes["ContentType"]);
+            setCodeBox("bodyMessageFormat", codes["BodyMessageFormat"]);
 
             sheet.initSheet('jsGrid1', "100%","600px",
             [
@@ -165,7 +166,7 @@
         }
 
         function insertContent() {
-            httpClient.post(`/console/api/entity`,{},getContent(),
+            httpClient.post(`/console/api/rest-client`,{},getContent(),
                 function(response){
                     alert("저장완료되었습니다.");
                     getRestClient();
@@ -177,7 +178,7 @@
         }
 
         function updateContent(id) {
-          httpClient.put(`/console/api/entity/${id}`, {}, getContent(),
+          httpClient.put(`/console/api/rest-client/${id}`, {}, getContent(),
               function(response){
                   alert("저장완료되었습니다.");
                   getRestClient();

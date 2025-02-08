@@ -19,8 +19,8 @@ public class RestClientHeader {
     private Long clientId;
 
     @Column(nullable = false, length = 100)
-    private String key;
+    private String name;
 
     @Column(nullable = false, length = 1000)
-    private String value;
+    private String headerValue;
 }

@@ -22,8 +22,8 @@ public class RestClientHeaderRestController {
     public ResponseEntity<?> createRestClientHeader(@RequestBody Map<String,Object> params) {
         restClientHeaderRepository.insert(
                 Long.valueOf((String) params.get("clientId")),
-                (String) params.get("key"),
-                (String) params.get("value")
+                (String) params.get("name"),
+                (String) params.get("headerValue")
         );
 
         return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
@@ -43,8 +43,8 @@ public class RestClientHeaderRestController {
 
         restClientHeaderRepository.update(
                 restClientHeader.getId(),
-                (String) params.get("key"),
-                (String) params.get("value")
+                (String) params.get("name"),
+                (String) params.get("headerValue")
         );
 
         return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);

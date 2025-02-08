@@ -12,29 +12,29 @@ import java.util.List;
 public interface ConsoleRestClientHeaderRepository extends JpaRepository<RestClientHeader, Long> {
     @Transactional
     @Modifying
-    @Query(" insert RestClientHeader a (clientId,key,value)" +
+    @Query(" insert RestClientHeader a (clientId,name,headerValue)" +
             " values ( " +
                 ":clientId," +
-                ":key," +
-                ":value" +
+                ":name," +
+                ":headerValue" +
             ")")
     void insert(
             @Param("clientId") Long clientId,
-            @Param("key") String key,
-            @Param("value") String value
+            @Param("name") String name,
+            @Param("headerValue") String headerValue
     );
 
     @Transactional
     @Modifying
     @Query(" update RestClientHeader a " +
             " set " +
-                "a.key = :key," +
-                "a.value = :value" +
+                "a.name = :name," +
+                "a.headerValue = :headerValue" +
             " where a.id = :id")
     void update(
             @Param("id") Long id,
-            @Param("key") String key,
-            @Param("value") String value
+            @Param("name") String name,
+            @Param("headerValue") String headerValue
     );
 
     List<RestClientHeader> findByClientId(Long clientId);

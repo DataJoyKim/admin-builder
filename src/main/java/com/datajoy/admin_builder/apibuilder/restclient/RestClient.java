@@ -168,7 +168,7 @@ public class RestClient {
         }
 
         for(RestClientHeader h : this.headers) {
-            headers.set(h.getKey(), h.getValue());
+            headers.set(h.getName(), h.getHeaderValue());
         }
     }
 }
