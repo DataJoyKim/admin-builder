@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/console/api/rest-client-header")
+@RequestMapping("/console/api/rest-client/header")
 public class RestClientHeaderRestController {
     @Autowired
     private ConsoleRestClientHeaderRepository restClientHeaderRepository;

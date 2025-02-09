@@ -43,15 +43,15 @@ public class RestClient {
     @Column(nullable = false, length = 20)
     private HttpMethod method;
 
-    @Column(nullable = false, length = 200)
+    @Column(length = 200)
     private String path;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 50)
+    @Column(length = 50)
     private ContentType contentType;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 50)
+    @Column(length = 50)
     private BodyMessageFormat bodyMessageFormat;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)

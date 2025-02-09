@@ -40,14 +40,12 @@
                     {id:"ARRAY",name:"Array"},
                     {id:"OBJECT",name:"Object"}
                 ],
-                "SortOrder":[
-                    {id:"ASC",name:"오름차순"},
-                    {id:"DESC",name:"내림차순"}
-                ],
-                "NullResolveType":[
-                    {id:"EXCEPTION",name:"예외처리"},
-                    {id:"SET_NULL",name:"null 셋팅"},
-                    {id:"EXCLUDE_QUERY",name:"제외"}
+                "DataType":[
+                    {id:"STRING",name:"String"},
+                    {id:"NUMBER",name:"Number"},
+                    {id:"BOOLEAN",name:"Boolean"},
+                    {id:"OBJECT",name:"Object"},
+                    {id:"ARRAY",name:"Array"}
                 ],
                 "AutoValueType":[
                     {id:"DEFAULT",name:"기본"},
@@ -73,7 +71,7 @@
             sheet.initSheet('queryParamsGrid', "100%","500px",
             [
                 {name: "id", title:"ID", type: "number", width: 20, editing: false, inserting: false},
-                {name: "paramName", title:"key", type: "text", width: 100},
+                {name: "paramName", title:"파라미터명", type: "text", width: 100},
                 {name: "autoValueType", title:"자동값 유형", type: "select", width: 50, items: codes["AutoValueType"], valueField: "id", textField: "name" },
                 {name: "autoValue", title:"자동값", type: "text", width: 100},
                 { type: "control", editButton: true, width: 30, modeSwitchButton: false }
@@ -83,29 +81,21 @@
                 inserting: true,
                 editing: true,
                 onItemInserting: function(args) {
-                    insertEntityColumn($("#id").val(), args.item);
+                    insertQueryParam($("#id").val(), args.item);
                 },
                 onItemUpdated: function(args) {
-                    updateEntityColumn("", $("#id").val(),args.item.id,
-                          {
-                               columnName:args.item.columnName,
-                               displayName:args.item.displayName,
-                               useKey:args.item.useKey,
-                               columnType:args.item.columnType,
-                               orderNum:args.item.orderNum
-                          });
+                    updateQueryParam($("#id").val(),args.item);
                 },
                 onItemDeleting: function(args) {
-                    deleteEntityColumn($("#id").val(), args.item);
+                    deleteQueryParam($("#id").val(), args.item);
                 }
             });
 
             sheet.initSheet('headersGrid', "100%","500px",
             [
                 {name: "id", title:"ID", type: "number", width: 20, editing: false, inserting: false},
-                {name: "key", title:"key", type: "text", width: 100},
-                {name: "autoValueType", title:"자동값 유형", type: "select", width: 50, items: codes["AutoValueType"], valueField: "id", textField: "name" },
-                {name: "autoValue", title:"자동값", type: "text", width: 100},
+                {name: "name", title:"key", type: "text", width: 100},
+                {name: "headerValue", title:"value", type: "text", width: 100},
                 { type: "control", editButton: true, width: 30, modeSwitchButton: false }
             ],
             function(args) {},
@@ -113,20 +103,39 @@
                 inserting: true,
                 editing: true,
                 onItemInserting: function(args) {
-                    insertEntityColumn($("#id").val(), args.item);
+                    insertHeader($("#id").val(), args.item);
                 },
                 onItemUpdated: function(args) {
-                    updateEntityColumn("", $("#id").val(),args.item.id,
-                          {
-                               columnName:args.item.columnName,
-                               displayName:args.item.displayName,
-                               useKey:args.item.useKey,
-                               columnType:args.item.columnType,
-                               orderNum:args.item.orderNum
-                          });
+                    updateHeader($("#id").val(),args.item);
                 },
                 onItemDeleting: function(args) {
-                    deleteEntityColumn($("#id").val(), args.item);
+                    deleteHeader($("#id").val(), args.item);
+                }
+            });
+
+            sheet.initSheet('bodyGrid', "100%","500px",
+            [
+                {name: "id", title:"ID", type: "number", width: 20, editing: false, inserting: false},
+                {name: "paramName", title:"파라미터명", type: "text", width: 100},
+                {name: "parentParamName", title:"부모 파라미터명", type: "text", width: 100},
+                {name: "dataType", title:"데이터유형", type: "select", width: 50, items: codes["DataType"], valueField: "id", textField: "name" },
+                {name: "autoValueType", title:"자동값 유형", type: "select", width: 50, items: codes["AutoValueType"], valueField: "id", textField: "name" },
+                {name: "autoValue", title:"자동값", type: "text", width: 100},
+                {name: "orderNum", title:"순서", type: "number", width: 30},
+                { type: "control", editButton: true, width: 30, modeSwitchButton: false }
+            ],
+            function(args) {},
+            {
+                inserting: true,
+                editing: true,
+                onItemInserting: function(args) {
+                    insertBody($("#id").val(), args.item);
+                },
+                onItemUpdated: function(args) {
+                    updateBody($("#id").val(),args.item);
+                },
+                onItemDeleting: function(args) {
+                    deleteBody($("#id").val(), args.item);
                 }
             });
 
@@ -157,7 +166,9 @@
             httpClient.get(`/console/api/rest-client/${item.id}`, {},
                 function(response){
                     setContentData(response);
-                    //getEntityColumn(item.id);
+                    getQueryParam(item.id);
+                    getHeader(item.id);
+                    getBody(item.id);
                 },
                 function(error){
                     alert('error');
@@ -192,7 +203,7 @@
         function deleteContent() {
           let id = $("#id").val();
 
-          httpClient.delete(`/console/api/entity/${id}`, {},
+          httpClient.delete(`/console/api/rest-client/${id}`, {},
               function(response){
                   alert("삭제 처리 완료되었습니다.");
                   getRestClient();
@@ -253,14 +264,10 @@
                 });
           }
 
-        function getEntityColumn(entityId) {
-            httpClient.get(`/console/api/entity-column/${entityId}`, {},
+        function getQueryParam(clientId) {
+            httpClient.get(`/console/api/rest-client/query-param/${clientId}`, {},
                 function(response){
-                    sheet.setSheetData('entityColumnGrid', response);
-                    sheet.setSheetData('entityColumnSelectGrid', response);
-                    sheet.setSheetData('entityColumnInsertGrid', response);
-                    sheet.setSheetData('entityColumnUpdateGrid', response);
-                    sheet.setSheetData('entityColumnDeleteGrid', response);
+                    sheet.setSheetData('queryParamsGrid', response);
                 },
                 function(error){
                     alert('error');
@@ -268,18 +275,17 @@
             );
         }
 
-        function insertEntityColumn(entityId, item) {
-            httpClient.post(`/console/api/entity-column`,{},
+        function insertQueryParam(clientId, item) {
+            httpClient.post(`/console/api/rest-client/query-param`,{},
                 {
-                   entityId:entityId,
-                   columnName:item.columnName,
-                   displayName:item.displayName,
-                   useKey:item.useKey,
-                   columnType:item.columnType
+                   clientId:clientId,
+                   paramName:item.paramName,
+                   autoValueType:item.autoValueType,
+                   autoValue:item.autoValue
                 },
                 function(response){
                     alert("생성 완료되었습니다.");
-                    getEntityColumn(entityId);
+                    getQueryParam(clientId);
                 },
                 function(error){
                     alert('error');
@@ -287,11 +293,16 @@
             );
         }
 
-        function updateEntityColumn(path, entityId, entityColumnId, params) {
-          httpClient.put(`/console/api/entity-column/${entityColumnId}${path}`, {},params,
+        function updateQueryParam(clientId,item) {
+          httpClient.put(`/console/api/rest-client/query-param/${item.id}`, {},
+              {
+                   paramName:item.paramName,
+                   autoValueType:item.autoValueType,
+                   autoValue:item.autoValue
+              },
               function(response){
                   alert("변경 완료되었습니다.");
-                  getEntityColumn(entityId);
+                  getQueryParam(clientId);
               },
               function(error){
                   alert('error');
@@ -299,11 +310,133 @@
           );
         }
 
-        function deleteEntityColumn(entityId, item) {
-          httpClient.delete(`/console/api/entity-column/${item.id}`, {},
+        function deleteQueryParam(clientId, item) {
+          httpClient.delete(`/console/api/rest-client/query-param/${item.id}`, {},
               function(response){
                   alert("삭제 완료되었습니다.");
-                  getEntityColumn(entityId);
+                  getQueryParam(clientId);
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+
+        function getHeader(clientId) {
+            httpClient.get(`/console/api/rest-client/header/${clientId}`, {},
+                function(response){
+                    sheet.setSheetData('headersGrid', response);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function insertHeader(clientId, item) {
+            httpClient.post(`/console/api/rest-client/header`,{},
+                {
+                   clientId:clientId,
+                   name:item.name,
+                   headerValue:item.headerValue
+                },
+                function(response){
+                    alert("생성 완료되었습니다.");
+                    getHeader(clientId);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function updateHeader(clientId,item) {
+          httpClient.put(`/console/api/rest-client/header/${item.id}`, {},
+              {
+                   name:item.name,
+                   headerValue:item.headerValue
+              },
+              function(response){
+                  alert("변경 완료되었습니다.");
+                  getHeader(clientId);
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+        function deleteHeader(clientId, item) {
+          httpClient.delete(`/console/api/rest-client/header/${item.id}`, {},
+              function(response){
+                  alert("삭제 완료되었습니다.");
+                  getHeader(clientId);
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+
+        function getBody(clientId) {
+            httpClient.get(`/console/api/rest-client/body/${clientId}`, {},
+                function(response){
+                    sheet.setSheetData('bodyGrid', response);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function insertBody(clientId, item) {
+            httpClient.post(`/console/api/rest-client/body`,{},
+                {
+                   clientId:clientId,
+                   paramName:item.paramName,
+                   parentParamName:item.parentParamName,
+                   dataType:item.dataType,
+                   autoValueType:item.autoValueType,
+                   orderNum:item.orderNum,
+                   autoValue:item.autoValue
+                },
+                function(response){
+                    alert("생성 완료되었습니다.");
+                    getBody(clientId);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function updateBody(clientId,item) {
+          httpClient.put(`/console/api/rest-client/body/${item.id}`, {},
+              {
+                   paramName:item.paramName,
+                   parentParamName:item.parentParamName,
+                   dataType:item.dataType,
+                   autoValueType:item.autoValueType,
+                   orderNum:item.orderNum,
+                   autoValue:item.autoValue
+              },
+              function(response){
+                  alert("변경 완료되었습니다.");
+                  getBody(clientId);
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+        function deleteBody(clientId, item) {
+          httpClient.delete(`/console/api/rest-client/body/${item.id}`, {},
+              function(response){
+                  alert("삭제 완료되었습니다.");
+                  getBody(clientId);
               },
               function(error){
                   alert('error');
@@ -312,6 +445,7 @@
         }
     </script>
 <div th:fragment="view">
+    1
     <div class="row">
             <div class="col-lg-4">
                 <div class="card">

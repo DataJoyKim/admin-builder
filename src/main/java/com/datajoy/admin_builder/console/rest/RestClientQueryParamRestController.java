@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/console/api/rest-client-query-param")
+@RequestMapping("/console/api/rest-client/query-param")
 public class RestClientQueryParamRestController {
     @Autowired
     private ConsoleRestClientQueryParamRepository queryParamRepository;

@@ -27,7 +27,7 @@ public class RestClientBody {
     @Column(nullable = false, length = 100)
     private String paramName;
 
-    @Column(nullable = false, length = 100)
+    @Column(length = 100)
     private String parentParamName;
 
     @Enumerated(EnumType.STRING)
