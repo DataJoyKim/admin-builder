@@ -1,6 +1,9 @@
 package com.datajoy.admin_builder.console.rest;
 
 import com.datajoy.admin_builder.apibuilder.restclient.RestClient;
+import com.datajoy.admin_builder.apibuilder.restclient.RestClientRequest;
+import com.datajoy.admin_builder.apibuilder.restclient.RestClientResult;
+import com.datajoy.admin_builder.apibuilder.restclient.RestClientService;
 import com.datajoy.admin_builder.apibuilder.restclient.code.BodyMessageFormat;
 import com.datajoy.admin_builder.apibuilder.restclient.code.ContentType;
 import com.datajoy.admin_builder.apibuilder.restclient.code.HttpMethod;
@@ -19,6 +22,8 @@ import java.util.Map;
 public class RestClientRestController {
     @Autowired
     private ConsoleRestClientRepository restClientRepository;
+    @Autowired
+    private RestClientService restClientService;
 
     @GetMapping("")
     public ResponseEntity<?> getRestClient() {
@@ -37,6 +42,8 @@ public class RestClientRestController {
 
     @PostMapping("")
     public ResponseEntity<?> createRestClient(@RequestBody Map<String,Object> params) {
+        String contentType = (String) params.get("contentType");
+        String bodyMessageFormat = (String) params.get("bodyMessageFormat");
 
         RestClient restClient = RestClient.builder()
                 .clientName((String) params.get("clientName"))
@@ -44,8 +51,8 @@ public class RestClientRestController {
                 .dataSourceName((String) params.get("dataSourceName"))
                 .method(HttpMethod.valueOf((String) params.get("method")))
                 .path((String) params.get("path"))
-                .contentType(ContentType.valueOf((String) params.get("contentType")))
-                .bodyMessageFormat(BodyMessageFormat.valueOf((String) params.get("bodyMessageFormat")))
+                .contentType((contentType != null && !contentType.isEmpty()) ? ContentType.valueOf((String) params.get("contentType")) : null)
+                .bodyMessageFormat((bodyMessageFormat != null && !bodyMessageFormat.isEmpty()) ? BodyMessageFormat.valueOf((String) params.get("bodyMessageFormat")) : null)
                 .build();
 
         RestClient results = restClientRepository.save(restClient);
@@ -58,6 +65,9 @@ public class RestClientRestController {
         RestClient results = restClientRepository.findById(id)
                 .orElseThrow(RuntimeException::new);
 
+        String contentType = (String) params.get("contentType");
+        String bodyMessageFormat = (String) params.get("bodyMessageFormat");
+
         restClientRepository.update(
                 results.getId(),
                 (String) params.get("clientName"),
@@ -65,8 +75,8 @@ public class RestClientRestController {
                 (String) params.get("dataSourceName"),
                 HttpMethod.valueOf((String) params.get("method")),
                 (String) params.get("path"),
-                ContentType.valueOf((String) params.get("contentType")),
-                BodyMessageFormat.valueOf((String) params.get("bodyMessageFormat"))
+                (contentType != null && !contentType.isEmpty()) ? ContentType.valueOf((String) params.get("contentType")) : null,
+                (bodyMessageFormat != null && !bodyMessageFormat.isEmpty()) ? BodyMessageFormat.valueOf((String) params.get("bodyMessageFormat")) : null
         );
 
         return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
@@ -80,5 +90,21 @@ public class RestClientRestController {
         restClientRepository.deleteById(restClient.getId());
 
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("/{clientName}/execute")
+    public ResponseEntity<?> executeQuery(
+            @PathVariable("clientName") String clientName,
+            @RequestParam Map<String, Object> params,
+            @RequestBody(required = false) Object requestBody
+    ) {
+        RestClientRequest request = RestClientRequest.builder()
+                .params(params)
+                .requestBody(requestBody)
+                .build();
+
+        RestClientResult results = restClientService.execute(clientName, request);
+
+        return new ResponseEntity<>(results, HttpStatus.OK);
     }
 }

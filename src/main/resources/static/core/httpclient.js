@@ -32,11 +32,20 @@ class HttpClient {
   }
 
   post(_url, _requestParams, _requestBody, _success, _error) {
-    console.log('httpClient.post.request',{
+    console.log('httpClient.post.request1',{
         url:_url,
         requestParams:_requestParams,
         requestBody:_requestBody
     });
+
+    if(_requestParams != undefined && _requestParams != null && _requestParams != '') {
+        let i=0;
+        for(let key in _requestParams) {
+            let value = _requestParams[key];
+            _url += (i > 0) ? "&" : "?" + key + "=" + value;
+            i++;
+        }
+    }
 
     $.ajax({
       type: 'POST',

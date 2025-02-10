@@ -1,5 +1,6 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <script th:fragment="script">
+        let exeResponseDataEditor, exeBodyJsonEditor;
 
         $( document ).ready(function() {
             init();
@@ -58,6 +59,22 @@
             setCodeBox("contentType", codes["ContentType"]);
             setCodeBox("bodyMessageFormat", codes["BodyMessageFormat"]);
 
+            setListGrid(codes);
+            setContentGrid(codes);
+            setExecuteGrid(codes);
+
+            getRestClient();
+        }
+
+         document.addEventListener("DOMContentLoaded", function () {
+            exeBodyJsonEditor = initJsonEditor("exeBodyJson");
+            exeResponseDataEditor = initJsonEditor("responseData");
+
+            setTimeout(() => exeBodyJsonEditor.refresh(), 300);
+            setTimeout(() => exeResponseDataEditor.refresh(), 300);
+         });
+
+        function setListGrid(codes) {
             sheet.initSheet('jsGrid1', "100%","600px",
             [
                 {name: "id", title:"ID", type: "number", width: 50 },
@@ -68,6 +85,9 @@
                 selectedContent(args.item);
             });
 
+        }
+
+        function setContentGrid(codes) {
             sheet.initSheet('queryParamsGrid', "100%","500px",
             [
                 {name: "id", title:"ID", type: "number", width: 20, editing: false, inserting: false},
@@ -138,8 +158,27 @@
                     deleteBody($("#id").val(), args.item);
                 }
             });
+        }
 
-            getRestClient();
+        function setExecuteGrid(codes) {
+
+            sheet.initSheet('exeParamsGrid', "300px","300px",
+            [
+                {name: "key", title:"key", type: "text", width: 100},
+                {name: "value", title:"value", type: "text", width: 100},
+                { type: "control", editButton: false, width: 30, modeSwitchButton: false }
+            ],
+            function(args) {},
+            {
+                inserting: true,
+                editing: true,
+                onItemInserting: function(args) {
+                },
+                onItemUpdated: function(args) {
+                },
+                onItemDeleting: function(args) {
+                }
+            });
         }
 
         function save() {
@@ -169,6 +208,7 @@
                     getQueryParam(item.id);
                     getHeader(item.id);
                     getBody(item.id);
+                    $("#exeClientName").val(item.clientName);
                 },
                 function(error){
                     alert('error');
@@ -443,9 +483,51 @@
               }
           );
         }
+
+        function execute() {
+            let clientName = $("#exeClientName").val();
+
+            let contents = {};
+            let gridData = sheet.getSheetData("exeParamsGrid");
+
+            for(let i=0; i<gridData.length; i++) {
+                let value = gridData[i]["value"];
+                if(value == "null") {
+                    contents[gridData[i]["key"]] = null;
+                }
+                else {
+                    contents[gridData[i]["key"]] = value;
+                }
+            }
+
+            let bodyJson = exeBodyJsonEditor.getValue();
+            if(bodyJson == '') {
+                bodyJson = null;
+            }
+
+            httpClient.post(`/console/api/rest-client/${clientName}/execute`,contents, bodyJson,
+                function(response){
+                    exeResponseDataEditor.setValue(JSON.stringify(response,null,3));
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function initJsonEditor(id) {
+            let textarea = document.getElementById(id);
+
+            return CodeMirror.fromTextArea(textarea, {
+                theme: "darcula", // 원하는 테마 적용
+                lineNumbers: true, // 라인 번호 표시
+                matchBrackets: true, // 괄호 자동 매칭
+                autoCloseBrackets: true, // 괄호 자동 닫기
+                mode: "application/json"
+            });
+        }
     </script>
 <div th:fragment="view">
-    1
     <div class="row">
             <div class="col-lg-4">
                 <div class="card">
@@ -462,68 +544,118 @@
             </div>
             <div class="col-lg-8">
                 <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">상세 내용</h3>
+                    <ul class="nav nav-tabs" id="tab" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="detail-tab" data-toggle="pill" href="#detail" role="tab" aria-controls="detail" aria-selected="true">상세내용</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="valid-tab" data-toggle="pill" href="#valid" role="tab" aria-controls="valid" aria-selected="false">실행</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content" id="service-tabContent">
+                        <div class="tab-pane fade show active" id="detail" role="tabpanel" aria-labelledby="detail-tab">
+                            <div class="card-header">
+                                <h3 class="card-title">상세 내용</h3>
 
-                        <div class="card-tools">
-                            <wb-action-button elementId="new" actionName="newContent()" icon="fas fa-plus"></wb-action-button>
-                            <wb-action-button elementId="save" actionName="save()" icon="fas fa-save"></wb-action-button>
-                            <wb-action-button elementId="delete" actionName="deleteContent()" icon="fas fa-trash"></wb-action-button>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-1">
-                                <wb-text-input elementId="id" label="ID" enable="false"></wb-text-input>
+                                <div class="card-tools">
+                                    <wb-action-button elementId="new" actionName="newContent()" icon="fas fa-plus"></wb-action-button>
+                                    <wb-action-button elementId="save" actionName="save()" icon="fas fa-save"></wb-action-button>
+                                    <wb-action-button elementId="delete" actionName="deleteContent()" icon="fas fa-trash"></wb-action-button>
+                                </div>
                             </div>
-                            <div class="col-md-3">
-                                <wb-text-input elementId="clientName" label="client 명" enable="true"></wb-text-input>
-                            </div>
-                            <div class="col-md-3">
-                                <wb-text-input elementId="displayName" label="화면 노출명" enable="true" ></wb-text-input>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-3">
-                                <wb-select elementId="dataSourceName" label="dataSource" enable="true" useFirstItem="true" firstItemLabel="" firstItemValue=""></wb-select>
-                            </div>
-                            <div class="col-md-1">
-                                <wb-select elementId="method" label="method" enable="true" useFirstItem="true" firstItemLabel="" firstItemValue=""></wb-select>
-                            </div>
-                            <div class="col-md-3">
-                                <wb-text-input elementId="path" label="path" enable="true" ></wb-text-input>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-2">
-                                <wb-select elementId="contentType" label="contentType" enable="true" useFirstItem="true" firstItemLabel="" firstItemValue=""></wb-select>
-                            </div>
-                            <div class="col-md-2">
-                                <wb-select elementId="bodyMessageFormat" label="body 포맷" enable="true" useFirstItem="true" firstItemLabel="" firstItemValue=""></wb-select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-9 col-sm-10">
-                                <div class="tab-content" id="vert-tabs-right-tabContent">
-                                    <div class="tab-pane fade show active" id="queryParams" role="tabpanel" aria-labelledby="queryParams-tab">
-                                        <div id="queryParamsGrid"></div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-1">
+                                        <wb-text-input elementId="id" label="ID" enable="false"></wb-text-input>
                                     </div>
-                                    <div class="tab-pane fade" id="headers" role="tabpanel" aria-labelledby="headers-tab">
-                                        <div id="headersGrid"></div>
+                                    <div class="col-md-3">
+                                        <wb-text-input elementId="clientName" label="client 명" enable="true"></wb-text-input>
                                     </div>
-                                    <div class="tab-pane fade" id="body" role="tabpanel" aria-labelledby="body-tab">
-                                        <div id="bodyGrid"></div>
+                                    <div class="col-md-3">
+                                        <wb-text-input elementId="displayName" label="화면 노출명" enable="true" ></wb-text-input>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <wb-select elementId="dataSourceName" label="dataSource" enable="true" useFirstItem="true" firstItemLabel="" firstItemValue=""></wb-select>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <wb-select elementId="method" label="method" enable="true" useFirstItem="true" firstItemLabel="" firstItemValue=""></wb-select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <wb-text-input elementId="path" label="path" enable="true" ></wb-text-input>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-2">
+                                        <wb-select elementId="contentType" label="contentType" enable="true" useFirstItem="true" firstItemLabel="" firstItemValue=""></wb-select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <wb-select elementId="bodyMessageFormat" label="body 포맷" enable="true" useFirstItem="true" firstItemLabel="" firstItemValue=""></wb-select>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-3 col-sm-2">
-                                <div class="nav flex-column nav-tabs nav-tabs-right h-100" id="vert-tabs-right-tab" role="tablist" aria-orientation="vertical">
-                                    <a class="nav-link active" id="queryParams-tab" data-toggle="pill" href="#queryParams" role="tab" aria-controls="queryParams" aria-selected="true">Query Params</a>
-                                    <a class="nav-link" id="headers-tab" data-toggle="pill" href="#headers" role="tab" aria-controls="headers" aria-selected="false">Headers</a>
-                                    <a class="nav-link" id="body-tab" data-toggle="pill" href="#body" role="tab" aria-controls="body" aria-selected="false">Body</a>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-9 col-sm-10">
+                                        <div class="tab-content" id="vert-tabs-right-tabContent">
+                                            <div class="tab-pane fade show active" id="queryParams" role="tabpanel" aria-labelledby="queryParams-tab">
+                                                <div id="queryParamsGrid"></div>
+                                            </div>
+                                            <div class="tab-pane fade" id="headers" role="tabpanel" aria-labelledby="headers-tab">
+                                                <div id="headersGrid"></div>
+                                            </div>
+                                            <div class="tab-pane fade" id="body" role="tabpanel" aria-labelledby="body-tab">
+                                                <div id="bodyGrid"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-3 col-sm-2">
+                                        <div class="nav flex-column nav-tabs nav-tabs-right h-100" id="vert-tabs-right-tab" role="tablist" aria-orientation="vertical">
+                                            <a class="nav-link active" id="queryParams-tab" data-toggle="pill" href="#queryParams" role="tab" aria-controls="queryParams" aria-selected="true">Query Params</a>
+                                            <a class="nav-link" id="headers-tab" data-toggle="pill" href="#headers" role="tab" aria-controls="headers" aria-selected="false">Headers</a>
+                                            <a class="nav-link" id="body-tab" data-toggle="pill" href="#body" role="tab" aria-controls="body" aria-selected="false">Body</a>
+                                        </div>
+                                    </div>
                                 </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="valid" role="tabpanel" aria-labelledby="valid-tab">
+                            <div class="card-header">
+                                <h3 class="card-title">실행</h3>
+                                <div class="card-tools">
+                                    <wb-action-button elementId="execute" actionName="execute()" icon="fas fa-check"></wb-action-button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <wb-text-input elementId="exeClientName" label="client 명" enable="true"></wb-text-input>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-9 col-sm-10">
+                                        <div class="tab-content" id="vert-tabs-right-tabContent2">
+                                            <div class="tab-pane fade show active" id="exeParams" role="tabpanel" aria-labelledby="exeParams-tab">
+                                                <div id="exeParamsGrid"></div>
+                                            </div>
+                                            <div class="tab-pane fade" id="exeBody" role="tabpanel" aria-labelledby="exeBody-tab">
+                                                <label>Request Body</label>
+                                                <textarea id="exeBodyJson"  rows="15" style="width:500px"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-3 col-sm-2">
+                                        <div class="nav flex-column nav-tabs nav-tabs-right h-100" id="vert-tabs-right-tab2" role="tablist" aria-orientation="vertical">
+                                            <a class="nav-link active" id="exeParams-tab" data-toggle="pill" href="#exeParams" role="tab" aria-controls="exeParams" aria-selected="true">파라미터</a>
+                                            <a class="nav-link" id="exeBody-tab" data-toggle="pill" href="#exeBody" role="tab" aria-controls="exeBody" aria-selected="false">Body</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <label>응답 데이터</label>
+                                <textarea id="responseData"  rows="40"  style="width:500px"></textarea>
                             </div>
                         </div>
                     </div>
