@@ -5,6 +5,7 @@ import com.datajoy.admin_builder.apibuilder.entity.EntityResult;
 import com.datajoy.admin_builder.apibuilder.entity.EntityService;
 import com.datajoy.admin_builder.apibuilder.entity.code.EntityResultCode;
 import com.datajoy.admin_builder.apibuilder.function.code.ResultCode;
+import com.datajoy.admin_builder.apibuilder.security.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +18,7 @@ public class EntityExecutor implements FunctionExecutor {
     private final EntityService entityService;
 
     @Override
-    public FunctionResult execute(String functionName, List<Map<String, Object>> params) {
+    public FunctionResult execute(User user, String functionName, List<Map<String, Object>> params) {
         EntityRequest entityParams = EntityRequest.builder()
                                         .contents(params)
                                         .build();

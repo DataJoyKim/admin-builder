@@ -1,8 +1,10 @@
 package com.datajoy.admin_builder.apibuilder.function;
 
+import com.datajoy.admin_builder.apibuilder.security.User;
+
 import java.util.List;
 import java.util.Map;
 
 public interface FunctionExecutor {
-    FunctionResult execute(String functionName, List<Map<String, Object>> params);
+    FunctionResult execute(User user, String functionName, List<Map<String, Object>> params);
 }

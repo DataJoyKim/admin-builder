@@ -27,6 +27,9 @@ public class ServiceBuilder {
     @Column(length = 500)
     private String note;
 
+    @Column(nullable = false)
+    private Boolean useAuthentication;
+
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "SERVICE_ID")
     private List<ServiceFunction> serviceFunctions = new ArrayList<>();

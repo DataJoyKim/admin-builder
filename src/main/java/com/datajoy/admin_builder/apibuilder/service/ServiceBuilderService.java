@@ -7,6 +7,10 @@ import com.datajoy.admin_builder.apibuilder.function.ServiceFunction;
 import com.datajoy.admin_builder.apibuilder.function.code.ResultCode;
 import com.datajoy.admin_builder.apibuilder.message.RequestMessage;
 import com.datajoy.admin_builder.apibuilder.message.ResponseMessage;
+import com.datajoy.admin_builder.apibuilder.security.AuthenticationService;
+import com.datajoy.admin_builder.apibuilder.security.User;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,10 +23,21 @@ import java.util.Map;
 public class ServiceBuilderService {
     private final ServiceBuilderRepository serviceRepository;
     private final FunctionFactory functionFactory;
+    private final AuthenticationService authenticationService;
 
-    public ResponseMessage execute(String serviceName, RequestMessage requestMessage) {
+    public ResponseMessage execute(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            String serviceName,
+            RequestMessage requestMessage
+    ) {
         ServiceBuilder serviceBuilder = serviceRepository.findByServiceName(serviceName)
                                             .orElseThrow();
+
+        User user = null;
+        if(serviceBuilder.getUseAuthentication()) {
+            user = authenticationService.authentication(request, response);
+        }
 
         List<ServiceFunction> serviceFunctions = serviceBuilder.getServiceFunctions();
 
@@ -33,7 +48,7 @@ public class ServiceBuilderService {
 
             List<Map<String, Object>> params = requestMessage.getBody().get(func.getRequestMessageId());
 
-            FunctionResult result = executor.execute(func.getFunctionName(), params);
+            FunctionResult result = executor.execute(user, func.getFunctionName(), params);
             if(ResultCode.FAILURE.equals(result.getResultCode())) {
                 //TODO resolved
             }
