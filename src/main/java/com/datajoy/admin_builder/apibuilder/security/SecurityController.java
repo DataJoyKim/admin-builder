@@ -1,4 +1,5 @@
 package com.datajoy.admin_builder.apibuilder.security;
 
-public class UserGroup {
+public class SecurityController {
+
 }

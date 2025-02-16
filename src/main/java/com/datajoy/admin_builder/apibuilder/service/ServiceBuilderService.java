@@ -8,7 +8,7 @@ import com.datajoy.admin_builder.apibuilder.function.code.ResultCode;
 import com.datajoy.admin_builder.apibuilder.message.RequestMessage;
 import com.datajoy.admin_builder.apibuilder.message.ResponseMessage;
 import com.datajoy.admin_builder.apibuilder.security.AuthenticationService;
-import com.datajoy.admin_builder.apibuilder.security.User;
+import com.datajoy.admin_builder.apibuilder.account.User;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
