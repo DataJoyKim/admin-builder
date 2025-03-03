@@ -1,8 +1,8 @@
 package com.datajoy.admin_builder.console.repository;
 
 import com.datajoy.admin_builder.apibuilder.restclient.RestClientBody;
-import com.datajoy.admin_builder.apibuilder.restclient.code.AutoValueType;
 import com.datajoy.admin_builder.apibuilder.restclient.code.MessageDataType;
+import com.datajoy.admin_builder.apibuilder.restclient.code.ValueType;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -14,16 +14,16 @@ import java.util.List;
 public interface ConsoleRestClientBodyRepository extends JpaRepository<RestClientBody, Long> {
     @Transactional
     @Modifying
-    @Query(" insert RestClientBody a (clientId,paramName,parentParamName,dataType,autoValueType,orderNum,autoValue)" +
-            " values (:clientId,:paramName,:parentParamName,:dataType,:autoValueType,:orderNum,:autoValue)")
+    @Query(" insert RestClientBody a (clientId,paramName,parentParamName,dataType,valueType,orderNum,inputValue)" +
+            " values (:clientId,:paramName,:parentParamName,:dataType,:valueType,:orderNum,:inputValue)")
     void insert(
         @Param("clientId") Long clientId,
         @Param("paramName") String paramName,
         @Param("parentParamName") String parentParamName,
         @Param("dataType") MessageDataType dataType,
-        @Param("autoValueType") AutoValueType autoValueType,
+        @Param("valueType") ValueType valueType,
         @Param("orderNum") Integer orderNum,
-        @Param("autoValue") String autoValue
+        @Param("inputValue") String inputValue
     );
 
     @Transactional
@@ -33,18 +33,18 @@ public interface ConsoleRestClientBodyRepository extends JpaRepository<RestClien
                 " a.paramName = :paramName, "+
                 " a.parentParamName = :parentParamName, "+
                 " a.dataType = :dataType, "+
-                " a.autoValueType = :autoValueType, "+
+                " a.valueType = :valueType, "+
                 " a.orderNum = :orderNum, "+
-                " a.autoValue = :autoValue "+
+                " a.inputValue = :inputValue "+
             " where a.id = :id")
     void update(
             @Param("id") Long id,
             @Param("paramName") String paramName,
             @Param("parentParamName") String parentParamName,
             @Param("dataType") MessageDataType dataType,
-            @Param("autoValueType") AutoValueType autoValueType,
+            @Param("valueType") ValueType valueType,
             @Param("orderNum") Integer orderNum,
-            @Param("autoValue") String autoValue
+            @Param("inputValue") String inputValue
     );
 
     List<RestClientBody> findByClientId(Long clientId);

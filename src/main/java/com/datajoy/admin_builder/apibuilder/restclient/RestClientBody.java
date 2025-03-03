@@ -1,7 +1,7 @@
 package com.datajoy.admin_builder.apibuilder.restclient;
 
-import com.datajoy.admin_builder.apibuilder.restclient.code.AutoValueType;
 import com.datajoy.admin_builder.apibuilder.restclient.code.MessageDataType;
+import com.datajoy.admin_builder.apibuilder.restclient.code.ValueType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -36,10 +36,10 @@ public class RestClientBody {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 100)
-    private AutoValueType autoValueType;
+    private ValueType valueType;
 
     @Column(length = 300)
-    private String autoValue;
+    private String inputValue;
 
     @Column
     private Integer orderNum;

@@ -2,7 +2,7 @@
 package com.datajoy.admin_builder.console.rest;
 
 import com.datajoy.admin_builder.apibuilder.restclient.RestClientQueryParam;
-import com.datajoy.admin_builder.apibuilder.restclient.code.AutoValueType;
+import com.datajoy.admin_builder.apibuilder.restclient.code.ValueType;
 import com.datajoy.admin_builder.console.repository.ConsoleRestClientQueryParamRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,8 +24,8 @@ public class RestClientQueryParamRestController {
         queryParamRepository.insert(
                 Long.valueOf((String) params.get("clientId")),
                 (String) params.get("paramName"),
-                AutoValueType.valueOf((String) params.get("autoValueType")),
-                (String) params.get("autoValue")
+                ValueType.valueOf((String) params.get("valueType")),
+                (String) params.get("inputValue")
         );
 
         return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
@@ -46,8 +46,8 @@ public class RestClientQueryParamRestController {
         queryParamRepository.update(
                 queryParam.getId(),
                 (String) params.get("paramName"),
-                AutoValueType.valueOf((String) params.get("autoValueType")),
-                (String) params.get("autoValue")
+                ValueType.valueOf((String) params.get("valueType")),
+                (String) params.get("inputValue")
         );
 
         return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);

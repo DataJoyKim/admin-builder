@@ -2,8 +2,8 @@
 package com.datajoy.admin_builder.console.rest;
 
 import com.datajoy.admin_builder.apibuilder.restclient.RestClientBody;
-import com.datajoy.admin_builder.apibuilder.restclient.code.AutoValueType;
 import com.datajoy.admin_builder.apibuilder.restclient.code.MessageDataType;
+import com.datajoy.admin_builder.apibuilder.restclient.code.ValueType;
 import com.datajoy.admin_builder.console.repository.ConsoleRestClientBodyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,9 +27,9 @@ public class RestClientBodyRestController {
                 (String) params.get("paramName"),
                 (String) params.get("parentParamName"),
                 MessageDataType.valueOf((String) params.get("dataType")),
-                AutoValueType.valueOf((String) params.get("autoValueType")),
+                ValueType.valueOf((String) params.get("valueType")),
                 (Integer) params.get("orderNum"),
-                (String) params.get("autoValue")
+                (String) params.get("inputValue")
         );
 
         return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
@@ -52,9 +52,9 @@ public class RestClientBodyRestController {
                 (String) params.get("paramName"),
                 (String) params.get("parentParamName"),
                 MessageDataType.valueOf((String) params.get("dataType")),
-                AutoValueType.valueOf((String) params.get("autoValueType")),
+                ValueType.valueOf((String) params.get("valueType")),
                 (Integer) params.get("orderNum"),
-                (String) params.get("autoValue")
+                (String) params.get("inputValue")
         );
 
         return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);

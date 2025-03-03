@@ -1,5 +1,6 @@
 package com.datajoy.admin_builder.apibuilder.restclient;
 
+import com.datajoy.admin_builder.apibuilder.restclient.code.ValueType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,6 +22,10 @@ public class RestClientHeader {
     @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(nullable = false, length = 1000)
-    private String headerValue;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 100)
+    private ValueType valueType;
+
+    @Column(length = 300)
+    private String inputValue;
 }

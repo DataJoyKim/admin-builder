@@ -2,6 +2,7 @@
 package com.datajoy.admin_builder.console.rest;
 
 import com.datajoy.admin_builder.apibuilder.restclient.RestClientHeader;
+import com.datajoy.admin_builder.apibuilder.restclient.code.ValueType;
 import com.datajoy.admin_builder.console.repository.ConsoleRestClientHeaderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,7 +24,8 @@ public class RestClientHeaderRestController {
         restClientHeaderRepository.insert(
                 Long.valueOf((String) params.get("clientId")),
                 (String) params.get("name"),
-                (String) params.get("headerValue")
+                ValueType.valueOf((String) params.get("valueType")),
+                (String) params.get("inputValue")
         );
 
         return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
@@ -44,7 +46,8 @@ public class RestClientHeaderRestController {
         restClientHeaderRepository.update(
                 restClientHeader.getId(),
                 (String) params.get("name"),
-                (String) params.get("headerValue")
+                ValueType.valueOf((String) params.get("valueType")),
+                (String) params.get("inputValue")
         );
 
         return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
