@@ -15,8 +15,10 @@ public class RestClientService {
         RestClient clientMeta = restClientRepository.findByClientName(clientName)
                             .orElseThrow();
 
+        RestClientExecutorRequest request = clientMeta.createRequest(params);
+
         try {
-            ResponseEntity<Object> response = restClientExecutor.execute(clientMeta, params);
+            ResponseEntity<Object> response = restClientExecutor.execute(request);
 
             return RestClientResult.builder()
                     .headers(response.getHeaders())

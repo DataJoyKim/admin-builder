@@ -4,16 +4,16 @@ import com.datajoy.admin_builder.apibuilder.datasource.LookupKey;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.sql.DataSource;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 public class DataSourceDatabaseRegister {
     private static Map<LookupKey, DataSource> dataSourceMap;
 
     public static void initialize(List<DataSourceDatabaseMeta> metadataList) {
-        dataSourceMap = new HashMap<>();
+        dataSourceMap = new ConcurrentHashMap<>();
 
         for(DataSourceDatabaseMeta meta : metadataList) {
             try {
@@ -35,7 +35,7 @@ public class DataSourceDatabaseRegister {
         return dataSourceMap.get(lookupKey);
     }
 
-    public synchronized static void registry(DataSourceDatabaseMeta meta) {
+    public static void registry(DataSourceDatabaseMeta meta) {
         DataSource dataSource = meta.createDataSource();
 
         LookupKey lookupKey = LookupKey.generateKey(meta.getDataSourceName());

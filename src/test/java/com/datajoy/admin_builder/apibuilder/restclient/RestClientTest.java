@@ -41,8 +41,8 @@ class RestClientTest {
 
         // header 설정
         List<RestClientHeader> headers = new ArrayList<>();
-        headers.add(RestClientHeader.builder().name("test").headerValue("12").build());
-        headers.add(RestClientHeader.builder().name("Cookie").headerValue("CAR=zJpsEzlVF6bjdxpOiKDE20FFpBtcykPGX51ZGaf0CHv/ZOPGEP6hsePQYXU3I1xJBlz6h36g7xPZSQ6NT/gJCDCGLb8eyoHlFsMEbNTeO4cxP4czry+x+N7mfMV4e4rdqQanBgUdsWnOp4T55q20X/hUJHs1QffR4eAY7MWAvLQ+InWfPJpNfXi7v4dFPkaRESREoNYR3nKsl8VqPphR3faWxHdw57DMvP7yWHeemM7JX5otMaEcs0v9LPlNIqfS4kv4ercdT6WqLdcF2RfgPKqLSp2dLmqQyx+kI3ifgrs2hWZ/baLIg3zgXSu/ttkmLT4SNIkbdcCMVa4wi2i1waxOUtEwMoyHqcqWaf85gMovQOZFXT7B3ZSHyEyb2OO1YcJqwbqzbWo/fOFJkQ+QS/2CpBjgMFNlaUraJJr0QRWNSEX1tSo75DYBG4DwviGXkckKSpffn/27AAOPUiAnSSN49rL5dy1Z//e8PqBhZdCb7T/u4O63OrAd4q2dAyUItn8ALmOwVMBxbvfYK8SIEw==").build());
+        headers.add(RestClientHeader.builder().name("test").build());
+        headers.add(RestClientHeader.builder().name("Cookie").build());
 
         // 메타 정보 셋팅
         RestClient clientMeta = RestClient.builder()
@@ -61,8 +61,10 @@ class RestClientTest {
 
         RestClientRequest params = RestClientRequest.builder().params(p).build();
 
+        RestClientExecutorRequest request = clientMeta.createRequest(params);
+
         // 요청
-        ResponseEntity<Object> response =  executor.execute(clientMeta, params);
+        ResponseEntity<Object> response =  executor.execute(request);
 
         System.out.println(response);
     }
@@ -107,8 +109,10 @@ class RestClientTest {
 
         RestClientRequest params = RestClientRequest.builder().params(p).requestBody(body).build();
 
+        RestClientExecutorRequest request = clientMeta.createRequest(params);
+
         // 요청
-        ResponseEntity<Object> response = executor.execute(clientMeta, params);
+        ResponseEntity<Object> response = executor.execute(request);
 
         System.out.println(response);
     }

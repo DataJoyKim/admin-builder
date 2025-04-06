@@ -4,16 +4,16 @@ import com.datajoy.admin_builder.apibuilder.datasource.LookupKey;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.client.RestClient;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 public class DataSourceRestServerRegister {
     private static Map<LookupKey, RestClient> dataSourceMap;
 
     public static void initialize(List<DataSourceRestServer> metadataList) {
-        dataSourceMap = new HashMap<>();
+        dataSourceMap = new ConcurrentHashMap<>();
 
         for(DataSourceRestServer meta : metadataList) {
             try {
@@ -35,7 +35,7 @@ public class DataSourceRestServerRegister {
         return dataSourceMap.get(lookupKey);
     }
 
-    public synchronized static void registry(DataSourceRestServer meta) {
+    public static void registry(DataSourceRestServer meta) {
         RestClient dataSource = meta.createDataSource();
 
         LookupKey lookupKey = LookupKey.generateKey(meta.getDataSourceName());

@@ -6,11 +6,8 @@ import com.datajoy.admin_builder.apibuilder.restclient.code.HttpMethod;
 import com.datajoy.admin_builder.apibuilder.restclient.code.MessageDataType;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.web.util.UriBuilder;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -66,7 +63,42 @@ public class RestClient {
     @JoinColumn(name = "CLIENT_ID")
     private List<RestClientQueryParam> queryParams = new ArrayList<>();
 
-    public Object createBody(Object requestBodyObj) {
+    public RestClientExecutorRequest createRequest(RestClientRequest params) {
+        return RestClientExecutorRequest.builder()
+                .requestQueryParam(createRequestQueryParams(params.getParams()))
+                .requestHeaders(createRequestHeaders(params.getParams()))
+                .mediaType(createMediaType())
+                .requestBody(createRequestBody(params.getRequestBody()))
+                .dataSource(this.dataSourceName)
+                .method(method)
+                .build();
+    }
+
+    private Map<String, String> createRequestHeaders(Map<String, Object> params) {
+        Map<String,String> requestHeaders = new HashMap<>();
+
+        for(RestClientHeader h : this.headers) {
+            RestClientInputValue.ResolvedValue resolvedValue = RestClientInputValue.resolve(h.getValueType(), h.getName(), h.getInputValue(), params);
+
+            requestHeaders.put(resolvedValue.getKey(), String.valueOf(resolvedValue.getValue()));
+        }
+
+        return requestHeaders;
+    }
+
+    private Map<String, Object> createRequestQueryParams(Map<String, Object> params) {
+        Map<String,Object> requestQueryParam = new HashMap<>();
+
+        for(RestClientQueryParam q : this.queryParams) {
+            RestClientInputValue.ResolvedValue resolvedValue = RestClientInputValue.resolve(q.getValueType(), q.getParamName(), q.getInputValue(), params);
+
+            requestQueryParam.put(resolvedValue.getKey(), resolvedValue.getValue());
+        }
+
+        return requestQueryParam;
+    }
+
+    private Object createRequestBody(Object requestBodyObj) {
         if(this.body == null) {
             return null;
         }
@@ -111,12 +143,10 @@ public class RestClient {
 
             RestClientBody meta = bodyMetaMap.get(key);
 
-            Object value = params.get(key);
-
             if(MessageDataType.ARRAY.equals(meta.getDataType())) {
                 List<Map<String, Object>> childNodes = new ArrayList<>();
 
-                List<Map<String, Object>> childParams = (List<Map<String, Object>>) value;
+                List<Map<String, Object>> childParams = (List<Map<String, Object>>) params.get(key);
 
                 for(Map<String, Object> childParam : childParams) {
                     childNodes.add(createMessage(key, childParam, bodyMetaByParent));
@@ -125,29 +155,21 @@ public class RestClient {
                 node.put(key, childNodes);
             }
             else if(MessageDataType.OBJECT.equals(meta.getDataType())) {
-                Map<String, Object> childParam = (Map<String, Object>) value;
+                Map<String, Object> childParam = (Map<String, Object>) params.get(key);
 
                 node.put(key, createMessage(key, childParam, bodyMetaByParent));
             }
             else {
-                node.put(key, value);
+                RestClientInputValue.ResolvedValue resolvedValue = RestClientInputValue.resolve(meta.getValueType(), meta.getParamName(), meta.getInputValue(), params);
+
+                node.put(resolvedValue.getKey(), resolvedValue.getValue());
             }
         }
 
         return node;
     }
 
-    public URI createUri(UriBuilder uriBuilder, Map<String, Object> params) {
-        uriBuilder.path(this.path);
-
-        for(RestClientQueryParam q : this.queryParams) {
-            uriBuilder.queryParam(q.getParamName(), params.get(q.getParamName()));
-        }
-
-        return uriBuilder.build(params);
-    }
-
-    public MediaType getMediaType() {
+    private MediaType createMediaType() {
         if(ContentType.APPLICATION_JSON.equals(this.contentType)) {
             return MediaType.APPLICATION_JSON;
         }
@@ -159,16 +181,6 @@ public class RestClient {
         }
         else {
             return null;
-        }
-    }
-
-    public void createHeaders(HttpHeaders headers, Map<String, Object> params) {
-        if(this.headers == null){
-            return;
-        }
-
-        for(RestClientHeader h : this.headers) {
-            headers.set(h.getName(), h.getHeaderValue());
         }
     }
 }

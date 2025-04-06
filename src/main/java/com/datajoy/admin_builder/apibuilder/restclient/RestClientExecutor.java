@@ -5,47 +5,46 @@ import com.datajoy.admin_builder.apibuilder.datasource.restserver.DataSourceRest
 import com.datajoy.admin_builder.apibuilder.restclient.code.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
 
 @Component
 public class RestClientExecutor {
 
-    public ResponseEntity<Object> execute(
-            RestClient clientMeta,
-            RestClientRequest params
-    ) {
-        org.springframework.web.client.RestClient restClient = DataSourceRestServerRegister.getDataSource(LookupKey.generateKey(clientMeta.getDataSourceName()));
+    public ResponseEntity<Object> execute(RestClientExecutorRequest request) {
+
+        RestClient restClient = DataSourceRestServerRegister.getDataSource(LookupKey.generateKey(request.getDataSource()));
 
         ResponseEntity<Object> response = null;
 
-        if(HttpMethod.GET.equals(clientMeta.getMethod())) {
+        if(HttpMethod.GET.equals(request.getMethod())) {
             response = restClient.get()
-                    .uri(uriBuilder -> clientMeta.createUri(uriBuilder, params.getParams()))
-                    .headers(headers -> clientMeta.createHeaders(headers, params.getParams()))
+                    .uri(request::createUri)
+                    .headers(request::createHeaders)
                     .retrieve()
                     .toEntity(Object.class);
         }
-        else if(HttpMethod.POST.equals(clientMeta.getMethod())) {
+        else if(HttpMethod.POST.equals(request.getMethod())) {
             response = restClient.post()
-                    .uri(uriBuilder -> clientMeta.createUri(uriBuilder, params.getParams()))
-                    .headers(headers -> clientMeta.createHeaders(headers, params.getParams()))
-                    .contentType(clientMeta.getMediaType())
-                    .body(clientMeta.createBody(params.getRequestBody()))
+                    .uri(request::createUri)
+                    .headers(request::createHeaders)
+                    .contentType(request.getMediaType())
+                    .body(request.getRequestBody())
                     .retrieve()
                     .toEntity(Object.class);
         }
-        else if(HttpMethod.PUT.equals(clientMeta.getMethod())) {
+        else if(HttpMethod.PUT.equals(request.getMethod())) {
             response = restClient.put()
-                    .uri(uriBuilder -> clientMeta.createUri(uriBuilder, params.getParams()))
-                    .headers(headers -> clientMeta.createHeaders(headers, params.getParams()))
-                    .contentType(clientMeta.getMediaType())
-                    .body(clientMeta.createBody(params.getRequestBody()))
+                    .uri(request::createUri)
+                    .headers(request::createHeaders)
+                    .contentType(request.getMediaType())
+                    .body(request.getRequestBody())
                     .retrieve()
                     .toEntity(Object.class);
         }
-        else if(HttpMethod.DELETE.equals(clientMeta.getMethod())) {
+        else if(HttpMethod.DELETE.equals(request.getMethod())) {
             response = restClient.delete()
-                    .uri(uriBuilder -> clientMeta.createUri(uriBuilder, params.getParams()))
-                    .headers(headers -> clientMeta.createHeaders(headers, params.getParams()))
+                    .uri(request::createUri)
+                    .headers(request::createHeaders)
                     .retrieve()
                     .toEntity(Object.class);
         }
