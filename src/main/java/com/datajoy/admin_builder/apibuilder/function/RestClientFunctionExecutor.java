@@ -4,7 +4,7 @@ import com.datajoy.admin_builder.apibuilder.function.code.ResultCode;
 import com.datajoy.admin_builder.apibuilder.restclient.RestClientRequest;
 import com.datajoy.admin_builder.apibuilder.restclient.RestClientResult;
 import com.datajoy.admin_builder.apibuilder.restclient.RestClientService;
-import com.datajoy.admin_builder.apibuilder.account.User;
+import com.datajoy.admin_builder.apibuilder.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

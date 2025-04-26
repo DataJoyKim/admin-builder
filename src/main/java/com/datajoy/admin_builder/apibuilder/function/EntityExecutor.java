@@ -5,7 +5,7 @@ import com.datajoy.admin_builder.apibuilder.entity.EntityResult;
 import com.datajoy.admin_builder.apibuilder.entity.EntityService;
 import com.datajoy.admin_builder.apibuilder.entity.code.EntityResultCode;
 import com.datajoy.admin_builder.apibuilder.function.code.ResultCode;
-import com.datajoy.admin_builder.apibuilder.account.User;
+import com.datajoy.admin_builder.apibuilder.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

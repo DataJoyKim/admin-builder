@@ -1,4 +1,4 @@
-package com.datajoy.admin_builder.apibuilder.account;
+package com.datajoy.admin_builder.apibuilder.user;
 
 public class User {
     private Long userId;

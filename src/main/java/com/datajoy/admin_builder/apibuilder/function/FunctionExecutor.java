@@ -1,6 +1,6 @@
 package com.datajoy.admin_builder.apibuilder.function;
 
-import com.datajoy.admin_builder.apibuilder.account.User;
+import com.datajoy.admin_builder.apibuilder.user.User;
 
 import java.util.List;
 import java.util.Map;
