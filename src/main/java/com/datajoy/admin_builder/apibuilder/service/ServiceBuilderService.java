@@ -7,6 +7,7 @@ import com.datajoy.admin_builder.apibuilder.function.ServiceFunction;
 import com.datajoy.admin_builder.apibuilder.function.code.ResultCode;
 import com.datajoy.admin_builder.apibuilder.message.RequestMessage;
 import com.datajoy.admin_builder.apibuilder.message.ResponseMessage;
+import com.datajoy.admin_builder.apibuilder.security.AuthenticatedUser;
 import com.datajoy.admin_builder.apibuilder.security.AuthenticationService;
 import com.datajoy.admin_builder.apibuilder.user.User;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,9 +35,9 @@ public class ServiceBuilderService {
         ServiceBuilder serviceBuilder = serviceRepository.findByServiceName(serviceName)
                                             .orElseThrow();
 
-        User user = null;
+        AuthenticatedUser user = null;
         if(serviceBuilder.getUseAuthValidation()) {
-            user = authenticationService.validateAuthentication(request, response);
+            user = authenticationService.validateAuthentication(request);
         }
 
         List<ServiceFunction> serviceFunctions = serviceBuilder.getServiceFunctions();
