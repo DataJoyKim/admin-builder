@@ -8,18 +8,18 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class AuthenticationService {
+public class AuthService {
     private final UserService userService;
     private final SecurityConfig config;
 
     public AuthenticatedUser validateAuthentication(HttpServletRequest request) {
         String accessToken = TokenUtil.getAccessToken(request);
 
-        JwtToken jwtToken = new JwtToken(config.getTokenJwtSecretKey());
+        JwtProvider jwtProvider = new JwtProvider(config.getTokenJwtSecretKey());
 
-        jwtToken.validateToken(accessToken);
+        jwtProvider.validateToken(accessToken);
 
-        AuthenticatedUser authenticatedUser = jwtToken.parseToken(accessToken);
+        AuthenticatedUser authenticatedUser = jwtProvider.parseToken(accessToken);
 
         //TODO 권한 셋팅
 
@@ -30,24 +30,23 @@ public class AuthenticationService {
         //TODO 권한 검증
     }
 
-    public AuthenticatedToken authenticate(LoginRequest loginRequest) {
+    public AuthenticatedToken authenticate(LoginRequest loginRequest) throws SecurityException {
 
         User user = userService.getUserByLoginId(loginRequest.getLoginId());
         if(user == null) {
-            //TODO Exception
+            throw new SecurityException();
         }
 
         if(!loginRequest.getPassword().equals(user.getPassword())) {
-            //TODO Exception
+            throw new SecurityException();
         }
 
-        //TODO 권한 셋팅
         AuthenticatedUser authenticatedUser = AuthenticatedUser.createAuthenticatedUser(user);
 
         // 토큰 생성
-        JwtToken jwtToken = new JwtToken(config.getTokenJwtSecretKey());
+        JwtProvider jwtProvider = new JwtProvider(config.getTokenJwtSecretKey());
 
-        String accessToken = jwtToken.generateToken(authenticatedUser, config.getTokenAccessTokenExpireTime());
+        String accessToken = jwtProvider.generateToken(authenticatedUser, config.getTokenAccessTokenExpireTime());
 
         return AuthenticatedToken.builder()
                 .accessToken(accessToken)

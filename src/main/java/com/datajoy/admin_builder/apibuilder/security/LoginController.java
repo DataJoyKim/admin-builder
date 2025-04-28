@@ -10,13 +10,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class LoginController {
     @Autowired
-    AuthenticationService authenticationService;
+    AuthService authService;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(
             @RequestBody LoginRequest loginRequest
-    ) {
-        AuthenticatedToken token = authenticationService.authenticate(loginRequest);
+    ) throws SecurityException {
+        AuthenticatedToken token = authService.authenticate(loginRequest);
 
         return new ResponseEntity<>(token, HttpStatus.OK);
     }

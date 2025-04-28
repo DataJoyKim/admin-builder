@@ -10,10 +10,10 @@ import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.Date;
 
-public class JwtToken {
+public class JwtProvider {
     private final Key key;
 
-    public JwtToken(String secretKey) {
+    public JwtProvider(String secretKey) {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }

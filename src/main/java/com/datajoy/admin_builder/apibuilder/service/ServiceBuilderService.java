@@ -8,8 +8,7 @@ import com.datajoy.admin_builder.apibuilder.function.code.ResultCode;
 import com.datajoy.admin_builder.apibuilder.message.RequestMessage;
 import com.datajoy.admin_builder.apibuilder.message.ResponseMessage;
 import com.datajoy.admin_builder.apibuilder.security.AuthenticatedUser;
-import com.datajoy.admin_builder.apibuilder.security.AuthenticationService;
-import com.datajoy.admin_builder.apibuilder.user.User;
+import com.datajoy.admin_builder.apibuilder.security.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +23,7 @@ import java.util.Map;
 public class ServiceBuilderService {
     private final ServiceBuilderRepository serviceRepository;
     private final FunctionFactory functionFactory;
-    private final AuthenticationService authenticationService;
+    private final AuthService authService;
 
     public ResponseMessage execute(
             HttpServletRequest request,
@@ -37,7 +36,7 @@ public class ServiceBuilderService {
 
         AuthenticatedUser user = null;
         if(serviceBuilder.getUseAuthValidation()) {
-            user = authenticationService.validateAuthentication(request);
+            user = authService.validateAuthentication(request);
         }
 
         List<ServiceFunction> serviceFunctions = serviceBuilder.getServiceFunctions();
