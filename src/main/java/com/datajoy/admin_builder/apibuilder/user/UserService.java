@@ -11,4 +11,9 @@ public class UserService {
         return userRepository.findByLoginId(loginId)
                 .orElseThrow();
     }
+
+    public User getUserByUserId(Long userId) {
+        return userRepository.findByUserId(userId)
+                .orElseThrow();
+    }
 }

@@ -12,19 +12,23 @@ import java.util.Date;
 
 public class JwtProvider {
     private final Key key;
+    private final Long accessTokenExpireTime;
+    private final Long refreshTokenExpireTime;
 
-    public JwtProvider(String secretKey) {
+    public JwtProvider(String secretKey, long accessTokenExpireTime, long refreshTokenExpireTime) {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
+        this.accessTokenExpireTime = accessTokenExpireTime;
+        this.refreshTokenExpireTime = refreshTokenExpireTime;
     }
 
-    public String generateToken(AuthenticatedUser user, long expireTime) {
+    public String generateAccessToken(AuthenticatedUser user) {
         Claims claims = Jwts.claims();
         claims.put("userId", user.getUserId());
         claims.put("userName", user.getUserName());
 
         ZonedDateTime now = ZonedDateTime.now();
-        ZonedDateTime tokenValidity = now.plusSeconds(expireTime);
+        ZonedDateTime tokenValidity = now.plusSeconds(accessTokenExpireTime);
 
         return Jwts.builder()
                 .setClaims(claims)
@@ -34,7 +38,7 @@ public class JwtProvider {
                 .compact();
     }
 
-    public AuthenticatedUser parseToken(String token) {
+    public AuthenticatedUser parseAccessToken(String token) {
         Claims claims = parseClaims(token);
 
         return AuthenticatedUser.builder()
@@ -70,5 +74,28 @@ public class JwtProvider {
         } catch (ExpiredJwtException e) {
             return e.getClaims();
         }
+    }
+
+    public String generateRefreshToken(AuthenticatedUser user, Client client) {
+        Claims claims = Jwts.claims();
+        claims.put("userId", user.getUserId());
+        claims.put("clientIp", client.getClientIp());
+        claims.put("device", client.getDevice());
+
+        ZonedDateTime now = ZonedDateTime.now();
+        ZonedDateTime tokenValidity = now.plusSeconds(refreshTokenExpireTime);
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setIssuedAt(Date.from(now.toInstant()))
+                .setExpiration(Date.from(tokenValidity.toInstant()))
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public Long getUserIdToRefreshToken(String token) {
+        Claims claims = parseClaims(token);
+
+        return (Long) claims.get("userId");
     }
 }

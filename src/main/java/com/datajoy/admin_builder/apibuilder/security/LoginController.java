@@ -1,5 +1,6 @@
 package com.datajoy.admin_builder.apibuilder.security;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,9 +15,22 @@ public class LoginController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(
+            HttpServletRequest httpRequest,
             @RequestBody LoginRequest loginRequest
     ) throws SecurityException {
-        AuthenticatedToken token = authService.authenticate(loginRequest);
+        Client client = new Client(); //TODO httpRequest create
+
+        AuthTokenResponse token = authService.login(loginRequest, client);
+
+        return new ResponseEntity<>(token, HttpStatus.OK);
+    }
+
+    @PostMapping("/auth/refresh")
+    public ResponseEntity<?> refresh(
+            HttpServletRequest httpRequest,
+            @RequestBody LoginRequest loginRequest
+    ) throws SecurityException {
+        AuthTokenResponse token = authService.refreshAccessToken(null);
 
         return new ResponseEntity<>(token, HttpStatus.OK);
     }

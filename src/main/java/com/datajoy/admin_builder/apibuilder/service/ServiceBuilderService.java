@@ -9,6 +9,7 @@ import com.datajoy.admin_builder.apibuilder.message.RequestMessage;
 import com.datajoy.admin_builder.apibuilder.message.ResponseMessage;
 import com.datajoy.admin_builder.apibuilder.security.AuthenticatedUser;
 import com.datajoy.admin_builder.apibuilder.security.AuthService;
+import com.datajoy.admin_builder.apibuilder.security.TokenUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +37,7 @@ public class ServiceBuilderService {
 
         AuthenticatedUser user = null;
         if(serviceBuilder.getUseAuthValidation()) {
-            user = authService.validateAuthentication(request);
+            user = authService.validateAuthentication(TokenUtil.getAccessToken(request));
         }
 
         List<ServiceFunction> serviceFunctions = serviceBuilder.getServiceFunctions();

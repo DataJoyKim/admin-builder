@@ -2,7 +2,6 @@ package com.datajoy.admin_builder.apibuilder.security;
 
 import com.datajoy.admin_builder.apibuilder.user.User;
 import com.datajoy.admin_builder.apibuilder.user.UserService;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -10,16 +9,13 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthService {
     private final UserService userService;
-    private final SecurityConfig config;
+    private final RefreshTokenStoreRepository refreshTokenStoreRepository;
+    private final JwtProvider jwtProvider;
 
-    public AuthenticatedUser validateAuthentication(HttpServletRequest request) {
-        String accessToken = TokenUtil.getAccessToken(request);
-
-        JwtProvider jwtProvider = new JwtProvider(config.getTokenJwtSecretKey());
-
+    public AuthenticatedUser validateAuthentication(String accessToken) {
         jwtProvider.validateToken(accessToken);
 
-        AuthenticatedUser authenticatedUser = jwtProvider.parseToken(accessToken);
+        AuthenticatedUser authenticatedUser = jwtProvider.parseAccessToken(accessToken);
 
         //TODO 권한 셋팅
 
@@ -30,7 +26,31 @@ public class AuthService {
         //TODO 권한 검증
     }
 
-    public AuthenticatedToken authenticate(LoginRequest loginRequest) throws SecurityException {
+    public AuthTokenResponse refreshAccessToken(String refreshToken) throws SecurityException {
+        if (!jwtProvider.validateToken(refreshToken)) {
+            throw new SecurityException();
+        }
+
+        Long userId = jwtProvider.getUserIdToRefreshToken(refreshToken);
+
+        String savedRefreshToken = refreshTokenStoreRepository.findByUserId(userId);
+        if (!refreshToken.equals(savedRefreshToken)) {
+            throw new SecurityException();
+        }
+
+        User user = userService.getUserByUserId(userId);
+
+        AuthenticatedUser authenticatedUser = AuthenticatedUser.createAuthenticatedUser(user);
+
+        String newAccessToken = jwtProvider.generateAccessToken(authenticatedUser);
+
+        return AuthTokenResponse.builder()
+                .accessToken(newAccessToken)
+                .refreshToken(refreshToken)
+                .build();
+    }
+
+    public AuthTokenResponse login(LoginRequest loginRequest, Client client) throws SecurityException {
 
         User user = userService.getUserByLoginId(loginRequest.getLoginId());
         if(user == null) {
@@ -43,13 +63,17 @@ public class AuthService {
 
         AuthenticatedUser authenticatedUser = AuthenticatedUser.createAuthenticatedUser(user);
 
-        // 토큰 생성
-        JwtProvider jwtProvider = new JwtProvider(config.getTokenJwtSecretKey());
+        String accessToken = jwtProvider.generateAccessToken(authenticatedUser);
 
-        String accessToken = jwtProvider.generateToken(authenticatedUser, config.getTokenAccessTokenExpireTime());
+        String refreshToken = jwtProvider.generateRefreshToken(authenticatedUser, client);
 
-        return AuthenticatedToken.builder()
+        RefreshTokenStore store = RefreshTokenStore.createRefreshTokenStore(user.getUserId(), refreshToken);
+
+        refreshTokenStoreRepository.save(store);
+
+        return AuthTokenResponse.builder()
                 .accessToken(accessToken)
+                .refreshToken(refreshToken)
                 .build();
     }
 }

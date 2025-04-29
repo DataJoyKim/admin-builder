@@ -17,4 +17,8 @@ public class TokenUtil {
 
         return null;
     }
+
+    public static String getRefreshToken(HttpServletRequest request) {
+        return null;
+    }
 }
