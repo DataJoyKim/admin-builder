@@ -48,24 +48,22 @@ public class JwtProvider {
                 .build();
     }
 
-    public boolean validateToken(String token) {
+    public void validateToken(String token) throws SecurityBusinessException {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
-            return true;
         }
         catch (SecurityException | MalformedJwtException e) {
-            //TODO log.info("Invalid JWT Token", e);
+            throw new SecurityBusinessException(SecurityErrorMessage.INVALID_TOKEN);
         }
         catch (ExpiredJwtException e) {
-            //TODO log.info("Expired JWT Token", e);
+            throw new SecurityBusinessException(SecurityErrorMessage.EXPIRED_TOKEN);
         }
         catch (UnsupportedJwtException e) {
-            //TODO log.info("Unsupported JWT Token", e);
+            throw new SecurityBusinessException(SecurityErrorMessage.UNSUPPORTED_TOKEN);
         }
         catch (IllegalArgumentException e) {
-            //TODO log.info("JWT claims string is empty.", e);
+            throw new SecurityBusinessException(SecurityErrorMessage.EMPTY_TOKEN_CLAIMS);
         }
-        return false;
     }
 
     private Claims parseClaims(String token) {

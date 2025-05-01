@@ -5,22 +5,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class LoginController {
+public class AuthController {
     @Autowired
-    LoginService loginService;
+    AuthService authService;
 
-    @PostMapping("/login")
-    public ResponseEntity<?> login(
-            HttpServletRequest httpRequest,
-            @RequestBody LoginRequest loginRequest
+    @PostMapping("/auth/refresh")
+    public ResponseEntity<?> refresh(
+            HttpServletRequest httpRequest
     ) throws SecurityBusinessException {
-        Client client = new Client(httpRequest);
-
-        AuthTokenResponse token = loginService.login(loginRequest, client);
+        AuthTokenResponse token = authService.refreshAccessToken(TokenUtil.resolveToken(httpRequest));
 
         return new ResponseEntity<>(token, HttpStatus.OK);
     }

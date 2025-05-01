@@ -12,7 +12,7 @@ public class AuthService {
     private final RefreshTokenStoreRepository refreshTokenStoreRepository;
     private final JwtProvider jwtProvider;
 
-    public AuthenticatedUser validateAuthentication(String accessToken) {
+    public AuthenticatedUser validateAuthentication(String accessToken) throws SecurityBusinessException {
         jwtProvider.validateToken(accessToken);
 
         AuthenticatedUser authenticatedUser = jwtProvider.parseAccessToken(accessToken);
@@ -26,16 +26,14 @@ public class AuthService {
         //TODO 권한 검증
     }
 
-    public AuthTokenResponse refreshAccessToken(String refreshToken) throws SecurityException {
-        if (!jwtProvider.validateToken(refreshToken)) {
-            throw new SecurityException();
-        }
+    public AuthTokenResponse refreshAccessToken(String refreshToken) throws SecurityBusinessException {
+        jwtProvider.validateToken(refreshToken);
 
         Long userId = jwtProvider.getUserIdToRefreshToken(refreshToken);
 
         String savedRefreshToken = refreshTokenStoreRepository.findByUserId(userId);
         if (!refreshToken.equals(savedRefreshToken)) {
-            throw new SecurityException();
+            throw new SecurityBusinessException(SecurityErrorMessage.DIFF_REFRESH_TOKEN);
         }
 
         User user = userService.getUserByUserId(userId);
@@ -46,33 +44,6 @@ public class AuthService {
 
         return AuthTokenResponse.builder()
                 .accessToken(newAccessToken)
-                .refreshToken(refreshToken)
-                .build();
-    }
-
-    public AuthTokenResponse login(LoginRequest loginRequest, Client client) throws SecurityException {
-
-        User user = userService.getUserByLoginId(loginRequest.getLoginId());
-        if(user == null) {
-            throw new SecurityException();
-        }
-
-        if(!loginRequest.getPassword().equals(user.getPassword())) {
-            throw new SecurityException();
-        }
-
-        AuthenticatedUser authenticatedUser = AuthenticatedUser.createAuthenticatedUser(user);
-
-        String accessToken = jwtProvider.generateAccessToken(authenticatedUser);
-
-        String refreshToken = jwtProvider.generateRefreshToken(authenticatedUser, client);
-
-        RefreshTokenStore store = RefreshTokenStore.createRefreshTokenStore(user.getUserId(), refreshToken);
-
-        refreshTokenStoreRepository.save(store);
-
-        return AuthTokenResponse.builder()
-                .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
     }

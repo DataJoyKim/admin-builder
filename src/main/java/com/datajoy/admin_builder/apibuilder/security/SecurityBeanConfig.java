@@ -7,10 +7,15 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SecurityBeanConfig {
     @Autowired
-    private SecurityConfig config;
+    private SecurityProperties config;
 
     @Bean
     public JwtProvider jwtProvider() {
         return new JwtProvider(config.getTokenJwtSecretKey(), config.getTokenAccessTokenExpireTime(), config.getTokenRefreshTokenExpireTime());
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }

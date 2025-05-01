@@ -4,11 +4,12 @@ import com.datajoy.admin_builder.apibuilder.function.FunctionExecutor;
 import com.datajoy.admin_builder.apibuilder.function.FunctionFactory;
 import com.datajoy.admin_builder.apibuilder.function.FunctionResult;
 import com.datajoy.admin_builder.apibuilder.function.ServiceFunction;
-import com.datajoy.admin_builder.apibuilder.function.code.ResultCode;
+import com.datajoy.admin_builder.apibuilder.function.code.ResultType;
 import com.datajoy.admin_builder.apibuilder.message.RequestMessage;
 import com.datajoy.admin_builder.apibuilder.message.ResponseMessage;
 import com.datajoy.admin_builder.apibuilder.security.AuthenticatedUser;
 import com.datajoy.admin_builder.apibuilder.security.AuthService;
+import com.datajoy.admin_builder.apibuilder.security.SecurityBusinessException;
 import com.datajoy.admin_builder.apibuilder.security.TokenUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -37,11 +38,24 @@ public class ServiceBuilderService {
 
         AuthenticatedUser user = null;
         if(serviceBuilder.getUseAuthValidation()) {
-            user = authService.validateAuthentication(TokenUtil.getAccessToken(request));
+            try {
+                user = authService.validateAuthentication(TokenUtil.resolveToken(request));
+            }
+            catch (SecurityBusinessException e) {
+                return ResponseMessage.createErrorMessage(e.getStatus(), e.getErrorCode(), e.getErrorMsg());
+            }
         }
 
-        List<ServiceFunction> serviceFunctions = serviceBuilder.getServiceFunctions();
+        Map<String, List<Map<String, Object>>> contents = executeFunction(requestMessage, user, serviceBuilder.getServiceFunctions());
 
+        return ResponseMessage.createSuccessMessage(contents);
+    }
+
+    private Map<String, List<Map<String, Object>>> executeFunction(
+            RequestMessage requestMessage,
+            AuthenticatedUser user,
+            List<ServiceFunction> serviceFunctions
+    ) {
         Map<String, List<Map<String, Object>>> contents = new HashMap<>();
 
         for(ServiceFunction func : serviceFunctions) {
@@ -50,13 +64,13 @@ public class ServiceBuilderService {
             List<Map<String, Object>> params = requestMessage.getBody().get(func.getRequestMessageId());
 
             FunctionResult result = executor.execute(user, func.getFunctionName(), params);
-            if(ResultCode.FAILURE.equals(result.getResultCode())) {
+            if(ResultType.FAILURE.equals(result.getResultType())) {
                 //TODO resolved
             }
 
             contents.put(func.getResponseMessageId(), result.getResults());
         }
 
-        return ResponseMessage.createSuccessMessage(contents);
+        return contents;
     }
 }

@@ -4,7 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 public class TokenUtil {
 
-    public static String getAccessToken(HttpServletRequest request) {
+    public static String resolveToken(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
 
         if(authHeader == null) {
@@ -15,10 +15,6 @@ public class TokenUtil {
             return authHeader.substring(7);
         }
 
-        return null;
-    }
-
-    public static String getRefreshToken(HttpServletRequest request) {
         return null;
     }
 }

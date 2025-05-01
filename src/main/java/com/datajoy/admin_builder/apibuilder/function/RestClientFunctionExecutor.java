@@ -1,11 +1,10 @@
 package com.datajoy.admin_builder.apibuilder.function;
 
-import com.datajoy.admin_builder.apibuilder.function.code.ResultCode;
+import com.datajoy.admin_builder.apibuilder.function.code.ResultType;
 import com.datajoy.admin_builder.apibuilder.restclient.RestClientRequest;
 import com.datajoy.admin_builder.apibuilder.restclient.RestClientResult;
 import com.datajoy.admin_builder.apibuilder.restclient.RestClientService;
 import com.datajoy.admin_builder.apibuilder.security.AuthenticatedUser;
-import com.datajoy.admin_builder.apibuilder.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -22,7 +21,7 @@ public class RestClientFunctionExecutor implements FunctionExecutor {
     @Override
     public FunctionResult execute(AuthenticatedUser user, String functionName, List<Map<String, Object>> params) {
 
-        ResultCode resultCode = ResultCode.SUCCESS;
+        ResultType resultType = ResultType.SUCCESS;
         List<Map<String, Object>> results = new ArrayList<>();
 
         for(Map<String, Object> param : params) {
@@ -36,7 +35,7 @@ public class RestClientFunctionExecutor implements FunctionExecutor {
             RestClientResult restClientResult = restClientService.execute(functionName, restClientParams);
 
             if(restClientResult.getStatusCode().isError()) {
-                resultCode = ResultCode.FAILURE;
+                resultType = ResultType.FAILURE;
             }
 
             Object response = restClientResult.getBody();
@@ -58,7 +57,7 @@ public class RestClientFunctionExecutor implements FunctionExecutor {
         }
 
         return FunctionResult.builder()
-                .resultCode(resultCode)
+                .resultType(resultType)
                 .results(results)
                 .build();
     }

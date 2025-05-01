@@ -1,11 +1,10 @@
 package com.datajoy.admin_builder.apibuilder.function;
 
-import com.datajoy.admin_builder.apibuilder.function.code.ResultCode;
+import com.datajoy.admin_builder.apibuilder.function.code.ResultType;
 import com.datajoy.admin_builder.apibuilder.query.QueryRequest;
 import com.datajoy.admin_builder.apibuilder.query.QueryResult;
 import com.datajoy.admin_builder.apibuilder.query.QueryService;
 import com.datajoy.admin_builder.apibuilder.security.AuthenticatedUser;
-import com.datajoy.admin_builder.apibuilder.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +20,7 @@ public class QueryExecutor implements FunctionExecutor {
 
     @Override
     public FunctionResult execute(AuthenticatedUser user, String functionName, List<Map<String, Object>> params) {
-        ResultCode resultCode = ResultCode.SUCCESS;
+        ResultType resultType = ResultType.SUCCESS;
         List<Map<String,Object>> results = new ArrayList<>();
 
         for(Map<String, Object> param : params) {
@@ -41,7 +40,7 @@ public class QueryExecutor implements FunctionExecutor {
         }
 
         return FunctionResult.builder()
-                .resultCode(resultCode)
+                .resultType(resultType)
                 .results(results)
                 .build();
     }
