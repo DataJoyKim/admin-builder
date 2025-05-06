@@ -30,7 +30,7 @@ public class LoginService {
 
         String refreshToken = jwtProvider.generateRefreshToken(authenticatedUser, client);
 
-        RefreshTokenStore store = RefreshTokenStore.createRefreshTokenStore(user.getUserId(), refreshToken);
+        RefreshTokenStore store = RefreshTokenStore.createRefreshTokenStore(user.getId(), refreshToken);
 
         refreshTokenStoreRepository.save(store);
 

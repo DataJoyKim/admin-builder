@@ -1,15 +1,17 @@
 package com.datajoy.admin_builder.apibuilder.security;
 
-import com.datajoy.admin_builder.apibuilder.user.User;
-import com.datajoy.admin_builder.apibuilder.user.UserService;
+import com.datajoy.admin_builder.apibuilder.user.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
     private final UserService userService;
     private final RefreshTokenStoreRepository refreshTokenStoreRepository;
+    private final UserGroupAuthorityRepository userGroupAuthorityRepository;
     private final JwtProvider jwtProvider;
 
     public AuthenticatedUser validateAuthentication(String accessToken) throws SecurityBusinessException {
@@ -17,7 +19,15 @@ public class AuthService {
 
         AuthenticatedUser authenticatedUser = jwtProvider.parseAccessToken(accessToken);
 
-        //TODO 권한 셋팅
+        List<UserGroupUser> userGroupUsers = userService.getUserGroupUser(authenticatedUser.getUserId());
+
+        for(UserGroupUser userGroupUser : userGroupUsers) {
+            List<UserGroupAuthority> userGroupAuthorities = userGroupAuthorityRepository.findByUserGroupCode(userGroupUser.getUserGroup().getCode());
+
+            for(UserGroupAuthority userGroupAuthority : userGroupAuthorities) {
+                authenticatedUser.grantAuthority(userGroupAuthority.getAuthority());
+            }
+        }
 
         return authenticatedUser;
     }

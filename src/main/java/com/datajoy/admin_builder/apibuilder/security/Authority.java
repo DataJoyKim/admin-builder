@@ -1,4 +1,4 @@
-package com.datajoy.admin_builder.apibuilder.user;
+package com.datajoy.admin_builder.apibuilder.security;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -7,9 +7,9 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-@Table(uniqueConstraints = {@UniqueConstraint(name="USER_UQ",columnNames={"code"})})
+@Table(uniqueConstraints = {@UniqueConstraint(name="AUTHORITY_UQ",columnNames={"code"})})
 @Entity
-public class UserGroup {
+public class Authority {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -19,8 +19,4 @@ public class UserGroup {
 
     @Column(nullable = false, length = 100)
     private String name;
-
-    @Column(name="USER_GROUP_USER_ID", nullable = false)
-    private Long userGroupUserId;
-
 }
