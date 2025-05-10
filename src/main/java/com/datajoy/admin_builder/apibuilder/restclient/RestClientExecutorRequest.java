@@ -17,6 +17,7 @@ public class RestClientExecutorRequest {
     private HttpMethod method;
     private String path;
     private Object requestBody;
+    private Map<String, Object> requestPathVariable;
     private Map<String, Object> requestQueryParam;
     private Map<String, String> requestHeaders;
     private MediaType mediaType;
@@ -27,8 +28,7 @@ public class RestClientExecutorRequest {
         for(String key : this.requestQueryParam.keySet()) {
             uriBuilder.queryParam(key, this.requestQueryParam.get(key));
         }
-
-        return uriBuilder.build();
+        return uriBuilder.build(this.requestPathVariable);
     }
 
     public void createHeaders(HttpHeaders headers) {

@@ -63,14 +63,16 @@ public class RestClient {
     @JoinColumn(name = "CLIENT_ID")
     private List<RestClientQueryParam> queryParams = new ArrayList<>();
 
-    public RestClientExecutorRequest createRequest(RestClientRequest params) {
+    public RestClientExecutorRequest createRequest(RestClientRequest request) {
         return RestClientExecutorRequest.builder()
-                .requestQueryParam(createRequestQueryParams(params.getParams()))
-                .requestHeaders(createRequestHeaders(params.getParams()))
+                .requestQueryParam(createRequestQueryParams(request.getParams()))
+                .requestHeaders(createRequestHeaders(request.getParams()))
                 .mediaType(createMediaType())
-                .requestBody(createRequestBody(params.getRequestBody()))
+                .requestBody(createRequestBody(request.getRequestBody()))
                 .dataSource(this.dataSourceName)
-                .method(method)
+                .method(this.method)
+                .path(this.path)
+                .requestPathVariable(request.getParams())
                 .build();
     }
 

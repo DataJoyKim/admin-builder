@@ -20,7 +20,4 @@ public class UserGroup {
     @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(name="USER_GROUP_USER_ID", nullable = false)
-    private Long userGroupUserId;
-
 }

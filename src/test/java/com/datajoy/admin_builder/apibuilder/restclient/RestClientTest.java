@@ -5,6 +5,9 @@ import com.datajoy.admin_builder.apibuilder.datasource.restserver.DataSourceRest
 import com.datajoy.admin_builder.apibuilder.restclient.code.BodyMessageFormat;
 import com.datajoy.admin_builder.apibuilder.restclient.code.ContentType;
 import com.datajoy.admin_builder.apibuilder.restclient.code.HttpMethod;
+import com.datajoy.admin_builder.apibuilder.restclient.code.ValueType;
+import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
 
@@ -37,12 +40,12 @@ class RestClientTest {
 
         // queryParams 설정
         List<RestClientQueryParam> queryParams = new ArrayList<>();
-        queryParams.add(RestClientQueryParam.builder().paramName("codeKind").build());
+        queryParams.add(RestClientQueryParam.builder().paramName("codeKind").valueType(ValueType.PARAM_VALUE).build());
 
         // header 설정
         List<RestClientHeader> headers = new ArrayList<>();
-        headers.add(RestClientHeader.builder().name("test").build());
-        headers.add(RestClientHeader.builder().name("Cookie").build());
+        headers.add(RestClientHeader.builder().name("test").valueType(ValueType.PARAM_VALUE).build());
+        headers.add(RestClientHeader.builder().name("Cookie").valueType(ValueType.PARAM_VALUE).build());
 
         // 메타 정보 셋팅
         RestClient clientMeta = RestClient.builder()
@@ -64,9 +67,9 @@ class RestClientTest {
         RestClientExecutorRequest request = clientMeta.createRequest(params);
 
         // 요청
-        ResponseEntity<Object> response =  executor.execute(request);
+        RestClientExecutorResponse response =  executor.execute(request);
 
-        System.out.println(response);
+        Assertions.assertNotNull(response);
     }
 
 
@@ -112,7 +115,7 @@ class RestClientTest {
         RestClientExecutorRequest request = clientMeta.createRequest(params);
 
         // 요청
-        ResponseEntity<Object> response = executor.execute(request);
+        RestClientExecutorResponse response = executor.execute(request);
 
         System.out.println(response);
     }

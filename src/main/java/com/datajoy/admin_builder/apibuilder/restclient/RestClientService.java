@@ -18,12 +18,12 @@ public class RestClientService {
         RestClientExecutorRequest request = clientMeta.createRequest(params);
 
         try {
-            ResponseEntity<Object> response = restClientExecutor.execute(request);
+            RestClientExecutorResponse response = restClientExecutor.execute(request);
 
             return RestClientResult.builder()
                     .headers(response.getHeaders())
                     .body(response.getBody())
-                    .statusCode(response.getStatusCode())
+                    .statusCode(response.getStatus())
                     .build();
         }
         catch (HttpClientErrorException e) {
