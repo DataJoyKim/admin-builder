@@ -10,7 +10,8 @@ public enum SecurityErrorMessage {
     EMPTY_TOKEN_CLAIMS(400, "E-SEC-004", "잘못된 토큰입니다."),
     DIFF_REFRESH_TOKEN(400, "E-SEC-005", "잘못된 토큰입니다."),
     NOT_FOUND_USER(404, "E-SEC-006", "존재하지않는 사용자입니다."),
-    FAULT_PASSWORD(400, "E-SEC-007", "비밀번호가 잘못되었습니다.");
+    FAULT_PASSWORD(400, "E-SEC-007", "비밀번호가 잘못되었습니다."),
+    NOT_LOGIN(401, "E-SEC-008", "로그인되지 않았습니다.");
     private Integer status;
     private String errorCode;
     private String errorMsg;

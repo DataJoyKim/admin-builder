@@ -37,6 +37,7 @@ public class ServiceBuilderService {
                                             .orElseThrow();
 
         AuthenticatedUser user = null;
+
         if(serviceBuilder.getUseAuthValidation()) {
             try {
                 user = authService.validateAuthentication(TokenUtil.resolveToken(request));
@@ -64,6 +65,7 @@ public class ServiceBuilderService {
             List<Map<String, Object>> params = requestMessage.getBody().get(func.getRequestMessageId());
 
             FunctionResult result = executor.execute(user, func.getFunctionName(), params);
+
             if(ResultType.FAILURE.equals(result.getResultType())) {
                 //TODO resolved
             }

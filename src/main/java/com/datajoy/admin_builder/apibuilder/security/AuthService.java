@@ -15,6 +15,10 @@ public class AuthService {
     private final JwtProvider jwtProvider;
 
     public AuthenticatedUser validateAuthentication(String accessToken) throws SecurityBusinessException {
+        if(accessToken == null) {
+            throw new SecurityBusinessException(SecurityErrorMessage.NOT_LOGIN);
+        }
+
         jwtProvider.validateToken(accessToken);
 
         AuthenticatedUser authenticatedUser = jwtProvider.parseAccessToken(accessToken);
