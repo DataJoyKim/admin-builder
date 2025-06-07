@@ -1,19 +1,22 @@
-package com.datajoy.admin_builder.apibuilder.security;
+package com.datajoy.admin_builder.apibuilder.security.rest;
 
+import com.datajoy.admin_builder.apibuilder.security.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class LoginController {
+@RequestMapping("/api/v1/login")
+public class LoginRestController {
     @Autowired
     LoginService loginService;
 
-    @PostMapping("/login")
+    @PostMapping("")
     public ResponseEntity<?> login(
             HttpServletRequest httpRequest,
             @RequestBody LoginRequest loginRequest

@@ -1,4 +1,4 @@
-package com.datajoy.admin_builder.console;
+package com.datajoy.admin_builder.console.view;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
