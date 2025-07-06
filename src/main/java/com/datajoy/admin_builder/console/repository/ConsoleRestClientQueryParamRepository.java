@@ -1,7 +1,7 @@
 package com.datajoy.admin_builder.console.repository;
 
-import com.datajoy.admin_builder.apibuilder.restclient.RestClientQueryParam;
-import com.datajoy.admin_builder.apibuilder.restclient.code.ValueType;
+import com.datajoy.admin_builder.restclient.RestClientQueryParam;
+import com.datajoy.admin_builder.restclient.code.ValueType;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

@@ -1,9 +1,9 @@
 package com.datajoy.admin_builder.console.rest;
 
-import com.datajoy.admin_builder.apibuilder.query.Query;
-import com.datajoy.admin_builder.apibuilder.query.QueryRequest;
-import com.datajoy.admin_builder.apibuilder.query.QueryResult;
-import com.datajoy.admin_builder.apibuilder.query.QueryService;
+import com.datajoy.admin_builder.query.Query;
+import com.datajoy.admin_builder.query.QueryRequest;
+import com.datajoy.admin_builder.query.QueryResult;
+import com.datajoy.admin_builder.query.QueryService;
 import com.datajoy.admin_builder.console.repository.ConsoleQueryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

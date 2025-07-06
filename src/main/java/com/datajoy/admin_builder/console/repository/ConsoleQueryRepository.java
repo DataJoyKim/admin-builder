@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface ConsoleQueryRepository extends JpaRepository<com.datajoy.admin_builder.apibuilder.query.Query, Long> {
+public interface ConsoleQueryRepository extends JpaRepository<com.datajoy.admin_builder.query.Query, Long> {
 
     @Transactional
     @Modifying

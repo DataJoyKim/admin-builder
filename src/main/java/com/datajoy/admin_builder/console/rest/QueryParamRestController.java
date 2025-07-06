@@ -1,10 +1,10 @@
 
 package com.datajoy.admin_builder.console.rest;
 
-import com.datajoy.admin_builder.apibuilder.query.QueryParam;
-import com.datajoy.admin_builder.apibuilder.query.code.AutoValueType;
-import com.datajoy.admin_builder.apibuilder.query.code.InOut;
-import com.datajoy.admin_builder.apibuilder.query.code.ParamType;
+import com.datajoy.admin_builder.query.QueryParam;
+import com.datajoy.admin_builder.query.code.AutoValueType;
+import com.datajoy.admin_builder.query.code.InOut;
+import com.datajoy.admin_builder.query.code.ParamType;
 import com.datajoy.admin_builder.console.repository.ConsoleQueryParamRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

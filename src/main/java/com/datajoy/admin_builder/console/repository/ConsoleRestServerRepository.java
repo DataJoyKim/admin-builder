@@ -1,6 +1,6 @@
 package com.datajoy.admin_builder.console.repository;
 
-import com.datajoy.admin_builder.apibuilder.datasource.restserver.DataSourceRestServer;
+import com.datajoy.admin_builder.datasource.restserver.DataSourceRestServer;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

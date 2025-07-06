@@ -1,6 +1,7 @@
 package com.datajoy.admin_builder.console;
 
-import com.datajoy.admin_builder.apibuilder.security.AuthService;
+import com.datajoy.admin_builder.security.AuthService;
+import com.datajoy.admin_builder.security.SecurityProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -10,11 +11,13 @@ import org.springframework.context.annotation.Configuration;
 public class FilterConfig {
     @Autowired
     AuthService authService;
+    @Autowired
+    SecurityProperties securityProperties;
 
     @Bean
     public FilterRegistrationBean<ConsoleSecurityFilter> consoleSecurityFilterRegistration() {
         FilterRegistrationBean<ConsoleSecurityFilter> registration = new FilterRegistrationBean<>();
-        registration.setFilter(new ConsoleSecurityFilter(authService));
+        registration.setFilter(new ConsoleSecurityFilter(authService, securityProperties));
         registration.addUrlPatterns("/console/*");
         registration.setOrder(1);
 

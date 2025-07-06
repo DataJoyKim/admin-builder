@@ -1,6 +1,6 @@
 package com.datajoy.admin_builder.console.rest;
 
-import com.datajoy.admin_builder.apibuilder.entity.Entity;
+import com.datajoy.admin_builder.entity.Entity;
 import com.datajoy.admin_builder.console.repository.ConsoleEntityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

@@ -1,10 +1,10 @@
 package com.datajoy.admin_builder.console.rest;
 
-import com.datajoy.admin_builder.apibuilder.datasource.ConnectValidation;
-import com.datajoy.admin_builder.apibuilder.datasource.database.DataSourceDatabaseRegister;
-import com.datajoy.admin_builder.apibuilder.datasource.database.DataSourceDatabaseMeta;
-import com.datajoy.admin_builder.apibuilder.datasource.database.DataSourceDatabaseValidator;
-import com.datajoy.admin_builder.apibuilder.datasource.database.DatabaseKind;
+import com.datajoy.admin_builder.datasource.ConnectValidation;
+import com.datajoy.admin_builder.datasource.database.DataSourceDatabaseRegister;
+import com.datajoy.admin_builder.datasource.database.DataSourceDatabaseMeta;
+import com.datajoy.admin_builder.datasource.database.DataSourceDatabaseValidator;
+import com.datajoy.admin_builder.datasource.database.DatabaseKind;
 import com.datajoy.admin_builder.console.repository.ConsoleDatabaseMetaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

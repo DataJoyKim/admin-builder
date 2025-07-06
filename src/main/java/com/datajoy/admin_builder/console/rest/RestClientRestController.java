@@ -1,12 +1,12 @@
 package com.datajoy.admin_builder.console.rest;
 
-import com.datajoy.admin_builder.apibuilder.restclient.RestClient;
-import com.datajoy.admin_builder.apibuilder.restclient.RestClientRequest;
-import com.datajoy.admin_builder.apibuilder.restclient.RestClientResult;
-import com.datajoy.admin_builder.apibuilder.restclient.RestClientService;
-import com.datajoy.admin_builder.apibuilder.restclient.code.BodyMessageFormat;
-import com.datajoy.admin_builder.apibuilder.restclient.code.ContentType;
-import com.datajoy.admin_builder.apibuilder.restclient.code.HttpMethod;
+import com.datajoy.admin_builder.restclient.RestClient;
+import com.datajoy.admin_builder.restclient.RestClientRequest;
+import com.datajoy.admin_builder.restclient.RestClientResult;
+import com.datajoy.admin_builder.restclient.RestClientService;
+import com.datajoy.admin_builder.restclient.code.BodyMessageFormat;
+import com.datajoy.admin_builder.restclient.code.ContentType;
+import com.datajoy.admin_builder.restclient.code.HttpMethod;
 import com.datajoy.admin_builder.console.repository.ConsoleRestClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

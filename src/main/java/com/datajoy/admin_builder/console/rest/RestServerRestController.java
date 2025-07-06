@@ -1,9 +1,9 @@
 package com.datajoy.admin_builder.console.rest;
 
-import com.datajoy.admin_builder.apibuilder.datasource.ConnectValidation;
-import com.datajoy.admin_builder.apibuilder.datasource.restserver.DataSourceRestServer;
-import com.datajoy.admin_builder.apibuilder.datasource.restserver.DataSourceRestServerRegister;
-import com.datajoy.admin_builder.apibuilder.datasource.restserver.DataSourceRestServerValidator;
+import com.datajoy.admin_builder.datasource.ConnectValidation;
+import com.datajoy.admin_builder.datasource.restserver.DataSourceRestServer;
+import com.datajoy.admin_builder.datasource.restserver.DataSourceRestServerRegister;
+import com.datajoy.admin_builder.datasource.restserver.DataSourceRestServerValidator;
 import com.datajoy.admin_builder.console.repository.ConsoleRestServerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

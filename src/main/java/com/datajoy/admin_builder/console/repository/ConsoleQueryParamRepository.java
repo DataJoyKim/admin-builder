@@ -1,9 +1,9 @@
 package com.datajoy.admin_builder.console.repository;
 
-import com.datajoy.admin_builder.apibuilder.query.QueryParam;
-import com.datajoy.admin_builder.apibuilder.query.code.AutoValueType;
-import com.datajoy.admin_builder.apibuilder.query.code.InOut;
-import com.datajoy.admin_builder.apibuilder.query.code.ParamType;
+import com.datajoy.admin_builder.query.QueryParam;
+import com.datajoy.admin_builder.query.code.AutoValueType;
+import com.datajoy.admin_builder.query.code.InOut;
+import com.datajoy.admin_builder.query.code.ParamType;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

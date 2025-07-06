@@ -1,9 +1,9 @@
 package com.datajoy.admin_builder.console.repository;
 
-import com.datajoy.admin_builder.apibuilder.restclient.RestClient;
-import com.datajoy.admin_builder.apibuilder.restclient.code.BodyMessageFormat;
-import com.datajoy.admin_builder.apibuilder.restclient.code.ContentType;
-import com.datajoy.admin_builder.apibuilder.restclient.code.HttpMethod;
+import com.datajoy.admin_builder.restclient.RestClient;
+import com.datajoy.admin_builder.restclient.code.BodyMessageFormat;
+import com.datajoy.admin_builder.restclient.code.ContentType;
+import com.datajoy.admin_builder.restclient.code.HttpMethod;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

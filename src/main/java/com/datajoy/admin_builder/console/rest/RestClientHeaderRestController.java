@@ -1,8 +1,8 @@
 
 package com.datajoy.admin_builder.console.rest;
 
-import com.datajoy.admin_builder.apibuilder.restclient.RestClientHeader;
-import com.datajoy.admin_builder.apibuilder.restclient.code.ValueType;
+import com.datajoy.admin_builder.restclient.RestClientHeader;
+import com.datajoy.admin_builder.restclient.code.ValueType;
 import com.datajoy.admin_builder.console.repository.ConsoleRestClientHeaderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

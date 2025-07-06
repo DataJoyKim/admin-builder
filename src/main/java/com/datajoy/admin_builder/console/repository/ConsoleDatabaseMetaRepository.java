@@ -1,7 +1,7 @@
 package com.datajoy.admin_builder.console.repository;
 
-import com.datajoy.admin_builder.apibuilder.datasource.database.DataSourceDatabaseMeta;
-import com.datajoy.admin_builder.apibuilder.datasource.database.DatabaseKind;
+import com.datajoy.admin_builder.datasource.database.DataSourceDatabaseMeta;
+import com.datajoy.admin_builder.datasource.database.DatabaseKind;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

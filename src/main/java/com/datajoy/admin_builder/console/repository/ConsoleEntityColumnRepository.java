@@ -1,7 +1,7 @@
 package com.datajoy.admin_builder.console.repository;
 
-import com.datajoy.admin_builder.apibuilder.entity.EntityColumn;
-import com.datajoy.admin_builder.apibuilder.entity.code.*;
+import com.datajoy.admin_builder.entity.EntityColumn;
+import com.datajoy.admin_builder.entity.code.*;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
