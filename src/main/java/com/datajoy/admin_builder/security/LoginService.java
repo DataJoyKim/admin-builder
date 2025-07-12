@@ -2,6 +2,7 @@ package com.datajoy.admin_builder.security;
 
 import com.datajoy.admin_builder.user.User;
 import com.datajoy.admin_builder.user.UserService;
+import com.datajoy.core.crypto.PasswordEncoder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

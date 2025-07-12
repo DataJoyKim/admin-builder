@@ -22,3 +22,13 @@
     function isEmpty(v) {
         return (v == undefined || v == null || v == '');
     }
+
+    function loadJson(path, _success) {
+        $.getJSON(path, function(data) {
+            console.log('Json 파일 로드',data);
+            _success(data);
+          })
+          .fail(function(jqxhr, textStatus, error) {
+            console.error("JSON 로드 실패:", textStatus, error);
+          });
+    }

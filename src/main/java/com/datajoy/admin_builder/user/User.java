@@ -1,5 +1,7 @@
 package com.datajoy.admin_builder.user;
 
+import com.datajoy.core.crypto.PasswordEncoder;
+import com.datajoy.core.exception.BusinessException;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,7 +28,18 @@ public class User {
     @Column(nullable = false, length = 100)
     private String email;
 
-    public static User signUp(SignUpRequest signUpRequest) {
-        return null;
+    public static User signUp(PasswordEncoder passwordEncoder, SignUpRequest request) throws BusinessException {
+        if(!request.getPassword().equals(request.getCheckPassword())) {
+            throw new BusinessException(UserErrorMessage.DIFFERENT_CHECK_PASSWORD);
+        }
+
+        String encodedPassword = passwordEncoder.encode(request.getPassword());
+
+        return User.builder()
+                .loginId(request.getLoginId())
+                .userName(request.getUserName())
+                .password(encodedPassword)
+                .email(request.getEmail())
+                .build();
     }
 }

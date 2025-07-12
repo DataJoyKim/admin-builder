@@ -1,5 +1,6 @@
 package com.datajoy.admin_builder.user;
 
+import com.datajoy.core.exception.BusinessException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,7 +21,7 @@ public class UserRestController {
     public ResponseEntity<?> signUp(
             HttpServletRequest httpRequest,
             @RequestBody SignUpRequest signUpRequest
-    ) {
+    ) throws BusinessException {
         User user = userService.signUp(signUpRequest);
 
         SignUpResponse response = SignUpResponse.of(user);

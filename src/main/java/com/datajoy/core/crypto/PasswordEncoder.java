@@ -1,4 +1,4 @@
-package com.datajoy.admin_builder.security;
+package com.datajoy.core.crypto;
 
 public interface PasswordEncoder {
     String encode(String plainPassword);

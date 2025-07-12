@@ -1,7 +1,13 @@
 package com.datajoy.admin_builder.user;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+
+@Getter @AllArgsConstructor @Builder
 public class SignUpResponse {
+    private Long id;
     public static SignUpResponse of(User user) {
-        return null;
+        return SignUpResponse.builder().id(user.getId()).build();
     }
 }
