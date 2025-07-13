@@ -1,20 +1,56 @@
 package com.datajoy.admin_builder.security;
 
+import com.datajoy.core.util.CookieUtil;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 public class TokenUtil {
+    private static final String ACCESS_TOKEN_NAME = "accessToken";
+    private static final String REFRESH_TOKEN_NAME = "refreshToken";
 
-    public static String resolveToken(HttpServletRequest request) {
-        String authHeader = request.getHeader("Authorization");
-
-        if(authHeader == null) {
+    public static String resolveAccessToken(HttpServletRequest request) {
+        Cookie cookie = CookieUtil.getCookie(request,ACCESS_TOKEN_NAME);
+        if(cookie == null) {
             return null;
         }
 
-        if(authHeader.startsWith("Bearer ")) {
-            return authHeader.substring(7);
+        return cookie.getValue();
+    }
+
+    public static String resolveRefreshToken(HttpServletRequest request) {
+        Cookie cookie = CookieUtil.getCookie(request,REFRESH_TOKEN_NAME);
+        if(cookie == null) {
+            return null;
         }
 
-        return null;
+        return cookie.getValue();
+    }
+
+    public static void setAuthToken(HttpServletResponse response, String accessToken, String refreshToken) {
+        setAccessToken(response, accessToken);
+        setRefreshToken(response, refreshToken);
+    }
+
+    public static void setAccessToken(HttpServletResponse response, String token) {
+        Cookie cookie = new Cookie(ACCESS_TOKEN_NAME, token);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(3600);
+        //cookie.setDomain("yourdomain.com");
+
+        response.addCookie(cookie);
+    }
+
+    public static void setRefreshToken(HttpServletResponse response, String token) {
+        Cookie cookie = new Cookie(REFRESH_TOKEN_NAME, token);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(3600*24);
+        //cookie.setDomain("yourdomain.com");
+
+        response.addCookie(cookie);
     }
 }

@@ -6,7 +6,6 @@ import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SecurityException;
 
 import java.security.Key;
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.Date;
 
@@ -42,9 +41,8 @@ public class JwtProvider {
         Claims claims = parseClaims(token);
 
         return AuthenticatedUser.builder()
-                .userId((Long) claims.get("userId"))
-                .userName((String) claims.get("userName"))
-                .lastLoginDatetime((LocalDateTime) claims.get("lastLoginDatetime"))
+                .userId(Long.valueOf(String.valueOf(claims.get("userId"))))
+                .userName(String.valueOf(claims.get("userName")))
                 .build();
     }
 

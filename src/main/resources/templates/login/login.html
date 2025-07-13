@@ -24,39 +24,37 @@
         <div class="card-body">
             <p class="login-box-msg">Sign in to start your session</p>
 
-            <form action="../../index3.html" method="post">
-                <div class="input-group mb-3">
-                    <input type="email" class="form-control" placeholder="Email">
-                    <div class="input-group-append">
-                        <div class="input-group-text">
-                            <span class="fas fa-envelope"></span>
-                        </div>
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" id="loginId" placeholder="Login ID">
+                <div class="input-group-append">
+                    <div class="input-group-text">
+                        <span class="fas fa-user"></span>
                     </div>
                 </div>
-                <div class="input-group mb-3">
-                    <input type="password" class="form-control" placeholder="Password">
-                    <div class="input-group-append">
-                        <div class="input-group-text">
-                            <span class="fas fa-lock"></span>
-                        </div>
+            </div>
+            <div class="input-group mb-3">
+                <input type="password" class="form-control" id="password" placeholder="Password">
+                <div class="input-group-append">
+                    <div class="input-group-text">
+                        <span class="fas fa-lock"></span>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-8">
-                        <div class="icheck-primary">
-                            <input type="checkbox" id="remember">
-                            <label for="remember">
-                                Remember Me
-                            </label>
-                        </div>
+            </div>
+            <div class="row">
+                <div class="col-8">
+                    <div class="icheck-primary">
+                        <input type="checkbox" id="remember">
+                        <label for="remember">
+                            Remember Me
+                        </label>
                     </div>
-                    <!-- /.col -->
-                    <div class="col-4">
-                        <button type="submit" class="btn btn-primary btn-block">Sign In</button>
-                    </div>
-                    <!-- /.col -->
                 </div>
-            </form>
+                <!-- /.col -->
+                <div class="col-4">
+                    <button type="submit" class="btn btn-primary btn-block" onclick="login()">Sign In</button>
+                </div>
+                <!-- /.col -->
+            </div>
             <!-- /.social-auth-links -->
 
             <p class="mb-0">
@@ -69,11 +67,46 @@
 </div>
 <!-- /.login-box -->
 
-<!-- jQuery -->
-<script src="../../plugins/jquery/jquery.min.js"></script>
-<!-- Bootstrap 4 -->
-<script src="../../plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-<!-- AdminLTE App -->
-<script src="../../dist/js/adminlte.min.js"></script>
+<script src="/plugins/jquery/jquery.min.js"></script>
+<script src="/plugins/jquery-ui/jquery-ui.min.js"></script>
+<script src="/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="/dist/js/adminlte.min.js"></script>
+<script src="/core/common.js"></script>
+<script src="/core/httpclient.js"></script>
+<script src="/core/sheet.js"></script>
+<script>
+    const httpClient = new HttpClient();
+    let api;
+    let view;
+
+    $(document).ready(function () {
+      console.log('version.0.3.3');
+
+      loadJson("/asset/api.json", function(data){
+        api = data;
+      });
+
+      loadJson("/asset/view.json", function(data){
+        view = data;
+      });
+    });
+
+    function login() {
+        let loginId = $("#loginId").val();
+        let password = $("#password").val();
+
+        httpClient.post(api.LOGIN,{},{
+                loginId:loginId,
+                password:password
+            },
+            function(response){
+                location.href = view.CONSOLE;
+            },
+            function(error){
+                alert('에러 발생하였습니다.');
+            }
+        );
+    }
+</script>
 </body>
 </html>

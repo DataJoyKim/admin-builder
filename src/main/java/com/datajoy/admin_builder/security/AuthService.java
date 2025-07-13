@@ -47,8 +47,10 @@ public class AuthService {
 
         Long userId = jwtProvider.getUserIdToRefreshToken(refreshToken);
 
-        String savedRefreshToken = refreshTokenStoreRepository.findByUserId(userId);
-        if (!refreshToken.equals(savedRefreshToken)) {
+        RefreshTokenStore savedRefreshTokenStore = refreshTokenStoreRepository.findByUserId(userId)
+                                                        .orElseThrow();
+
+        if (!refreshToken.equals(savedRefreshTokenStore.getRefreshToken())) {
             throw new SecurityBusinessException(SecurityErrorMessage.DIFF_REFRESH_TOKEN);
         }
 

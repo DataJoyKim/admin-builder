@@ -13,7 +13,6 @@ import java.util.List;
 public class AuthenticatedUser {
     private Long userId;
     private String userName;
-    private LocalDateTime lastLoginDatetime;
     private List<GrantedAuthority> grantedAuthorities;
 
     public static AuthenticatedUser createAuthenticatedUser(User user) {

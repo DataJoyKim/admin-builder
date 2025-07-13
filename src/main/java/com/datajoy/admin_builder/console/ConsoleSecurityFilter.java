@@ -19,7 +19,7 @@ public class ConsoleSecurityFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         try {
-            authService.validateAuthentication(TokenUtil.resolveToken((HttpServletRequest) request));
+            authService.validateAuthentication(TokenUtil.resolveAccessToken((HttpServletRequest) request));
 
             chain.doFilter(request, response);
         }

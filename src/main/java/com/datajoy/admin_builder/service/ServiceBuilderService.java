@@ -40,7 +40,7 @@ public class ServiceBuilderService {
 
         if(serviceBuilder.getUseAuthValidation()) {
             try {
-                user = authService.validateAuthentication(TokenUtil.resolveToken(request));
+                user = authService.validateAuthentication(TokenUtil.resolveAccessToken(request));
             }
             catch (SecurityBusinessException e) {
                 return ResponseMessage.createErrorMessage(e.getStatus(), e.getErrorCode(), e.getErrorMsg());

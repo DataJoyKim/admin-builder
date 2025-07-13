@@ -6,6 +6,8 @@ import com.datajoy.core.crypto.PasswordEncoder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class LoginService {
@@ -31,7 +33,15 @@ public class LoginService {
 
         String refreshToken = jwtProvider.generateRefreshToken(authenticatedUser, client);
 
-        RefreshTokenStore store = RefreshTokenStore.createRefreshTokenStore(user.getId(), refreshToken);
+        Optional<RefreshTokenStore> savedRefreshTokenStore = refreshTokenStoreRepository.findByUserId(user.getId());
+        RefreshTokenStore store;
+        if(savedRefreshTokenStore.isEmpty()) {
+            store = RefreshTokenStore.createRefreshTokenStore(user.getId(), refreshToken);
+        }
+        else {
+            store = savedRefreshTokenStore.get();
+            store.updateRefreshToken(refreshToken);
+        }
 
         refreshTokenStoreRepository.save(store);
 
