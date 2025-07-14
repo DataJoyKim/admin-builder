@@ -15,13 +15,21 @@ public class UserService {
     private final UserGroupUserRepository userGroupUserRepository;
     private final PasswordEncoder passwordEncoder;
     public User getUserByLoginId(String loginId) {
-        return userRepository.findByLoginId(loginId)
-                .orElseThrow();
+        Optional<User> user = userRepository.findByLoginId(loginId);
+        if(user.isEmpty()){
+            return null;
+        }
+
+        return user.get();
     }
 
     public User getUserByUserId(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow();
+        Optional<User> user = userRepository.findById(userId);
+        if(user.isEmpty()){
+            return null;
+        }
+
+        return user.get();
     }
 
     public List<UserGroupUser> getUserGroupUser(Long userId) {

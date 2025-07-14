@@ -55,6 +55,9 @@ public class AuthService {
         }
 
         User user = userService.getUserByUserId(userId);
+        if(user == null) {
+            throw new SecurityBusinessException(SecurityErrorMessage.NOT_FOUND_USER);
+        }
 
         AuthenticatedUser authenticatedUser = AuthenticatedUser.createAuthenticatedUser(user);
 

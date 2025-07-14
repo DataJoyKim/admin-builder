@@ -80,7 +80,7 @@
     let view;
 
     $(document).ready(function () {
-      console.log('version.0.3.3');
+      console.log('version.0.3.6');
 
       loadJson("/asset/api.json", function(data){
         api = data;
@@ -100,10 +100,13 @@
                 password:password
             },
             function(response){
+                console.log('response',response);
+                alert(1);
                 location.href = view.CONSOLE;
             },
             function(error){
-                alert('에러 발생하였습니다.');
+                let errorObj = error.responseJSON;
+                alert(errorObj.message);
             }
         );
     }
