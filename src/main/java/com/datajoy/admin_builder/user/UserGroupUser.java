@@ -21,4 +21,9 @@ public class UserGroupUser {
     @ManyToOne
     @JoinColumn(name = "USER_GROUP_CODE")
     private UserGroup userGroup;
+
+    public void update(UserGroup userGroup, User user) {
+        this.userGroup = userGroup;
+        this.user = user;
+    }
 }

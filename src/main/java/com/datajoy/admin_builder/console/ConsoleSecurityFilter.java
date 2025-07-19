@@ -1,9 +1,6 @@
 package com.datajoy.admin_builder.console;
 
-import com.datajoy.admin_builder.security.AuthService;
-import com.datajoy.admin_builder.security.SecurityBusinessException;
-import com.datajoy.admin_builder.security.SecurityProperties;
-import com.datajoy.admin_builder.security.TokenUtil;
+import com.datajoy.admin_builder.security.*;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -18,14 +15,22 @@ public class ConsoleSecurityFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+        AuthenticatedUser user;
         try {
-            authService.validateAuthentication(TokenUtil.resolveAccessToken((HttpServletRequest) request));
-
-            chain.doFilter(request, response);
+            user = authService.validateAuthentication(TokenUtil.resolveAccessToken((HttpServletRequest) request));
         }
         catch (SecurityBusinessException e) {
             HttpServletResponse httpResponse = (HttpServletResponse) response;
             httpResponse.sendRedirect(securityProperties.getLoginPath());
+            return;
         }
+
+        if(!GrantedAuthority.hasAuthority(user.getGrantedAuthorities(), securityProperties.getConsoleAccessPermitAuthorityCode())) {
+            HttpServletResponse httpResponse = (HttpServletResponse) response;
+            httpResponse.sendRedirect(securityProperties.getLoginPath());
+            return;
+        }
+
+        chain.doFilter(request, response);
     }
 }

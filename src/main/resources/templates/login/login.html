@@ -33,7 +33,7 @@
                 </div>
             </div>
             <div class="input-group mb-3">
-                <input type="password" class="form-control" id="password" placeholder="Password">
+                <input type="password" class="form-control move-sign-in" id="password" placeholder="Password">
                 <div class="input-group-append">
                     <div class="input-group-text">
                         <span class="fas fa-lock"></span>
@@ -89,6 +89,12 @@
       loadJson("/asset/view.json", function(data){
         view = data;
       });
+
+      $('.move-sign-in').on('keydown', function(event) {
+        if(event.keyCode === 13) {
+            login();
+        }
+      });
     });
 
     function login() {
@@ -101,7 +107,6 @@
             },
             function(response){
                 console.log('response',response);
-                alert(1);
                 location.href = view.CONSOLE;
             },
             function(error){

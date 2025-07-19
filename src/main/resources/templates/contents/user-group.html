@@ -1,7 +1,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <script th:fragment="script">
         $( document ).ready(function() {
-            console.log('version.0.0.3');
+            console.log('version.0.0.6');
             init();
         });
 
@@ -15,6 +15,51 @@
             ],
             function(args) {
                 selectedContent(args.item);
+            });
+
+            sheet.initSheet('userGroupUserGrid', "100%","500px",
+            [
+                {name: "id", title:"ID", type: "number", width: 20, editing: false, inserting: false},
+                {name: "userId", title:"사용자ID", type: "text", width: 50},
+                {name: "userName", title:"사용자명", type: "text", width: 100, editing: false},
+                { type: "control", editButton: true, width: 30, modeSwitchButton: false }
+            ],
+            function(args) {},
+            {
+                inserting: true,
+                editing: true,
+                onItemInserting: function(args) {
+                    insertUserGroupUser($("#id").val(), args.item);
+                },
+                onItemUpdated: function(args) {
+                    updateUserGroupUser($("#id").val(), args.item.id, args.item);
+                },
+                onItemDeleting: function(args) {
+                    deleteUserGroupUser($("#id").val(), args.item);
+                }
+            });
+
+            sheet.initSheet('userGroupAuthorityGrid', "100%","500px",
+            [
+                {name: "id", title:"ID", type: "number", width: 20, editing: false, inserting: false},
+                {name: "authorityId", title:"권한ID", type: "text", width: 50},
+                {name: "authorityCode", title:"권한코드", type: "text", width: 100},
+                {name: "authorityName", title:"권한명", type: "text", width: 100, editing: false},
+                { type: "control", editButton: true, width: 30, modeSwitchButton: false }
+            ],
+            function(args) {},
+            {
+                inserting: true,
+                editing: true,
+                onItemInserting: function(args) {
+                    insertUserGroupAuthority($("#id").val(), args.item);
+                },
+                onItemUpdated: function(args) {
+                    updateUserGroupAuthority($("#id").val(), args.item.id, args.item);
+                },
+                onItemDeleting: function(args) {
+                    deleteUserGroupAuthority($("#id").val(), args.item);
+                }
             });
 
             getList();
@@ -35,6 +80,8 @@
             httpClient.get(`/console/api/user-group/${item.id}`, {},
                 function(response){
                     setContentData(response);
+                    getUserGroupUser(item.id);
+                    getUserGroupAuthority(item.id);
                 },
                 function(error){
                     alert('error');
@@ -122,6 +169,129 @@
                 name:''
               });
           }
+
+
+        function getUserGroupUser(userGroupId) {
+            httpClient.get(`/console/api/user-group/user/${userGroupId}`, {},
+                function(response){
+                    for(let i=0; i<response.length; i++) {
+                        response[i].userId = response[i].user.id;
+                        response[i].userName = response[i].user.userName;
+                    }
+
+                    sheet.setSheetData('userGroupUserGrid', response);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function insertUserGroupUser(userGroupId, item) {
+            httpClient.post(`/console/api/user-group/user`,{},
+                {
+                   userGroupId:userGroupId,
+                   userId:item.userId
+                },
+                function(response){
+                    alert("생성 완료되었습니다.");
+                    getUserGroupUser(userGroupId);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function updateUserGroupUser(userGroupId, userGroupUserId, item) {
+          httpClient.put(`/console/api/user-group/user/${userGroupUserId}`, {},
+              {
+                   userGroupId:userGroupId,
+                   userId:item.userId
+              },
+              function(response){
+                  alert("변경 완료되었습니다.");
+                  getUserGroupUser(userGroupId);
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+        function deleteUserGroupUser(userGroupId, item) {
+          httpClient.delete(`/console/api/user-group/user/${item.id}`, {},
+              function(response){
+                  alert("삭제 완료되었습니다.");
+                  getUserGroupUser(userGroupId);
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+
+        function getUserGroupAuthority(userGroupId) {
+            httpClient.get(`/console/api/user-group/authority/${userGroupId}`, {},
+                function(response){
+                    for(let i=0; i<response.length; i++) {
+                        response[i].authorityId = response[i].authority.id;
+                        response[i].authorityCode = response[i].authority.code;
+                        response[i].authorityName = response[i].authority.name;
+                    }
+
+                    sheet.setSheetData('userGroupAuthorityGrid', response);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function insertUserGroupAuthority(userGroupId, item) {
+            httpClient.post(`/console/api/user-group/authority`,{},
+                {
+                   userGroupId:userGroupId,
+                   authorityId:item.authorityId
+                },
+                function(response){
+                    alert("생성 완료되었습니다.");
+                    getUserGroupAuthority(userGroupId);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function updateUserGroupAuthority(userGroupId, userGroupAuthorityId, item) {
+          httpClient.put(`/console/api/user-group/authority/${userGroupAuthorityId}`, {},
+              {
+                   userGroupId:userGroupId,
+                   authorityId:item.authorityId
+              },
+              function(response){
+                  alert("변경 완료되었습니다.");
+                  getUserGroupAuthority(userGroupId);
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+        function deleteUserGroupAuthority(userGroupId, item) {
+          httpClient.delete(`/console/api/user-group/authority/${item.id}`, {},
+              function(response){
+                  alert("삭제 완료되었습니다.");
+                  getUserGroupAuthority(userGroupId);
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
     </script>
 <div th:fragment="view">
     <div class="row">
@@ -178,21 +348,17 @@
                         <div class="tab-pane fade" id="user" role="tabpanel" aria-labelledby="user-tab">
                             <div class="card-header">
                                 <h3 class="card-title">사용자</h3>
-                                <div class="card-tools">
-                                    <wb-action-button elementId="new" actionName="newContent()" icon="fas fa-plus"></wb-action-button>
-                                    <wb-action-button elementId="save" actionName="save()" icon="fas fa-save"></wb-action-button>
-                                    <wb-action-button elementId="delete" actionName="deleteContent()" icon="fas fa-trash"></wb-action-button>
-                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div id="userGroupUserGrid"></div>
                             </div>
                         </div>
                         <div class="tab-pane fade" id="authority" role="tabpanel" aria-labelledby="authority-tab">
                             <div class="card-header">
                                 <h3 class="card-title">권한 부여</h3>
-                                <div class="card-tools">
-                                    <wb-action-button elementId="new" actionName="newContent()" icon="fas fa-plus"></wb-action-button>
-                                    <wb-action-button elementId="save" actionName="save()" icon="fas fa-save"></wb-action-button>
-                                    <wb-action-button elementId="delete" actionName="deleteContent()" icon="fas fa-trash"></wb-action-button>
-                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div id="userGroupAuthorityGrid"></div>
                             </div>
                         </div>
                     </div>

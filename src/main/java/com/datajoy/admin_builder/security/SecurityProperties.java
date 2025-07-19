@@ -10,4 +10,5 @@ public class SecurityProperties {
     private Long tokenAccessTokenExpireTime = 1000L * 60 * 15;
     private Long tokenRefreshTokenExpireTime = 1000L * 60 * 60 * 24 * 7;
     private String loginPath = "/login";
+    private String consoleAccessPermitAuthorityCode = "SYS_ADMIN";
 }

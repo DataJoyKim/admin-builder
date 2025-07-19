@@ -25,4 +25,9 @@ public class UserGroupAuthority {
     @ManyToOne
     @JoinColumn(name = "USER_GROUP_CODE")
     private UserGroup userGroup;
+
+    public void update(UserGroup userGroup, Authority authority) {
+        this.userGroup = userGroup;
+        this.authority = authority;
+    }
 }
