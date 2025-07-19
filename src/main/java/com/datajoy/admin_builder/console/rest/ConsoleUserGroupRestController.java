@@ -1,8 +1,7 @@
 package com.datajoy.admin_builder.console.rest;
 
-import com.datajoy.admin_builder.user.User;
-import com.datajoy.admin_builder.user.UserRepository;
-import com.datajoy.core.crypto.PasswordEncoder;
+import com.datajoy.admin_builder.user.UserGroup;
+import com.datajoy.admin_builder.user.UserGroupRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,23 +12,21 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/console/api/user")
-public class UserRestController {
+@RequestMapping("/console/api/user-group")
+public class ConsoleUserGroupRestController {
     @Autowired
-    private UserRepository repository;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private UserGroupRepository repository;
 
     @GetMapping("")
     public ResponseEntity<?> getList() {
-        List<User> results = repository.findAll();
+        List<UserGroup> results = repository.findAll();
 
         return new ResponseEntity<>(results, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> get(@PathVariable("id") Long id) {
-        User results = repository.findById(id)
+        UserGroup results = repository.findById(id)
                 .orElseThrow(RuntimeException::new);
 
         return new ResponseEntity<>(results, HttpStatus.OK);
@@ -38,11 +35,9 @@ public class UserRestController {
     @PostMapping("")
     public ResponseEntity<?> create(@RequestBody Map<String,Object> params) {
 
-        User createdData = User.builder()
-                .loginId((String) params.get("loginId"))
-                .userName((String) params.get("userName"))
-                .password(passwordEncoder.encode((String) params.get("password")))
-                .email((String) params.get("email"))
+        UserGroup createdData = UserGroup.builder()
+                .code((String) params.get("code"))
+                .name((String) params.get("name"))
                 .build();
 
         return new ResponseEntity<>(repository.save(createdData), HttpStatus.OK);
@@ -50,13 +45,12 @@ public class UserRestController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable("id") Long id, @RequestBody Map<String,Object> params) {
-        User savedData = repository.findById(id)
+        UserGroup savedData = repository.findById(id)
                 .orElseThrow(RuntimeException::new);
 
         savedData.update(
-                (String) params.get("loginId"),
-                (String) params.get("userName"),
-                (String) params.get("email")
+                (String) params.get("code"),
+                (String) params.get("name")
         );
 
         repository.save(savedData);
@@ -66,7 +60,7 @@ public class UserRestController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable("id") Long id) {
-        User savedData = repository.findById(id)
+        UserGroup savedData = repository.findById(id)
                 .orElseThrow(RuntimeException::new);
 
         repository.deleteById(savedData.getId());

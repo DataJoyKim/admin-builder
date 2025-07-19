@@ -1,7 +1,8 @@
 package com.datajoy.admin_builder.console.rest;
 
-import com.datajoy.admin_builder.security.Authority;
-import com.datajoy.admin_builder.security.AuthorityRepository;
+import com.datajoy.admin_builder.user.User;
+import com.datajoy.admin_builder.user.UserRepository;
+import com.datajoy.core.crypto.PasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,45 +13,37 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/console/api/authority")
-public class AuthorityRestController {
+@RequestMapping("/console/api/user")
+public class ConsoleUserRestController {
     @Autowired
-    private AuthorityRepository repository;
+    private UserRepository repository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @GetMapping("")
     public ResponseEntity<?> getList() {
-        List<Authority> results = repository.findAll();
+        List<User> results = repository.findAll();
 
         return new ResponseEntity<>(results, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> get(@PathVariable("id") Long id) {
-        Authority results = repository.findById(id)
+        User results = repository.findById(id)
                 .orElseThrow(RuntimeException::new);
 
         return new ResponseEntity<>(results, HttpStatus.OK);
     }
 
-    @PostMapping("")
-    public ResponseEntity<?> create(@RequestBody Map<String,Object> params) {
-
-        Authority createdData = Authority.builder()
-                .code((String) params.get("code"))
-                .name((String) params.get("name"))
-                .build();
-
-        return new ResponseEntity<>(repository.save(createdData), HttpStatus.OK);
-    }
-
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable("id") Long id, @RequestBody Map<String,Object> params) {
-        Authority savedData = repository.findById(id)
+        User savedData = repository.findById(id)
                 .orElseThrow(RuntimeException::new);
 
         savedData.update(
-                (String) params.get("code"),
-                (String) params.get("name")
+                (String) params.get("loginId"),
+                (String) params.get("userName"),
+                (String) params.get("email")
         );
 
         repository.save(savedData);
@@ -60,7 +53,7 @@ public class AuthorityRestController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable("id") Long id) {
-        Authority savedData = repository.findById(id)
+        User savedData = repository.findById(id)
                 .orElseThrow(RuntimeException::new);
 
         repository.deleteById(savedData.getId());

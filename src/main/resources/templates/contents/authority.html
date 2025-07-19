@@ -1,0 +1,168 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<script th:fragment="script">
+        $( document ).ready(function() {
+            console.log('version.0.0.1');
+            init();
+        });
+
+        function init() {
+
+            sheet.initSheet('jsGrid1', "100%","500px",
+            [
+                {name: "id", title:"ID", type: "number", width: 50, editing: false, inserting: false},
+                {name: "code", title:"코드", type: "text", width: 150 },
+                {name: "name", title:"명칭", type: "text", width: 200 }
+            ],
+            function(args) {
+                selectedContent(args.item);
+            });
+
+            getList();
+        }
+
+        function getList() {
+            httpClient.get(`/console/api/authority`, {},
+                function(response){
+                    sheet.setSheetData('jsGrid1', response);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function selectedContent(item) {
+            httpClient.get(`/console/api/authority/${item.id}`, {},
+                function(response){
+                    setContentData(response);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function isEmpty(v) {
+            return (v == undefined || v == null || v == '');
+        }
+
+        function save() {
+            let id = $("#id").val();
+
+            if(isEmpty(id))
+                insertContent();
+            else
+                updateContent(id);
+        }
+
+        function insertContent() {
+            httpClient.post(`/console/api/authority`,{},getContent(),
+                function(response){
+                    alert("저장완료되었습니다.");
+                    getList();
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function updateContent(id) {
+          httpClient.put(`/console/api/authority/${id}`, {}, getContent(),
+              function(response){
+                  alert("저장완료되었습니다.");
+                  getList();
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+        function deleteContent() {
+          let id = $("#id").val();
+
+          httpClient.delete(`/console/api/authority/${id}`, {},
+              function(response){
+                  alert("삭제 처리 완료되었습니다.");
+                  getList();
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+        function setContentData(response) {
+            setContent({
+                id:response.id,
+                code:response.code,
+                name:response.name
+              });
+        }
+
+        function getContent() {
+            return {
+                id: $("#id").val(),
+                code: $("#code").val(),
+                name: $("#name").val()
+            }
+        }
+
+        function setContent(params) {
+            $("#id").val(params.id);
+            $("#code").val(params.code);
+            $("#name").val(params.name);
+          }
+
+          function newContent(){
+            setContent({
+                id:'',
+                code:'',
+                name:''
+              });
+          }
+    </script>
+<div th:fragment="view">
+    <div class="row">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Authority</h3>
+                        <div class="card-tools">
+                            <wb-action-button elementId="search" actionName="getList()" icon="fas fa-search"></wb-action-button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="jsGrid1"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">상세 내용</h3>
+                        <div class="card-tools">
+                            <wb-action-button elementId="new" actionName="newContent()" icon="fas fa-plus"></wb-action-button>
+                            <wb-action-button elementId="save" actionName="save()" icon="fas fa-save"></wb-action-button>
+                            <wb-action-button elementId="delete" actionName="deleteContent()" icon="fas fa-trash"></wb-action-button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-1">
+                                <wb-text-input elementId="id" label="ID" enable="false"></wb-text-input>
+                            </div>
+                            <div class="col-md-3">
+                                <wb-text-input elementId="code" label="코드" enable="true"></wb-text-input>
+                            </div>
+                            <div class="col-md-3">
+                                <wb-text-input elementId="name" label="명칭" enable="true" ></wb-text-input>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</html>
