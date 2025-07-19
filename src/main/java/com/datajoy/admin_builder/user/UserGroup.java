@@ -20,4 +20,8 @@ public class UserGroup {
     @Column(nullable = false, length = 100)
     private String name;
 
+    public void update(String code, String name) {
+        this.code = code;
+        this.name = name;
+    }
 }

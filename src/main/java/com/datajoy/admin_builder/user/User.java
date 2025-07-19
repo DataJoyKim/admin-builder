@@ -5,6 +5,8 @@ import com.datajoy.core.exception.BusinessException;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Map;
+
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
@@ -41,5 +43,15 @@ public class User {
                 .password(encodedPassword)
                 .email(request.getEmail())
                 .build();
+    }
+
+    public void update(
+            String loginId,
+            String userName,
+            String email
+    ) {
+        this.loginId = loginId;
+        this.userName = userName;
+        this.email = email;
     }
 }
