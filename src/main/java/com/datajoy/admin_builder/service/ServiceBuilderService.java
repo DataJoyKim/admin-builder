@@ -47,6 +47,10 @@ public class ServiceBuilderService {
             }
         }
 
+        if(user != null) {
+            authService.validateAuthorization(user);
+        }
+
         Map<String, List<Map<String, Object>>> contents = executeFunction(requestMessage, user, serviceBuilder.getServiceFunctions());
 
         return ResponseMessage.createSuccessMessage(contents);
