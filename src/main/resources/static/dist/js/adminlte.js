@@ -1231,7 +1231,7 @@
     autoShowNewTab: true,
     autoDarkMode: false,
     allowDuplicates: false,
-    allowReload: true,
+    allowReload: false,
     loadingScreen: true,
     useNavbarItems: true,
     scrollOffset: 40,
