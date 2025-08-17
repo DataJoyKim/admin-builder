@@ -1,0 +1,195 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<script th:fragment="script">
+        $( document ).ready(function() {
+            console.log('version.0.0.1');
+            init();
+        });
+
+        function init() {
+            var codes = {
+                "ObjectType":[]
+            };
+
+            setCodes(codes);
+
+            sheet.initSheet('jsGrid1', "100%","500px",
+            [
+                {name: "id", title:"ID", type: "number", width: 50, editing: false, inserting: false},
+                {name: "objectCd", title:"코드", type: "text", width: 150 },
+                {name: "objectNm", title:"명칭", type: "text", width: 200 }
+            ],
+            function(args) {
+                selectedContent(args.item);
+            });
+
+            getList();
+        }
+
+        function setCodes(codes) {
+            setCodeBox("type", codes["ObjectType"]);
+        }
+
+        function getList() {
+            httpClient.get(`/console/api/object`, {},
+                function(response){
+                    sheet.setSheetData('jsGrid1', response);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function selectedContent(item) {
+            httpClient.get(`/console/api/object/${item.id}`, {},
+                function(response){
+                    setContentData(response);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function isEmpty(v) {
+            return (v == undefined || v == null || v == '');
+        }
+
+        function save() {
+            let id = $("#id").val();
+
+            if(isEmpty(id))
+                insertContent();
+            else
+                updateContent(id);
+        }
+
+        function insertContent() {
+            httpClient.post(`/console/api/object`,{},getContent(),
+                function(response){
+                    alert("저장완료되었습니다.");
+                    getList();
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function updateContent(id) {
+          httpClient.put(`/console/api/object/${id}`, {}, getContent(),
+              function(response){
+                  alert("저장완료되었습니다.");
+                  getList();
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+        function deleteContent() {
+          let id = $("#id").val();
+
+          httpClient.delete(`/console/api/object/${id}`, {},
+              function(response){
+                  alert("삭제 처리 완료되었습니다.");
+                  getList();
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+        function setContentData(response) {
+            setContent({
+                id:response.id,
+                objectCd:response.objectCd,
+                objectNm:response.objectNm,
+                type:response.type,
+                path:response.path
+              });
+        }
+
+        function getContent() {
+            return {
+                id: $("#id").val(),
+                objectCd: $("#objectCd").val(),
+                objectNm: $("#objectNm").val(),
+                type: $("#type").val(),
+                path: $("#path").val()
+            }
+        }
+
+        function setContent(params) {
+            $("#id").val(params.id);
+            $("#objectCd").val(params.objectCd);
+            $("#objectNm").val(params.objectNm);
+            $("#type").val(params.type);
+            $("#path").val(params.path);
+          }
+
+          function newContent(){
+            setContent({
+                id:'',
+                objectCd:'',
+                objectNm:'',
+                type:'',
+                path:''
+              });
+          }
+    </script>
+<div th:fragment="view">
+    <div class="row">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Object</h3>
+                        <div class="card-tools">
+                            <wb-action-button elementId="search" actionName="getList()" icon="fas fa-search"></wb-action-button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="jsGrid1"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">상세 내용</h3>
+                        <div class="card-tools">
+                            <wb-action-button elementId="new" actionName="newContent()" icon="fas fa-plus"></wb-action-button>
+                            <wb-action-button elementId="save" actionName="save()" icon="fas fa-save"></wb-action-button>
+                            <wb-action-button elementId="delete" actionName="deleteContent()" icon="fas fa-trash"></wb-action-button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-1">
+                                <wb-text-input elementId="id" label="ID" enable="false"></wb-text-input>
+                            </div>
+                            <div class="col-md-3">
+                                <wb-text-input elementId="objectCd" label="오브젝트코드" enable="true"></wb-text-input>
+                            </div>
+                            <div class="col-md-3">
+                                <wb-text-input elementId="objectNm" label="오브젝트명" enable="true" ></wb-text-input>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2">
+                                <wb-select elementId="type" label="유형" enable="true" useFirstItem="true" firstItemLabel="" firstItemValue=""></wb-select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-5">
+                                <wb-text-input elementId="path" label="경로" enable="true" ></wb-text-input>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</html>
