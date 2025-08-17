@@ -30,6 +30,6 @@ public class ViewBuilderController {
 
         ViewObject viewObject = viewObjectService.getViewObject(message);
 
-        return "/" + appNm +"/"+ viewObject.getPath();
+        return "/" + appNm + viewObject.getPath();
     }
 }

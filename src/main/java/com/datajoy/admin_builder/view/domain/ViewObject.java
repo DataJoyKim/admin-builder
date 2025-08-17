@@ -19,8 +19,20 @@ public class ViewObject {
     @Column(nullable = false, length = 200)
     private String objectNm;
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 100)
+    @Column(length = 100)
     private ObjectType type;
-    @Column(nullable = false, length = 100)
+    @Column(length = 100)
     private String path;
+
+    public void update(
+            String objectCd,
+            String objectNm,
+            ObjectType type,
+            String path
+    ) {
+        this.objectCd = objectCd;
+        this.objectNm = objectNm;
+        this.type = type;
+        this.path = path;
+    }
 }
