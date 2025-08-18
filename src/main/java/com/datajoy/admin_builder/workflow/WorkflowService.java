@@ -1,9 +1,9 @@
-package com.datajoy.admin_builder.flowbuilder;
+package com.datajoy.admin_builder.workflow;
 
 import com.datajoy.admin_builder.function.FunctionExecutor;
 import com.datajoy.admin_builder.function.FunctionFactory;
 import com.datajoy.admin_builder.function.FunctionResult;
-import com.datajoy.admin_builder.function.ServiceFunction;
+import com.datajoy.admin_builder.function.WorkflowFunction;
 import com.datajoy.admin_builder.function.code.ResultType;
 import com.datajoy.admin_builder.message.RequestMessage;
 import com.datajoy.admin_builder.message.ResponseMessage;
@@ -22,23 +22,23 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-public class ServiceBuilderService {
-    private final ServiceBuilderRepository serviceRepository;
+public class WorkflowService {
+    private final WorkflowRepository serviceRepository;
     private final FunctionFactory functionFactory;
     private final AuthService authService;
 
     public ResponseMessage execute(
             HttpServletRequest request,
             HttpServletResponse response,
-            String serviceName,
+            String flowCode,
             RequestMessage requestMessage
     ) {
-        ServiceBuilder serviceBuilder = serviceRepository.findByServiceName(serviceName)
+        Workflow workflowBuilder = serviceRepository.findByFlowCode(flowCode)
                                             .orElseThrow();
 
         AuthenticatedUser user = null;
 
-        if(serviceBuilder.getUseAuthValidation()) {
+        if(workflowBuilder.getUseAuthValidation()) {
             try {
                 user = authService.validateAuthentication(TokenUtil.resolveAccessToken(request));
             }
@@ -51,7 +51,7 @@ public class ServiceBuilderService {
             authService.validateAuthorization(user);
         }
 
-        Map<String, List<Map<String, Object>>> contents = executeFunction(requestMessage, user, serviceBuilder.getServiceFunctions());
+        Map<String, List<Map<String, Object>>> contents = executeFunction(requestMessage, user, workflowBuilder.getFunctions());
 
         return ResponseMessage.createSuccessMessage(contents);
     }
@@ -59,11 +59,11 @@ public class ServiceBuilderService {
     private Map<String, List<Map<String, Object>>> executeFunction(
             RequestMessage requestMessage,
             AuthenticatedUser user,
-            List<ServiceFunction> serviceFunctions
+            List<WorkflowFunction> functions
     ) {
         Map<String, List<Map<String, Object>>> contents = new HashMap<>();
 
-        for(ServiceFunction func : serviceFunctions) {
+        for(WorkflowFunction func : functions) {
             FunctionExecutor executor = functionFactory.instance(func.getFunctionType());
 
             List<Map<String, Object>> params = requestMessage.getBody().get(func.getRequestMessageId());

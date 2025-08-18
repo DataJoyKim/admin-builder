@@ -1,4 +1,4 @@
-package com.datajoy.admin_builder.flowbuilder;
+package com.datajoy.admin_builder.workflow;
 
 import com.datajoy.admin_builder.restclient.RestClientBody;
 import com.datajoy.admin_builder.restclient.code.MessageDataType;
@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-class ServiceBuilderServiceTest {
+class WorkflowServiceTest {
     @Test
     public void requestBody() {
         List<RestClientBody> bodys = new ArrayList<>();

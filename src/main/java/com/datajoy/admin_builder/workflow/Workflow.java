@@ -1,6 +1,6 @@
-package com.datajoy.admin_builder.flowbuilder;
+package com.datajoy.admin_builder.workflow;
 
-import com.datajoy.admin_builder.function.ServiceFunction;
+import com.datajoy.admin_builder.function.WorkflowFunction;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,15 +11,15 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-@Table(uniqueConstraints = {@UniqueConstraint(name="SERVICE_BUILDER_UQ",columnNames={"SERVICE_NAME"})})
+@Table(uniqueConstraints = {@UniqueConstraint(name="WORKFLOW_UQ",columnNames={"FLOW_CODE"})})
 @Entity
-public class ServiceBuilder {
+public class Workflow {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, length = 100)
-    private String serviceName;
+    private String flowCode;
 
     @Column(nullable = false, length = 200)
     private String displayName;
@@ -31,6 +31,12 @@ public class ServiceBuilder {
     private Boolean useAuthValidation;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "SERVICE_ID")
-    private List<ServiceFunction> serviceFunctions = new ArrayList<>();
+    @JoinColumn(name = "WORKFLOW_ID")
+    private List<WorkflowFunction> functions = new ArrayList<>();
+
+    public void update(String flowCode, String displayName, String note) {
+        this.flowCode = flowCode;
+        this.displayName = displayName;
+        this.note = note;
+    }
 }

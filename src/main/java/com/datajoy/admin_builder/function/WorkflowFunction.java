@@ -11,13 +11,13 @@ import lombok.*;
 @Builder
 @Table
 @Entity
-public class ServiceFunction {
+public class WorkflowFunction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "SERVICE_ID", nullable = false)
-    private Long serviceId;
+    @Column(name = "WORKFLOW_ID", nullable = false)
+    private Long workflowId;
 
     @Column(nullable = false, length = 100)
     private String functionName;
@@ -41,4 +41,22 @@ public class ServiceFunction {
 
     @Column(length = 100)
     private String responseMessageId;
+
+    public void update(
+            Long workflowId,
+            String functionName,
+            FunctionType functionType,
+            Integer orderNum,
+            Boolean isLogging,
+            String requestMessageId,
+            String responseMessageId
+    ) {
+        this.workflowId = workflowId;
+        this.functionName = functionName;
+        this.functionType = functionType;
+        this.orderNum = orderNum;
+        this.isLogging = isLogging;
+        this.requestMessageId = requestMessageId;
+        this.responseMessageId = responseMessageId;
+    }
 }

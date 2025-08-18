@@ -1,7 +1,7 @@
 package com.datajoy.admin_builder.console.rest;
 
-import com.datajoy.admin_builder.flowbuilder.ServiceBuilder;
-import com.datajoy.admin_builder.console.repository.ConsoleServiceRepository;
+import com.datajoy.admin_builder.workflow.Workflow;
+import com.datajoy.admin_builder.workflow.WorkflowRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,48 +12,47 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/console/api/service")
-public class ServiceRestController {
+@RequestMapping("/console/api/workflow")
+public class WorkflowRestController {
     @Autowired
-    private ConsoleServiceRepository serviceRepository;
+    private WorkflowRepository repository;
 
     @GetMapping("")
-    public ResponseEntity<?> getService() {
-        List<ServiceBuilder> results = serviceRepository.findAll();
+    public ResponseEntity<?> get() {
+        List<Workflow> results = repository.findAll();
 
         return new ResponseEntity<>(results, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getService(@PathVariable("id") Long id) {
-        ServiceBuilder results = serviceRepository.findById(id)
+    public ResponseEntity<?> get(@PathVariable("id") Long id) {
+        Workflow results = repository.findById(id)
                 .orElseThrow(RuntimeException::new);
 
         return new ResponseEntity<>(results, HttpStatus.OK);
     }
 
     @PostMapping("")
-    public ResponseEntity<?> createService(@RequestBody Map<String,Object> params) {
+    public ResponseEntity<?> create(@RequestBody Map<String,Object> params) {
 
-        ServiceBuilder service = ServiceBuilder.builder()
-                .serviceName((String) params.get("serviceName"))
+        Workflow workflowBuilder = Workflow.builder()
+                .flowCode((String) params.get("flowCode"))
                 .displayName((String) params.get("displayName"))
                 .note((String) params.get("note"))
                 .build();
 
-        ServiceBuilder results = serviceRepository.save(service);
+        Workflow results = repository.save(workflowBuilder);
 
         return new ResponseEntity<>(results, HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateService(@PathVariable("id") Long id, @RequestBody Map<String,Object> params) {
-        ServiceBuilder service = serviceRepository.findById(id)
+        Workflow workflowBuilder = repository.findById(id)
                 .orElseThrow(RuntimeException::new);
 
-        serviceRepository.update(
-                service.getId(),
-                (String) params.get("serviceName"),
+        workflowBuilder.update(
+                (String) params.get("flowCode"),
                 (String) params.get("displayName"),
                 (String) params.get("note")
         );
@@ -63,10 +62,10 @@ public class ServiceRestController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteService(@PathVariable("id") Long id) {
-        ServiceBuilder service = serviceRepository.findById(id)
+        Workflow workflowBuilder = repository.findById(id)
                 .orElseThrow(RuntimeException::new);
 
-        serviceRepository.deleteById(service.getId());
+        repository.deleteById(workflowBuilder.getId());
 
         return new ResponseEntity<>(HttpStatus.OK);
     }

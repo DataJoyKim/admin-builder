@@ -17,16 +17,16 @@
             sheet.initSheet('jsGrid1', "100%","600px",
             [
                 {name: "id", title:"ID", type: "number", width: 50 },
-                {name: "serviceName", title:"service", type: "text", width: 150 },
+                {name: "flowCode", title:"workflow", type: "text", width: 150 },
                 {name: "displayName", title:"화면노출명", type: "text", width: 200 }
             ],
             function(args) {
                 selectedContent(args.item);
-                $("#validServiceName").val(args.item.serviceName);
-                sheet.setSheetData('serviceExecute', [{"key":"_seq","value":"1"},{"key":"_status","value":"R"}]);
+                $("#validFlowCode").val(args.item.flowCode);
+                sheet.setSheetData('workflowExecute', [{"key":"_seq","value":"1"},{"key":"_status","value":"R"}]);
             });
 
-            sheet.initSheet('serviceFunctionGrid', "100%","500px",
+            sheet.initSheet('workflowFunctionGrid', "100%","500px",
             [
                 {name: "id", title:"ID", type: "number", width: 20, editing: false, inserting: false},
                 {name: "functionType", title:"type", type: "select", width: 50, items: codes["FunctionType"], valueField: "id", textField: "name" },
@@ -42,17 +42,17 @@
                 inserting: true,
                 editing: true,
                 onItemInserting: function(args) {
-                    insertServiceFunction($("#id").val(), args.item);
+                    insertWorkflowFunction($("#id").val(), args.item);
                 },
                 onItemUpdated: function(args) {
-                    updateServiceFunction($("#id").val(),args.item);
+                    updateWorkflowFunction($("#id").val(),args.item);
                 },
                 onItemDeleting: function(args) {
-                    deleteServiceFunction($("#id").val(), args.item);
+                    deleteWorkflowFunction($("#id").val(), args.item);
                 }
             });
 
-            sheet.initSheet('serviceExecute', "300px","300px",
+            sheet.initSheet('workflowExecute', "300px","300px",
             [
                 {name: "key", title:"key", type: "text", width: 100},
                 {name: "value", title:"value", type: "text", width: 100},
@@ -70,7 +70,7 @@
                 }
             });
 
-            getService();
+            getWorkflow();
         }
 
         function save() {
@@ -82,8 +82,8 @@
                 updateContent(id);
         }
 
-        function getService() {
-            httpClient.get(`/console/api/service`, {},
+        function getWorkflow() {
+            httpClient.get(`/console/api/workflow`, {},
                 function(response){
                     sheet.setSheetData('jsGrid1', response);
                 },
@@ -94,10 +94,10 @@
         }
 
         function selectedContent(item) {
-            httpClient.get(`/console/api/service/${item.id}`, {},
+            httpClient.get(`/console/api/workflow/${item.id}`, {},
                 function(response){
                     setContentData(response);
-                    getServiceFunction(item.id);
+                    getWorkflowFunction(item.id);
                 },
                 function(error){
                     alert('error');
@@ -106,10 +106,10 @@
         }
 
         function insertContent() {
-            httpClient.post(`/console/api/service`,{},getContent(),
+            httpClient.post(`/console/api/workflow`,{},getContent(),
                 function(response){
                     alert("저장완료되었습니다.");
-                    getService();
+                    getWorkflow();
                 },
                 function(error){
                     alert('error');
@@ -118,10 +118,10 @@
         }
 
         function updateContent(id) {
-          httpClient.put(`/console/api/service/${id}`, {}, getContent(),
+          httpClient.put(`/console/api/workflow/${id}`, {}, getContent(),
               function(response){
                   alert("저장완료되었습니다.");
-                  getService();
+                  getWorkflow();
               },
               function(error){
                   alert('error');
@@ -132,10 +132,10 @@
         function deleteContent() {
           let id = $("#id").val();
 
-          httpClient.delete(`/console/api/service/${id}`, {},
+          httpClient.delete(`/console/api/workflow/${id}`, {},
               function(response){
                   alert("삭제 처리 완료되었습니다.");
-                  getService();
+                  getWorkflow();
               },
               function(error){
                   alert('error');
@@ -146,7 +146,7 @@
         function setContentData(response) {
             setContent({
                 id:response.id,
-                serviceName:response.serviceName,
+                flowCode:response.flowCode,
                 displayName:response.displayName,
                 note:response.note
               });
@@ -155,7 +155,7 @@
         function getContent() {
             return {
                 id: $("#id").val(),
-                serviceName: $("#serviceName").val(),
+                flowCode: $("#flowCode").val(),
                 displayName: $("#displayName").val(),
                 note: $("#note").val()
             }
@@ -163,7 +163,7 @@
 
         function setContent(params) {
             $("#id").val(params.id);
-            $("#serviceName").val(params.serviceName);
+            $("#flowCode").val(params.flowCode);
             $("#displayName").val(params.displayName);
             $("#note").val(params.note);
           }
@@ -171,16 +171,16 @@
           function newContent(){
             setContent({
                 id:'',
-                serviceName:'',
+                flowCode:'',
                 displayName:'',
                 note:'',
                 });
           }
 
-        function getServiceFunction(serviceId) {
-            httpClient.get(`/console/api/service-function/${serviceId}`, {},
+        function getWorkflowFunction(workflowId) {
+            httpClient.get(`/console/api/workflow-function/${workflowId}`, {},
                 function(response){
-                    sheet.setSheetData('serviceFunctionGrid', response);
+                    sheet.setSheetData('workflowFunctionGrid', response);
                 },
                 function(error){
                     alert('error');
@@ -188,10 +188,10 @@
             );
         }
 
-        function insertServiceFunction(serviceId, item) {
-            httpClient.post(`/console/api/service-function`,{},
+        function insertWorkflowFunction(workflowId, item) {
+            httpClient.post(`/console/api/workflow-function`,{},
                 {
-                   serviceId:serviceId,
+                   workflowId:workflowId,
                    functionName:item.functionName,
                    functionType:item.functionType,
                    orderNum:item.orderNum,
@@ -201,7 +201,7 @@
                 },
                 function(response){
                     alert("생성 완료되었습니다.");
-                    getServiceFunction(serviceId);
+                    getWorkflowFunction(workflowId);
                 },
                 function(error){
                     alert('error');
@@ -209,10 +209,10 @@
             );
         }
 
-        function updateServiceFunction(serviceId, item) {
-          httpClient.put(`/console/api/service-function/${item.id}`, {},
+        function updateWorkflowFunction(workflowId, item) {
+          httpClient.put(`/console/api/workflow-function/${item.id}`, {},
               {
-                   serviceId:serviceId,
+                   workflowId:workflowId,
                    functionName:item.functionName,
                    functionType:item.functionType,
                    orderNum:item.orderNum,
@@ -222,7 +222,7 @@
               },
               function(response){
                   alert("변경 완료되었습니다.");
-                  getServiceFunction(serviceId);
+                  getWorkflowFunction(workflowId);
               },
               function(error){
                   alert('error');
@@ -230,11 +230,11 @@
           );
         }
 
-        function deleteServiceFunction(serviceId, item) {
-          httpClient.delete(`/console/api/service-function/${item.id}`, {},
+        function deleteWorkflowFunction(workflowId, item) {
+          httpClient.delete(`/console/api/workflow-function/${item.id}`, {},
               function(response){
                   alert("삭제 완료되었습니다.");
-                  getServiceFunction(serviceId);
+                  getWorkflowFunction(workflowId);
               },
               function(error){
                   alert('error');
@@ -243,11 +243,11 @@
         }
 
         function execute() {
-            let serviceName = $("#validServiceName").val();
+            let flowCode = $("#validFlowCode").val();
             let requestMessageId = $("#requestMessageId").val();
 
             let contents = {};
-            let gridData = sheet.getSheetData("serviceExecute");
+            let gridData = sheet.getSheetData("workflowExecute");
             console.log('gridData',gridData);
             for(let i=0; i<gridData.length; i++) {
                 let value = gridData[i]["value"];
@@ -263,7 +263,7 @@
             body[requestMessageId] = contents;
             console.log('body',body);
 
-            httpClient.post(`/service/${serviceName}`,{},
+            httpClient.post(`/workflow/${flowCode}`,{},
                 {
                    body:body
                 },
@@ -281,9 +281,9 @@
         <div class="col-lg-4">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Service</h3>
+                    <h3 class="card-title">Workflow</h3>
                     <div class="card-tools">
-                        <wb-action-button elementId="search" actionName="getService()" icon="fas fa-search"></wb-action-button>
+                        <wb-action-button elementId="search" actionName="getWorkflow()" icon="fas fa-search"></wb-action-button>
                     </div>
                 </div>
                 <div class="card-body">
@@ -293,16 +293,16 @@
         </div>
         <div class="col-lg-8">
             <div class="card">
-                <ul class="nav nav-tabs" id="service-tab" role="tablist">
+                <ul class="nav nav-tabs" id="workflow-tab" role="tablist">
                     <li class="nav-item">
-                        <a class="nav-link active" id="service-detail-tab" data-toggle="pill" href="#service-detail" role="tab" aria-controls="service-detail" aria-selected="true">상세내용</a>
+                        <a class="nav-link active" id="workflow-detail-tab" data-toggle="pill" href="#workflow-detail" role="tab" aria-controls="workflow-detail" aria-selected="true">상세내용</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" id="service-valid-tab" data-toggle="pill" href="#service-valid" role="tab" aria-controls="service-valid" aria-selected="false">실행</a>
+                        <a class="nav-link" id="workflow-valid-tab" data-toggle="pill" href="#workflow-valid" role="tab" aria-controls="workflow-valid" aria-selected="false">실행</a>
                     </li>
                 </ul>
-                <div class="tab-content" id="service-tabContent">
-                    <div class="tab-pane fade show active" id="service-detail" role="tabpanel" aria-labelledby="service-detail-tab">
+                <div class="tab-content" id="workflow-tabContent">
+                    <div class="tab-pane fade show active" id="workflow-detail" role="tabpanel" aria-labelledby="workflow-detail-tab">
                         <div class="card-header">
                             <h3 class="card-title">상세 내용</h3>
                             <div class="card-tools">
@@ -317,7 +317,7 @@
                                     <wb-text-input elementId="id" label="ID" enable="false"></wb-text-input>
                                 </div>
                                 <div class="col-md-3">
-                                    <wb-text-input elementId="serviceName" label="service" enable="true"></wb-text-input>
+                                    <wb-text-input elementId="flowCode" label="workflow" enable="true"></wb-text-input>
                                 </div>
                                 <div class="col-md-3">
                                     <wb-text-input elementId="displayName" label="화면 노출명" enable="true" ></wb-text-input>
@@ -330,10 +330,10 @@
                             </div>
                         </div>
                         <div class="card-body">
-                            <div id="serviceFunctionGrid"></div>
+                            <div id="workflowFunctionGrid"></div>
                         </div>
                     </div>
-                    <div class="tab-pane fade" id="service-valid" role="tabpanel" aria-labelledby="service-valid-tab">
+                    <div class="tab-pane fade" id="workflow-valid" role="tabpanel" aria-labelledby="workflow-valid-tab">
                         <div class="card-header">
                             <h3 class="card-title">실행</h3>
                             <div class="card-tools">
@@ -343,7 +343,7 @@
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-3">
-                                    <wb-text-input elementId="validServiceName" label="service" enable="true"></wb-text-input>
+                                    <wb-text-input elementId="validFlowCode" label="workflow" enable="true"></wb-text-input>
                                 </div>
                             </div>
                             <div class="row">
@@ -353,7 +353,7 @@
                             </div>
                             <div class="row">
                                 <div class="col-md-3">
-                                    <div id="serviceExecute"></div>
+                                    <div id="workflowExecute"></div>
                                 </div>
                             </div>
                             <div class="row">

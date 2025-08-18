@@ -1,4 +1,4 @@
-package com.datajoy.admin_builder.flowbuilder;
+package com.datajoy.admin_builder.workflow;
 
 import com.datajoy.admin_builder.message.RequestMessage;
 import com.datajoy.admin_builder.message.ResponseMessage;
@@ -10,18 +10,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-public class ServiceBuilderController {
+public class WorkflowController {
     @Autowired
-    ServiceBuilderService serviceBuilderService;
+    WorkflowService workflowService;
 
-    @PostMapping("/service/{serviceName}")
-    public ResponseEntity<?> service(
+    @PostMapping("/workflow/{flowCode}")
+    public ResponseEntity<?> workflow(
             HttpServletRequest httpRequest,
             HttpServletResponse httpResponse,
-            @PathVariable("serviceName") String serviceName,
+            @PathVariable("flowCode") String flowCode,
             @RequestBody RequestMessage requestMessage
     ) {
-        ResponseMessage responseMessage = serviceBuilderService.execute(httpRequest, httpResponse, serviceName, requestMessage);
+        ResponseMessage responseMessage = workflowService.execute(httpRequest, httpResponse, flowCode, requestMessage);
 
         return new ResponseEntity<>(responseMessage, HttpStatus.valueOf(responseMessage.getStatus()));
     }
