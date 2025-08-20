@@ -11,18 +11,24 @@
                     {id:"ENTITY",name:"Entity"},
                     {id:"SQL",name:"SQL"},
                     {id:"REST_CLIENT",name:"Rest Client"}
+                ],
+                "YnCd":[
+                    {id:"true",name:"Y"},
+                    {id:"false",name:"N"}
                 ]
             };
+
+            setCodes(codes);
 
             sheet.initSheet('jsGrid1', "100%","600px",
             [
                 {name: "id", title:"ID", type: "number", width: 50 },
-                {name: "flowCode", title:"workflow", type: "text", width: 150 },
+                {name: "workflowName", title:"workflow 명", type: "text", width: 150 },
                 {name: "displayName", title:"화면노출명", type: "text", width: 200 }
             ],
             function(args) {
                 selectedContent(args.item);
-                $("#validFlowCode").val(args.item.flowCode);
+                $("#validWorkflowName").val(args.item.workflowName);
                 sheet.setSheetData('workflowExecute', [{"key":"_seq","value":"1"},{"key":"_status","value":"R"}]);
             });
 
@@ -71,6 +77,10 @@
             });
 
             getWorkflow();
+        }
+
+        function setCodes(codes) {
+            setCodeBox("useAuthValidation", codes["YnCd"]);
         }
 
         function save() {
@@ -146,34 +156,38 @@
         function setContentData(response) {
             setContent({
                 id:response.id,
-                flowCode:response.flowCode,
+                workflowName:response.workflowName,
                 displayName:response.displayName,
-                note:response.note
+                note:response.note,
+                useAuthValidation:response.useAuthValidation
               });
         }
 
         function getContent() {
             return {
                 id: $("#id").val(),
-                flowCode: $("#flowCode").val(),
+                workflowName: $("#workflowName").val(),
                 displayName: $("#displayName").val(),
-                note: $("#note").val()
+                note: $("#note").val(),
+                useAuthValidation:$("#useAuthValidation").val()
             }
         }
 
         function setContent(params) {
             $("#id").val(params.id);
-            $("#flowCode").val(params.flowCode);
+            $("#workflowName").val(params.workflowName);
             $("#displayName").val(params.displayName);
             $("#note").val(params.note);
+            $("#useAuthValidation").val(params.useAuthValidation);
           }
 
           function newContent(){
             setContent({
                 id:'',
-                flowCode:'',
+                workflowName:'',
                 displayName:'',
                 note:'',
+                useAuthValidation:''
                 });
           }
 
@@ -243,7 +257,7 @@
         }
 
         function execute() {
-            let flowCode = $("#validFlowCode").val();
+            let workflowName = $("#validWorkflowName").val();
             let requestMessageId = $("#requestMessageId").val();
 
             let contents = {};
@@ -263,7 +277,7 @@
             body[requestMessageId] = contents;
             console.log('body',body);
 
-            httpClient.post(`/workflow/${flowCode}`,{},
+            httpClient.post(`/workflow/${workflowName}`,{},
                 {
                    body:body
                 },
@@ -317,10 +331,13 @@
                                     <wb-text-input elementId="id" label="ID" enable="false"></wb-text-input>
                                 </div>
                                 <div class="col-md-3">
-                                    <wb-text-input elementId="flowCode" label="workflow" enable="true"></wb-text-input>
+                                    <wb-text-input elementId="workflowName" label="workflow 명" enable="true"></wb-text-input>
                                 </div>
                                 <div class="col-md-3">
                                     <wb-text-input elementId="displayName" label="화면 노출명" enable="true" ></wb-text-input>
+                                </div>
+                                <div class="col-md-1">
+                                    <wb-select elementId="useAuthValidation" label="인증사용" enable="true" useFirstItem="true" firstItemLabel="" firstItemValue=""></wb-select>
                                 </div>
                             </div>
                             <div class="row">
@@ -343,7 +360,7 @@
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-3">
-                                    <wb-text-input elementId="validFlowCode" label="workflow" enable="true"></wb-text-input>
+                                    <wb-text-input elementId="validWorkflowName" label="workflow 명" enable="true"></wb-text-input>
                                 </div>
                             </div>
                             <div class="row">

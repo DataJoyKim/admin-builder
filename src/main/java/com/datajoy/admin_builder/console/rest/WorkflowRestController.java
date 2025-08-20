@@ -36,9 +36,10 @@ public class WorkflowRestController {
     public ResponseEntity<?> create(@RequestBody Map<String,Object> params) {
 
         Workflow workflowBuilder = Workflow.builder()
-                .flowCode((String) params.get("flowCode"))
+                .workflowName((String) params.get("workflowName"))
                 .displayName((String) params.get("displayName"))
                 .note((String) params.get("note"))
+                .useAuthValidation(Boolean.valueOf((String) params.get("useAuthValidation")))
                 .build();
 
         Workflow results = repository.save(workflowBuilder);
@@ -52,9 +53,10 @@ public class WorkflowRestController {
                 .orElseThrow(RuntimeException::new);
 
         workflowBuilder.update(
-                (String) params.get("flowCode"),
+                (String) params.get("workflowName"),
                 (String) params.get("displayName"),
-                (String) params.get("note")
+                (String) params.get("note"),
+                Boolean.valueOf((String) params.get("useAuthValidation"))
         );
 
         return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);

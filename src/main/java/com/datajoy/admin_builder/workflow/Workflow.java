@@ -11,7 +11,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-@Table(uniqueConstraints = {@UniqueConstraint(name="WORKFLOW_UQ",columnNames={"FLOW_CODE"})})
+@Table(uniqueConstraints = {@UniqueConstraint(name="WORKFLOW_UQ",columnNames={"WORKFLOW_NAME"})})
 @Entity
 public class Workflow {
     @Id
@@ -19,7 +19,7 @@ public class Workflow {
     private Long id;
 
     @Column(nullable = false, length = 100)
-    private String flowCode;
+    private String workflowName;
 
     @Column(nullable = false, length = 200)
     private String displayName;
@@ -34,9 +34,10 @@ public class Workflow {
     @JoinColumn(name = "WORKFLOW_ID")
     private List<WorkflowFunction> functions = new ArrayList<>();
 
-    public void update(String flowCode, String displayName, String note) {
-        this.flowCode = flowCode;
+    public void update(String workflowName, String displayName, String note, Boolean useAuthValidation) {
+        this.workflowName = workflowName;
         this.displayName = displayName;
         this.note = note;
+        this.useAuthValidation = useAuthValidation;
     }
 }

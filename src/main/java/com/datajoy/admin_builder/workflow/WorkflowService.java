@@ -23,17 +23,17 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class WorkflowService {
-    private final WorkflowRepository serviceRepository;
+    private final WorkflowRepository workflowRepository;
     private final FunctionFactory functionFactory;
     private final AuthService authService;
 
     public ResponseMessage execute(
             HttpServletRequest request,
             HttpServletResponse response,
-            String flowCode,
+            String workflowName,
             RequestMessage requestMessage
     ) {
-        Workflow workflowBuilder = serviceRepository.findByFlowCode(flowCode)
+        Workflow workflowBuilder = workflowRepository.findByWorkflowName(workflowName)
                                             .orElseThrow();
 
         AuthenticatedUser user = null;
