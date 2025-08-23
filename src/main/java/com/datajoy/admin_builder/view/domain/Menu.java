@@ -30,4 +30,18 @@ public class Menu {
     private Menu parentMenu;
     @OneToMany(mappedBy = "parentMenu", cascade = CascadeType.ALL)
     private List<Menu> children = new ArrayList<>();
+
+    public void update(
+            String menuCd,
+            String menuNm,
+            Integer orderNum,
+            Menu parentMenu,
+            ViewObject viewObject
+    ) {
+        this.menuCd = menuCd;
+        this.menuNm = menuNm;
+        this.orderNum = orderNum;
+        this.parentMenu = parentMenu;
+        this.viewObject = viewObject;
+    }
 }

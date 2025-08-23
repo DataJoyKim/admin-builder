@@ -35,7 +35,7 @@ public class EntityService {
             try {
                 List<Map<String, Object>> resultData = sqlExecutor.execute(entitySqlQuery.getSqlQuery(), ParameterBindType.NAME_BIND);
 
-                for(Map<String, Object>  result : resultData) {
+                for(Map<String, Object> result : resultData) {
                     result.put(entityConfig.getSeqParamKeyName(), entitySqlQuery.getSeq());
                 }
 
