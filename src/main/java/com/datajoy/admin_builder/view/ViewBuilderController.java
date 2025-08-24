@@ -4,7 +4,10 @@ import com.datajoy.admin_builder.view.domain.ViewObject;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Map;
 
@@ -15,8 +18,6 @@ public class ViewBuilderController {
     ObjectMapper objectMapper;
     @Autowired
     ViewObjectService viewObjectService;
-    @Autowired
-    MenuService menuService;
     @GetMapping("")
     public String moveAppIndex() {
         return "/view/index";

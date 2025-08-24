@@ -3,6 +3,7 @@ package com.datajoy.admin_builder.view;
 import com.datajoy.admin_builder.view.domain.Menu;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,4 +13,8 @@ public interface MenuRepository extends JpaRepository<Menu,Long> {
     List<Menu> findAllTree();
 
     Optional<Menu> findByMenuCd(String parentMenuCd);
+
+    List<Menu> findByParentMenu(Menu parentMenu);
+    @Query("select m from Menu m left join fetch m.children where m.parentMenu = :parentMenu ORDER BY m.orderNum ASC")
+    List<Menu> findAllTree(@Param("parentMenu") Menu parentMenu);
 }

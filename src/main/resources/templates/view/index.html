@@ -11,7 +11,7 @@
     </head>
     <body class="hold-transition sidebar-mini layout-fixed" data-panel-auto-height-mode="height">
 
-        <div class="wrapper">
+        <nav class="wrapper">
             <!-- Navbar -->
             <nav class="main-header navbar navbar-expand navbar-white navbar-light">
                 <div th:replace="~{/view/layout/navbar::navbar-left}"></div>
@@ -33,10 +33,16 @@
 
                     <div>
                         <div class="form-group">
-                            <select class="form-control col-12">
+                            <select class="form-control col-12" id="rootMenu">
                             </select>
                         </div>
                     </div>
+                    <!-- Sidebar Menu -->
+                    <nav class="mt-2">
+                        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                            <div id="menu"></div>
+                        </ul>
+                    </nav>
                 </div>
             </aside>
 
@@ -66,5 +72,83 @@
         <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
         <script src="plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
         <script src="dist/js/adminlte.js?v=1"></script>
+        <script>
+            $( document ).ready(function() {
+                setRootMenu();
+
+                $('#rootMenu').on('change', function() {
+                    var selectedValue = $(this).val();
+                    if(selectedValue == null || selectedValue == '') {
+                        $("#menu").html('');
+                    }
+                    else {
+                        setMenuTree(selectedValue);
+                    }
+                });
+            });
+
+            function setRootMenu() {
+                $.ajax({
+                  type: 'GET',
+                  url: '/api/menu/root',
+                  success: function(response) {
+                    let shtml = '';
+
+                    shtml += '<option value="">선택</option>';
+                    for(let i=0; i<response.length; i++) {
+                        shtml += '<option value="'+response[i].menuCd+'">' +response[i].menuNm + '</option>';
+                    }
+
+                    $("#rootMenu").html(shtml);
+                  },
+                  error: function(error) {
+                    alert('에러가 발생하였습니다.');
+                  },
+                });
+            }
+
+            function setMenuTree(rootMenuCd) {
+                $.ajax({
+                  type: 'GET',
+                  url: '/api/menu/tree',
+                  data: {"parentMenuCd":rootMenuCd},
+                  success: function(response) {
+                    let shtml = '';
+                    for(let i=0; i<response.length; i++) {
+                        shtml += getMenuHtml(response[i]);
+                    }
+
+                    $("#menu").html(shtml);
+                  },
+                  error: function(error) {
+                    alert('에러가 발생하였습니다.');
+                  },
+                });
+            }
+
+            function getMenuHtml(menu) {
+                let shtml = '';
+                shtml += '<li class="nav-item">';
+
+                shtml += '<a href="#" class="nav-link">';
+                shtml += '    <i class="fas fa-folder nav-icon"></i><p>'+menu.menuNm+'</p>';
+                shtml += '</a>';
+
+                if(menu.children != undefined && menu.children != null) {
+                    shtml += '<ul class="nav nav-treeview">';
+
+                    for(let i=0; i<menu.children.length; i++) {
+                        let childMenu = menu.children[i];
+                        shtml += getMenuHtml(childMenu);
+                    }
+
+                    shtml += '</ul>';
+                }
+
+                shtml += '</li>';
+
+                return shtml;
+            }
+        </script>
     </body>
 </html>
