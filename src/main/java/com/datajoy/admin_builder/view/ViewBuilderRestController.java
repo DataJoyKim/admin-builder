@@ -1,6 +1,7 @@
 package com.datajoy.admin_builder.view;
 
 import com.datajoy.admin_builder.view.domain.Menu;
+import com.datajoy.admin_builder.view.dto.MenuDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,7 @@ public class ViewBuilderRestController {
     MenuService menuService;
     @GetMapping("/api/{appNm}/menu")
     public ResponseEntity<?> getMenu(@PathVariable(name = "appNm") String appNm) {
-        List<Menu> menuList = menuService.getMenuTree();
+        List<MenuDto> menuList = menuService.getMenuTree();
 
         return new ResponseEntity<>(menuList, HttpStatus.OK);
     }

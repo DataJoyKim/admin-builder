@@ -26,7 +26,7 @@ public class Menu {
     @JoinColumn(name = "OBJECT_CD")
     private ViewObject viewObject;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "PARENT_MENU_CD")
+    @JoinColumn(name = "PARENT_MENU_ID")
     private Menu parentMenu;
     @OneToMany(mappedBy = "parentMenu", cascade = CascadeType.ALL)
     private List<Menu> children = new ArrayList<>();

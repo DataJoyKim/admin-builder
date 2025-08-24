@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface MenuRepository extends JpaRepository<Menu,Long> {
-    @Query("select m from Menu m left join fetch m.children where m.parentMenu is null")
+    @Query("select m from Menu m left join fetch m.children where m.parentMenu is null ORDER BY m.orderNum ASC")
     List<Menu> findAllTree();
 
     Optional<Menu> findByMenuCd(String parentMenuCd);

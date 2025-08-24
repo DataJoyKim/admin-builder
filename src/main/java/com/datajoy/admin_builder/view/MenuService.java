@@ -1,6 +1,7 @@
 package com.datajoy.admin_builder.view;
 
 import com.datajoy.admin_builder.view.domain.Menu;
+import com.datajoy.admin_builder.view.dto.MenuDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +12,7 @@ import java.util.List;
 public class MenuService {
     private final MenuRepository menuRepository;
 
-    public List<Menu> getMenuTree() {
-        return menuRepository.findAllTree();
+    public List<MenuDto> getMenuTree() {
+        return MenuDto.of(menuRepository.findAllTree());
     }
 }

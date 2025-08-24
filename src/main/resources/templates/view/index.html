@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>console</title>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+        <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
+        <link rel="stylesheet" href="dist/css/adminlte.min.css">
+        <link rel="stylesheet" href="plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
+    </head>
+    <body class="hold-transition sidebar-mini layout-fixed" data-panel-auto-height-mode="height">
+
+        <div class="wrapper">
+            <!-- Navbar -->
+            <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+                <div th:replace="~{/view/layout/navbar::navbar-left}"></div>
+                <div th:replace="~{/view/layout/navbar::navbar-right}"></div>
+            </nav>
+
+            <!-- Main Sidebar Container -->
+            <aside class="main-sidebar sidebar-light-primary elevation-4">
+                <div th:replace="~{/view/layout/sidebar::sidebar-logo}"></div>
+                <div class="sidebar">
+                    <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+                        <div class="image">
+                            <img src="../../dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
+                        </div>
+                        <div class="info">
+                            <a href="#" class="d-block">김낙영</a>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="form-group">
+                            <select class="form-control col-12">
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Content Wrapper. Contains page content -->
+            <div class="content-wrapper iframe-mode" data-widget="iframe" data-loading-screen="750">
+                <div th:replace="~{/view/layout/content::tab-header}"></div>
+                <div class="tab-content">
+                    <div th:replace="~{/view/layout/content::index-content}"></div>
+                    <div th:replace="~{/view/layout/content::tab-loading}"></div>
+                </div>
+            </div>
+            <!-- /.content-wrapper -->
+            <footer class="main-footer">
+                <div th:replace="~{/view/layout/footer::footer}"></div>
+            </footer>
+
+            <!-- Control Sidebar -->
+            <aside class="control-sidebar control-sidebar-dark">
+            </aside>
+        </div>
+
+        <script src="plugins/jquery/jquery.min.js"></script>
+        <script src="plugins/jquery-ui/jquery-ui.min.js"></script>
+        <script>
+          $.widget.bridge('uibutton', $.ui.button)
+        </script>
+        <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script src="plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
+        <script src="dist/js/adminlte.js?v=1"></script>
+    </body>
+</html>

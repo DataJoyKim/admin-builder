@@ -4,6 +4,7 @@ import com.datajoy.admin_builder.view.MenuRepository;
 import com.datajoy.admin_builder.view.ViewObjectRepository;
 import com.datajoy.admin_builder.view.domain.Menu;
 import com.datajoy.admin_builder.view.domain.ViewObject;
+import com.datajoy.admin_builder.view.dto.MenuDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,7 @@ public class ConsoleMenuRestController {
 
     @GetMapping("/tree")
     public ResponseEntity<?> getList() {
-        List<Menu> results = repository.findAllTree();
+        List<MenuDto> results = MenuDto.of(repository.findAllTree());
 
         return new ResponseEntity<>(results, HttpStatus.OK);
     }

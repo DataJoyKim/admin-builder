@@ -15,21 +15,20 @@ public class ViewBuilderController {
     ObjectMapper objectMapper;
     @Autowired
     ViewObjectService viewObjectService;
-    @GetMapping("/{appNm}")
-    public String moveAppIndex(
-            @PathVariable(name = "appNm") String appNm
-    ) {
-        return "/" + appNm +"/index";
+    @Autowired
+    MenuService menuService;
+    @GetMapping("")
+    public String moveAppIndex() {
+        return "/view/index";
     }
-    @PostMapping("/{appNm}/pages")
+    @PostMapping("/pages")
     public String moveAppPages(
-            @PathVariable(name = "appNm") String appNm,
             @RequestParam Map<String,String> params
     ) {
         RequestMessage message = RequestMessage.createRequestMessage(objectMapper, params);
 
         ViewObject viewObject = viewObjectService.getViewObject(message);
 
-        return "/" + appNm + viewObject.getPath();
+        return "/view" + viewObject.getPath();
     }
 }

@@ -1,21 +1,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <script th:fragment="script">
         $( document ).ready(function() {
-            console.log('version.0.0.1');
+            console.log('version.0.0.3');
             init();
-
-            $('#menu_tree').on('select_node.jstree', function (e, data) {
-            console.log('data',data);
-                let node = data.node;
-
-                let status = node.status;
-                if(isEmpty(status)) {
-                    selectedContent(node.id);
-                }
-                else if(status == "C") {
-                    alert("생성노드");
-                }
-            });
         });
 
         function init() {
@@ -25,14 +12,25 @@
 
             setCodes(codes);
 
-            $('#menu_tree').jstree({
+            let treeId = "menu_tree";
+
+            $('#'+treeId).jstree({
                 "core" : {
                     "themes" : {
                         "name" : "default",
                         "responsive": true
                     },
                     "multiple":false,
-                    "check_callback":true,
+                    "check_callback": function (op, node, parent, pos, more) {
+                        if (op === "create_node") {
+                            if (parent && parent.data && parent.data.status === "C") {
+                                alert("상위 메뉴를 저장 후에 생성가능합니다.");
+                                return false;
+                            }
+                        }
+
+                        return true;
+                    },
                     "data" : false
                 },
                 "plugins": ["dnd","contextmenu"],
@@ -48,35 +46,107 @@
                             "Create": {
                                 "label": "Create",
                                 "action": function(obj) {
-                                    let tree = $('#menu_tree').jstree(true);
-                                    let parentMenuCd = node.menuCd;
+                                      let tree = $('#'+treeId).jstree(true);
 
-                                    let newNode = tree.create_node(node, {
-                                        "text": "New Menu",
-                                        "status":"C",
-                                        "menuCd":"",
-                                        "menuNm":"New Menu",
-                                        "parentMenuCd":parentMenuCd
-                                    });
+                                      let parent = tree.get_parent(node);
+                                      let siblings = tree.get_node(parent).children;
+                                      let index = siblings.indexOf(node.id);
 
-                                    if(newNode) {
-                                        tree.edit(newNode);
-                                    }
+                                      tree.create_node(node, {
+                                        text: "New Menu",
+                                        data: {
+                                            menuCd: "",
+                                            menuNm: "New Menu",
+                                            parentMenuCd: node.data.menuCd,
+                                            orderNum:index
+                                        }
+                                      });
                                 }
-                            },
-                            "Rename": {
-                                "label": "Rename",
-                                "action": function(obj) { console.log("Rename clicked"); }
                             },
                             "Delete": {
                                 "label": "Delete",
-                                "action": function(obj) { console.log("Delete clicked"); }
+                                "action": function(obj) {
+                                    let tree = $('#'+treeId).jstree(true);
+
+                                    if(node.data.status == 'C') {
+                                        tree.delete_node(node);
+                                    }
+                                    else {
+                                        node.data.status = 'D';
+                                        tree.set_icon(node, "fa fa-trash");
+
+                                        setContent(node.data);
+                                    }
+                                }
                             }
                         };
                     },
                     select_node: true,
                     show_at_node: true
                 }
+            })
+            .on('select_node.jstree', function (e, data) {
+                let node = data.node;
+
+                let status = node.data.status;
+                if(!isEmpty(status) && status == "C") {
+                    let tree = data.instance;
+                    let parent = tree.get_node(node.parent);
+                    setContent({
+                        status:status,
+                        id:'',
+                        menuCd:node.data.menuCd,
+                        menuNm:node.data.menuNm,
+                        objectCd:'',
+                        parentMenuCd:node.data.parentMenuCd,
+                        orderNum:parent.children.indexOf(node.id)
+                    });
+                }
+                else {
+                    setContent(node.data);
+                }
+            })
+            .on('create_node.jstree', function (e, data) {
+                let tree = $('#'+treeId).jstree(true);
+
+                data.node.data.status = "C";
+                tree.set_icon(data.node, "fa fa-plus");
+
+                tree.deselect_all(true);
+                tree.select_node(data.node);
+                tree.edit(data.node);
+            })
+            .on("rename_node.jstree", function (e, data) {
+                let tree = $('#'+treeId).jstree(true);
+
+                if(isEmpty(data.node.data.status)) {
+                    data.node.data.status = "U";
+                    tree.set_icon(data.node, "fa fa-pen");
+                }
+
+                data.node.data.menuNm = data.text;
+
+                setContent(data.node.data);
+            })
+            .on('delete_node.jstree', function (e, data) {
+            })
+            .on('move_node.jstree', function(e, data){
+                let tree = $('#menu_tree').jstree(true);
+
+                let node = data.node;
+                let position = data.position;
+                let newParentId = data.parent;
+                let newParentNode = tree.get_node(newParentId);
+
+                if(isEmpty(data.node.data.status)) {
+                    data.node.data.status = "U";
+                    tree.set_icon(data.node, "fa fa-pen");
+                }
+
+                data.node.data.orderNum = position;
+                data.node.data.parentMenuCd = newParentNode.data.menuCd;
+
+                setContent(data.node.data);
             });
 
             getList();
@@ -90,16 +160,34 @@
             return (v == undefined || v == null || v == '');
         }
 
+        function toTree(r) {
+            let children = new Array();
+            if(!isEmpty(r.children)) {
+                for(let i=0; i<r.children.length; i++) {
+                    children.push(toTree(r.children[i]));
+                }
+            }
+
+            return {
+                "status":"",
+                "text":r.menuNm,
+                "children":children,
+                "icon":"fa fa-folder",
+                "data":r
+            }
+        }
+
         function getList() {
             httpClient.get(`/console/api/menu/tree`, {},
                 function(response){
                     if(!isEmpty(response)) {
+                        let nodeData = new Array();
                         for(let i=0; i<response.length; i++) {
-                            response[i].text = response[i].menuNm;
+                            nodeData.push(toTree(response[i]));
                         }
 
                         let tree = $('#menu_tree').jstree(true);
-                        tree.settings.core.data = response;
+                        tree.settings.core.data = nodeData;
                         tree.refresh();
                     }
                 },
@@ -109,24 +197,19 @@
             );
         }
 
-        function selectedContent(id) {
-            httpClient.get(`/console/api/menu/${id}`, {},
-                function(response){
-                    setContentData(response);
-                },
-                function(error){
-                    alert('error');
-                }
-            );
-        }
-
         function save() {
+            let status = $("#status").val();
             let id = $("#id").val();
 
-            if(isEmpty(id))
+            if(status == "C") {
                 insertContent();
-            else
+            }
+            else if(status == "U") {
                 updateContent(id);
+            }
+            else if(status == "D") {
+                deleteContent(id);
+            }
         }
 
         function insertContent() {
@@ -169,6 +252,7 @@
 
         function setContentData(response) {
             setContent({
+                status:'',
                 id:response.id,
                 menuCd:response.menuCd,
                 menuNm:response.menuNm,
@@ -180,6 +264,7 @@
 
         function getContent() {
             return {
+                status: $("#status").val(),
                 id: $("#id").val(),
                 menuCd: $("#menuCd").val(),
                 menuNm: $("#menuNm").val(),
@@ -190,6 +275,7 @@
         }
 
         function setContent(params) {
+            $("#status").val(params.status);
             $("#id").val(params.id);
             $("#menuCd").val(params.menuCd);
             $("#menuNm").val(params.menuNm);
@@ -200,6 +286,7 @@
 
           function newContent(){
             setContent({
+                status:'C',
                 id:'',
                 menuCd:'',
                 menuNm:'',
@@ -231,11 +318,13 @@
                         <div class="card-tools">
                             <wb-action-button elementId="new" actionName="newContent()" icon="fas fa-plus"></wb-action-button>
                             <wb-action-button elementId="save" actionName="save()" icon="fas fa-save"></wb-action-button>
-                            <wb-action-button elementId="delete" actionName="deleteContent()" icon="fas fa-trash"></wb-action-button>
                         </div>
                     </div>
                     <div class="card-body">
                         <div class="row">
+                            <div class="col-md-1">
+                                <wb-text-input elementId="status" label="상태" enable="false"></wb-text-input>
+                            </div>
                             <div class="col-md-1">
                                 <wb-text-input elementId="id" label="ID" enable="false"></wb-text-input>
                             </div>
