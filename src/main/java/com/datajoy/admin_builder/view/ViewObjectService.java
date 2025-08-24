@@ -11,8 +11,8 @@ import java.util.Optional;
 public class ViewObjectService {
     private final ViewObjectRepository viewObjectRepository;
 
-    public ViewObject getViewObject(RequestMessage message) {
-        Optional<ViewObject> optionalViewObject = viewObjectRepository.findByObjectCd(message.getBody().getObjectCd());
+    public ViewObject getViewObject(String objectCd) {
+        Optional<ViewObject> optionalViewObject = viewObjectRepository.findByObjectCd(objectCd);
         if(optionalViewObject.isEmpty()) {
             return null;
         }

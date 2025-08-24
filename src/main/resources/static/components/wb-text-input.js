@@ -29,7 +29,7 @@ class WbTextInput extends HTMLElement {
             html += `<label>${label}</label>`;
         }
 
-        html += `<input type="${elementType}" class="form-control rounded-0" id="${id}" placeholder="${placeholder}" spellcheck="false" autocomplete="off" ${disabledHtml}>`;
+        html += `<input type="${elementType}" class="form-control rounded-0" id="${id}" placeholder="${placeholder}" spellcheck="false" autocomplete="off" ${disabledHtml} data-watch>`;
 
         html += `</div>`;
 

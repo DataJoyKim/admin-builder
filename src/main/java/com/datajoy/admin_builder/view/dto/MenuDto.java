@@ -16,7 +16,10 @@ public class MenuDto {
     private String menuNm;
     private Integer orderNum;
     private String objectCd;
+    private String objectPath;
     private String parentMenuCd;
+    private String icon;
+    private Boolean isLeafNode;
     private List<MenuDto> children;
 
     public static List<MenuDto> of(List<Menu> menuList) {
@@ -35,8 +38,10 @@ public class MenuDto {
 
         ViewObject viewObject = menu.getViewObject();
         String objectCd = null;
+        String objectPath = null;
         if(viewObject != null) {
             objectCd = viewObject.getObjectCd();
+            objectPath = viewObject.getPath();
         }
 
         Menu parentMenu = menu.getParentMenu();
@@ -58,6 +63,9 @@ public class MenuDto {
                 .menuNm(menu.getMenuNm())
                 .orderNum(menu.getOrderNum())
                 .objectCd(objectCd)
+                .objectPath(objectPath)
+                .icon(menu.getIcon())
+                .isLeafNode(menu.isLeafNode())
                 .parentMenuCd(parentMenuCd)
                 .children(children)
                 .build();

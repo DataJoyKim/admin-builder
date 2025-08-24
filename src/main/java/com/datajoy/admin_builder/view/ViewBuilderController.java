@@ -5,11 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import java.util.Map;
 
 @Controller
 @RequestMapping
@@ -20,16 +18,12 @@ public class ViewBuilderController {
     ViewObjectService viewObjectService;
     @GetMapping("")
     public String moveAppIndex() {
-        return "/view/index";
+        return "/pages/index";
     }
-    @PostMapping("/pages")
-    public String moveAppPages(
-            @RequestParam Map<String,String> params
-    ) {
-        RequestMessage message = RequestMessage.createRequestMessage(objectMapper, params);
+    @GetMapping("/pages/{objectCd}")
+    public String moveAppPages(@PathVariable("objectCd") String objectCd) {
+        ViewObject viewObject = viewObjectService.getViewObject(objectCd);
 
-        ViewObject viewObject = viewObjectService.getViewObject(message);
-
-        return "/view" + viewObject.getPath();
+        return "/pages" + viewObject.getPath();
     }
 }

@@ -31,7 +31,7 @@ class WbSelect extends HTMLElement {
             html += `<label>${label}</label>`;
         }
 
-        html += `<select id="${id}" class="form-control" ${disabledHtml}>`;
+        html += `<select id="${id}" class="form-control" ${disabledHtml} data-watch>`;
 
         if(useFirstItem) {
             html += `<option value="${firstItemValue}">${firstItemLabel}</option>`;

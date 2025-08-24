@@ -1,8 +1,15 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <script th:fragment="script">
         $( document ).ready(function() {
-            console.log('version.0.0.3');
+            console.log('version.0.0.1');
             init();
+
+            $("[data-watch]").on("change", function() {
+                let status = $("#status").val();
+                if(isEmpty(status)) {
+                    $("#status").val("U");
+                }
+            });
         });
 
         function init() {
@@ -172,7 +179,7 @@
                 "status":"",
                 "text":r.menuNm,
                 "children":children,
-                "icon":"fa fa-folder",
+                "icon":r.icon,
                 "data":r
             }
         }
@@ -258,6 +265,7 @@
                 menuNm:response.menuNm,
                 objectCd:response.objectCd,
                 parentMenuCd:response.parentMenuCd,
+                icon:response.icon,
                 orderNum:response.orderNum
               });
         }
@@ -270,6 +278,7 @@
                 menuNm: $("#menuNm").val(),
                 objectCd: $("#objectCd").val(),
                 parentMenuCd: $("#parentMenuCd").val(),
+                icon: $("#icon").val(),
                 orderNum: $("#orderNum").val()
             }
         }
@@ -282,6 +291,7 @@
             $("#objectCd").val(params.objectCd);
             $("#parentMenuCd").val(params.parentMenuCd);
             $("#orderNum").val(params.orderNum);
+            $("#icon").val(params.icon);
           }
 
           function newContent(){
@@ -292,6 +302,7 @@
                 menuNm:'',
                 objectCd:'',
                 parentMenuCd:'',
+                icon:'',
                 orderNum:''
               });
           }
@@ -344,6 +355,9 @@
                             </div>
                         </div>
                         <div class="row">
+                            <div class="col-md-1">
+                                <wb-text-input elementId="icon" label="아이콘" enable="true"></wb-text-input>
+                            </div>
                             <div class="col-md-1">
                                 <wb-text-input elementId="orderNum" label="메뉴순서" enable="true"></wb-text-input>
                             </div>

@@ -60,6 +60,7 @@ public class ConsoleMenuRestController {
                 .menuCd((String) params.get("menuCd"))
                 .menuNm((String) params.get("menuNm"))
                 .orderNum(Integer.valueOf((String) params.get("orderNum")))
+                .icon((String) params.get("icon"))
                 .parentMenu(parentMenu)
                 .viewObject(viewObject)
                 .build();
@@ -92,6 +93,7 @@ public class ConsoleMenuRestController {
                 (String) params.get("menuCd"),
                 (String) params.get("menuNm"),
                 Integer.valueOf((String) params.get("orderNum")),
+                (String) params.get("icon"),
                 parentMenu,
                 viewObject
         );

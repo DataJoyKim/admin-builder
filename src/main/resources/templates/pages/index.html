@@ -11,16 +11,30 @@
     </head>
     <body class="hold-transition sidebar-mini layout-fixed" data-panel-auto-height-mode="height">
 
-        <nav class="wrapper">
+        <div class="wrapper">
             <!-- Navbar -->
             <nav class="main-header navbar navbar-expand navbar-white navbar-light">
-                <div th:replace="~{/view/layout/navbar::navbar-left}"></div>
-                <div th:replace="~{/view/layout/navbar::navbar-right}"></div>
+                <ul class="navbar-nav" >
+                    <li class="nav-item">
+                        <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" role="button">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </a>
+                    </li>
+                </ul>
             </nav>
 
             <!-- Main Sidebar Container -->
             <aside class="main-sidebar sidebar-light-primary elevation-4">
-                <div th:replace="~{/view/layout/sidebar::sidebar-logo}"></div>
+                <a href="/" class="brand-link">
+                    <img src="dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
+                    <span class="brand-text font-weight-light">Netmarble</span>
+                </a>
+
                 <div class="sidebar">
                     <div class="user-panel mt-3 pb-3 mb-3 d-flex">
                         <div class="image">
@@ -48,15 +62,19 @@
 
             <!-- Content Wrapper. Contains page content -->
             <div class="content-wrapper iframe-mode" data-widget="iframe" data-loading-screen="750">
-                <div th:replace="~{/view/layout/content::tab-header}"></div>
+                <div th:replace="~{/pages/layout/content::tab-header}"></div>
                 <div class="tab-content">
-                    <div th:replace="~{/view/layout/content::index-content}"></div>
-                    <div th:replace="~{/view/layout/content::tab-loading}"></div>
+                    <div th:replace="~{/pages/layout/content::index-content}"></div>
+                    <div th:replace="~{/pages/layout/content::tab-loading}"></div>
                 </div>
             </div>
             <!-- /.content-wrapper -->
             <footer class="main-footer">
-                <div th:replace="~{/view/layout/footer::footer}"></div>
+                <strong>Copyright &copy; 2024. <a href="">DataJoy</a></strong>
+                All rights reserved.
+                <div class="float-right d-none d-sm-inline-block">
+                    <b>Version</b> 0.0.1
+                </div>
             </footer>
 
             <!-- Control Sidebar -->
@@ -71,8 +89,7 @@
         </script>
         <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
         <script src="plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
-        <script src="dist/js/adminlte.js?v=1"></script>
-        <script>
+            <script>
             $( document ).ready(function() {
                 setRootMenu();
 
@@ -113,7 +130,9 @@
                   url: '/api/menu/tree',
                   data: {"parentMenuCd":rootMenuCd},
                   success: function(response) {
+                  console.log('response',response);
                     let shtml = '';
+
                     for(let i=0; i<response.length; i++) {
                         shtml += getMenuHtml(response[i]);
                     }
@@ -127,28 +146,31 @@
             }
 
             function getMenuHtml(menu) {
-                let shtml = '';
-                shtml += '<li class="nav-item">';
+                let menuPath = (menu.objectCd != null) ? '/pages/'+menu.objectCd : '#';
+                let menuItemClass = menu.icon + ((menu.isLeafNode)?' nav-icon':'');
 
-                shtml += '<a href="#" class="nav-link">';
-                shtml += '    <i class="fas fa-folder nav-icon"></i><p>'+menu.menuNm+'</p>';
+                let shtml = '';
+
+                shtml += '<li class="nav-item">';
+                shtml += '<a href="'+menuPath+'" class="nav-link" >';
+                if(!menu.isLeafNode) {
+                    shtml += '<i class="right fas fa-angle-left"></i>';
+                }
+                shtml +=    '<i class="'+menuItemClass+'"></i><p>'+menu.menuNm+'</p>';
                 shtml += '</a>';
 
                 if(menu.children != undefined && menu.children != null) {
                     shtml += '<ul class="nav nav-treeview">';
-
                     for(let i=0; i<menu.children.length; i++) {
-                        let childMenu = menu.children[i];
-                        shtml += getMenuHtml(childMenu);
+                        shtml += getMenuHtml(menu.children[i]);
                     }
-
                     shtml += '</ul>';
                 }
-
                 shtml += '</li>';
 
                 return shtml;
             }
         </script>
+            <script src="dist/js/adminlte.js?v=2"></script>
     </body>
 </html>

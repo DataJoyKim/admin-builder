@@ -22,8 +22,10 @@ public class Menu {
     private String menuNm;
     @Column
     private Integer orderNum;
+    @Column(length = 100)
+    private String icon;
     @ManyToOne
-    @JoinColumn(name = "OBJECT_CD")
+    @JoinColumn(name = "OBJECT_ID")
     private ViewObject viewObject;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PARENT_MENU_ID")
@@ -31,10 +33,21 @@ public class Menu {
     @OneToMany(mappedBy = "parentMenu", cascade = CascadeType.ALL)
     private List<Menu> children = new ArrayList<>();
 
+    public void processing() {
+        if(this.icon == null) {
+            this.icon = (isLeafNode()) ? "far fa-circle" : "fa fa-folder";
+        }
+
+        for(Menu child : children) {
+            child.processing();
+        }
+    }
+
     public void update(
             String menuCd,
             String menuNm,
             Integer orderNum,
+            String icon,
             Menu parentMenu,
             ViewObject viewObject
     ) {
@@ -43,5 +56,10 @@ public class Menu {
         this.orderNum = orderNum;
         this.parentMenu = parentMenu;
         this.viewObject = viewObject;
+        this.icon = icon;
+    }
+
+    public boolean isLeafNode() {
+        return children.isEmpty();
     }
 }

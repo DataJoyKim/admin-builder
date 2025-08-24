@@ -13,17 +13,27 @@ public class MenuService {
     private final MenuRepository menuRepository;
 
     public List<MenuDto> getMenuTree() {
-        return MenuDto.of(menuRepository.findAllTree());
+        List<Menu> menuList = menuRepository.findAllTree();
+
+        menuList.forEach(Menu::processing);
+
+        return MenuDto.of(menuList);
     }
 
     public List<MenuDto> getMenuTree(String parentMenuCd) {
         Menu parentMenu = menuRepository.findByMenuCd(parentMenuCd).orElseThrow();
 
-        return MenuDto.of(menuRepository.findAllTree(parentMenu));
+        List<Menu> menuList = menuRepository.findAllTree(parentMenu);
+
+        menuList.forEach(Menu::processing);
+
+        return MenuDto.of(menuList);
     }
 
     public List<MenuDto> getMenuRoot() {
         List<Menu> menuList = menuRepository.findByParentMenu(null);
+
+        menuList.forEach(Menu::processing);
 
         return MenuDto.of(menuList);
     }
