@@ -8,6 +8,6 @@ public class UserViewController {
 
     @GetMapping("/signup")
     public String login() {
-        return "user/signup";
+        return "login/signup";
     }
 }

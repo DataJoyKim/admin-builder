@@ -65,7 +65,9 @@ public class ConsoleMenuRestController {
                 .viewObject(viewObject)
                 .build();
 
-        return new ResponseEntity<>(repository.save(createdData), HttpStatus.OK);
+        repository.save(createdData);
+
+        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
     }
 
     @PutMapping("/{id}")

@@ -38,10 +38,6 @@ public class AuthService {
         return authenticatedUser;
     }
 
-    public void validateAuthorization(AuthenticatedUser user) {
-        //TODO 권한 검증
-    }
-
     public AuthTokenResponse refreshAccessToken(String refreshToken) throws SecurityBusinessException {
         jwtProvider.validateToken(refreshToken);
 

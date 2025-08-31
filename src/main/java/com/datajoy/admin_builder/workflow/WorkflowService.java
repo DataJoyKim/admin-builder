@@ -7,10 +7,8 @@ import com.datajoy.admin_builder.function.WorkflowFunction;
 import com.datajoy.admin_builder.function.code.ResultType;
 import com.datajoy.admin_builder.message.RequestMessage;
 import com.datajoy.admin_builder.message.ResponseMessage;
-import com.datajoy.admin_builder.security.AuthenticatedUser;
-import com.datajoy.admin_builder.security.AuthService;
-import com.datajoy.admin_builder.security.SecurityBusinessException;
-import com.datajoy.admin_builder.security.TokenUtil;
+import com.datajoy.admin_builder.security.*;
+import com.datajoy.core.exception.BusinessException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +22,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class WorkflowService {
     private final WorkflowRepository workflowRepository;
+    private final WorkflowAuthorityRepository workflowAuthorityRepository;
     private final FunctionFactory functionFactory;
     private final AuthService authService;
 
@@ -33,12 +32,12 @@ public class WorkflowService {
             String workflowName,
             RequestMessage requestMessage
     ) {
-        Workflow workflowBuilder = workflowRepository.findByWorkflowName(workflowName)
+        Workflow workflow = workflowRepository.findByWorkflowName(workflowName)
                                             .orElseThrow();
 
         AuthenticatedUser user = null;
 
-        if(workflowBuilder.getUseAuthValidation()) {
+        if(workflow.getUseAuthValidation()) {
             try {
                 user = authService.validateAuthentication(TokenUtil.resolveAccessToken(request));
             }
@@ -48,12 +47,50 @@ public class WorkflowService {
         }
 
         if(user != null) {
-            authService.validateAuthorization(user);
+            try {
+                validateAuthorization(user, workflow);
+            }
+            catch (BusinessException e) {
+                return ResponseMessage.createErrorMessage(e.getStatus(), e.getCode(), e.getMsg());
+            }
         }
 
-        Map<String, List<Map<String, Object>>> contents = executeFunction(requestMessage, user, workflowBuilder.getFunctions());
+        Map<String, List<Map<String, Object>>> contents = executeFunction(requestMessage, user, workflow.getFunctions());
 
         return ResponseMessage.createSuccessMessage(contents);
+    }
+
+    public void validateAuthorization(AuthenticatedUser user, Workflow workflow) throws BusinessException {
+        List<WorkflowAuthority> workflowAuthorities = workflowAuthorityRepository.findByWorkflow(workflow);
+        if(workflowAuthorities.isEmpty()) {
+            throw new BusinessException(WorkflowErrorMessage.NOT_SETTING_AUTHORITY);
+        }
+
+        Map<String, Workflow> authorityMap = new HashMap<>();
+        for(WorkflowAuthority workflowAuthority : workflowAuthorities) {
+            authorityMap.put(workflowAuthority.getAuthorityCode(), workflowAuthority.getWorkflow());
+        }
+
+        if(authorityMap.containsKey(WorkflowAuthority.VALID_PASS)) {
+            return;
+        }
+
+        List<GrantedAuthority> grantedAuthorities = user.getGrantedAuthorities();
+        if(grantedAuthorities.isEmpty()) {
+            throw new BusinessException(WorkflowErrorMessage.NOT_HAS_AUTHORITIES);
+        }
+
+        boolean hasAuthority = false;
+        for(GrantedAuthority authority : grantedAuthorities){
+            if(authorityMap.containsKey(authority.getRole())) {
+                hasAuthority = true;
+                break;
+            }
+        }
+
+        if(!hasAuthority) {
+            throw new BusinessException(WorkflowErrorMessage.PERMISSION_DENIED);
+        }
     }
 
     private Map<String, List<Map<String, Object>>> executeFunction(

@@ -32,8 +32,9 @@ public class WorkflowFunctionRestController {
         return new ResponseEntity<>(repository.save(workflowFunction), HttpStatus.OK);
     }
 
-    @GetMapping("/{workflowId}")
-    public ResponseEntity<?> get(@PathVariable("workflowId") Long workflowId) {
+    @GetMapping("")
+    public ResponseEntity<?> get(@RequestParam Map<String,Object> params) {
+        Long workflowId = Long.valueOf((String) params.get("workflowId"));
         List<WorkflowFunction> results = repository.findByWorkflowIdOrderByOrderNum(workflowId);
 
         return new ResponseEntity<>(results, HttpStatus.OK);
