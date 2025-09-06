@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>console</title>
+        <title></title>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
         <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
         <link rel="stylesheet" href="dist/css/adminlte.min.css">
@@ -30,20 +30,10 @@
 
             <!-- Main Sidebar Container -->
             <aside class="main-sidebar sidebar-light-primary elevation-4">
-                <a href="/" class="brand-link">
-                    <img src="dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
-                    <span class="brand-text font-weight-light">Netmarble</span>
-                </a>
+                <div id="logo"></div>
 
                 <div class="sidebar">
-                    <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-                        <div class="image">
-                            <img src="../../dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
-                        </div>
-                        <div class="info">
-                            <a href="#" class="d-block">김낙영</a>
-                        </div>
-                    </div>
+                    <div id="profile"></div>
 
                     <div>
                         <div class="form-group">
@@ -62,10 +52,28 @@
 
             <!-- Content Wrapper. Contains page content -->
             <div class="content-wrapper iframe-mode" data-widget="iframe" data-loading-screen="750">
-                <div th:replace="~{/pages/layout/content::tab-header}"></div>
+                <div class="nav navbar navbar-expand navbar-white navbar-light border-bottom p-0">
+                    <div class="nav-item dropdown">
+                        <a class="nav-link bg-danger dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Close</a>
+                        <div class="dropdown-menu mt-0">
+                            <a class="dropdown-item" href="#" data-widget="iframe-close" data-type="all">Close All</a>
+                            <a class="dropdown-item" href="#" data-widget="iframe-close" data-type="all-other">Close All Other</a>
+                        </div>
+                    </div>
+                    <a class="nav-link bg-light" href="#" data-widget="iframe-scrollleft"><i class="fas fa-angle-double-left"></i></a>
+                    <ul class="navbar-nav overflow-hidden" role="tablist"></ul>
+                    <a class="nav-link bg-light" href="#" data-widget="iframe-scrollright"><i class="fas fa-angle-double-right"></i></a>
+                    <a class="nav-link bg-light" href="#" data-widget="iframe-fullscreen"><i class="fas fa-expand"></i></a>
+                </div>
+
                 <div class="tab-content">
-                    <div th:replace="~{/pages/layout/content::index-content}"></div>
-                    <div th:replace="~{/pages/layout/content::tab-loading}"></div>
+                    <div class="tab-empty" id="homeContent"></div>
+
+                    <div class="tab-loading" >
+                        <div>
+                            <h2 class="display-4">Tab is loading <i class="fa fa-sync fa-spin"></i></h2>
+                        </div>
+                    </div>
                 </div>
             </div>
             <!-- /.content-wrapper -->
@@ -91,7 +99,7 @@
         <script src="plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
             <script>
             $( document ).ready(function() {
-                setRootMenu();
+                setLayout();
 
                 $('#rootMenu').on('change', function() {
                     var selectedValue = $(this).val();
@@ -103,6 +111,79 @@
                     }
                 });
             });
+
+            function setLayout() {
+                $.ajax({
+                  type: 'GET',
+                  url: '/api/layout',
+                  data: {},
+                  success: function(response) {
+                    let data = {
+                        logoBackgroundColor:"#483a32",
+                        logoLink:"/",
+                        logoText:"e-HR",
+                        logoImg:"dist/img/AdminLTELogo.png",
+                        layoutTitle:"e-HR",
+                        useProfile:true,
+                        useLogo:true
+                    }
+
+                    $("title").text(data.layoutTitle);
+
+                    if(data.useLogo) {
+                        setLogo(data);
+                    }
+
+                    if(data.useProfile) {
+                        setProfile();
+                    }
+
+                    setRootMenu();
+
+                    setHomeContent();
+                  },
+                  error: function(error) {
+                    alert('에러가 발생하였습니다.');
+                  },
+                });
+            }
+
+            function setLogo(data) {
+                let logoHtml = ``;
+                logoHtml += `<a href="${data.logoLink}" class="brand-link" style="background-color:${data.logoBackgroundColor}">`;
+                logoHtml += `    <img src="${data.logoImg}" alt="Logo" class="brand-image img-circle elevation-3" style="opacity: .8">`;
+                logoHtml += `    <span class="brand-text font-weight-light">${data.logoText}</span>`;
+                logoHtml += `</a>`;
+
+                $("#logo").html(logoHtml);
+            }
+
+            function setProfile() {
+                $.ajax({
+                  type: 'GET',
+                  url: '/api/profile',
+                  data: {},
+                  success: function(response) {
+                  console.log('profile',response);
+                    let data = {
+                        profileImg:"../../dist/img/user2-160x160.jpg"
+                    }
+
+                    let profileHtml = ``;
+                    profileHtml += `<div class="class="user-panel mt-3 pb-3 mb-3 d-flex">`;
+                    profileHtml += `    <div class="image">`;
+                    profileHtml += `        <img src="${data.profileImg}" class="img-circle elevation-2" alt="Profile Image">`;
+                    profileHtml += `    </div>`;
+                    profileHtml += `    <div class="info">${response.userName}</div>`;
+                    profileHtml += `</div>`;
+
+                    $("#profile").html(profileHtml);
+                  },
+                  error: function(error) {
+                    alert('에러가 발생하였습니다.');
+                  },
+                });
+            }
 
             function setRootMenu() {
                 $.ajax({
@@ -169,6 +250,28 @@
                 shtml += '</li>';
 
                 return shtml;
+            }
+
+            function setHomeContent() {
+                let homeHtml = ``;
+
+                homeHtml += `<div class="container-fluid">`;
+                homeHtml += `    <div class="row">`;
+                homeHtml += `        <div class="col-lg-6">`;
+                homeHtml += `            <div class="card">`;
+                homeHtml += `                <div class="card-header border-0">`;
+                homeHtml += `                    <div class="d-flex justify-content-between">`;
+                homeHtml += `                        <h3 class="card-title">공지사항</h3>`;
+                homeHtml += `                    </div>`;
+                homeHtml += `                </div>`;
+                homeHtml += `                <div class="card-body">`;
+                homeHtml += `                </div>`;
+                homeHtml += `            </div>`;
+                homeHtml += `        </div>`;
+                homeHtml += `    </div>`;
+                homeHtml += `</div>`;
+
+                $("#homeContent").html(homeHtml);
             }
         </script>
             <script src="dist/js/adminlte.js?v=2"></script>
