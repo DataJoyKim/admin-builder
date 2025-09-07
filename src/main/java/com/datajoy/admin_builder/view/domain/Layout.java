@@ -15,4 +15,6 @@ public class Layout {
     private Long id;
     @Column(length = 100)
     private String logoText;
+    @Column
+    private Boolean useAuthValidation = true;
 }

@@ -1,7 +1,9 @@
 package com.datajoy.admin_builder.view;
 
 import com.datajoy.admin_builder.security.*;
+import com.datajoy.admin_builder.view.domain.Layout;
 import com.datajoy.admin_builder.view.domain.ViewObject;
+import com.datajoy.core.exception.BusinessException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,8 @@ import java.io.IOException;
 @RequestMapping
 public class ViewBuilderController {
     @Autowired
+    LayoutService layoutService;
+    @Autowired
     ViewObjectService viewObjectService;
     @Autowired
     AuthService authService;
@@ -24,12 +28,16 @@ public class ViewBuilderController {
 
     @GetMapping("")
     public String moveAppIndex(HttpServletRequest request, HttpServletResponse httpResponse) throws IOException {
-        AuthenticatedUser user = null;
-        try {
-            user = authService.validateAuthentication(TokenUtil.resolveAccessToken(request));
-        }
-        catch (SecurityBusinessException e) {
-            httpResponse.sendRedirect(securityProperties.getLoginPath());
+        Layout layout = layoutService.getLayout();
+
+        if(layout.getUseAuthValidation()) {
+            AuthenticatedUser user = null;
+            try {
+                user = authService.validateAuthentication(TokenUtil.resolveAccessToken(request));
+            }
+            catch (SecurityBusinessException e) {
+                httpResponse.sendRedirect(securityProperties.getLoginPath()+"?returnUrl=/");
+            }
         }
 
         return "/pages/index";
@@ -39,15 +47,25 @@ public class ViewBuilderController {
             HttpServletRequest request,
             @PathVariable("objectCd") String objectCd
     ) {
-        AuthenticatedUser user = null;
-        try {
-            user = authService.validateAuthentication(TokenUtil.resolveAccessToken(request));
-        }
-        catch (SecurityBusinessException e) {
-            return "/error/login-error";
-        }
-
         ViewObject viewObject = viewObjectService.getViewObject(objectCd);
+
+        if(viewObject.getUseAuthValidation()) {
+            AuthenticatedUser user;
+            try {
+                user = authService.validateAuthentication(TokenUtil.resolveAccessToken(request));
+            } catch (SecurityBusinessException e) {
+                return "/error/error401";
+            }
+
+            if(viewObject.getUseAuthorityValidation()) {
+                try {
+                    viewObjectService.validateAuthorization(user, viewObject);
+                }
+                catch (BusinessException e) {
+                    return "/error/error403";
+                }
+            }
+        }
 
         return "/pages" + viewObject.getPath();
     }

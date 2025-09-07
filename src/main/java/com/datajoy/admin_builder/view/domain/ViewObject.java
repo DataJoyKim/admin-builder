@@ -23,6 +23,10 @@ public class ViewObject {
     private ObjectType type;
     @Column(length = 100)
     private String path;
+    @Column
+    private Boolean useAuthValidation = true;
+    @Column
+    private Boolean useAuthorityValidation = true;
 
     public void update(
             String objectCd,

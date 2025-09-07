@@ -14,7 +14,7 @@ public class LayoutService {
     public Layout getLayout() {
         List<Layout> layouts = layoutRepository.findAll();
         if(layouts.isEmpty()) {
-            return null;
+            return Layout.builder().build();
         }
 
         Layout layout = layouts.get(0);

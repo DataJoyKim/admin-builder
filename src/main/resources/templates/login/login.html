@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -74,13 +74,13 @@
 <script src="/core/common.js"></script>
 <script src="/core/httpclient.js"></script>
 <script src="/core/sheet.js"></script>
-<script>
+<script th:inline="javascript">
     const httpClient = new HttpClient();
     let api;
     let view;
 
     $(document).ready(function () {
-      console.log('version.0.3.6');
+      console.log('version.0.3.7');
 
       loadJson("/asset/api.json", function(data){
         api = data;
@@ -107,7 +107,9 @@
             },
             function(response){
                 console.log('response',response);
-                location.href = view.CONSOLE;
+                let returnUrl = /*[[${returnUrl}]]*/ view.HOME;
+
+                location.href = returnUrl;
             },
             function(error){
                 let errorObj = error.responseJSON;

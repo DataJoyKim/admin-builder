@@ -21,6 +21,11 @@
                 </ul>
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item">
+                        <a class="nav-link" href="#" role="button" onClick="moveConsole()">
+                            <i class="fas fa-wrench"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="#" role="button">
                             <i class="fas fa-sign-out-alt"></i>
                         </a>
@@ -97,8 +102,11 @@
         </script>
         <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
         <script src="plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
-            <script>
+        <script src="dist/js/adminlte.js?v=2"></script>
+        <script>
             $( document ).ready(function() {
+                console.log('version.0.0.1');
+
                 setLayout();
 
                 $('#rootMenu').on('change', function() {
@@ -121,9 +129,9 @@
                     let data = {
                         logoBackgroundColor:"#483a32",
                         logoLink:"/",
-                        logoText:"e-HR",
+                        logoText:"Biz System",
                         logoImg:"dist/img/AdminLTELogo.png",
-                        layoutTitle:"e-HR",
+                        layoutTitle:"Biz System",
                         useProfile:true,
                         useLogo:true
                     }
@@ -150,10 +158,12 @@
 
             function setLogo(data) {
                 let logoHtml = ``;
-                logoHtml += `<a href="${data.logoLink}" class="brand-link" style="background-color:${data.logoBackgroundColor}">`;
-                logoHtml += `    <img src="${data.logoImg}" alt="Logo" class="brand-image img-circle elevation-3" style="opacity: .8">`;
-                logoHtml += `    <span class="brand-text font-weight-light">${data.logoText}</span>`;
-                logoHtml += `</a>`;
+                logoHtml += `<div style="background-color:${data.logoBackgroundColor}">`;
+                logoHtml += `   <a href="${data.logoLink}" class="brand-link">`;
+                logoHtml += `       <img src="${data.logoImg}" alt="Logo" class="brand-image img-circle elevation-3" style="opacity: .8">`;
+                logoHtml += `       <span style="color:#FFFFFF;font-weight:bold;font-size: 19px;">${data.logoText}</span>`;
+                logoHtml += `   </a>`;
+                logoHtml += `</div>`;
 
                 $("#logo").html(logoHtml);
             }
@@ -170,7 +180,7 @@
                     }
 
                     let profileHtml = ``;
-                    profileHtml += `<div class="class="user-panel mt-3 pb-3 mb-3 d-flex">`;
+                    profileHtml += `<div class="user-panel mt-3 pb-3 mb-3 d-flex">`;
                     profileHtml += `    <div class="image">`;
                     profileHtml += `        <img src="${data.profileImg}" class="img-circle elevation-2" alt="Profile Image">`;
                     profileHtml += `    </div>`;
@@ -273,7 +283,10 @@
 
                 $("#homeContent").html(homeHtml);
             }
+
+            function moveConsole() {
+                location.href = "/console";
+            }
         </script>
-            <script src="dist/js/adminlte.js?v=2"></script>
     </body>
 </html>

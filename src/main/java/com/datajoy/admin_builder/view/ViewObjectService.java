@@ -1,6 +1,8 @@
 package com.datajoy.admin_builder.view;
 
+import com.datajoy.admin_builder.security.AuthenticatedUser;
 import com.datajoy.admin_builder.view.domain.ViewObject;
+import com.datajoy.core.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,4 +22,9 @@ public class ViewObjectService {
         return optionalViewObject.get();
     }
 
+    public void validateAuthorization(AuthenticatedUser user, ViewObject accessViewObject) throws BusinessException {
+        // 상위 ROOT 오브젝트 가져오기
+        // ROOT 오브젝트에 매핑된 권한 가져오기
+        // 내가 가진 권한 검증
+    }
 }

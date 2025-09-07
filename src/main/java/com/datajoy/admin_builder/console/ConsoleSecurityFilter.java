@@ -21,14 +21,14 @@ public class ConsoleSecurityFilter implements Filter {
         }
         catch (SecurityBusinessException e) {
             HttpServletResponse httpResponse = (HttpServletResponse) response;
-            httpResponse.sendRedirect(securityProperties.getLoginPath());
+            httpResponse.sendRedirect(securityProperties.getLoginPath()+"?returnUrl=/console");
             //TODO alert 띄우고 로그인페이지 넘어가기
             return;
         }
 
         if(!GrantedAuthority.hasAuthority(user.getGrantedAuthorities(), securityProperties.getConsoleAccessPermitAuthorityCode())) {
             HttpServletResponse httpResponse = (HttpServletResponse) response;
-            httpResponse.sendRedirect(securityProperties.getLoginPath());
+            httpResponse.sendRedirect(securityProperties.getLoginPath()+"?returnUrl=/console");
             //TODO 접근불가 페이지 넘어가기
             return;
         }
