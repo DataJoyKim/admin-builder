@@ -1,8 +1,7 @@
 package com.datajoy.admin_builder.console.rest;
 
-import com.datajoy.admin_builder.view.ViewObjectRepository;
-import com.datajoy.admin_builder.view.code.ObjectType;
-import com.datajoy.admin_builder.view.domain.ViewObject;
+import com.datajoy.admin_builder.view.LayoutRepository;
+import com.datajoy.admin_builder.view.domain.Layout;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,21 +12,21 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/console/api/object")
-public class ConsoleViewObjectRestController {
+@RequestMapping("/console/api/layout")
+public class ConsoleLayoutRestController {
     @Autowired
-    private ViewObjectRepository repository;
+    private LayoutRepository repository;
 
     @GetMapping("")
     public ResponseEntity<?> getList() {
-        List<ViewObject> results = repository.findAll();
+        List<Layout> results = repository.findAll();
 
         return new ResponseEntity<>(results, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> get(@PathVariable("id") Long id) {
-        ViewObject results = repository.findById(id)
+        Layout results = repository.findById(id)
                 .orElseThrow(RuntimeException::new);
 
         return new ResponseEntity<>(results, HttpStatus.OK);
@@ -36,13 +35,15 @@ public class ConsoleViewObjectRestController {
     @PostMapping("")
     public ResponseEntity<?> create(@RequestBody Map<String,Object> params) {
 
-        ViewObject createdData = ViewObject.builder()
-                .objectCd((String) params.get("objectCd"))
-                .objectNm((String) params.get("objectNm"))
-                .type(ObjectType.valueOf((String) params.get("type")))
-                .path((String) params.get("path"))
+        Layout createdData = Layout.builder()
                 .useAuthValidation(Boolean.valueOf((String) params.get("useAuthValidation")))
-                .useAuthorityValidation(Boolean.valueOf((String) params.get("useAuthorityValidation")))
+                .useProfile(Boolean.valueOf((String) params.get("useProfile")))
+                .useLogo(Boolean.valueOf((String) params.get("useLogo")))
+                .logoText((String) params.get("logoText"))
+                .logoBackgroundColor((String) params.get("logoBackgroundColor"))
+                .logoLink((String) params.get("logoLink"))
+                .logoImg((String) params.get("logoImg"))
+                .layoutTitle((String) params.get("layoutTitle"))
                 .build();
 
         return new ResponseEntity<>(repository.save(createdData), HttpStatus.OK);
@@ -50,16 +51,18 @@ public class ConsoleViewObjectRestController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable("id") Long id, @RequestBody Map<String,Object> params) {
-        ViewObject savedData = repository.findById(id)
+        Layout savedData = repository.findById(id)
                 .orElseThrow(RuntimeException::new);
 
         savedData.update(
-                (String) params.get("objectCd"),
-                (String) params.get("objectNm"),
-                ObjectType.valueOf((String) params.get("type")),
-                (String) params.get("path"),
                 Boolean.valueOf((String) params.get("useAuthValidation")),
-                Boolean.valueOf((String) params.get("useAuthorityValidation"))
+                Boolean.valueOf((String) params.get("useProfile")),
+                Boolean.valueOf((String) params.get("useLogo")),
+                (String) params.get("logoText"),
+                (String) params.get("logoBackgroundColor"),
+                (String) params.get("logoLink"),
+                (String) params.get("logoImg"),
+                (String) params.get("layoutTitle")
         );
 
         repository.save(savedData);
@@ -69,7 +72,7 @@ public class ConsoleViewObjectRestController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable("id") Long id) {
-        ViewObject savedData = repository.findById(id)
+        Layout savedData = repository.findById(id)
                 .orElseThrow(RuntimeException::new);
 
         repository.deleteById(savedData.getId());

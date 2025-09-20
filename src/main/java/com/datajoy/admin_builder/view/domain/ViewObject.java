@@ -32,11 +32,15 @@ public class ViewObject {
             String objectCd,
             String objectNm,
             ObjectType type,
-            String path
+            String path,
+            Boolean useAuthValidation,
+            Boolean useAuthorityValidation
     ) {
         this.objectCd = objectCd;
         this.objectNm = objectNm;
         this.type = type;
         this.path = path;
+        this.useAuthValidation = useAuthValidation;
+        this.useAuthorityValidation = useAuthorityValidation;
     }
 }

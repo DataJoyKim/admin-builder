@@ -80,7 +80,7 @@
     let view;
 
     $(document).ready(function () {
-      console.log('version.0.3.7');
+      console.log('version.0.3.8');
 
       loadJson("/asset/api.json", function(data){
         api = data;
@@ -107,7 +107,10 @@
             },
             function(response){
                 console.log('response',response);
-                let returnUrl = /*[[${returnUrl}]]*/ view.HOME;
+                let returnUrl = /*[[${returnUrl}]]*/ "";
+                if(returnUrl == null || returnUrl == "") {
+                    returnUrl = view.HOME;
+                }
 
                 location.href = returnUrl;
             },

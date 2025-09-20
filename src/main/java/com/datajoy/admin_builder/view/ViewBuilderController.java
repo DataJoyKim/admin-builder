@@ -30,7 +30,7 @@ public class ViewBuilderController {
     public String moveAppIndex(HttpServletRequest request, HttpServletResponse httpResponse) throws IOException {
         Layout layout = layoutService.getLayout();
 
-        if(layout.getUseAuthValidation()) {
+        if(Boolean.TRUE.equals(layout.getUseAuthValidation())) {
             AuthenticatedUser user = null;
             try {
                 user = authService.validateAuthentication(TokenUtil.resolveAccessToken(request));
@@ -49,7 +49,7 @@ public class ViewBuilderController {
     ) {
         ViewObject viewObject = viewObjectService.getViewObject(objectCd);
 
-        if(viewObject.getUseAuthValidation()) {
+        if(Boolean.TRUE.equals(viewObject.getUseAuthValidation())) {
             AuthenticatedUser user;
             try {
                 user = authService.validateAuthentication(TokenUtil.resolveAccessToken(request));
@@ -57,7 +57,7 @@ public class ViewBuilderController {
                 return "/error/error401";
             }
 
-            if(viewObject.getUseAuthorityValidation()) {
+            if(Boolean.TRUE.equals(viewObject.getUseAuthorityValidation())) {
                 try {
                     viewObjectService.validateAuthorization(user, viewObject);
                 }

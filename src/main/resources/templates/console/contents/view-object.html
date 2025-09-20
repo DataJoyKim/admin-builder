@@ -1,13 +1,17 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <script th:fragment="script">
         $( document ).ready(function() {
-            console.log('version.0.0.1');
+            console.log('version.0.0.3');
             init();
         });
 
         function init() {
             var codes = {
-                "ObjectType":[ {id:"FILE",name:"파일"}]
+                "ObjectType":[ {id:"FILE",name:"파일"}],
+                "Boolean":[
+                    {id:"true",name:"true"},
+                    {id:"false",name:"false"}
+                ]
             };
 
             setCodes(codes);
@@ -27,6 +31,8 @@
 
         function setCodes(codes) {
             setCodeBox("type", codes["ObjectType"]);
+            setCodeBox("useAuthValidation", codes["Boolean"]);
+            setCodeBox("useAuthorityValidation", codes["Boolean"]);
         }
 
         function getList() {
@@ -108,7 +114,9 @@
                 objectCd:response.objectCd,
                 objectNm:response.objectNm,
                 type:response.type,
-                path:response.path
+                path:response.path,
+                useAuthorityValidation:response.useAuthorityValidation,
+                useAuthValidation:response.useAuthValidation
               });
         }
 
@@ -118,7 +126,9 @@
                 objectCd: $("#objectCd").val(),
                 objectNm: $("#objectNm").val(),
                 type: $("#type").val(),
-                path: $("#path").val()
+                path: $("#path").val(),
+                useAuthValidation: $("#useAuthValidation").val(),
+                useAuthorityValidation: $("#useAuthorityValidation").val()
             }
         }
 
@@ -128,6 +138,8 @@
             $("#objectNm").val(params.objectNm);
             $("#type").val(params.type);
             $("#path").val(params.path);
+            $("#useAuthValidation").val(String(params.useAuthValidation));
+            $("#useAuthorityValidation").val(String(params.useAuthorityValidation));
           }
 
           function newContent(){
@@ -136,7 +148,9 @@
                 objectCd:'',
                 objectNm:'',
                 type:'',
-                path:''
+                path:'',
+                useAuthorityValidation:'true',
+                useAuthValidation:'true'
               });
           }
     </script>
@@ -180,6 +194,12 @@
                         <div class="row">
                             <div class="col-md-2">
                                 <wb-select elementId="type" label="유형" enable="true" useFirstItem="true" firstItemLabel="" firstItemValue=""></wb-select>
+                            </div>
+                            <div class="col-md-2">
+                                <wb-select elementId="useAuthValidation" label="인증사용" enable="true" useFirstItem="true" firstItemLabel="" firstItemValue=""></wb-select>
+                            </div>
+                            <div class="col-md-2">
+                                <wb-select elementId="useAuthorityValidation" label="권한검증사용" enable="true" useFirstItem="true" firstItemLabel="" firstItemValue=""></wb-select>
                             </div>
                         </div>
                         <div class="row">

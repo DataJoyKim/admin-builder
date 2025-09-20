@@ -126,15 +126,7 @@
                   url: '/api/layout',
                   data: {},
                   success: function(response) {
-                    let data = {
-                        logoBackgroundColor:"#483a32",
-                        logoLink:"/",
-                        logoText:"Biz System",
-                        logoImg:"dist/img/AdminLTELogo.png",
-                        layoutTitle:"Biz System",
-                        useProfile:true,
-                        useLogo:true
-                    }
+                    let data = response;
 
                     $("title").text(data.layoutTitle);
 
