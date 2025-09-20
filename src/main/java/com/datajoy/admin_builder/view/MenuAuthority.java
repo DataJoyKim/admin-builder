@@ -1,5 +1,6 @@
 package com.datajoy.admin_builder.view;
 
+import com.datajoy.admin_builder.view.domain.Menu;
 import com.datajoy.admin_builder.view.domain.ViewObject;
 import jakarta.persistence.*;
 import lombok.*;
@@ -10,7 +11,7 @@ import lombok.*;
 @Builder
 @Table
 @Entity
-public class ViewObjectAuthority {
+public class MenuAuthority {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -19,6 +20,6 @@ public class ViewObjectAuthority {
     private String authorityCode;
 
     @ManyToOne
-    @JoinColumn(name = "VIEW_OBJECT_ID")
-    private ViewObject viewObject;
+    @JoinColumn(name = "MENU_ID")
+    private Menu menu;
 }

@@ -35,8 +35,16 @@ public class ViewBuilderRestController {
         return new ResponseEntity<>(menuList, HttpStatus.OK);
     }
     @GetMapping("/api/menu/root")
-    public ResponseEntity<?> getMenuRoot() {
-        List<MenuDto> menuList = menuService.getMenuRoot();
+    public ResponseEntity<?> getMenuRoot(HttpServletRequest request) {
+        AuthenticatedUser user;
+        try {
+            user = authService.validateAuthentication(TokenUtil.resolveAccessToken(request));
+        }
+        catch (SecurityBusinessException e) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        List<MenuDto> menuList = menuService.getMenuRoot(user);
 
         return new ResponseEntity<>(menuList, HttpStatus.OK);
     }

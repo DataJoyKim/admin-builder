@@ -59,6 +59,14 @@ public class Menu {
         this.icon = icon;
     }
 
+    public Menu getRootMenu() {
+        Menu current = this;
+        while (current.getParentMenu() != null) {
+            current = current.getParentMenu();
+        }
+        return current;
+    }
+
     public boolean isLeafNode() {
         return children.isEmpty();
     }
