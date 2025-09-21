@@ -22,4 +22,9 @@ public class MenuAuthority {
     @ManyToOne
     @JoinColumn(name = "MENU_ID")
     private Menu menu;
+
+    public void update(String authorityCode, Menu menu) {
+        this.authorityCode = authorityCode;
+        this.menu = menu;
+    }
 }

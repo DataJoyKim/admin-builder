@@ -13,7 +13,7 @@ public interface MenuRepository extends JpaRepository<Menu,Long> {
     @Query("select m from Menu m left join fetch m.children where m.parentMenu is null ORDER BY m.orderNum ASC")
     List<Menu> findAllTree();
 
-    Optional<Menu> findByMenuCd(String parentMenuCd);
+    Optional<Menu> findByMenuCd(String menuCd);
 
     List<Menu> findByParentMenu(Menu parentMenu);
     @Query("select m from Menu m left join fetch m.children where m.parentMenu = :parentMenu ORDER BY m.orderNum ASC")

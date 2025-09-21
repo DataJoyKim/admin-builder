@@ -1,7 +1,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <script th:fragment="script">
         $( document ).ready(function() {
-            console.log('version.0.0.1');
+            console.log('version.0.0.4');
             init();
         });
 
@@ -15,6 +15,27 @@
             ],
             function(args) {
                 selectedContent(args.item);
+            });
+
+            sheet.initSheet('menuAuthorityGrid', "100%","500px",
+            [
+                {name: "id", title:"ID", type: "number", width: 50, editing: false, inserting: false},
+                {name: "menuCd", title:"Root 메뉴", type: "text", width: 200 },
+                { type: "control", editButton: true, width: 30, modeSwitchButton: false }
+            ],
+            function(args) {},
+            {
+                inserting: true,
+                editing: true,
+                onItemInserting: function(args) {
+                    insertMenuAuthority($("#code").val(), args.item);
+                },
+                onItemUpdated: function(args) {
+                    updateMenuAuthority($("#code").val(),args.item);
+                },
+                onItemDeleting: function(args) {
+                    deleteMenuAuthority($("#code").val(), args.item);
+                }
             });
 
             getList();
@@ -35,6 +56,7 @@
             httpClient.get(`/console/api/authority/${item.id}`, {},
                 function(response){
                     setContentData(response);
+                    getMenuAuthority(response.code);
                 },
                 function(error){
                     alert('error');
@@ -122,6 +144,70 @@
                 name:''
               });
           }
+
+
+        function getMenuAuthority(authorityCode) {
+            httpClient.get(`/console/api/menu-authority`, {authorityCode:authorityCode},
+                function(response){
+                    let menuData = new Array();
+                    for (i = 0; i < response.length; i++) {
+                        menuData.push({
+                            id:response[i].id,
+                            menuCd:response[i].menu.menuCd
+                        });
+                    };
+
+                    sheet.setSheetData('menuAuthorityGrid', menuData);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function insertMenuAuthority(authorityCode, item) {
+            httpClient.post(`/console/api/menu-authority`,{},
+                {
+                   menuCd:item.menuCd,
+                   authorityCode:authorityCode
+                },
+                function(response){
+                    alert("생성 완료되었습니다.");
+                    getMenuAuthority(authorityCode);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function updateMenuAuthority(authorityCode, item) {
+          httpClient.put(`/console/api/menu-authority/${item.id}`, {},
+              {
+                   menuCd:item.menuCd,
+                   authorityCode:authorityCode
+              },
+              function(response){
+                  alert("변경 완료되었습니다.");
+                  getMenuAuthority(authorityCode);
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+        function deleteMenuAuthority(authorityCode, item) {
+          httpClient.delete(`/console/api/menu-authority/${item.id}`, {},
+              function(response){
+                  alert("삭제 완료되었습니다.");
+                  getMenuAuthority(authorityCode);
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
     </script>
 <div th:fragment="view">
     <div class="row">
@@ -140,24 +226,44 @@
             </div>
             <div class="col-lg-6">
                 <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">상세 내용</h3>
-                        <div class="card-tools">
-                            <wb-action-button elementId="new" actionName="newContent()" icon="fas fa-plus"></wb-action-button>
-                            <wb-action-button elementId="save" actionName="save()" icon="fas fa-save"></wb-action-button>
-                            <wb-action-button elementId="delete" actionName="deleteContent()" icon="fas fa-trash"></wb-action-button>
+                    <ul class="nav nav-tabs" id="authority-tab" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="authority-detail-tab" data-toggle="pill" href="#authority-detail" role="tab" aria-controls="authority-detail" aria-selected="true">상세내용</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="menu-authority-tab" data-toggle="pill" href="#menu-authority" role="tab" aria-controls="menu-authority" aria-selected="false">메뉴접근권한</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content" id="authority-tabContent">
+                        <div class="tab-pane fade show active" id="authority-detail" role="tabpanel" aria-labelledby="authority-detail-tab">
+                            <div class="card-header">
+                                <h3 class="card-title">상세 내용</h3>
+                                <div class="card-tools">
+                                    <wb-action-button elementId="new" actionName="newContent()" icon="fas fa-plus"></wb-action-button>
+                                    <wb-action-button elementId="save" actionName="save()" icon="fas fa-save"></wb-action-button>
+                                    <wb-action-button elementId="delete" actionName="deleteContent()" icon="fas fa-trash"></wb-action-button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-1">
+                                        <wb-text-input elementId="id" label="ID" enable="false"></wb-text-input>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <wb-text-input elementId="code" label="코드" enable="true"></wb-text-input>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <wb-text-input elementId="name" label="명칭" enable="true" ></wb-text-input>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-1">
-                                <wb-text-input elementId="id" label="ID" enable="false"></wb-text-input>
+                        <div class="tab-pane fade" id="menu-authority" role="tabpanel" aria-labelledby="menu-authority-tab">
+                            <div class="card-header">
+                                <h3 class="card-title">메뉴접근권한</h3>
                             </div>
-                            <div class="col-md-3">
-                                <wb-text-input elementId="code" label="코드" enable="true"></wb-text-input>
-                            </div>
-                            <div class="col-md-3">
-                                <wb-text-input elementId="name" label="명칭" enable="true" ></wb-text-input>
+                            <div class="card-body">
+                                <div id="menuAuthorityGrid"></div>
                             </div>
                         </div>
                     </div>
