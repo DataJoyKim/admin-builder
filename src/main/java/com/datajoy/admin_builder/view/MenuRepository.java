@@ -2,6 +2,7 @@ package com.datajoy.admin_builder.view;
 
 import com.datajoy.admin_builder.view.domain.Menu;
 import com.datajoy.admin_builder.view.domain.ViewObject;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,9 +16,10 @@ public interface MenuRepository extends JpaRepository<Menu,Long> {
 
     Optional<Menu> findByMenuCd(String menuCd);
 
-    List<Menu> findByParentMenu(Menu parentMenu);
+    Optional<Menu> findByParentMenu(Menu parentMenu);
     @Query("select m from Menu m left join fetch m.children where m.parentMenu = :parentMenu ORDER BY m.orderNum ASC")
     List<Menu> findAllTree(@Param("parentMenu") Menu parentMenu);
 
-    List<Menu> findByViewObject(ViewObject viewObject);
+    @Query("select m from Menu m left join fetch m.parentMenu where m.viewObject = :viewObject")
+    List<Menu> findByViewObject(@Param("viewObject") ViewObject viewObject);
 }

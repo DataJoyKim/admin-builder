@@ -37,13 +37,18 @@ public class ViewObjectService {
         // 상위 메뉴 가져오기
         List<Menu> rootMenuList = new ArrayList<>();
         for(Menu menu : menuList) {
-            rootMenuList.add(menu.getRootMenu());
+            Menu rootMenu = menu;
+            while (rootMenu.getParentMenu() != null) {
+                rootMenu = rootMenu.getParentMenu();
+            }
+
+            rootMenuList.add(rootMenu);
         }
 
         // ROOT 메뉴에 매핑된 권한 가져오기
         Map<String, MenuAuthority> menuAuthorityMap = new HashMap<>();
         for(Menu rootMenu : rootMenuList) {
-            List<MenuAuthority> menuAuthorities = menuAuthorityRepository.findByMenu(rootMenu.getRootMenu());
+            List<MenuAuthority> menuAuthorities = menuAuthorityRepository.findByMenu(rootMenu);
 
             for(MenuAuthority menuAuthority : menuAuthorities) {
                 menuAuthorityMap.put(menuAuthority.getAuthorityCode(), menuAuthority);
