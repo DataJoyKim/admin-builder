@@ -1,7 +1,8 @@
 export class Card extends HTMLElement {
     connectedCallback() {
-        let id = this.getAttribute('elementId');
-        let size = this.getAttribute('size');
+        const id = this.getAttribute('elementId');
+        const size = this.getAttribute('size');
+
         let className = 'card';
         if(size != null) {
             className += ' ' + size;

@@ -5,6 +5,10 @@ import { Row } from './Row.js';
 import { Select } from './Select.js';
 import { TextInput } from './TextInput.js';
 import { CardHeader } from './CardHeader.js';
+import { Layout } from './Layout.js';
+import { Actions } from './Actions.js';
+import { Codes } from './Codes.js';
+import { Messages } from './Messages.js';
 
 customElements.define('mf-action-button', ActionButton);
 customElements.define('mf-card', Card);
@@ -13,3 +17,7 @@ customElements.define('mf-col', Col);
 customElements.define('mf-row', Row);
 customElements.define('mf-select', Select);
 customElements.define('mf-text-input', TextInput);
+customElements.define('mf-layout', Layout);
+customElements.define('mf-actions', Actions);
+customElements.define('mf-messages', Messages);
+customElements.define('mf-codes', Codes);

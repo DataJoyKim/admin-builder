@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -45,6 +46,7 @@ public class ViewBuilderController {
     @GetMapping("/pages/{objectCd}")
     public String moveAppPages(
             HttpServletRequest request,
+            Model model,
             @PathVariable("objectCd") String objectCd
     ) {
         ViewObject viewObject = viewObjectService.getViewObject(objectCd);
@@ -67,6 +69,8 @@ public class ViewBuilderController {
             }
         }
 
-        return "/pages" + viewObject.getPath();
+        model.addAttribute("objectPath","/pages" + viewObject.getPath());
+
+        return "/template/mf-template";
     }
 }

@@ -1,10 +1,9 @@
-export class Col extends HTMLElement {
+export class Layout extends HTMLElement {
     connectedCallback() {
         const id = this.getAttribute('elementId');
-        const size = this.getAttribute('size');
 
         const div = document.createElement('div');
-        div.className = ((size) ? size : 'col');
+        div.className = 'content-wrapper';
 
         while (this.firstChild) div.appendChild(this.firstChild);
         this.replaceWith(div);

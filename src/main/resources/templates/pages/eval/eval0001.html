@@ -1,51 +1,24 @@
-<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>title</title>
-    <link rel="stylesheet" href="/plugins/fontawesome-free/css/all.min.css">
-    <link rel="stylesheet" href="/plugins/jsgrid/jsgrid.min.css">
-    <link rel="stylesheet" href="/plugins/jsgrid/jsgrid-theme.min.css">
-    <link rel="stylesheet" href="/plugins/jquery-flowchart/jquery.flowchart.css">
-    <link rel="stylesheet" href="/dist/css/adminlte.min.css">
-    <link rel="stylesheet" href="/plugins/codemirror/codemirror.css">
-    <link rel="stylesheet" href="/plugins/codemirror/theme/darcula.css">
-    <link rel="stylesheet" href="/plugins/jstree/themes/default/style.min.css" />
-</head>
-<body>
-<div class="content-wrapper">
-    <mf-row>
-        <mf-col size="lg-6">
-            <mf-card>
-                <mf-card-header title="Authority">
-                    <mf-action-button elementId="search" actionName="getEntity()" icon="fas fa-search"></mf-action-button>
-                    <mf-action-button elementId="search2" actionName="getEntity()" icon="fas fa-search"></mf-action-button>
-                </mf-card-header>
-            </mf-card>
-        </mf-col>
-    </mf-row>
+<div th:fragment="view">
+    <messages>
+
+    </messages>
+    <mf-codes>
+
+    </mf-codes>
+    <mf-actions>
+
+    </mf-actions>
+    <mf-layout>
+        <mf-row>
+            <mf-col size="col-6">
+                <mf-card>
+                    <mf-card-header title="Authority">
+                        <mf-action-button elementId="search" actionName="getEntity()" icon="fas fa-search"></mf-action-button>
+                    </mf-card-header>
+                </mf-card>
+            </mf-col>
+        </mf-row>
+    </mf-layout>
 </div>
-<script src="/plugins/jquery/jquery.min.js"></script>
-<script src="/plugins/jquery-ui/jquery-ui.min.js"></script>
-<script src="/plugins/jquery-flowchart/jquery.flowchart.js"></script>
-<script>$.widget.bridge('uibutton', $.ui.button)</script>
-<script src="/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
-<script src="/plugins/jsgrid/jsgrid.min.js"></script>
-<script src="/plugins/codemirror/codemirror.js"></script>
-<script src="/plugins/codemirror/mode/sql/sql.js"></script>
-<script src="/plugins/codemirror/mode/javascript/javascript.js"></script>
-<script src="/plugins/jstree/jstree.min.js"></script>
-<script src="/dist/js/adminlte.js?v=1"></script>
-<script src="/core/common.js"></script>
-<script src="/core/httpclient.js"></script>
-<script src="/core/sheet.js"></script>
-<script type="module" src="/components/mf/module.js"></script>
-<script>
-    const sheet = new Sheet();
-    const httpClient = new HttpClient();
-    _initLoadingBar();
-</script>
-</body>
 </html>
