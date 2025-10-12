@@ -1,6 +1,8 @@
-export class CardHeader extends HTMLElement {
-    connectedCallback() {
-        const id = this.getAttribute('id');
+import { AbstractComponents } from './AbstractComponents.js';
+
+export class CardHeader extends AbstractComponents {
+    render() {
+        const id = super.getId();
         const title = this.getAttribute('title');
 
         const div = document.createElement('div');

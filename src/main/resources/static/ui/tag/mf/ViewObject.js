@@ -13,10 +13,10 @@ export class ViewObject extends HTMLElement {
         return this.id;
     }
 
-    ready(readyEventName, _callback) {
+    ready(eventName, _callback) {
         this.readyCount = 0;
         this.childTagCount = this.querySelectorAll('*').length;
-        this.addEventListener(readyEventName, (event) => {
+        this.addEventListener(eventName, (event) => {
             _callback(event);
 
             this.readyCount++;
@@ -26,7 +26,7 @@ export class ViewObject extends HTMLElement {
         });
     }
 
-    readyComplete(readyEventName, message) {
-        this.dispatchEvent(new CustomEvent(readyEventName, { bubbles: true, detail:message}));
+    readyComplete(eventName, message) {
+        this.dispatchEvent(new CustomEvent(eventName, { bubbles: true, detail:message}));
     }
 }

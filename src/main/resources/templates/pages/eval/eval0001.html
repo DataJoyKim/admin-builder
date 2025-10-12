@@ -1,13 +1,13 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <div th:fragment="view">
     <mf-data>
+        <mf-codes>
+
+        </mf-codes>
         <mf-messages>
             <mf-message id="ME_EVAL0001_01"></mf-message>
             <mf-message id="ME_EVAL0001_02"></mf-message>
         </mf-messages>
-        <mf-codes>
-
-        </mf-codes>
     </mf-data>
     <mf-actions>
         <mf-script name="test">
@@ -21,6 +21,33 @@
                     <mf-card-header title="Authority">
                         <mf-action-button id="search" actionName="test()" icon="fas fa-search"></mf-action-button>
                     </mf-card-header>
+                    <mf-card-body>
+                        <mf-row>
+                            <mf-col size="col-6">
+                                <mf-text-input id="id" label="ID" enable="false"></mf-text-input>
+                            </mf-col>
+                        </mf-row>
+                    </mf-card-body>
+                </mf-card>
+            </mf-col>
+            <mf-col size="col-6">
+                <mf-card>
+                    <mf-card-header title="Authority">
+                        <mf-action-button id="search" actionName="test()" icon="fas fa-search"></mf-action-button>
+                    </mf-card-header>
+                    <mf-card-body>
+                        <mf-row>
+                            <mf-col size="col-2">
+                                <mf-text-input id="id" label="ID" enable="false"></mf-text-input>
+                            </mf-col>
+                            <mf-col size="col-1">
+                                <mf-text-input id="id" label="ID" enable="false"></mf-text-input>
+                            </mf-col>
+                            <mf-col size="col-2">
+                                <mf-text-input id="id" label="ID" enable="false"></mf-text-input>
+                            </mf-col>
+                        </mf-row>
+                    </mf-card-body>
                 </mf-card>
             </mf-col>
         </mf-row>

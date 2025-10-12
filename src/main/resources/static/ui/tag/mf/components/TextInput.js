@@ -1,6 +1,8 @@
-export class TextInput extends HTMLElement {
-    connectedCallback() {
-        const id = this.getAttribute('id');
+import { AbstractComponents } from './AbstractComponents.js';
+
+export class TextInput extends AbstractComponents {
+    render() {
+        const id = super.getId();
         const placeholder = this.getAttribute('placeholder') || '';
         const label = this.getAttribute('label');
         const enableAttr = this.getAttribute('enable');

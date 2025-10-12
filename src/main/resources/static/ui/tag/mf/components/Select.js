@@ -1,6 +1,8 @@
-export class Select extends HTMLElement {
-    connectedCallback() {
-        const id = this.getAttribute('id');
+import { AbstractComponents } from './AbstractComponents.js';
+
+export class Select extends AbstractComponents {
+    render() {
+        const id = super.getId();
         const label = this.getAttribute('label');
         const enableAttr = this.getAttribute('enable');
         const useFirstItemAttr = this.getAttribute('useFirstItem');

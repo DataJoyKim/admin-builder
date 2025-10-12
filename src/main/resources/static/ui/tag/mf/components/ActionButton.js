@@ -1,6 +1,8 @@
-export class ActionButton extends HTMLElement {
-    connectedCallback() {
-       const id = this.getAttribute('id');
+import { AbstractComponents } from './AbstractComponents.js';
+
+export class ActionButton extends AbstractComponents {
+    render() {
+       const id = super.getId();
        const icon = this.getAttribute('icon') || 'fas fa-search';
        const actionName = this.getAttribute('actionName');
 
