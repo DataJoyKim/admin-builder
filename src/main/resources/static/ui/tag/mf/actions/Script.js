@@ -7,18 +7,12 @@ export class Script extends AbstractActions {
             return;
         }
 
+        // 함수 생성
         const code = this.textContent.trim();
-        if (!code) {
-            return;
-        }
 
-        // Function 생성
-        const fn = new Function(code);
-
-        // window 객체에 저장
-        window[fnName] = fn;
+        window[fnName] = new Function(code);
 
         // 컴포넌트 준비완료
-        super.readyComplete(super.getReadyEventName());
+        super.readyComplete();
     }
 }

@@ -11,6 +11,11 @@ export class Message extends AbstractData {
 
         message[id] = [{}];
 
-        super.readyComplete(super.getReadyEventName());
+        const parent = this.parentElement;
+        if(!parent) {
+            return;
+        }
+
+        super.readyComplete();
     }
 }

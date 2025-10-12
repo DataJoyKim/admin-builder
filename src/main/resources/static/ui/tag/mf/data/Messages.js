@@ -4,6 +4,6 @@ export class Messages extends AbstractData {
     render() {
         super.setMessageVariable({});
 
-        super.readyComplete(super.getReadyEventName());
+        super.readyComplete();
     }
 }

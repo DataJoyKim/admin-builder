@@ -10,6 +10,23 @@
         </mf-messages>
     </mf-data>
     <mf-actions>
+        <mf-workflow name="callWorkflow" workflowName="EVAL0001_R01">
+            <mf-message id="ME_EVAL0001_01">
+            </mf-message>
+            <mf-result-event>
+                <mf-bind-message id="ME_EVAL0001_02">
+                </mf-bind-message>
+                <mf-script name="callWorkflowResult">
+                    alert("처리완료");
+                </mf-script>
+            </mf-result-event>
+            <mf-fault-event>
+                <mf-script name="callWorkflowError">
+                    alert("에러발생");
+                </mf-script>
+            </mf-fault-event>
+        </mf-workflow>
+
         <mf-script name="test">
             console.log('test',_messages);
         </mf-script>
@@ -20,6 +37,7 @@
                 <mf-card>
                     <mf-card-header title="Authority">
                         <mf-action-button id="search" actionName="test()" icon="fas fa-search"></mf-action-button>
+                        <mf-action-button id="search2" actionName="callWorkflow()" icon="fas fa-search"></mf-action-button>
                     </mf-card-header>
                     <mf-card-body>
                         <mf-row>

@@ -1,9 +1,7 @@
 import { AbstractData } from './AbstractData.js';
 
-export class Codes extends AbstractData {
+export class BindMessage extends AbstractData {
     render() {
-        super.setCodeVariable({});
-
         super.readyComplete();
     }
 }
