@@ -1,6 +1,6 @@
 export class ActionButton extends HTMLElement {
     connectedCallback() {
-       const id = this.getAttribute('elementId');
+       const id = this.getAttribute('id');
        const icon = this.getAttribute('icon') || 'fas fa-search';
        const actionName = this.getAttribute('actionName');
 

@@ -1,10 +1,10 @@
 export class TextInput extends HTMLElement {
     connectedCallback() {
-        const id = this.getAttribute('elementId');
+        const id = this.getAttribute('id');
         const placeholder = this.getAttribute('placeholder') || '';
         const label = this.getAttribute('label');
         const enableAttr = this.getAttribute('enable');
-        const elementType = this.getAttribute('elementType') || 'text';
+        const elementType = this.getAttribute('type') || 'text';
 
         // enable 속성 처리
         const enable = enableAttr ? enableAttr.toLowerCase() === 'true' : false;

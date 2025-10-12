@@ -374,7 +374,7 @@
                 <div class="card-header">
                     <h3 class="card-title">Workflow</h3>
                     <div class="card-tools">
-                        <mf-action-button elementId="search" actionName="getWorkflow()" icon="fas fa-search"></mf-action-button>
+                        <mf-action-button id="search" actionName="getWorkflow()" icon="fas fa-search"></mf-action-button>
                     </div>
                 </div>
                 <div class="card-body">
@@ -400,29 +400,29 @@
                         <div class="card-header">
                             <h3 class="card-title">상세 내용</h3>
                             <div class="card-tools">
-                                <mf-action-button elementId="new" actionName="newContent()" icon="fas fa-plus"></mf-action-button>
-                                <mf-action-button elementId="save" actionName="save()" icon="fas fa-save"></mf-action-button>
-                                <mf-action-button elementId="delete" actionName="deleteContent()" icon="fas fa-trash"></mf-action-button>
+                                <mf-action-button id="new" actionName="newContent()" icon="fas fa-plus"></mf-action-button>
+                                <mf-action-button id="save" actionName="save()" icon="fas fa-save"></mf-action-button>
+                                <mf-action-button id="delete" actionName="deleteContent()" icon="fas fa-trash"></mf-action-button>
                             </div>
                         </div>
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-1">
-                                    <mf-text-input elementId="id" label="ID" enable="false"></mf-text-input>
+                                    <mf-text-input id="id" label="ID" enable="false"></mf-text-input>
                                 </div>
                                 <div class="col-md-3">
-                                    <mf-text-input elementId="workflowName" label="workflow 명" enable="true"></mf-text-input>
+                                    <mf-text-input id="workflowName" label="workflow 명" enable="true"></mf-text-input>
                                 </div>
                                 <div class="col-md-3">
-                                    <mf-text-input elementId="displayName" label="화면 노출명" enable="true" ></mf-text-input>
+                                    <mf-text-input id="displayName" label="화면 노출명" enable="true" ></mf-text-input>
                                 </div>
                                 <div class="col-md-1">
-                                    <mf-select elementId="useAuthValidation" label="인증사용" enable="true" useFirstItem="true" firstItemLabel="" firstItemValue=""></mf-select>
+                                    <mf-select id="useAuthValidation" label="인증사용" enable="true" useFirstItem="true" firstItemLabel="" firstItemValue=""></mf-select>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-4">
-                                    <mf-text-input elementId="note" label="note" enable="true"></mf-text-input>
+                                    <mf-text-input id="note" label="note" enable="true"></mf-text-input>
                                 </div>
                             </div>
                         </div>
@@ -434,7 +434,7 @@
                         <div class="card-header">
                             <h3 class="card-title">접근제어</h3>
                             <div class="card-tools">
-                                <mf-action-button elementId="execute" actionName="execute()" icon="fas fa-check"></mf-action-button>
+                                <mf-action-button id="execute" actionName="execute()" icon="fas fa-check"></mf-action-button>
                             </div>
                         </div>
                         <div class="card-body">
@@ -445,18 +445,18 @@
                         <div class="card-header">
                             <h3 class="card-title">실행</h3>
                             <div class="card-tools">
-                                <mf-action-button elementId="execute" actionName="execute()" icon="fas fa-check"></mf-action-button>
+                                <mf-action-button id="execute" actionName="execute()" icon="fas fa-check"></mf-action-button>
                             </div>
                         </div>
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-3">
-                                    <mf-text-input elementId="validWorkflowName" label="workflow 명" enable="true"></mf-text-input>
+                                    <mf-text-input id="validWorkflowName" label="workflow 명" enable="true"></mf-text-input>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-3">
-                                    <mf-text-input elementId="requestMessageId" label="요청메시지ID" enable="true" ></mf-text-input>
+                                    <mf-text-input id="requestMessageId" label="요청메시지ID" enable="true" ></mf-text-input>
                                 </div>
                             </div>
                             <div class="row">

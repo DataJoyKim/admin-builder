@@ -1,6 +1,6 @@
 export class CardHeader extends HTMLElement {
     connectedCallback() {
-        const id = this.getAttribute('elementId');
+        const id = this.getAttribute('id');
         const title = this.getAttribute('title');
 
         const div = document.createElement('div');

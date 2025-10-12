@@ -1,6 +1,6 @@
 export class Row extends HTMLElement {
     connectedCallback() {
-        let id = this.getAttribute('elementId');
+        let id = this.getAttribute('id');
         let size = this.getAttribute('size');
         let className = 'row';
         if(size != null) {

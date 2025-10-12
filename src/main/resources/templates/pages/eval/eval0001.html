@@ -1,20 +1,25 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <div th:fragment="view">
-    <messages>
+    <mf-data>
+        <mf-messages>
+            <mf-message id="ME_EVAL0001_01"></mf-message>
+            <mf-message id="ME_EVAL0001_02"></mf-message>
+        </mf-messages>
+        <mf-codes>
 
-    </messages>
-    <mf-codes>
-
-    </mf-codes>
+        </mf-codes>
+    </mf-data>
     <mf-actions>
-
+        <mf-script name="test">
+            console.log('test',_messages);
+        </mf-script>
     </mf-actions>
     <mf-layout>
         <mf-row>
             <mf-col size="col-6">
                 <mf-card>
                     <mf-card-header title="Authority">
-                        <mf-action-button elementId="search" actionName="getEntity()" icon="fas fa-search"></mf-action-button>
+                        <mf-action-button id="search" actionName="test()" icon="fas fa-search"></mf-action-button>
                     </mf-card-header>
                 </mf-card>
             </mf-col>

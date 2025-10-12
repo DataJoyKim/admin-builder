@@ -1,6 +1,6 @@
 export class Select extends HTMLElement {
     connectedCallback() {
-        const id = this.getAttribute('elementId');
+        const id = this.getAttribute('id');
         const label = this.getAttribute('label');
         const enableAttr = this.getAttribute('enable');
         const useFirstItemAttr = this.getAttribute('useFirstItem');
