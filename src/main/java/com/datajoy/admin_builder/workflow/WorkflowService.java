@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -32,32 +33,34 @@ public class WorkflowService {
             String workflowName,
             RequestMessage requestMessage
     ) {
-        Workflow workflow = workflowRepository.findByWorkflowName(workflowName)
-                                            .orElseThrow();
+        try {
+            Optional<Workflow> opWorkflow = workflowRepository.findByWorkflowName(workflowName);
+            if(opWorkflow.isEmpty()) {
+                throw new BusinessException(WorkflowErrorMessage.NOT_FOUND_WORKFLOW);
+            }
 
-        AuthenticatedUser user = null;
+            Workflow workflow = opWorkflow.get();
 
-        if(workflow.getUseAuthValidation()) {
-            try {
+            AuthenticatedUser user = null;
+
+            if(workflow.getUseAuthValidation()) {
                 user = authService.validateAuthentication(TokenUtil.resolveAccessToken(request));
             }
-            catch (SecurityBusinessException e) {
-                return ResponseMessage.createErrorMessage(e.getStatus(), e.getErrorCode(), e.getErrorMsg());
-            }
-        }
 
-        if(user != null) {
-            try {
+            if(user != null) {
                 validateAuthorization(user, workflow);
             }
-            catch (BusinessException e) {
-                return ResponseMessage.createErrorMessage(e.getStatus(), e.getCode(), e.getMsg());
-            }
+
+            Map<String, List<Map<String, Object>>> contents = executeFunction(requestMessage, user, workflow.getFunctions());
+
+            return ResponseMessage.createSuccessMessage(contents);
         }
-
-        Map<String, List<Map<String, Object>>> contents = executeFunction(requestMessage, user, workflow.getFunctions());
-
-        return ResponseMessage.createSuccessMessage(contents);
+        catch (SecurityBusinessException e) {
+            return ResponseMessage.createErrorMessage(e.getStatus(), e.getErrorCode(), e.getErrorMsg());
+        }
+        catch (BusinessException e) {
+            return ResponseMessage.createErrorMessage(e.getStatus(), e.getCode(), e.getMsg());
+        }
     }
 
     public void validateAuthorization(AuthenticatedUser user, Workflow workflow) throws BusinessException {

@@ -30,31 +30,41 @@ export class Workflow extends AbstractActions {
 
         // workflow 실행 코드 생성
         code += `
-            httpClient.post('/workflow/${workflowName}',{}, requestMessage,
+            workflowClient.execute('${workflowName}',requestMessage,
         `;
 
         let responseTag = this.createResponseTag(this.children);
 
         // 결과 코드 생성
         let resultEventTag = responseTag[super.getResultEventTagName()];
-        let bindMessageTag = resultEventTag[super.getBindMessageTagName()];
-        let scriptTag = resultEventTag[super.getScriptTagName()];
-
-        let bindMessageId = bindMessageTag.getAttribute("id");
-        let scriptFunctionName = scriptTag.getAttribute('name');
 
         code += `function(response){`
-        code += `   ${messageVariableName}['${bindMessageId}'] = response['${bindMessageId}'];`;
-        code += `   ${scriptFunctionName}();`;
+
+        let bindMessageTags = resultEventTag[super.getBindMessageTagName()];
+        for(const bindMessageTag of bindMessageTags) {
+            let bindMessageId = bindMessageTag.getAttribute("id");
+            code += `   ${messageVariableName}['${bindMessageId}'] = response['${bindMessageId}'];`;
+        }
+
+        let scriptTags = resultEventTag[super.getScriptTagName()];
+        for(const scriptTag of scriptTags) {
+            let scriptFunctionName = scriptTag.getAttribute('name');
+            code += `   ${scriptFunctionName}();`;
+        }
+
         code += `},`;
 
         // 실패 코드 생성
         let faultEventTag = responseTag[super.getFaultEventTagName()];
-        let faultScriptTag = faultEventTag[super.getScriptTagName()];
-        let faultScriptFunctionName = faultScriptTag.getAttribute('name');
 
-        code += `function(error){`;
-        code += `   ${faultScriptFunctionName}();`;
+        code += `function(error){ console.log('error',error);`;
+
+        let faultScriptTags = faultEventTag[super.getScriptTagName()];
+        for(const faultScriptTag of faultScriptTags) {
+            let faultScriptFunctionName = faultScriptTag.getAttribute('name');
+            code += `   ${faultScriptFunctionName}();`;
+        }
+
         code += `}`;
 
         // workflow end
@@ -87,13 +97,26 @@ export class Workflow extends AbstractActions {
         let responseTag = new Array();
 
         for (const child of children) {
-            if(child.tagName.toLowerCase() == super.getResultEventTagName()
-            || child.tagName.toLowerCase() == super.getFaultEventTagName()
-            ) {
-                responseTag[child.tagName.toLowerCase()] = {};
-                for (const child2 of child.children) {
-                    responseTag[child.tagName.toLowerCase()][child2.tagName.toLowerCase()] = child2;
+            let childTagName = child.tagName.toLowerCase();
+
+            if(childTagName != super.getResultEventTagName()
+            && childTagName != super.getFaultEventTagName()) {
+                continue;
+            }
+
+            responseTag[childTagName] = {};
+
+            for (const child2 of child.children) {
+                let childTagName2 = child2.tagName.toLowerCase();
+
+                let childArr = responseTag[childTagName][childTagName2];
+                if(!childArr) {
+                    childArr = new Array();
                 }
+
+                childArr.push(child2);
+
+                responseTag[childTagName][childTagName2] = childArr;
             }
         }
 
