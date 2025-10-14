@@ -1,11 +1,20 @@
-export function renderLoadingBar() {
-    document.write('<div id="loading-bar" class="spinner-border text-primary" role="status" style="display:none;position: fixed;top: calc(50% - (58px / 2));right: calc(50% - (58px / 2));">');
-    document.write('  <span class="sr-only" >Loading...</span>');
-    document.write('</div>');
+class LoadingBar {
+    constructor() {}
+
+    render() {
+        document.write('<div id="loading-bar" class="spinner-border text-primary" role="status" style="display:none;position: fixed;top: calc(50% - (58px / 2));right: calc(50% - (58px / 2));">');
+        document.write('  <span class="sr-only" >Loading...</span>');
+        document.write('</div>');
+    }
+
+    show() {
+        $("#loading-bar").css('display','block');
+    }
+
+    hide() {
+        $("#loading-bar").css('display','none');
+    }
 }
 
-export function showLoadingBar(_show) {
-    let display = (_show) ? 'block' : 'none';
-
-    $("#loading-bar").css('display',display);
-}
+window.App = window.App || {};
+window.App.loadingBar = new LoadingBar();

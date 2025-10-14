@@ -1,6 +1,6 @@
 export class ViewObject extends HTMLElement {
-    _messageVariableName = '_messages';
-    _codeVariableName = '_codes';
+    _messageVariableName = 'messages';
+    _codeVariableName = 'codes';
     _dataReadyEventName = 'mf-data-ready';
     _actionsReadyEventName = 'mf-actions-ready';
     _actionsTagName = 'mf-actions';
@@ -81,23 +81,25 @@ export class ViewObject extends HTMLElement {
     }
 
     getMessageVariable() {
-        return window[this._messageVariableName];
+        return window.App[this._messageVariableName];
     }
 
     setMessageVariable(value) {
-        window[this._messageVariableName] = value;
+        window.App = window.App || {};
+        window.App[this._messageVariableName] = value;
     }
 
     getMessageVariableName() {
-        return this._messageVariableName;
+        return 'App.'+this._messageVariableName;
     }
 
     getCodeVariable() {
-        return window[this._codeVariableName];
+        return window.App[this._codeVariableName];
     }
 
     setCodeVariable(value) {
-        window[this._codeVariableName] = value;
+        window.App = window.App || {};
+        window.App[this._codeVariableName] = value;
     }
 
     getBindMessageTagName() {

@@ -30,7 +30,7 @@ export class Workflow extends AbstractActions {
 
         // workflow 실행 코드 생성
         code += `
-            workflowClient.execute('${workflowName}',requestMessage,
+            App.workflowClient.execute('${workflowName}',requestMessage,
         `;
 
         let responseTag = this.createResponseTag(this.children);

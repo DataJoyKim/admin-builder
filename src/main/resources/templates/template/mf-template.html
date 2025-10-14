@@ -35,21 +35,19 @@
 <script src="/plugins/codemirror/mode/javascript/javascript.js"></script>
 <script src="/plugins/jstree/jstree.min.js"></script>
 <script src="/dist/js/adminlte.js?v=1"></script>
+<script src="/core/LoadingBar.js"></script>
 <script src="/core/common.js"></script>
 <script src="/core/httpclient.js"></script>
 <script src="/core/sheet.js"></script>
-<script type="module" src="/core/LoadingBarRender.js"></script>
-<script type="module" src="/core/WorkflowClient.js">
-    const workflowClient = new WorkflowClient();
-</script>
+<script src="/core/WorkflowClient.js"></script>
 <script type="module" src="/ui/tag/mf/module.js"></script>
 
 <!-- common script -->
 <script>
     $.widget.bridge('uibutton', $.ui.button); // adminlte 버튼 충돌방지
-alert(1);
+
     const sheet = new Sheet();
-    const httpClient = new HttpClient();
+    App.loadingBar.render();
 </script>
 </body>
 </html>

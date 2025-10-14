@@ -129,3 +129,5 @@ class HttpClient {
     });
   }
 }
+window.App = window.App || {};
+window.App.httpClient = new HttpClient();
