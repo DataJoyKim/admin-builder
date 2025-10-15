@@ -30,11 +30,10 @@ public class WorkflowService {
     public ResponseMessage execute(
             HttpServletRequest request,
             HttpServletResponse response,
-            String workflowName,
             RequestMessage requestMessage
     ) {
         try {
-            Optional<Workflow> opWorkflow = workflowRepository.findByWorkflowName(workflowName);
+            Optional<Workflow> opWorkflow = workflowRepository.findByWorkflowName(requestMessage.getHeader().getWorkflowId());
             if(opWorkflow.isEmpty()) {
                 throw new BusinessException(WorkflowErrorMessage.NOT_FOUND_WORKFLOW);
             }

@@ -36,7 +36,7 @@ public class WorkflowRestController {
     public ResponseEntity<?> create(@RequestBody Map<String,Object> params) {
 
         Workflow workflowBuilder = Workflow.builder()
-                .workflowName((String) params.get("workflowName"))
+                .workflowId((String) params.get("workflowName"))
                 .displayName((String) params.get("displayName"))
                 .note((String) params.get("note"))
                 .useAuthValidation(Boolean.valueOf((String) params.get("useAuthValidation")))

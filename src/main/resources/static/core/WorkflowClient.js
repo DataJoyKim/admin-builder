@@ -3,10 +3,8 @@ class WorkflowClient {
         this.timeout = 10000;
     }
 
-    execute(workflowName, requestBody, _success, _error) {
+    execute(workflowId, requestBody, _success, _error) {
         let self = this;
-
-        let url = `/workflow/${workflowName}`;
 
         console.log('workflowClient.execute.request',{
             url:url,
@@ -18,7 +16,7 @@ class WorkflowClient {
 
         $.ajax({
             type: 'POST',
-            url: url,
+            url: '/workflow',
             dataType: 'json',
             contentType: 'application/json; charset=utf8',
             data: JSON.stringify(requestMessage),

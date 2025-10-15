@@ -14,14 +14,13 @@ public class WorkflowController {
     @Autowired
     WorkflowService workflowService;
 
-    @PostMapping("/workflow/{workflowName}")
+    @PostMapping("/workflow")
     public ResponseEntity<?> workflow(
             HttpServletRequest httpRequest,
             HttpServletResponse httpResponse,
-            @PathVariable("workflowName") String workflowName,
             @RequestBody RequestMessage requestMessage
     ) {
-        ResponseMessage responseMessage = workflowService.execute(httpRequest, httpResponse, workflowName, requestMessage);
+        ResponseMessage responseMessage = workflowService.execute(httpRequest, httpResponse, requestMessage);
 
         return new ResponseEntity<>(responseMessage, HttpStatus.valueOf(responseMessage.getStatus()));
     }

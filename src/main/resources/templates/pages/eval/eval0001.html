@@ -20,7 +20,7 @@
                 <mf-bind-message id="ME_EVAL0001_03">
                 </mf-bind-message>
                 <mf-script name="callWorkflowResult">
-                    alert("처리완료");
+                    let response = App.messages['ME_EVAL0001_02'];
                 </mf-script>
             </mf-result-event>
             <mf-fault-event>
