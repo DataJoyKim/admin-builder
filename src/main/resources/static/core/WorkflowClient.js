@@ -3,7 +3,7 @@ class WorkflowClient {
         this.timeout = 10000;
     }
 
-    execute(workflowId, requestBody, _success, _error) {
+    execute(workflowCode, requestBody, _success, _error) {
         let self = this;
 
         console.log('workflowClient.execute.request',{

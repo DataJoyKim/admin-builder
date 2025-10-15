@@ -19,7 +19,7 @@ public class Workflow {
     private Long id;
 
     @Column(nullable = false, length = 100)
-    private String workflowId;
+    private String workflowCode;
 
     @Column(nullable = false, length = 200)
     private String displayName;
@@ -35,7 +35,7 @@ public class Workflow {
     private List<WorkflowFunction> functions = new ArrayList<>();
 
     public void update(String workflowName, String displayName, String note, Boolean useAuthValidation) {
-        this.workflowId = workflowName;
+        this.workflowCode = workflowName;
         this.displayName = displayName;
         this.note = note;
         this.useAuthValidation = useAuthValidation;

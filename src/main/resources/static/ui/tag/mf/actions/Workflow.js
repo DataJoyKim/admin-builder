@@ -7,8 +7,8 @@ export class Workflow extends AbstractActions {
             return;
         }
 
-        const workflowName = this.getAttribute('workflowName');
-        if (!workflowName) {
+        const workflowCode = this.getAttribute('workflowCode');
+        if (!workflowCode) {
             return;
         }
 
@@ -30,7 +30,7 @@ export class Workflow extends AbstractActions {
 
         // workflow 실행 코드 생성
         code += `
-            App.workflowClient.execute('${workflowName}',requestMessage,
+            App.workflowClient.execute('${workflowCode}',requestMessage,
         `;
 
         let responseTag = this.createResponseTag(this.children);
