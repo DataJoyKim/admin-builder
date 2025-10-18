@@ -37,19 +37,19 @@ public class ViewBuilderController {
                 user = authService.validateAuthentication(TokenUtil.resolveAccessToken(request));
             }
             catch (SecurityBusinessException e) {
-                httpResponse.sendRedirect(securityProperties.getLoginPath()+"?returnUrl=/");
+                return "/error/error401";
             }
         }
 
         return "/pages/index";
     }
-    @GetMapping("/pages/{objectCd}")
+    @GetMapping("/pages/{objectCode}")
     public String moveAppPages(
             HttpServletRequest request,
             Model model,
-            @PathVariable("objectCd") String objectCd
+            @PathVariable("objectCode") String objectCode
     ) {
-        ViewObject viewObject = viewObjectService.getViewObject(objectCd);
+        ViewObject viewObject = viewObjectService.getViewObject(objectCode);
 
         if(Boolean.TRUE.equals(viewObject.getUseAuthValidation())) {
             AuthenticatedUser user;
@@ -64,12 +64,13 @@ public class ViewBuilderController {
                     viewObjectService.validateAuthorization(user, viewObject);
                 }
                 catch (BusinessException e) {
-                    return "/error/error403";
+                    return "/error/error401";
                 }
             }
         }
 
         model.addAttribute("objectPath","/pages" + viewObject.getPath());
+        model.addAttribute("objectCode",objectCode);
 
         return "/template/mf-template";
     }

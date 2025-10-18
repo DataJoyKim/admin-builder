@@ -48,10 +48,10 @@ public class ConsoleMenuRestController {
             parentMenu = parentMenuOptional.get();
         }
 
-        String objectCd = (String) params.get("objectCd");
+        String objectCode = (String) params.get("objectCode");
 
         ViewObject viewObject = null;
-        Optional<ViewObject> viewObjectOptional = viewObjectRepository.findByObjectCd(objectCd);
+        Optional<ViewObject> viewObjectOptional = viewObjectRepository.findByObjectCode(objectCode);
         if(viewObjectOptional.isPresent()) {
             viewObject = viewObjectOptional.get();
         }
@@ -80,10 +80,10 @@ public class ConsoleMenuRestController {
             parentMenu = parentMenuOptional.get();
         }
 
-        String objectCd = (String) params.get("objectCd");
+        String objectCode = (String) params.get("objectCode");
 
         ViewObject viewObject = null;
-        Optional<ViewObject> viewObjectOptional = viewObjectRepository.findByObjectCd(objectCd);
+        Optional<ViewObject> viewObjectOptional = viewObjectRepository.findByObjectCode(objectCode);
         if(viewObjectOptional.isPresent()) {
             viewObject = viewObjectOptional.get();
         }

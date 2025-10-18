@@ -19,8 +19,8 @@
             sheet.initSheet('jsGrid1', "100%","500px",
             [
                 {name: "id", title:"ID", type: "number", width: 50, editing: false, inserting: false},
-                {name: "objectCd", title:"코드", type: "text", width: 150 },
-                {name: "objectNm", title:"명칭", type: "text", width: 200 }
+                {name: "objectCode", title:"코드", type: "text", width: 150 },
+                {name: "objectName", title:"명칭", type: "text", width: 200 }
             ],
             function(args) {
                 selectedContent(args.item);
@@ -111,8 +111,8 @@
         function setContentData(response) {
             setContent({
                 id:response.id,
-                objectCd:response.objectCd,
-                objectNm:response.objectNm,
+                objectCode:response.objectCode,
+                objectName:response.objectName,
                 type:response.type,
                 path:response.path,
                 useAuthorityValidation:response.useAuthorityValidation,
@@ -123,8 +123,8 @@
         function getContent() {
             return {
                 id: $("#id").val(),
-                objectCd: $("#objectCd").val(),
-                objectNm: $("#objectNm").val(),
+                objectCode: $("#objectCode").val(),
+                objectName: $("#objectName").val(),
                 type: $("#type").val(),
                 path: $("#path").val(),
                 useAuthValidation: $("#useAuthValidation").val(),
@@ -134,8 +134,8 @@
 
         function setContent(params) {
             $("#id").val(params.id);
-            $("#objectCd").val(params.objectCd);
-            $("#objectNm").val(params.objectNm);
+            $("#objectCode").val(params.objectCode);
+            $("#objectName").val(params.objectName);
             $("#type").val(params.type);
             $("#path").val(params.path);
             $("#useAuthValidation").val(String(params.useAuthValidation));
@@ -145,8 +145,8 @@
           function newContent(){
             setContent({
                 id:'',
-                objectCd:'',
-                objectNm:'',
+                objectCode:'',
+                objectName:'',
                 type:'',
                 path:'',
                 useAuthorityValidation:'true',
@@ -185,10 +185,10 @@
                                 <mf-text-input id="id" label="ID" enable="false" ></mf-text-input>
                             </div>
                             <div class="col-md-3">
-                                <mf-text-input id="objectCd" label="오브젝트코드" enable="true"></mf-text-input>
+                                <mf-text-input id="objectCode" label="오브젝트코드" enable="true"></mf-text-input>
                             </div>
                             <div class="col-md-3">
-                                <mf-text-input id="objectNm" label="오브젝트명" enable="true" ></mf-text-input>
+                                <mf-text-input id="objectName" label="오브젝트명" enable="true" ></mf-text-input>
                             </div>
                         </div>
                         <div class="row">

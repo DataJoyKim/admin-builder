@@ -36,7 +36,7 @@ public class WorkflowRestController {
     public ResponseEntity<?> create(@RequestBody Map<String,Object> params) {
 
         Workflow workflowBuilder = Workflow.builder()
-                .workflowCode((String) params.get("workflowName"))
+                .workflowCode((String) params.get("workflowCode"))
                 .displayName((String) params.get("displayName"))
                 .note((String) params.get("note"))
                 .useAuthValidation(Boolean.valueOf((String) params.get("useAuthValidation")))
@@ -53,13 +53,15 @@ public class WorkflowRestController {
                 .orElseThrow(RuntimeException::new);
 
         workflowBuilder.update(
-                (String) params.get("workflowName"),
+                (String) params.get("workflowCode"),
                 (String) params.get("displayName"),
                 (String) params.get("note"),
                 Boolean.valueOf((String) params.get("useAuthValidation"))
         );
 
-        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
+        Workflow results = repository.save(workflowBuilder);
+
+        return new ResponseEntity<>(results, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")

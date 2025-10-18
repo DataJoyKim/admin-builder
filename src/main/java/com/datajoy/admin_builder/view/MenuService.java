@@ -36,7 +36,7 @@ public class MenuService {
 
     public List<MenuDto> getMenuRoot(AuthenticatedUser user) {
         List<GrantedAuthority> grantedAuthorities = user.getGrantedAuthorities();
-        if(grantedAuthorities.isEmpty()) {
+        if(grantedAuthorities == null || grantedAuthorities.isEmpty()) {
             return new ArrayList<>();
         }
 

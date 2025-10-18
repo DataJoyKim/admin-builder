@@ -15,9 +15,9 @@ public class ViewObject {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(nullable = false, length = 100)
-    private String objectCd;
+    private String objectCode;
     @Column(nullable = false, length = 200)
-    private String objectNm;
+    private String objectName;
     @Enumerated(EnumType.STRING)
     @Column(length = 100)
     private ObjectType type;
@@ -29,15 +29,15 @@ public class ViewObject {
     private Boolean useAuthorityValidation = true;
 
     public void update(
-            String objectCd,
-            String objectNm,
+            String objectCode,
+            String objectName,
             ObjectType type,
             String path,
             Boolean useAuthValidation,
             Boolean useAuthorityValidation
     ) {
-        this.objectCd = objectCd;
-        this.objectNm = objectNm;
+        this.objectCode = objectCode;
+        this.objectName = objectName;
         this.type = type;
         this.path = path;
         this.useAuthValidation = useAuthValidation;

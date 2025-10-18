@@ -33,7 +33,7 @@ public class WorkflowService {
             RequestMessage requestMessage
     ) {
         try {
-            Optional<Workflow> opWorkflow = workflowRepository.findByWorkflowName(requestMessage.getHeader().getWorkflowId());
+            Optional<Workflow> opWorkflow = workflowRepository.findByWorkflowCode(requestMessage.getHeader().getWorkflowCode());
             if(opWorkflow.isEmpty()) {
                 throw new BusinessException(WorkflowErrorMessage.NOT_FOUND_WORKFLOW);
             }

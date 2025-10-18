@@ -104,7 +104,7 @@
                         id:'',
                         menuCd:node.data.menuCd,
                         menuNm:node.data.menuNm,
-                        objectCd:'',
+                        objectCode:'',
                         parentMenuCd:node.data.parentMenuCd,
                         orderNum:parent.children.indexOf(node.id)
                     });
@@ -263,7 +263,7 @@
                 id:response.id,
                 menuCd:response.menuCd,
                 menuNm:response.menuNm,
-                objectCd:response.objectCd,
+                objectCode:response.objectCode,
                 parentMenuCd:response.parentMenuCd,
                 icon:response.icon,
                 orderNum:response.orderNum
@@ -276,10 +276,19 @@
                 id: $("#id").val(),
                 menuCd: $("#menuCd").val(),
                 menuNm: $("#menuNm").val(),
-                objectCd: $("#objectCd").val(),
+                objectCode: $("#objectCode").val(),
                 parentMenuCd: $("#parentMenuCd").val(),
-                icon: $("#icon").val(),
+                icon: ifEmpty($("#icon").val(),null),
                 orderNum: $("#orderNum").val()
+            }
+        }
+
+        function ifEmpty(v, rv) {
+            if(!v) {
+                return rv;
+            }
+            else {
+                return v;
             }
         }
 
@@ -288,7 +297,7 @@
             $("#id").val(params.id);
             $("#menuCd").val(params.menuCd);
             $("#menuNm").val(params.menuNm);
-            $("#objectCd").val(params.objectCd);
+            $("#objectCode").val(params.objectCode);
             $("#parentMenuCd").val(params.parentMenuCd);
             $("#orderNum").val(params.orderNum);
             $("#icon").val(params.icon);
@@ -300,7 +309,7 @@
                 id:'',
                 menuCd:'',
                 menuNm:'',
-                objectCd:'',
+                objectCode:'',
                 parentMenuCd:'',
                 icon:'',
                 orderNum:''
@@ -351,7 +360,7 @@
                                 <mf-text-input id="parentMenuCd" label="부모메뉴코드" enable="true" ></mf-text-input>
                             </div>
                             <div class="col-md-3">
-                                <mf-text-input id="objectCd" label="오브젝트코드" enable="true" ></mf-text-input>
+                                <mf-text-input id="objectCode" label="오브젝트코드" enable="true" ></mf-text-input>
                             </div>
                         </div>
                         <div class="row">

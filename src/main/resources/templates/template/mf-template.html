@@ -35,6 +35,7 @@
 <script src="/plugins/codemirror/mode/javascript/javascript.js"></script>
 <script src="/plugins/jstree/jstree.min.js"></script>
 <script src="/dist/js/adminlte.js?v=1"></script>
+<script src="/core/Util.js"></script>
 <script src="/core/LoadingBar.js"></script>
 <script src="/core/httpclient.js"></script>
 <script src="/core/sheet.js"></script>
@@ -42,11 +43,12 @@
 <script type="module" src="/ui/tag/mf/module.js"></script>
 
 <!-- common script -->
-<script>
+<script th:inline="javascript">
     $.widget.bridge('uibutton', $.ui.button); // adminlte 버튼 충돌방지
 
     const sheet = new Sheet();
     App.loadingBar.render();
+    App.objectCode = [[${objectCode}]];
 </script>
 </body>
 </html>

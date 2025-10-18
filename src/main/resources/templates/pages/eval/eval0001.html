@@ -24,14 +24,14 @@
                 </mf-script>
             </mf-result-event>
             <mf-fault-event>
-                <mf-script name="callWorkflowError">
-                    alert("에러발생");
+                <mf-script name="callWorkflowError" args="error">
+                    alert("["+error.code+"] " +error.message);
                 </mf-script>
             </mf-fault-event>
         </mf-workflow>
 
         <mf-script name="test">
-            console.log('test',_messages);
+            console.log('test',App.messages);
         </mf-script>
     </mf-actions>
     <mf-layout>

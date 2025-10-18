@@ -7,10 +7,18 @@ export class Script extends AbstractActions {
             return;
         }
 
+        const argsParams = this.getAttribute('args');
+
         // 함수 생성
         const code = this.textContent.trim();
 
-        window[fnName] = new Function(code);
+        if(argsParams) {
+            const args = argsParams.split(",");
+            window[fnName] = new Function(...args, code);
+        }
+        else {
+            window[fnName] = new Function(code);
+        }
 
         // 컴포넌트 준비완료
         super.readyComplete();

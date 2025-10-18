@@ -57,12 +57,13 @@ export class Workflow extends AbstractActions {
         // 실패 코드 생성
         let faultEventTag = responseTag[super.getFaultEventTagName()];
 
-        code += `function(error){ console.log('error',error);`;
+        code += `function(code, status, message){ `;
+        code += ` let error = {code:code,status:status,message:message};`;
 
         let faultScriptTags = faultEventTag[super.getScriptTagName()];
         for(const faultScriptTag of faultScriptTags) {
             let faultScriptFunctionName = faultScriptTag.getAttribute('name');
-            code += `   ${faultScriptFunctionName}();`;
+            code += `   ${faultScriptFunctionName}(error);`;
         }
 
         code += `}`;

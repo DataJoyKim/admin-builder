@@ -14,6 +14,8 @@ public class RequestMessage {
 
     @Data
     public static class Header {
-        private String workflowId;
+        private String workflowCode;
+        private String objectCode;
+        private String localeCode;
     }
 }

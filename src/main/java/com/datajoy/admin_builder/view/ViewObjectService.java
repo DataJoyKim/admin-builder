@@ -17,8 +17,8 @@ public class ViewObjectService {
     private final MenuRepository menuRepository;
     private final MenuAuthorityRepository menuAuthorityRepository;
 
-    public ViewObject getViewObject(String objectCd) {
-        Optional<ViewObject> optionalViewObject = viewObjectRepository.findByObjectCd(objectCd);
+    public ViewObject getViewObject(String objectCode) {
+        Optional<ViewObject> optionalViewObject = viewObjectRepository.findByObjectCode(objectCode);
         if(optionalViewObject.isEmpty()) {
             return null;
         }

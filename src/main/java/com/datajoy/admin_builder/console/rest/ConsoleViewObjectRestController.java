@@ -37,8 +37,8 @@ public class ConsoleViewObjectRestController {
     public ResponseEntity<?> create(@RequestBody Map<String,Object> params) {
 
         ViewObject createdData = ViewObject.builder()
-                .objectCd((String) params.get("objectCd"))
-                .objectNm((String) params.get("objectNm"))
+                .objectCode((String) params.get("objectCode"))
+                .objectName((String) params.get("objectName"))
                 .type(ObjectType.valueOf((String) params.get("type")))
                 .path((String) params.get("path"))
                 .useAuthValidation(Boolean.valueOf((String) params.get("useAuthValidation")))
@@ -54,8 +54,8 @@ public class ConsoleViewObjectRestController {
                 .orElseThrow(RuntimeException::new);
 
         savedData.update(
-                (String) params.get("objectCd"),
-                (String) params.get("objectNm"),
+                (String) params.get("objectCode"),
+                (String) params.get("objectName"),
                 ObjectType.valueOf((String) params.get("type")),
                 (String) params.get("path"),
                 Boolean.valueOf((String) params.get("useAuthValidation")),

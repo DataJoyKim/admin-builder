@@ -23,12 +23,12 @@
             sheet.initSheet('jsGrid1', "100%","600px",
             [
                 {name: "id", title:"ID", type: "number", width: 50 },
-                {name: "workflowName", title:"workflow 명", type: "text", width: 150 },
+                {name: "workflowCode", title:"workflow 명", type: "text", width: 150 },
                 {name: "displayName", title:"화면노출명", type: "text", width: 200 }
             ],
             function(args) {
                 selectedContent(args.item);
-                $("#validWorkflowName").val(args.item.workflowName);
+                $("#validWorkflowCode").val(args.item.workflowCode);
                 sheet.setSheetData('workflowExecute', [{"key":"_seq","value":"1"},{"key":"_status","value":"R"}]);
             });
 
@@ -178,17 +178,17 @@
         function setContentData(response) {
             setContent({
                 id:response.id,
-                workflowName:response.workflowName,
+                workflowCode:response.workflowCode,
                 displayName:response.displayName,
                 note:response.note,
-                useAuthValidation:response.useAuthValidation
+                useAuthValidation:String(response.useAuthValidation)
               });
         }
 
         function getContent() {
             return {
                 id: $("#id").val(),
-                workflowName: $("#workflowName").val(),
+                workflowCode: $("#workflowCode").val(),
                 displayName: $("#displayName").val(),
                 note: $("#note").val(),
                 useAuthValidation:$("#useAuthValidation").val()
@@ -197,7 +197,7 @@
 
         function setContent(params) {
             $("#id").val(params.id);
-            $("#workflowName").val(params.workflowName);
+            $("#workflowCode").val(params.workflowCode);
             $("#displayName").val(params.displayName);
             $("#note").val(params.note);
             $("#useAuthValidation").val(params.useAuthValidation);
@@ -206,7 +206,7 @@
           function newContent(){
             setContent({
                 id:'',
-                workflowName:'',
+                workflowCode:'',
                 displayName:'',
                 note:'',
                 useAuthValidation:''
@@ -279,7 +279,7 @@
         }
 
         function execute() {
-            let workflowName = $("#validWorkflowName").val();
+            let workflowCode = $("#validworkflowCode").val();
             let requestMessageId = $("#requestMessageId").val();
 
             let contents = {};
@@ -299,7 +299,7 @@
             body[requestMessageId] = contents;
             console.log('body',body);
 
-            httpClient.post(`/workflow/${workflowName}`,{},
+            httpClient.post(`/workflow/${workflowCode}`,{},
                 {
                    body:body
                 },
@@ -411,7 +411,7 @@
                                     <mf-text-input id="id" label="ID" enable="false"></mf-text-input>
                                 </div>
                                 <div class="col-md-3">
-                                    <mf-text-input id="workflowName" label="workflow 명" enable="true"></mf-text-input>
+                                    <mf-text-input id="workflowCode" label="workflow 명" enable="true"></mf-text-input>
                                 </div>
                                 <div class="col-md-3">
                                     <mf-text-input id="displayName" label="화면 노출명" enable="true" ></mf-text-input>
@@ -451,7 +451,7 @@
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-3">
-                                    <mf-text-input id="validWorkflowName" label="workflow 명" enable="true"></mf-text-input>
+                                    <mf-text-input id="validWorkflowCode" label="워크플로우 코드" enable="true"></mf-text-input>
                                 </div>
                             </div>
                             <div class="row">

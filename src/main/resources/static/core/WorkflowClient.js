@@ -6,13 +6,9 @@ class WorkflowClient {
     execute(workflowCode, requestBody, _success, _error) {
         let self = this;
 
-        console.log('workflowClient.execute.request',{
-            url:url,
-            requestBody:requestBody
-        });
+        let requestMessage = this.createRequestMessage(workflowCode, requestBody);
 
-        //TODO 요청메시지 정의 필요
-        let requestMessage = requestBody;
+        console.log('workflowClient.execute.request',requestMessage);
 
         $.ajax({
             type: 'POST',
@@ -30,7 +26,13 @@ class WorkflowClient {
             },
             error: function(error) {
                 console.log('workflowClient.execute.error',error);
-                _error(error);
+                if(error.responseJSON) {
+                    let response = error.responseJSON;
+                    _error(response.code, response.status, response.message, response.content);
+                }
+                else {
+                    _error("E9999", -1, "에러가 발생되었습니다.", null);
+                }
             },
             complete: function() {
                 self.hideLoadingBar();
@@ -44,6 +46,17 @@ class WorkflowClient {
 
     hideLoadingBar() {
         App.loadingBar.hide();
+    }
+
+    createRequestMessage(workflowCode,requestBody) {
+        return {
+            header:{
+               workflowCode : workflowCode,
+               objectCode : (App.objectCode) ? App.objectCode : '',
+               localeCode : 'KO'
+            },
+            body:requestBody
+        };
     }
 }
 
