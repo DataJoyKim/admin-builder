@@ -40,16 +40,19 @@ export class Workflow extends AbstractActions {
 
         code += `function(response){`
 
-        let bindMessageTags = resultEventTag[super.getBindMessageTagName()];
-        for(const bindMessageTag of bindMessageTags) {
-            let bindMessageId = bindMessageTag.getAttribute("id");
-            code += `   ${messageVariableName}['${bindMessageId}'] = response['${bindMessageId}'];`;
-        }
+        for(const childTag of resultEventTag) {
+            let tagContent = childTag.content;
 
-        let scriptTags = resultEventTag[super.getScriptTagName()];
-        for(const scriptTag of scriptTags) {
-            let scriptFunctionName = scriptTag.getAttribute('name');
-            code += `   ${scriptFunctionName}();`;
+            // Bind Message Tag
+            if(childTag.name == super.getBindMessageTagName()) {
+                let bindMessageId = tagContent.getAttribute("id");
+                code += `   ${messageVariableName}['${bindMessageId}'] = response['${bindMessageId}'];`;
+            }
+            // Script Tag
+            else if(childTag.name == super.getScriptTagName()) {
+                let scriptFunctionName = tagContent.getAttribute('name');
+                code += `   ${scriptFunctionName}();`;
+            }
         }
 
         code += `},`;
@@ -60,10 +63,14 @@ export class Workflow extends AbstractActions {
         code += `function(code, status, message){ `;
         code += ` let error = {code:code,status:status,message:message};`;
 
-        let faultScriptTags = faultEventTag[super.getScriptTagName()];
-        for(const faultScriptTag of faultScriptTags) {
-            let faultScriptFunctionName = faultScriptTag.getAttribute('name');
-            code += `   ${faultScriptFunctionName}(error);`;
+        for(const childTag of faultEventTag) {
+            let tagContent = childTag.content;
+
+            // Script Tag
+            if(childTag.name == super.getScriptTagName()) {
+                let faultScriptFunctionName = tagContent.getAttribute('name');
+                code += `   ${faultScriptFunctionName}(error);`;
+            }
         }
 
         code += `}`;
@@ -105,20 +112,15 @@ export class Workflow extends AbstractActions {
                 continue;
             }
 
-            responseTag[childTagName] = {};
-
-            for (const child2 of child.children) {
-                let childTagName2 = child2.tagName.toLowerCase();
-
-                let childArr = responseTag[childTagName][childTagName2];
-                if(!childArr) {
-                    childArr = new Array();
-                }
-
-                childArr.push(child2);
-
-                responseTag[childTagName][childTagName2] = childArr;
+            let childArr = new Array();
+            for (const childSub of child.children) {
+                childArr.push({
+                    name:childSub.tagName.toLowerCase(),
+                    content:childSub
+                });
             }
+
+            responseTag[childTagName] = childArr;
         }
 
         return responseTag;

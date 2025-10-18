@@ -22,16 +22,33 @@ class WorkflowClient {
             },
             success: function(response) {
                 console.log('workflowClient.execute.response',response);
-                _success(response);
+                if(!response.resultType){
+                    alert('워크플로우 실행에 실패하였습니다.');
+                }
+                else if(response.resultType == 'SUCCESS') {
+                    _success(response.contents);
+                }
+                else if(response.resultType == 'FAILURE') {
+                    alert(response.message);
+                }
+                else {
+                    alert('워크플로우 실행에 실패하였습니다.');
+                }
             },
             error: function(error) {
                 console.log('workflowClient.execute.error',error);
                 if(error.responseJSON) {
                     let response = error.responseJSON;
-                    _error(response.code, response.status, response.message, response.content);
+
+                    if(response.resultType && response.resultType == 'FAILURE') {
+                        _error(response.code, response.status, response.message, response.content);
+                    }
+                    else {
+                        _error("E000", -2, response.message, null);
+                    }
                 }
                 else {
-                    _error("E9999", -1, "에러가 발생되었습니다.", null);
+                    _error("E000", -1, "에러가 발생되었습니다.", null);
                 }
             },
             complete: function() {

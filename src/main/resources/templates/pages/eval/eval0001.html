@@ -17,10 +17,9 @@
             <mf-result-event>
                 <mf-bind-message id="ME_EVAL0001_02">
                 </mf-bind-message>
-                <mf-bind-message id="ME_EVAL0001_03">
-                </mf-bind-message>
                 <mf-script name="callWorkflowResult">
                     let response = App.messages['ME_EVAL0001_02'];
+                    console.log('response',response);
                 </mf-script>
             </mf-result-event>
             <mf-fault-event>

@@ -8,11 +8,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.Option;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -21,8 +19,12 @@ public class QueryService {
     private final QueryRepository queryRepository;
 
     public QueryResult execute(String queryName, QueryRequest params) {
-        Query query = queryRepository.findByQueryName(queryName)
-                .orElseThrow();
+        Optional<Query> opQuery = queryRepository.findByQueryName(queryName);
+        if(opQuery.isEmpty()) {
+            throw new RuntimeException("요청한 리소스가 존재하지않습니다. [code:"+queryName+"]");
+        }
+
+        Query query = opQuery.get();
 
         SqlQuery sqlQuery = query.generateQuery(params);
 
