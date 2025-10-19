@@ -4,6 +4,7 @@ export class Select extends AbstractComponents {
     render() {
         const id = super.getId();
         const label = this.getAttribute('label');
+        const size = this.getAttribute('size');
         const enableAttr = this.getAttribute('enable');
         const codeKind = this.getAttribute('dataProvider');
         const useFirstItemAttr = this.getAttribute('useFirstItem');
@@ -16,11 +17,13 @@ export class Select extends AbstractComponents {
         // form-group div 생성
         const wrapper = document.createElement('div');
         wrapper.className = 'form-group';
+        if(size) wrapper.className += ' '+size;
 
         // label 생성
         if (label) {
             const labelEl = document.createElement('label');
             labelEl.textContent = label;
+            labelEl.htmlFor  = id;
             wrapper.appendChild(labelEl);
         }
 

@@ -13,54 +13,57 @@
     </mf-data>
     <mf-actions>
         <mf-workflow name="callWorkflow" workflowCode="EVAL0001_R01">
-            <mf-message id="ME_EVAL0001_01">
-            </mf-message>
+            <mf-message id="ME_EVAL0001_01"></mf-message>
             <mf-result-event>
-                <mf-bind-message id="ME_EVAL0001_02">
-                </mf-bind-message>
-                <mf-script name="callWorkflowResult">
-                    let response = App.messages['ME_EVAL0001_02'];
-                    console.log('response',response);
-                </mf-script>
+                <mf-bind-message bindMessageId="ME_EVAL0001_02" ></mf-bind-message>
+                <mf-bind-data dataProvider="ME_EVAL0001_02" gridId="myGrid1" ></mf-bind-data>
             </mf-result-event>
-            <mf-fault-event>
-                <mf-script name="callWorkflowError" args="error">
-                    alert("["+error.code+"] " +error.message);
-                </mf-script>
-            </mf-fault-event>
         </mf-workflow>
 
-        <mf-script name="test">
+        <mf-workflow name="callForm" workflowCode="EVAL0001_R01">
+            <mf-message id="ME_EVAL0001_01"></mf-message>
+            <mf-result-event>
+                <mf-bind-message bindMessageId="ME_EVAL0001_02" ></mf-bind-message>
+                <mf-bind-data dataProvider="ME_EVAL0001_02" formId="myForm1" ></mf-bind-data>
+            </mf-result-event>
+        </mf-workflow>
+
+        <mf-action name="test">
+            alert(2);
             console.log('test',App.messages);
-        </mf-script>
+        </mf-action>
+
+        <mf-action name="clickEvent" args="args">
+            console.log('args',args);
+            alert('선택완료'+args.item.goal_id);
+        </mf-action>
     </mf-actions>
     <mf-layout>
         <mf-row>
             <mf-col size="col-6">
                 <mf-card>
                     <mf-card-header title="Authority">
-                        <mf-action-button id="search" actionName="test()" icon="fas fa-search"></mf-action-button>
-                        <mf-action-button id="search2" actionName="callWorkflow()" icon="fas fa-search"></mf-action-button>
+                        <mf-action-button id="search" actionName="callForm" icon="fas fa-search"></mf-action-button>
                     </mf-card-header>
                     <mf-card-body>
-                        <mf-row>
-                            <mf-col size="col-6">
-                                <mf-text-input id="id" label="ID" enable="false"></mf-text-input>
-                                <mf-select id="dataSourceName" label="dataSource" enable="true" dataProvider="SYS_ENTTIY" useFirstItem="true" firstItemLabel="선택" firstItemValue=""></mf-select>
-                            </mf-col>
-                        </mf-row>
+                        <mf-form id="myForm1">
+                            <mf-row>
+                                <mf-text-input id="goal_id" label="ID" enable="false" size="col-6"></mf-text-input>
+                                <mf-select id="dataSourceName" label="dataSource" enable="true" size="col-6" dataProvider="SYS_ENTTIY" useFirstItem="true" firstItemLabel="선택" firstItemValue=""></mf-select>
+                            </mf-row>
+                        </mf-form>
                     </mf-card-body>
                 </mf-card>
             </mf-col>
             <mf-col size="col-6">
                 <mf-card>
                     <mf-card-header title="Authority">
-                        <mf-action-button id="search" actionName="test()" icon="fas fa-search"></mf-action-button>
+                        <mf-action-button id="search2" actionName="callWorkflow" icon="fas fa-search"></mf-action-button>
                     </mf-card-header>
                     <mf-card-body>
-                        <mf-grid id="myTable1" width="100%" height="100%" control="false">
-                            <mf-grid-column  type="text" id="id"    label="ID"     width=""></mf-grid-column>
-                            <mf-grid-column  type="text" id="name" label="name" width=""></mf-grid-column>
+                        <mf-grid id="myGrid1" width="100%" height="500px">
+                            <mf-grid-column  type="text" id="goal_id"    label="ID"      width="50px"  ></mf-grid-column>
+                            <mf-grid-column  type="text" id="goal_name"  label="목표명"   width="200px" ></mf-grid-column>
                         </mf-grid>
                     </mf-card-body>
                 </mf-card>

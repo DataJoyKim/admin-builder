@@ -1,6 +1,6 @@
 export class View extends HTMLElement {
     connectedCallback() {
-        console.log('view version 0.0.4');
+        console.log('view version 0.0.5');
 
         const div = document.createElement('div');
         div.className = 'view';

@@ -6,6 +6,7 @@ export class ViewObject extends HTMLElement {
 
     tagEl = {
         actions : 'mf-actions',
+        action : 'mf-action',
         data : 'mf-data',
         layout : 'mf-layout',
         messages : 'mf-messages',
@@ -13,9 +14,9 @@ export class ViewObject extends HTMLElement {
         bindMessage : 'mf-bind-message',
         resultEvent : 'mf-result-event',
         faultEvent : 'mf-fault-event',
-        script : 'mf-script',
         code : 'mf-code',
-        gridColumn : 'mf-grid-column'
+        gridColumn : 'mf-grid-column',
+        bindData : 'mf-bind-data'
     }
 
     _debug = true;
@@ -128,6 +129,14 @@ export class ViewObject extends HTMLElement {
     logging(kind, msg) {
         if(this._debug) {
             console.log(kind, msg);
+        }
+    }
+
+    actionNameToFunction(actionName) {
+        if (actionName.includes('(') && actionName.includes(')')) {
+          return actionName;
+        } else {
+          return actionName + "()";
         }
     }
 }

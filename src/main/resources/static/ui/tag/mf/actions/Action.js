@@ -1,6 +1,6 @@
 import { AbstractActions } from './AbstractActions.js';
 
-export class Script extends AbstractActions {
+export class Action extends AbstractActions {
     render() {
         const fnName = this.getAttribute('name');
         if (!fnName) {

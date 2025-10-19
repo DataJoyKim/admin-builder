@@ -8,6 +8,10 @@ export class Grid extends AbstractComponents {
         const control = this.getAttribute('control');
         const inserting = this.getAttribute('inserting');
         const editing = this.getAttribute('editing');
+        const rowClickActionName = this.getAttribute('rowClickActionName');
+        const insertActionName = this.getAttribute('insertActionName');
+        const updateActionName = this.getAttribute('updateActionName');
+        const deleteActionName = this.getAttribute('deleteActionName');
 
         let columns = this.createColumn(this.children);
         if(control && App.util.stringToBoolean(control)) {
@@ -15,25 +19,59 @@ export class Grid extends AbstractComponents {
         }
 
         let options = {};
+
         if(inserting) {
             options.inserting = App.util.stringToBoolean(inserting);
         }
 
         if(editing) {
-            options.inserting = App.util.stringToBoolean(editing);
+            options.editing = App.util.stringToBoolean(editing);
         }
 
-        App.grid.init(id, width, height, columns,
-            function(args) {
-                //TODO row 선택시 실행
-            },
-            options);
+        let rowClickEvent = function(args) {
+            if(rowClickActionName) {
+                let rowClickFunc = window[rowClickActionName];
+                if(rowClickFunc) {
+                    rowClickFunc(args);
+                }
+            }
+        }
 
+        if(insertActionName) {
+            options.onItemInserting = function(args) {
+                let insertFunc = window[insertActionName];
+                if(insertFunc) {
+                    insertFunc(args);
+                }
+            }
+        }
+
+        if(updateActionName) {
+            options.onItemUpdated = function(args) {
+                let updateFunc = window[updateActionName];
+                if(updateFunc) {
+                    updateFunc(args);
+                }
+            }
+        }
+
+        if(deleteActionName) {
+            options.onItemDeleting = function(args) {
+                let deleteFunc = window[deleteActionName];
+                if(deleteFunc) {
+                    deleteFunc(args);
+                }
+            }
+        }
+
+        // 렌더링 대상 생성
         const div = document.createElement('div');
         div.id = id;
-
         while (this.firstChild) div.appendChild(this.firstChild);
         this.replaceWith(div);
+
+        // 랜더링
+        App.grid.init(id, width, height, columns,rowClickEvent,options);
     }
 
     createColumn(children) {
@@ -50,21 +88,33 @@ export class Grid extends AbstractComponents {
             column.name = child.getAttribute("id");
             column.title = child.getAttribute("label");
             column.type = child.getAttribute("type");
-            column.width = child.getAttribute("width");
 
-            this.setOptionColumn(child, column, 'editing');
-            this.setOptionColumn(child, column, 'inserting');
+            let width = child.getAttribute("width");
+            column.width = (width) ? width : '100px';
+
+            let align = child.getAttribute("align");
+            column.align = (align) ? align : 'center';
+
+            let editing = child.getAttribute('editing');
+            if(editing) column.editing = App.util.stringToBoolean(editing);
+
+            let inserting = child.getAttribute('inserting');
+            if(inserting) column.inserting = App.util.stringToBoolean(inserting);
+
+            if(column.type == 'select') {
+                let items = child.getAttribute('dataProvider');
+                if(items) column.items = items;
+
+                let valueField = child.getAttribute("valueField");
+                column.valueField = (valueField) ? valueField : 'code';
+
+                let textField = child.getAttribute("textField");
+                column.textField = (textField) ? textField : 'name';
+            }
 
             columns.push(column);
         }
 
         return columns;
-    }
-
-    setOptionColumn(tag, column, columnId) {
-        let value = tag.getAttribute(columnId);
-        if(value) {
-            column[columnId] = value;
-        }
     }
 }

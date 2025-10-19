@@ -45,13 +45,26 @@ export class Workflow extends AbstractActions {
 
                 // Bind Message Tag
                 if(childTag.name == super.getTagEl().bindMessage) {
-                    let bindMessageId = tagContent.getAttribute("id");
+                    let bindMessageId = tagContent.getAttribute("bindMessageId");
                     code += `   ${messageVariableName}['${bindMessageId}'] = response['${bindMessageId}'];`;
                 }
                 // Script Tag
-                else if(childTag.name == super.getTagEl().script) {
+                else if(childTag.name == super.getTagEl().action) {
                     let scriptFunctionName = tagContent.getAttribute('name');
-                    code += `   ${scriptFunctionName}();`;
+                    code += `   ${scriptFunctionName}(response);`;
+                }
+                // Bind Data Tag
+                else if(childTag.name == super.getTagEl().bindData) {
+                    let dataProvider = tagContent.getAttribute("dataProvider");
+                    let gridId = tagContent.getAttribute("gridId");
+                    if(gridId){
+                        code += ` App.grid.setData('${gridId}', ${messageVariableName}['${dataProvider}']);`;
+                    }
+
+                    let formId = tagContent.getAttribute("formId");
+                    if(formId){
+                        code += ` App.form.setData('${formId}', ${messageVariableName}['${dataProvider}'][0]);`;
+                    }
                 }
             }
         }
@@ -68,11 +81,14 @@ export class Workflow extends AbstractActions {
                 let tagContent = childTag.content;
 
                 // Script Tag
-                if(childTag.name == super.getTagEl().script) {
+                if(childTag.name == super.getTagEl().action) {
                     let faultScriptFunctionName = tagContent.getAttribute('name');
                     code += `   ${faultScriptFunctionName}(error);`;
                 }
             }
+        }
+        else {
+            code += `   alert('['+code+'] ' + message);`;
         }
 
         code += `}`;

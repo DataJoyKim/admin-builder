@@ -11,7 +11,7 @@ export class ActionButton extends AbstractComponents {
        buttonEl.type = 'button';
        buttonEl.className = 'btn btn-default btn-sm';
        if (id) buttonEl.id = id;
-       if (actionName) buttonEl.setAttribute('onclick', actionName);
+       if (actionName) buttonEl.setAttribute('onclick', super.actionNameToFunction(actionName));
 
        // 아이콘 생성
        if (icon) {
