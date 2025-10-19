@@ -8,7 +8,7 @@ class WorkflowClient {
 
         let requestMessage = this.createRequestMessage(workflowCode, requestBody);
 
-        console.log('workflowClient.execute.request',requestMessage);
+        console.log('workflowClient.execute.'+workflowCode+'.request',requestMessage);
 
         $.ajax({
             type: 'POST',
@@ -21,7 +21,7 @@ class WorkflowClient {
                 self.showLoadingBar();
             },
             success: function(response) {
-                console.log('workflowClient.execute.response',response);
+                console.log('workflowClient.execute.'+workflowCode+'.response',response);
                 if(!response.resultType){
                     alert('워크플로우 실행에 실패하였습니다.');
                 }

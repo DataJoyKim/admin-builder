@@ -8,7 +8,5 @@ export class Code extends AbstractData {
         }
 
         let codes = super.getCodeVariable();
-
-        super.readyComplete();
     }
 }

@@ -1,5 +1,7 @@
-export class Col extends HTMLElement {
-    connectedCallback() {
+import { ViewObject } from '../ViewObject.js';
+
+export class Col extends ViewObject {
+    render() {
         const id = this.getAttribute('id');
         const size = this.getAttribute('size');
 

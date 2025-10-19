@@ -15,7 +15,5 @@ export class Message extends AbstractData {
         if(!parent) {
             return;
         }
-
-        super.readyComplete();
     }
 }

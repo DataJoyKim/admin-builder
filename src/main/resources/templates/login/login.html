@@ -72,9 +72,11 @@
 <script src="/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="/dist/js/adminlte.min.js"></script>
 <script src="/core/common.js"></script>
-<script src="/core/httpclient.js"></script>
+<script src="/core/LoadingBar.js"></script>
+<script src="/core/HttpClient.js"></script>
 <script src="/core/sheet.js"></script>
 <script th:inline="javascript">
+    App.loadingBar.render();
     const httpClient = new HttpClient();
     let api;
     let view;

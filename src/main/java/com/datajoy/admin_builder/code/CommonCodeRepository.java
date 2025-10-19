@@ -17,5 +17,5 @@ public interface CommonCodeRepository extends JpaRepository<CommonCode, Long> {
     """)
     List<CommonCode> findByCodeKindCodes(@Param("codeKindCodes") List<String> codeKindCodes);
 
-    List<CommonCode> findByCodKind(CommonCodeKind codeKind);
+    List<CommonCode> findByCodeKind(CommonCodeKind codeKind);
 }

@@ -4,7 +4,9 @@ class HttpClient {
     }
 
   get(_url, _requestParams, _success, _error) {
-    console.log('httpClient.get.request',{
+    let self = this;
+
+    console.log('httpClient.get.'+_url+'.request',{
         url:_url,
         requestParams:_requestParams
     });
@@ -15,10 +17,10 @@ class HttpClient {
       data: _requestParams,
       timeout: this.timeout,
       beforeSend: function() {
-        _showLoadingBar(true);
+        self.showLoadingBar();
       },
       success: function(response) {
-        console.log('httpClient.get.response',response);
+        console.log('httpClient.get.'+_url+'.response',response);
 
         _success(response);
       },
@@ -26,13 +28,15 @@ class HttpClient {
         _error(error);
       },
       complete: function() {
-        _showLoadingBar(false);
+        self.hideLoadingBar();
       }
     });
   }
 
-  post(_url, _requestParams, _requestBody, _success, _error) {
-    console.log('httpClient.post.request1',{
+  post(_url, _requestParams, _requestBody, _success, _error, options) {
+    let self = this;
+
+    console.log('httpClient.post.'+_url+'.request',{
         url:_url,
         requestParams:_requestParams,
         requestBody:_requestBody
@@ -54,11 +58,12 @@ class HttpClient {
       contentType: 'application/json; charset=utf8',
       data: JSON.stringify(_requestBody),
       timeout: this.timeout,
+      async: (options) ? options.async : true,
       beforeSend: function() {
-        _showLoadingBar(true);
+        self.showLoadingBar();
       },
       success: function(response) {
-        console.log('httpClient.post.response',response);
+        console.log('httpClient.post.'+_url+'.response',response);
 
         _success(response);
       },
@@ -66,13 +71,14 @@ class HttpClient {
         _error(error);
       },
       complete: function() {
-        _showLoadingBar(false);
+        self.hideLoadingBar();
       }
     });
   }
 
   put(_url, _requestParams, _requestBody, _success, _error) {
-    console.log('httpClient.put.request',{
+    let self = this;
+    console.log('httpClient.put.'+_url+'.request',{
         url:_url,
         requestParams:_requestParams,
         requestBody:_requestBody
@@ -86,10 +92,10 @@ class HttpClient {
       data: JSON.stringify(_requestBody),
       timeout: this.timeout,
       beforeSend: function() {
-        _showLoadingBar(true);
+        self.showLoadingBar();
       },
       success: function(response) {
-        console.log('httpClient.put.response',response);
+        console.log('httpClient.put.'+_url+'.response',response);
 
         _success(response);
       },
@@ -97,13 +103,15 @@ class HttpClient {
         _error(error);
       },
       complete: function() {
-        _showLoadingBar(false);
+        self.hideLoadingBar();
       }
     });
   }
 
   delete(_url, _requestParams, _success, _error) {
-    console.log('httpClient.delete.request',{
+    let self = this;
+
+    console.log('httpClient.delete.'+_url+'.request',{
         url:_url,
         requestParams:_requestParams
     });
@@ -113,10 +121,10 @@ class HttpClient {
       url: _url,
       timeout: this.timeout,
       beforeSend: function() {
-        _showLoadingBar(true);
+        self.showLoadingBar();
       },
       success: function(response) {
-        console.log('httpClient.put.response',response);
+        console.log('httpClient.put.'+_url+'.response',response);
 
         _success(response);
       },
@@ -124,10 +132,18 @@ class HttpClient {
         _error(error);
       },
       complete: function() {
-        _showLoadingBar(false);
+        self.hideLoadingBar();
       }
     });
   }
+
+    showLoadingBar() {
+        App.loadingBar.show();
+    }
+
+    hideLoadingBar() {
+        App.loadingBar.hide();
+    }
 }
 window.App = window.App || {};
 window.App.httpClient = new HttpClient();

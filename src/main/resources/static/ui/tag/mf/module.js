@@ -1,3 +1,5 @@
+import { View } from './view.js';
+
 import { ActionButton } from './components/ActionButton.js';
 import { Card } from './components/Card.js';
 import { Select } from './components/Select.js';
@@ -22,26 +24,27 @@ import { Messages } from './data/Messages.js';
 import { Message } from './data/Message.js';
 import { BindMessage } from './data/BindMessage.js';
 
-customElements.define('mf-action-button', ActionButton);
-customElements.define('mf-card', Card);
-customElements.define('mf-card-header', CardHeader);
-customElements.define('mf-card-body', CardBody);
-customElements.define('mf-select', Select);
-customElements.define('mf-text-input', TextInput);
-
-customElements.define('mf-actions', Actions);
-customElements.define('mf-script', Script);
-customElements.define('mf-workflow', Workflow);
-customElements.define('mf-result-event', ResultEvent);
-customElements.define('mf-fault-event', FaultEvent);
-
+customElements.define('mf-view', View);
 customElements.define('mf-data', Data);
+customElements.define('mf-actions', Actions);
+customElements.define('mf-layout', Layout);
+
 customElements.define('mf-codes', Codes);
 customElements.define('mf-code', Code);
 customElements.define('mf-messages', Messages);
 customElements.define('mf-message', Message);
 customElements.define('mf-bind-message', BindMessage);
+customElements.define('mf-script', Script);
+customElements.define('mf-workflow', Workflow);
+customElements.define('mf-result-event', ResultEvent);
+customElements.define('mf-fault-event', FaultEvent);
 
 customElements.define('mf-col', Col);
 customElements.define('mf-row', Row);
-customElements.define('mf-layout', Layout);
+
+customElements.define('mf-card', Card);
+customElements.define('mf-card-header', CardHeader);
+customElements.define('mf-card-body', CardBody);
+customElements.define('mf-action-button', ActionButton);
+customElements.define('mf-select', Select);
+customElements.define('mf-text-input', TextInput);

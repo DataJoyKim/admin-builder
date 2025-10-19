@@ -7,7 +7,7 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-@Table(uniqueConstraints = {@UniqueConstraint(name="COMMON_CODE_KIND_UQ",columnNames={"codeKind"})})
+@Table(uniqueConstraints = {@UniqueConstraint(name="COMMON_CODE_KIND_UQ",columnNames={"code"})})
 @Entity
 public class CommonCodeKind {
     @Id

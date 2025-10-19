@@ -1,5 +1,7 @@
-export class Row extends HTMLElement {
-    connectedCallback() {
+import { ViewObject } from '../ViewObject.js';
+
+export class Row extends ViewObject {
+    render() {
         let id = this.getAttribute('id');
         let size = this.getAttribute('size');
         let className = 'row';

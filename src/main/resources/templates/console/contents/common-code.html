@@ -1,0 +1,252 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<script th:fragment="script">
+        $( document ).ready(function() {
+            console.log('version.0.0.1');
+            init();
+        });
+
+        function init() {
+
+            sheet.initSheet('jsGrid1', "100%","500px",
+            [
+                {name: "id", title:"ID", type: "number", width: 50, editing: false, inserting: false},
+                {name: "code", title:"코드종류", type: "text", width: 150 },
+                {name: "name", title:"코드종류명", type: "text", width: 200 }
+            ],
+            function(args) {
+                selectedContent(args.item);
+            });
+
+
+            sheet.initSheet('commonCodeGrid', "100%","500px",
+            [
+                {name: "id", title:"ID", type: "number", width: 20, editing: false, inserting: false},
+                {name: "code", title:"code", type: "text", width: 100},
+                {name: "name", title:"name", type: "text", width: 100},
+                {name: "orderNum", title:"순서", type: "number", width: 30},
+                { type: "control", editButton: true, width: 30, modeSwitchButton: false }
+            ],
+            function(args) {},
+            {
+                inserting: true,
+                editing: true,
+                onItemInserting: function(args) {
+                    insertCommonCode($("#code").val(), args.item);
+                },
+                onItemUpdated: function(args) {
+                    updateCommonCode($("#code").val(),args.item);
+                },
+                onItemDeleting: function(args) {
+                    deleteCommonCode($("#code").val(), args.item);
+                }
+            });
+
+            getList();
+        }
+
+        function getList() {
+            httpClient.get(`/console/api/common-code-kind`, {},
+                function(response){
+                    sheet.setSheetData('jsGrid1', response);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function selectedContent(item) {
+            httpClient.get(`/console/api/common-code-kind/${item.id}`, {},
+                function(response){
+                    setContentData(response);
+                    getCommonCode(response.code);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function save() {
+            let id = $("#id").val();
+
+            if(!id)
+                insertContent();
+            else
+                updateContent(id);
+        }
+
+        function insertContent() {
+            httpClient.post(`/console/api/common-code-kind`,{},getContent(),
+                function(response){
+                    alert("저장완료되었습니다.");
+                    getList();
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function updateContent(id) {
+          httpClient.put(`/console/api/common-code-kind/${id}`, {}, getContent(),
+              function(response){
+                  alert("저장완료되었습니다.");
+                  getList();
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+        function deleteContent() {
+          let id = $("#id").val();
+
+          httpClient.delete(`/console/api/common-code-kind/${id}`, {},
+              function(response){
+                  alert("삭제 처리 완료되었습니다.");
+                  getList();
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+        function setContentData(response) {
+            setContent({
+                id:response.id,
+                code:response.code,
+                name:response.name
+              });
+        }
+
+        function getContent() {
+            return {
+                id: $("#id").val(),
+                code: $("#code").val(),
+                name: $("#name").val()
+            }
+        }
+
+        function setContent(params) {
+            $("#id").val(params.id);
+            $("#code").val(params.code);
+            $("#name").val(params.name);
+          }
+
+          function newContent(){
+            setContent({
+                id:'',
+                code:'',
+                name:''
+              });
+          }
+
+
+        function getCommonCode(codeKindCode) {
+            httpClient.get(`/console/api/common-code`, {codeKindCode:codeKindCode},
+                function(response){
+                    sheet.setSheetData('commonCodeGrid', response);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function insertCommonCode(codeKindCode, item) {
+            httpClient.post(`/console/api/common-code`,{},
+                {
+                   codeKindCode:codeKindCode,
+                   code:item.code,
+                   name:item.name,
+                   orderNum:item.orderNum
+                },
+                function(response){
+                    alert("생성 완료되었습니다.");
+                    getCommonCode(codeKindCode);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function updateCommonCode(codeKindCode, item) {
+          httpClient.put(`/console/api/common-code/${item.id}`, {},
+              {
+                   codeKindCode:codeKindCode,
+                   code:item.code,
+                   name:item.name,
+                   orderNum:item.orderNum
+              },
+              function(response){
+                  alert("변경 완료되었습니다.");
+                  getCommonCode(codeKindCode);
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+        function deleteCommonCode(codeKindCode, item) {
+          httpClient.delete(`/console/api/common-code/${item.id}`, {},
+              function(response){
+                  alert("삭제 완료되었습니다.");
+                  getCommonCode(codeKindCode);
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+    </script>
+<div th:fragment="view">
+    <div class="row">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">공통코드</h3>
+                        <div class="card-tools">
+                            <mf-action-button id="search" actionName="getList()" icon="fas fa-search"></mf-action-button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="jsGrid1"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">상세 내용</h3>
+                        <div class="card-tools">
+                            <mf-action-button id="new" actionName="newContent()" icon="fas fa-plus"></mf-action-button>
+                            <mf-action-button id="save" actionName="save()" icon="fas fa-save"></mf-action-button>
+                            <mf-action-button id="delete" actionName="deleteContent()" icon="fas fa-trash"></mf-action-button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-1">
+                                <mf-text-input id="id" label="ID" enable="false" ></mf-text-input>
+                            </div>
+                            <div class="col-md-3">
+                                <mf-text-input id="code" label="코드종류" enable="true"></mf-text-input>
+                            </div>
+                            <div class="col-md-3">
+                                <mf-text-input id="name" label="코드종류명" enable="true" ></mf-text-input>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="commonCodeGrid"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</html>

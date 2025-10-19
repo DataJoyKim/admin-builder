@@ -1,5 +1,7 @@
-export class Layout extends HTMLElement {
-    connectedCallback() {
+import { ViewObject } from '../ViewObject.js';
+
+export class Layout extends ViewObject {
+    render() {
         const id = this.getAttribute('id');
 
         const div = document.createElement('div');

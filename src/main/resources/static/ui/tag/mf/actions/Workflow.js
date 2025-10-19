@@ -84,9 +84,6 @@ export class Workflow extends AbstractActions {
 
         // 함수 생성
         window[name] = new Function(code);
-
-        // 컴포넌트 준비완료
-        super.readyComplete();
     }
 
     createRequestMessageIds(children) {

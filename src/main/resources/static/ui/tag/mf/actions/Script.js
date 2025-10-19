@@ -19,8 +19,5 @@ export class Script extends AbstractActions {
         else {
             window[fnName] = new Function(code);
         }
-
-        // 컴포넌트 준비완료
-        super.readyComplete();
     }
 }

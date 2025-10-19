@@ -1,8 +1,9 @@
 <html xmlns:th="http://www.thymeleaf.org">
-<div th:fragment="view">
+<mf-view th:fragment="view">
     <mf-data>
         <mf-codes>
-
+            <mf-code id="SYS_ENTTIY" name="SYS_ENTTIY" type="COMMON_CODE">
+            </mf-code>
         </mf-codes>
         <mf-messages>
             <mf-message id="ME_EVAL0001_01"></mf-message>
@@ -45,6 +46,7 @@
                         <mf-row>
                             <mf-col size="col-6">
                                 <mf-text-input id="id" label="ID" enable="false"></mf-text-input>
+                                <mf-select id="dataSourceName" label="dataSource" enable="true" dataProvider="SYS_ENTTIY" useFirstItem="true" firstItemLabel="선택" firstItemValue=""></mf-select>
                             </mf-col>
                         </mf-row>
                     </mf-card-body>
@@ -72,5 +74,5 @@
             </mf-col>
         </mf-row>
     </mf-layout>
-</div>
+</mf-view>
 </html>

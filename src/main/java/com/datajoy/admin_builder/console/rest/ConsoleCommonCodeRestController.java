@@ -28,7 +28,7 @@ public class ConsoleCommonCodeRestController {
         CommonCodeKind codeKind = commonCodeKindRepository.findByCode(codeKindCode)
                                             .orElseThrow();
 
-        List<CommonCode> results = repository.findByCodKind(codeKind);
+        List<CommonCode> results = repository.findByCodeKind(codeKind);
 
         return new ResponseEntity<>(results, HttpStatus.OK);
     }
@@ -64,6 +64,7 @@ public class ConsoleCommonCodeRestController {
         savedData.update(
                 (String) params.get("code"),
                 (String) params.get("name"),
+                Integer.parseInt((String) params.get("orderNum")),
                 codeKind
         );
 
