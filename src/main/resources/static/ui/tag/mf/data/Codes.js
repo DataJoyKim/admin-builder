@@ -10,7 +10,7 @@ export class Codes extends AbstractData {
         for (const child of this.children) {
             let childTagName = child.tagName.toLowerCase();
 
-            if(childTagName != super.getCodeTagName()) {
+            if(childTagName != super.getTagEl().code) {
                 continue;
             }
 

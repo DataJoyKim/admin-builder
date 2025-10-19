@@ -58,17 +58,10 @@
                         <mf-action-button id="search" actionName="test()" icon="fas fa-search"></mf-action-button>
                     </mf-card-header>
                     <mf-card-body>
-                        <mf-row>
-                            <mf-col size="col-2">
-                                <mf-text-input id="id" label="ID" enable="false"></mf-text-input>
-                            </mf-col>
-                            <mf-col size="col-1">
-                                <mf-text-input id="id" label="ID" enable="false"></mf-text-input>
-                            </mf-col>
-                            <mf-col size="col-2">
-                                <mf-text-input id="id" label="ID" enable="false"></mf-text-input>
-                            </mf-col>
-                        </mf-row>
+                        <mf-grid id="myTable1" width="100%" height="100%" control="false">
+                            <mf-grid-column  type="text" id="id"    label="ID"     width=""></mf-grid-column>
+                            <mf-grid-column  type="text" id="name" label="name" width=""></mf-grid-column>
+                        </mf-grid>
                     </mf-card-body>
                 </mf-card>
             </mf-col>

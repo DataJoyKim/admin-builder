@@ -36,40 +36,42 @@ export class Workflow extends AbstractActions {
         let responseTag = this.createResponseTag(this.children);
 
         // 결과 코드 생성
-        let resultEventTag = responseTag[super.getResultEventTagName()];
-
         code += `function(response){`
 
-        for(const childTag of resultEventTag) {
-            let tagContent = childTag.content;
+        let resultEventTag = responseTag[super.getTagEl().resultEvent];
+        if(resultEventTag) {
+            for(const childTag of resultEventTag) {
+                let tagContent = childTag.content;
 
-            // Bind Message Tag
-            if(childTag.name == super.getBindMessageTagName()) {
-                let bindMessageId = tagContent.getAttribute("id");
-                code += `   ${messageVariableName}['${bindMessageId}'] = response['${bindMessageId}'];`;
-            }
-            // Script Tag
-            else if(childTag.name == super.getScriptTagName()) {
-                let scriptFunctionName = tagContent.getAttribute('name');
-                code += `   ${scriptFunctionName}();`;
+                // Bind Message Tag
+                if(childTag.name == super.getTagEl().bindMessage) {
+                    let bindMessageId = tagContent.getAttribute("id");
+                    code += `   ${messageVariableName}['${bindMessageId}'] = response['${bindMessageId}'];`;
+                }
+                // Script Tag
+                else if(childTag.name == super.getTagEl().script) {
+                    let scriptFunctionName = tagContent.getAttribute('name');
+                    code += `   ${scriptFunctionName}();`;
+                }
             }
         }
 
         code += `},`;
 
         // 실패 코드 생성
-        let faultEventTag = responseTag[super.getFaultEventTagName()];
-
         code += `function(code, status, message){ `;
         code += ` let error = {code:code,status:status,message:message};`;
 
-        for(const childTag of faultEventTag) {
-            let tagContent = childTag.content;
+        let faultEventTag = responseTag[super.getTagEl().faultEvent];
+        if(faultEventTag) {
+            for(const childTag of faultEventTag) {
+                let tagContent = childTag.content;
 
-            // Script Tag
-            if(childTag.name == super.getScriptTagName()) {
-                let faultScriptFunctionName = tagContent.getAttribute('name');
-                code += `   ${faultScriptFunctionName}(error);`;
+                // Script Tag
+                if(childTag.name == super.getTagEl().script) {
+                    let faultScriptFunctionName = tagContent.getAttribute('name');
+                    code += `   ${faultScriptFunctionName}(error);`;
+                }
             }
         }
 
@@ -90,7 +92,7 @@ export class Workflow extends AbstractActions {
         let messagesIds = new Array();
 
         for (const child of children) {
-            if(child.tagName.toLowerCase() == super.getMessageTagName()) {
+            if(child.tagName.toLowerCase() == super.getTagEl().message) {
                 messagesIds.push(child.getAttribute('id'));
             }
         }
@@ -104,8 +106,8 @@ export class Workflow extends AbstractActions {
         for (const child of children) {
             let childTagName = child.tagName.toLowerCase();
 
-            if(childTagName != super.getResultEventTagName()
-            && childTagName != super.getFaultEventTagName()) {
+            if(childTagName != super.getTagEl().resultEvent
+            && childTagName != super.getTagEl().faultEvent) {
                 continue;
             }
 

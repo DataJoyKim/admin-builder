@@ -3,16 +3,21 @@ export class ViewObject extends HTMLElement {
     _codeVariableName = 'codes';
     _dataReadyEventName = 'mf-data-ready';
     _actionsReadyEventName = 'mf-actions-ready';
-    _actionsTagName = 'mf-actions';
-    _dataTagName = 'mf-data';
-    _layoutTagName = 'mf-layout';
-    _messagesTagName = 'mf-messages';
-    _messageTagName = 'mf-message';
-    _bindMessageTagName = 'mf-bind-message';
-    _resultEventTagName = 'mf-result-event';
-    _faultEventTagName = 'mf-fault-event';
-    _scriptTagName = 'mf-script';
-    _codeTagName = 'mf-code';
+
+    tagEl = {
+        actions : 'mf-actions',
+        data : 'mf-data',
+        layout : 'mf-layout',
+        messages : 'mf-messages',
+        message : 'mf-message',
+        bindMessage : 'mf-bind-message',
+        resultEvent : 'mf-result-event',
+        faultEvent : 'mf-fault-event',
+        script : 'mf-script',
+        code : 'mf-code',
+        gridColumn : 'mf-grid-column'
+    }
+
     _debug = true;
 
     id;
@@ -28,6 +33,7 @@ export class ViewObject extends HTMLElement {
         // 컴포넌트 준비완료 이벤트 수신 등록
         this.registerReady(tagName);
 
+        // 렌더링
         this.render();
 
         // 컴포넌트 준비완료
@@ -93,14 +99,6 @@ export class ViewObject extends HTMLElement {
         return this._actionsReadyEventName;
     }
 
-    getMessagesTagName() {
-        return this._messagesTagName;
-    }
-
-    getMessageTagName() {
-        return this._messageTagName;
-    }
-
     getMessageVariable() {
         return window.App[this._messageVariableName];
     }
@@ -123,24 +121,8 @@ export class ViewObject extends HTMLElement {
         window.App[this._codeVariableName] = value;
     }
 
-    getBindMessageTagName() {
-        return this._bindMessageTagName;
-    }
-
-    getResultEventTagName() {
-        return this._resultEventTagName;
-    }
-
-    getFaultEventTagName() {
-        return this._faultEventTagName;
-    }
-
-    getScriptTagName() {
-        return this._scriptTagName;
-    }
-
-    getCodeTagName() {
-        return this._codeTagName;
+    getTagEl() {
+        return this.tagEl;
     }
 
     logging(kind, msg) {

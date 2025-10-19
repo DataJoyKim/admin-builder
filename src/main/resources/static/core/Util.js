@@ -12,6 +12,10 @@ class Util {
     booleanToYn(value) {
         return (value && value == true) ? 'Y' : 'N';
     }
+
+    stringToBoolean(value) {
+        return (value && value.toLowerCase() == "true") ? true : false;
+    }
 }
 
 window.App = window.App || {};
