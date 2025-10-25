@@ -4,9 +4,12 @@
         $( document ).ready(function() {
             init();
         });
+        let codes;
 
         function init() {
-            let codes = {
+            setWorkflowGrid();
+
+            codes = {
                 "FunctionType":[
                     {id:"ENTITY",name:"Entity"},
                     {id:"SQL",name:"SQL"},
@@ -15,6 +18,20 @@
                 "YnCd":[
                     {id:"true",name:"Y"},
                     {id:"false",name:"N"}
+                ],
+                "AutoValueType":[
+                    {id:"DEFAULT",name:"기본"},
+                    {id:"STATIC_VALUE",name:"static 값"},
+                    {id:"RESERVED_WORD",name:"예약어"}
+                ]
+                ,"ParamType":[
+                    {id:"STRING",name:"String"},
+                    {id:"NUMBER",name:"Number"},
+                    {id:"DATE",name:"Date"}
+                ]
+                ,"InOut":[
+                    {id:"IN",name:"IN"},
+                    {id:"OUT",name:"OUT"}
                 ]
             };
 
@@ -23,39 +40,13 @@
             sheet.initSheet('jsGrid1', "100%","600px",
             [
                 {name: "id", title:"ID", type: "number", width: 50 },
-                {name: "workflowCode", title:"workflow 명", type: "text", width: 150 },
-                {name: "displayName", title:"화면노출명", type: "text", width: 200 }
+                {name: "workflowCode", title:"코드", type: "text", width: 150 },
+                {name: "displayName", title:"명칭", type: "text", width: 200 }
             ],
             function(args) {
                 selectedContent(args.item);
                 $("#validWorkflowCode").val(args.item.workflowCode);
                 sheet.setSheetData('workflowExecute', [{"key":"_seq","value":"1"},{"key":"_status","value":"R"}]);
-            });
-
-            sheet.initSheet('workflowFunctionGrid', "100%","500px",
-            [
-                {name: "id", title:"ID", type: "number", width: 20, editing: false, inserting: false},
-                {name: "functionType", title:"type", type: "select", width: 50, items: codes["FunctionType"], valueField: "id", textField: "name" },
-                {name: "functionName", title:"function", type: "text", width: 100},
-                {name: "requestMessageId", title:"요청메시지ID", type: "text", width: 100},
-                {name: "responseMessageId", title:"응답메시지ID", type: "text", width: 100},
-                {name: "isLogging", title:"로깅", type: "checkbox", width: 50},
-                {name: "orderNum", title:"순서", type: "number", width: 30},
-                { type: "control", editButton: true, width: 30, modeSwitchButton: false }
-            ],
-            function(args) {},
-            {
-                inserting: true,
-                editing: true,
-                onItemInserting: function(args) {
-                    insertWorkflowFunction($("#id").val(), args.item);
-                },
-                onItemUpdated: function(args) {
-                    updateWorkflowFunction($("#id").val(),args.item);
-                },
-                onItemDeleting: function(args) {
-                    deleteWorkflowFunction($("#id").val(), args.item);
-                }
             });
 
             sheet.initSheet('workflowExecute', "300px","300px",
@@ -102,6 +93,18 @@
 
         function setCodes(codes) {
             setCodeBox("useAuthValidation", codes["YnCd"]);
+        }
+
+        function initCodeEditor(id,mode) {
+            let textarea = document.getElementById(id);
+
+            return CodeMirror.fromTextArea(textarea, {
+                lineNumbers: true,
+                lineWrapping: true,
+                theme: "darcula",
+                mode: mode,
+                val: textarea.value
+            });
         }
 
         function save() {
@@ -216,7 +219,7 @@
         function getWorkflowFunction(workflowId) {
             httpClient.get(`/console/api/workflow-function`, {workflowId:workflowId},
                 function(response){
-                    sheet.setSheetData('workflowFunctionGrid', response);
+                    drawWorkflow('workflowGrid',response);
                 },
                 function(error){
                     alert('error');
@@ -366,13 +369,211 @@
               }
           );
         }
+        function setWorkflowGrid() {
+            $("#workflowGrid").sortable({
+                axis: "y",
+                cursor: "move",
+                placeholder: "workflow-item-placeholder",
+                tolerance: "pointer",
+                items: ".step-item",
+                update: function() {
+                    drawConnectors();
+                }
+            });
+
+             $("<style>")
+            .prop("type", "text/css")
+            .html(`
+              .workflow-item-placeholder {
+                height: 80px;                   /* 카드 높이와 동일 */
+                border: 2px dashed #007bff;     /* 테두리 강조 */
+                background: #d0e7ff;            /* 배경색 */
+                margin-bottom: 10px;            /* 카드 간격 맞춤 */
+                border-radius: 8px;
+              }
+            `)
+            .appendTo("head");
+        }
+
+        function drawWorkflow(id, response){
+            let html = '';
+            for(let data of response) {
+                html += htmlStepItem(data);
+            }
+            html += htmlConnectLine();
+
+            $("#"+id).html(html);
+
+            drawConnectors();
+        }
+
+        function clickStepItem(functionType) {
+            initFunctionGrid();
+
+            if(functionType == "SQL") {
+                drawSqlGrid();
+            }
+        }
+
+        function addStepItem() {
+            $("#workflowGrid").append(htmlStepItem({
+                functionType:"SQL",
+                functionName:"FRM0001_R01",
+                requestMessageId:"ME_FRM0001_01",
+                responseMessageId:"ME_FRM0001_02"
+            }));
+
+            drawConnectors();
+        }
+
+        function htmlConnectLine() {
+            return `<svg id="connectorLayer" width="100%" height="100%" style="position:absolute; top:0; left:0; pointer-events:none;"></svg>`;
+        }
+
+        function htmlStepItem(data) {
+            let iconPath = '';
+            if(data.functionType == 'SQL'){
+                iconPath = '/dist/img/func-sql.png';
+            }
+            else if(data.functionType == 'ENTITY'){
+                iconPath = '/dist/img/func-entity.png';
+            }
+            else if(data.functionType == 'REST_CLIENT'){
+                iconPath = '/dist/img/func-restclient.png';
+            }
+
+            return `
+                <div class="step-item" id="${data.functionName}" onclick="clickStepItem('${data.functionType}')" style="position: relative; background-color: #ffffff; width: 350px; height: 170px; border-radius: 8px; display: flex; flex-direction: column; font-size: 18px; border: 2px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.2); cursor: pointer;margin-bottom:15px;">
+
+                    <!-- IN 영역 -->
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 8px; background-color: #e0f2ff; padding: 6px 16px; border-top-left-radius: 8px; border-top-right-radius: 8px;">
+                        <span style="background-color: #bae6ff; color: #0369a1; font-size: 12px; font-weight: bold; padding: 2px 8px; border-radius: 12px;">IN</span>
+                        <span style="color: #065f9e; font-weight: 500; font-size: 15px;">${data.requestMessageId}</span>
+                    </div>
+
+                    <!-- 기능 영역 -->
+                    <div style="flex: 1; display: flex; flex-direction: row; align-items: center; justify-content: flex-start; padding: 12px 24px;gap: 16px; border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb;">
+                        <span style="width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; margin-bottom: 4px;">
+                            <img src="${iconPath}" width="70" height="70" style="display:block;">
+                        </span>
+                        <span style="display: flex; flex-direction: column;">
+                            <font style="color: #1f2937; font-weight: 500;font-size: 18px;">
+                                ${data.functionName}
+                            </font>
+                            <font style="color: #1f2937; font-weight: 300;font-size: 14px;">
+                                ${data.functionName}
+                            </font>
+                        </span>
+                    </div>
+
+                    <!-- OUT 영역 -->
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 8px; background-color: #e6f9ea; padding: 6px 16px; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;">
+                        <span style="background-color: #a8f0a0; color: #047857; font-size: 12px; font-weight: bold; padding: 2px 8px; border-radius: 12px;">OUT</span>
+                        <span style="color: #065f46; font-weight: 500; font-size: 15px;">${data.responseMessageId}</span>
+                    </div>
+
+                    <!-- 드래그 핸들 -->
+                    <span class="handle" style="position: absolute; top: 5px; right: 5px; cursor: grab; font-size: 20px;">⠿</span>
+                </div>
+            `;
+        }
+
+        function drawConnectors() {
+            const steps = document.querySelectorAll('.step-item');
+            const svg = document.getElementById('connectorLayer');
+            svg.innerHTML = ''; // 초기화
+
+            steps.forEach((step, i) => {
+                if(i === steps.length - 1) return; // 마지막은 연결 X
+
+                const start = step.getBoundingClientRect();
+                const end = steps[i + 1].getBoundingClientRect();
+                const container = svg.getBoundingClientRect();
+
+                const x = start.left + start.width / 2 - container.left;
+                const y1 = start.bottom - container.top;
+                const y2 = end.top - container.top;
+
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                line.setAttribute("x1", x);
+                line.setAttribute("y1", y1);
+                line.setAttribute("x2", x);
+                line.setAttribute("y2", y2);
+                line.setAttribute("stroke", "#bbb");
+                line.setAttribute("stroke-width", "3");
+
+                svg.appendChild(line);
+            });
+        }
+
+        function drawSqlGrid() {
+            let html = `
+                    <div class="row">
+                        <div class="col-md-1" style="display:none;">
+                            <mf-text-input id="id" label="ID" enable="false"></mf-text-input>
+                        </div>
+                        <div class="col-md-3">
+                            <mf-text-input id="queryName" label="query 명" enable="true"></mf-text-input>
+                        </div>
+                        <div class="col-md-3">
+                            <mf-text-input id="displayName" label="화면 노출명" enable="true" ></mf-text-input>
+                        </div>
+                        <div class="col-md-3">
+                            <mf-select id="dataSourceName" label="dataSource" enable="true" useFirstItem="true" firstItemLabel="" firstItemValue=""></mf-select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label>SQL</label>
+                            <textarea id="query" name="query" rows="50"></textarea>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div id="queryParameterGrid"></div>
+                        </div>
+                    </div>
+            `;
+
+            $("#functionGrid").html(html);
+            sqlEditor = initCodeEditor('query','text/x-sql');
+
+            sheet.initSheet('queryParameterGrid', "100%","300px",
+            [
+                {name: "id", title:"ID", type: "number", width: 20, editing: false, inserting: false},
+                {name: "paramName", title:"파라미터명", type: "text", width: 80 },
+                {name: "paramType", title:"type", type: "select", width: 50, items: codes["ParamType"], valueField: "id", textField: "name" },
+                {name: "autoValueType", title:"자동값유형", type: "select", width: 50, items: codes["AutoValueType"], valueField: "id", textField: "name" },
+                {name: "inOut", title:"IN/OUT", type: "select", width: 50, items: codes["InOut"], valueField: "id", textField: "name" },
+                { type: "control", editButton: true, width: 30, modeSwitchButton: false }
+            ],
+            function(args) {},
+            {
+                inserting: true,
+                editing: true,
+                onItemInserting: function(args) {
+                    insertQueryParam($("#id").val(), args.item);
+                },
+                onItemUpdated: function(args) {
+                    updateQueryParam($("#id").val(),args.item);
+                },
+                onItemDeleting: function(args) {
+                    deleteQueryParam($("#id").val(), args.item);
+                }
+            });
+        }
+
+        function initFunctionGrid() {
+            $("#functionGrid").html('');
+        }
+
     </script>
 <div th:fragment="view">
     <div class="row">
-        <div class="col-lg-4">
+        <div class="col-3">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Workflow</h3>
+                    <h3 class="card-title">워크플로우 목록</h3>
                     <div class="card-tools">
                         <mf-action-button id="search" actionName="getWorkflow()" icon="fas fa-search"></mf-action-button>
                     </div>
@@ -382,99 +583,55 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-8">
+        <div class="col-4">
             <div class="card">
-                <ul class="nav nav-tabs" id="workflow-tab" role="tablist">
-                    <li class="nav-item">
-                        <a class="nav-link active" id="workflow-detail-tab" data-toggle="pill" href="#workflow-detail" role="tab" aria-controls="workflow-detail" aria-selected="true">상세내용</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" id="workflow-access-control-tab" data-toggle="pill" href="#workflow-access-control" role="tab" aria-controls="workflow-access-control" aria-selected="false">접근제어</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" id="workflow-valid-tab" data-toggle="pill" href="#workflow-valid" role="tab" aria-controls="workflow-valid" aria-selected="false">실행</a>
-                    </li>
-                </ul>
-                <div class="tab-content" id="workflow-tabContent">
-                    <div class="tab-pane fade show active" id="workflow-detail" role="tabpanel" aria-labelledby="workflow-detail-tab">
-                        <div class="card-header">
-                            <h3 class="card-title">상세 내용</h3>
-                            <div class="card-tools">
-                                <mf-action-button id="new" actionName="newContent()" icon="fas fa-plus"></mf-action-button>
-                                <mf-action-button id="save" actionName="save()" icon="fas fa-save"></mf-action-button>
-                                <mf-action-button id="delete" actionName="deleteContent()" icon="fas fa-trash"></mf-action-button>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-1">
-                                    <mf-text-input id="id" label="ID" enable="false"></mf-text-input>
-                                </div>
-                                <div class="col-md-3">
-                                    <mf-text-input id="workflowCode" label="workflow 명" enable="true"></mf-text-input>
-                                </div>
-                                <div class="col-md-3">
-                                    <mf-text-input id="displayName" label="화면 노출명" enable="true" ></mf-text-input>
-                                </div>
-                                <div class="col-md-1">
-                                    <mf-select id="useAuthValidation" label="인증사용" enable="true" useFirstItem="true" firstItemLabel="" firstItemValue=""></mf-select>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <mf-text-input id="note" label="note" enable="true"></mf-text-input>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div id="workflowFunctionGrid"></div>
-                        </div>
+                <div class="card-header">
+                    <h3 class="card-title">정의</h3>
+                    <div class="card-tools">
+                        <mf-action-button id="new" actionName="newContent()" icon="fas fa-plus"></mf-action-button>
+                        <mf-action-button id="save" actionName="save()" icon="fas fa-save"></mf-action-button>
+                        <mf-action-button id="delete" actionName="deleteContent()" icon="fas fa-trash"></mf-action-button>
                     </div>
-                    <div class="tab-pane fade" id="workflow-access-control" role="tabpanel" aria-labelledby="workflow-access-control-tab">
-                        <div class="card-header">
-                            <h3 class="card-title">접근제어</h3>
-                            <div class="card-tools">
-                                <mf-action-button id="execute" actionName="execute()" icon="fas fa-check"></mf-action-button>
-                            </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-1" style="display:none;">
+                            <mf-text-input id="id" label="ID" enable="false" ></mf-text-input>
                         </div>
-                        <div class="card-body">
-                            <div id="workflowAuthorityGrid"></div>
+                        <div class="col-md-3">
+                            <mf-text-input id="workflowCode" label="코드" enable="true"></mf-text-input>
                         </div>
-                    </div>
-                    <div class="tab-pane fade" id="workflow-valid" role="tabpanel" aria-labelledby="workflow-valid-tab">
-                        <div class="card-header">
-                            <h3 class="card-title">실행</h3>
-                            <div class="card-tools">
-                                <mf-action-button id="execute" actionName="execute()" icon="fas fa-check"></mf-action-button>
-                            </div>
+                        <div class="col-md-3">
+                            <mf-text-input id="displayName" label="명칭" enable="true" ></mf-text-input>
                         </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-3">
-                                    <mf-text-input id="validWorkflowCode" label="워크플로우 코드" enable="true"></mf-text-input>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-3">
-                                    <mf-text-input id="requestMessageId" label="요청메시지ID" enable="true" ></mf-text-input>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-3">
-                                    <div id="workflowExecute"></div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-3">
-                                    <div class="form-group">
-                                        <label>응답 데이터</label>
-                                        <textarea id="responseData"  rows="20" cols="100"></textarea>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="col-md-2">
+                            <mf-select id="useAuthValidation" label="인증사용" enable="true" useFirstItem="true" firstItemLabel="" firstItemValue=""></mf-select>
                         </div>
                     </div>
                 </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">워크플로우</h3>
+                    <div class="card-tools">
+                        <mf-action-button id="new" actionName="addStepItem()" icon="fas fa-plus"></mf-action-button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="workflowGrid" style="display:flex; flex-direction:column; gap:10px; align-items: center; justify-content: center;">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-5">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">기능</h3>
+                    <div class="card-tools">
+                        <mf-action-button id="save" actionName="save()" icon="fas fa-save"></mf-action-button>
+                    </div>
+                </div>
+                <div class="card-body" id="functionGrid"></div>
             </div>
         </div>
     </div>
