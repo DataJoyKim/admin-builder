@@ -1,4 +1,74 @@
 <html xmlns:th="http://www.thymeleaf.org">
+<style th:fragment="style">
+    .step-item {
+        position: relative;
+        background-color: #ffffff;
+        width: 350px;
+        height: 180px;
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        font-size: 18px;
+        border: 2px solid #ddd;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        margin-bottom:15px;
+    }
+
+    .step-message {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 6px 16px;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+    }
+
+    .step-message-type {
+        font-size: 12px;
+        font-weight: bold;
+        padding: 2px 8px;
+        border-radius: 12px;
+    }
+
+    .step-message-id {
+       font-weight: 500;
+       font-size: 15px;
+    }
+
+    .step-function {
+        flex: 1;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 12px 24px;
+        gap: 16px;
+        border-top: 1px solid #e5e7eb;
+        border-bottom: 1px solid #e5e7eb;
+        cursor: pointer;
+    }
+
+    .step-tools {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+    }
+
+    .step-function-img {
+        width: 70px;
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 4px;
+    }
+
+    .step-function-name {
+        display: flex;
+        flex-direction: column;
+    }
+</style>
 <script th:fragment="script">
 
         $( document ).ready(function() {
@@ -32,14 +102,47 @@
                 ,"InOut":[
                     {id:"IN",name:"IN"},
                     {id:"OUT",name:"OUT"}
+                ],
+                "ColumnType":[
+                    {id:"STRING",name:"String"},
+                    {id:"NUMBER",name:"Number"},
+                    {id:"DATE",name:"Date"},
+                    {id:"DATETIME",name:"Datetime"}
+                ],
+                "SelectWhereType":[
+                    {id:"COMPARE_REQUIRED",name:"필수"},
+                    {id:"COMPARE_NOT_REQUIRED",name:"필수아님"}
+                ],
+                "SelectWhereCompareOperator":[
+                    {id:"=",name:"="},
+                    {id:"!=",name:"!="},
+                    {id:">",name:">"},
+                    {id:">=",name:">="},
+                    {id:"<",name:"<"},
+                    {id:"<=",name:"<="},
+                    {id:"like",name:"like"}
+                ],
+                "SortOrder":[
+                    {id:"ASC",name:"오름차순"},
+                    {id:"DESC",name:"내림차순"}
+                ],
+                "NullResolveType":[
+                    {id:"EXCEPTION",name:"예외처리"},
+                    {id:"SET_NULL",name:"null 셋팅"},
+                    {id:"EXCLUDE_QUERY",name:"제외"}
+                ],
+                "AutoValueType":[
+                    {id:"STATIC_VALUE",name:"static 값"},
+                    {id:"QUERY",name:"쿼리"},
+                    {id:"RESERVED_WORD",name:"예약어"}
                 ]
             };
 
             setCodes(codes);
 
-            sheet.initSheet('jsGrid1', "100%","600px",
+            sheet.initSheet('jsGrid1', "100%","800px",
             [
-                {name: "id", title:"ID", type: "number", width: 50 },
+                {name: "id", title:"ID", type: "number", width: 50, visible: false },
                 {name: "workflowCode", title:"코드", type: "text", width: 150 },
                 {name: "displayName", title:"명칭", type: "text", width: 200 }
             ],
@@ -108,7 +211,7 @@
         }
 
         function save() {
-            let id = $("#id").val();
+            let id = $("#workflowId").val();
 
             if(isEmpty(id))
                 insertContent();
@@ -165,7 +268,7 @@
         }
 
         function deleteContent() {
-          let id = $("#id").val();
+          let id = $("#workflowId").val();
 
           httpClient.delete(`/console/api/workflow/${id}`, {},
               function(response){
@@ -190,7 +293,7 @@
 
         function getContent() {
             return {
-                id: $("#id").val(),
+                id: $("#workflowId").val(),
                 workflowCode: $("#workflowCode").val(),
                 displayName: $("#displayName").val(),
                 note: $("#note").val(),
@@ -199,7 +302,7 @@
         }
 
         function setContent(params) {
-            $("#id").val(params.id);
+            $("#workflowId").val(params.id);
             $("#workflowCode").val(params.workflowCode);
             $("#displayName").val(params.displayName);
             $("#note").val(params.note);
@@ -212,8 +315,11 @@
                 workflowCode:'',
                 displayName:'',
                 note:'',
-                useAuthValidation:''
+                useAuthValidation:'true'
                 });
+
+            drawWorkflow('workflowGrid',[]);
+            initFunctionGrid();
           }
 
         function getWorkflowFunction(workflowId) {
@@ -273,6 +379,18 @@
           httpClient.delete(`/console/api/workflow-function/${item.id}`, {},
               function(response){
                   alert("삭제 완료되었습니다.");
+                  getWorkflowFunction(workflowId);
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+        function saveWorkflowFunction(workflowId, items) {
+          httpClient.post(`/console/api/workflow-function/save`, {},items,
+              function(response){
+                  alert("저장완료되었습니다.");
                   getWorkflowFunction(workflowId);
               },
               function(error){
@@ -377,6 +495,7 @@
                 tolerance: "pointer",
                 items: ".step-item",
                 update: function() {
+                    setStepItemsOrderNum();
                     drawConnectors();
                 }
             });
@@ -395,42 +514,43 @@
             .appendTo("head");
         }
 
+        function setStepItemsOrderNum() {
+            $("#workflowGrid .step-item").each(function(index) {
+                $(this).find("input[name='orderNum']").val(index + 1);
+            });
+        }
+
         function drawWorkflow(id, response){
+            let stepItemIdPrefix = 'step-item-';
             let html = '';
+
             for(let data of response) {
-                html += htmlStepItem(data);
+                html += htmlStepItem(stepItemIdPrefix+data.id, data, false);
             }
             html += htmlConnectLine();
 
             $("#"+id).html(html);
 
             drawConnectors();
-        }
 
-        function clickStepItem(functionType) {
-            initFunctionGrid();
-
-            if(functionType == "SQL") {
-                drawSqlGrid();
+            for(let data of response) {
+                setStepItemData(stepItemIdPrefix+data.id, data);
             }
         }
 
-        function addStepItem() {
-            $("#workflowGrid").append(htmlStepItem({
-                functionType:"SQL",
-                functionName:"FRM0001_R01",
-                requestMessageId:"ME_FRM0001_01",
-                responseMessageId:"ME_FRM0001_02"
-            }));
+        function setStepItemData(id, data) {
+            $('#'+id).data('data', data);
+        }
 
-            drawConnectors();
+        function getStepItemData(id) {
+            return $('#'+id).data('data');
         }
 
         function htmlConnectLine() {
             return `<svg id="connectorLayer" width="100%" height="100%" style="position:absolute; top:0; left:0; pointer-events:none;"></svg>`;
         }
 
-        function htmlStepItem(data) {
+        function htmlStepItem(id, data, create) {
             let iconPath = '';
             if(data.functionType == 'SQL'){
                 iconPath = '/dist/img/func-sql.png';
@@ -442,40 +562,205 @@
                 iconPath = '/dist/img/func-restclient.png';
             }
 
+            let hiddenDisplayElement = '';
+            let hiddenInputElement = 'hidden';
+            let hiddenUndoBtn = 'hidden';
+            let hiddenEditBtn = '';
+            if(create) {
+                hiddenDisplayElement = 'hidden';
+                hiddenInputElement = '';
+                hiddenEditBtn = 'hidden';
+                hiddenUndoBtn = 'hidden';
+            }
+
             return `
-                <div class="step-item" id="${data.functionName}" onclick="clickStepItem('${data.functionType}')" style="position: relative; background-color: #ffffff; width: 350px; height: 170px; border-radius: 8px; display: flex; flex-direction: column; font-size: 18px; border: 2px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.2); cursor: pointer;margin-bottom:15px;">
+                <div class="step-item" id="${id}">
+                    <input type="number" name="workflowFunctionId" value="${data.id}" hidden></input>
+                    <input type="number" name="orderNum" value="${data.orderNum}" hidden></input>
 
                     <!-- IN 영역 -->
-                    <div style="display: flex; align-items: center; justify-content: center; gap: 8px; background-color: #e0f2ff; padding: 6px 16px; border-top-left-radius: 8px; border-top-right-radius: 8px;">
-                        <span style="background-color: #bae6ff; color: #0369a1; font-size: 12px; font-weight: bold; padding: 2px 8px; border-radius: 12px;">IN</span>
-                        <span style="color: #065f9e; font-weight: 500; font-size: 15px;">${data.requestMessageId}</span>
+                    <div class="step-message" style="background-color: #e0f2ff;">
+                        <span class="step-message-type" style="background-color: #bae6ff;color: #0369a1;">
+                            IN
+                        </span>
+                        <span class="step-message-id"   style="color: #065f9e;">
+                            <i class="display-element" ${hiddenDisplayElement}>${data.requestMessageId}</i>
+                            <input class="input-element" type="text" name="requestMessageId" value="${data.requestMessageId}" style="width:150px;" autocomplete="off" ${hiddenInputElement}></input>
+                        </span>
                     </div>
 
                     <!-- 기능 영역 -->
-                    <div style="flex: 1; display: flex; flex-direction: row; align-items: center; justify-content: flex-start; padding: 12px 24px;gap: 16px; border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb;">
-                        <span style="width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; margin-bottom: 4px;">
-                            <img src="${iconPath}" width="70" height="70" style="display:block;">
+                    <div class="step-function" onclick="clickStepItem('${data.functionType}')" >
+                        <span class="step-function-img">
+                            <img class="display-element" src="${iconPath}" width="70" height="70" style="display:block;" ${hiddenDisplayElement}>
+                            <select class="input-element" name="functionType" style="width:80px;" ${hiddenInputElement}>
+                                <option value="SQL">SQL</option>
+                                <option value="ENTITY">Entity</option>
+                                <option value="REST_CLIENT">Rest Client</option>
+                            </select>
                         </span>
-                        <span style="display: flex; flex-direction: column;">
-                            <font style="color: #1f2937; font-weight: 500;font-size: 18px;">
+                        <span class="step-function-name">
+                            <font class="display-element"  style="color: #1f2937; font-weight: 500;font-size: 18px;" ${hiddenDisplayElement}>
                                 ${data.functionName}
                             </font>
-                            <font style="color: #1f2937; font-weight: 300;font-size: 14px;">
+                            <font class="display-element"  style="color: #1f2937; font-weight: 300;font-size: 14px;" ${hiddenDisplayElement}>
                                 ${data.functionName}
                             </font>
+                            <input class="input-element" type="text" name="functionName" value="${data.functionName}" style="width:180px;" autocomplete="off" ${hiddenInputElement}></input>
                         </span>
                     </div>
 
                     <!-- OUT 영역 -->
-                    <div style="display: flex; align-items: center; justify-content: center; gap: 8px; background-color: #e6f9ea; padding: 6px 16px; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;">
-                        <span style="background-color: #a8f0a0; color: #047857; font-size: 12px; font-weight: bold; padding: 2px 8px; border-radius: 12px;">OUT</span>
-                        <span style="color: #065f46; font-weight: 500; font-size: 15px;">${data.responseMessageId}</span>
+                    <div class="step-message" style="background-color: #e6f9ea;">
+                        <span class="step-message-type" style="background-color: #a8f0a0;color: #047857;">
+                            OUT
+                        </span>
+                        <span class="step-message-id"   style="color: #065f46;">
+                            <i class="display-element" ${hiddenDisplayElement}>${data.responseMessageId}</i>
+                            <input class="input-element" type="text" name="responseMessageId" value="${data.responseMessageId}" style="width:150px;" autocomplete="off" ${hiddenInputElement}></input>
+                        </span>
                     </div>
 
                     <!-- 드래그 핸들 -->
-                    <span class="handle" style="position: absolute; top: 5px; right: 5px; cursor: grab; font-size: 20px;">⠿</span>
+                    <span class="step-tools" style="color: #065f9e;">
+                        <i class="fas fa-undo" name="btnCancel" style="cursor: pointer;" onclick="cancelEditFunction(event)" ${hiddenUndoBtn}></i>
+                        <i class="fas fa-pen" name="btnEdit" style="cursor: pointer;" onclick="editFunction(event)" ${hiddenEditBtn}></i>
+                        <i class="fas fa-times" name="btnDelete"  style="cursor: pointer;" onclick="deleteFunction(event)"></i>
+                    </span>
                 </div>
             `;
+        }
+
+        function clickStepItem(functionType) {
+            initFunctionGrid();
+
+            if(functionType == "SQL") {
+                drawSqlGrid();
+            }
+            else if(functionType == "ENTITY") {
+                drawEntityGrid();
+            }
+        }
+
+        function addStepItem() {
+            let orderNum = getLastStepOrder()+1;
+
+            $("#workflowGrid").append(htmlStepItem('step-item-C'+orderNum, {
+                orderNum:Number(orderNum),
+                functionType:"",
+                functionName:"",
+                requestMessageId:"",
+                responseMessageId:""
+            }, true));
+
+            drawConnectors();
+            initFunctionGrid();
+        }
+
+        function saveFunction() {
+            if(!confirm("저장하시겠습니까?")) {
+                return;
+            }
+
+            const stepItems = document.querySelectorAll('#workflowGrid .step-item');
+
+            let workflowId = $("#workflowId").val();
+            workflowId = (workflowId) ? Number(workflowId) : null;
+
+            let items = new Array();
+            for(const stepItem of stepItems) {
+                const data = {};
+                const fields = stepItem.querySelectorAll('input[name], select[name]');
+                fields.forEach(el => (data[el.name] = el.value));
+                data.id = (data.workflowFunctionId) ? Number(data.workflowFunctionId) : null;
+                data.workflowId = workflowId;
+                data.orderNum = (data.orderNum) ? Number(data.orderNum) : null;
+                items.push(data);
+            }
+
+            saveWorkflowFunction(workflowId, items);
+        }
+
+        function deleteFunction(event) {
+            if(!confirm("삭제하시겠습니까?")) {
+                return;
+            }
+
+            event.stopPropagation();
+
+            const stepItem = event.target.closest('.step-item');
+            if (!stepItem) return;
+
+            const data = {};
+            const fields = stepItem.querySelectorAll('input[name], select[name]');
+            fields.forEach(el => (data[el.name] = el.value));
+            data.id = data.workflowFunctionId;
+
+            if(data.workflowFunctionId) {
+                deleteWorkflowFunction($("#workflowId").val(), data);
+            }
+            else {
+                stepItem.remove();
+                drawConnectors();
+            }
+        }
+
+        function editFunction(event) {
+            event.stopPropagation();
+
+            const stepItem = event.target.closest('.step-item');
+            if (!stepItem) return;
+
+            const inputElements = stepItem.querySelectorAll('.input-element')
+            inputElements.forEach(el => {
+                el.hidden = false;
+            });
+
+            const displayElements = stepItem.querySelectorAll('.display-element')
+            displayElements.forEach(el => {
+                el.hidden = true;
+            });
+
+            const btnCancels = stepItem.querySelectorAll('[name="btnCancel"]');
+            btnCancels.forEach(el => {
+                el.hidden = false;
+            });
+
+            const btnEdits = stepItem.querySelectorAll('[name="btnEdit"]');
+            btnEdits.forEach(el => {
+                el.hidden = true;
+            });
+        }
+
+        function cancelEditFunction(event) {
+            event.stopPropagation();
+
+            const stepItem = event.target.closest('.step-item');
+            if (!stepItem) return;
+
+            let originalData = getStepItemData(stepItem.id);
+            console.log('originalData',originalData);
+
+            const inputElements = stepItem.querySelectorAll('.input-element')
+            inputElements.forEach(el => {
+                el.hidden = true;
+                el.value = originalData[el.name];
+            });
+
+            const displayElements = stepItem.querySelectorAll('.display-element')
+            displayElements.forEach(el => {
+                el.hidden = false;
+            });
+
+            const btnCancels = stepItem.querySelectorAll('[name="btnCancel"]');
+            btnCancels.forEach(el => {
+                el.hidden = true;
+            });
+
+            const btnEdits = stepItem.querySelectorAll('[name="btnEdit"]');
+            btnEdits.forEach(el => {
+                el.hidden = false;
+            });
         }
 
         function drawConnectors() {
@@ -506,8 +791,29 @@
             });
         }
 
+        function getLastStepOrder() {
+            const parent = document.querySelector('#workflowGrid');
+
+            const items = parent.querySelectorAll('.step-item');
+            const lastIndex = items.length;
+
+            return lastIndex;
+        }
+
+        function initFunctionGrid() {
+            $("#functionGrid").html('');
+        }
+
         function drawSqlGrid() {
             let html = `
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">기능</h3>
+                    <div class="card-tools">
+                        <mf-action-button id="save" actionName="save()" icon="fas fa-save"></mf-action-button>
+                    </div>
+                </div>
+                <div class="card-body">
                     <div class="row">
                         <div class="col-md-1" style="display:none;">
                             <mf-text-input id="id" label="ID" enable="false"></mf-text-input>
@@ -533,6 +839,8 @@
                             <div id="queryParameterGrid"></div>
                         </div>
                     </div>
+                </div>
+            </div>
             `;
 
             $("#functionGrid").html(html);
@@ -563,17 +871,206 @@
             });
         }
 
-        function initFunctionGrid() {
-            $("#functionGrid").html('');
-        }
+        function drawEntityGrid() {
+            let html = `
+            <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">기능</h3>
 
+                        <div class="card-tools">
+                            <mf-action-button id="new" actionName="newContent()" icon="fas fa-plus"></mf-action-button>
+                            <mf-action-button id="save" actionName="save()" icon="fas fa-save"></mf-action-button>
+                            <mf-action-button id="delete" actionName="deleteContent()" icon="fas fa-trash"></mf-action-button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-1" style="display:none;">
+                                <mf-text-input id="id" label="ID" enable="false"></mf-text-input>
+                            </div>
+                            <div class="col-md-3">
+                                <mf-text-input id="entityName" label="entity" enable="true"></mf-text-input>
+                            </div>
+                            <div class="col-md-3">
+                                <mf-text-input id="displayName" label="화면 노출명" enable="true" ></mf-text-input>
+                            </div>
+                            <div class="col-md-3">
+                                <mf-select id="dataSourceName" label="dataSource" enable="true" useFirstItem="true" firstItemLabel="" firstItemValue=""></mf-select>
+                            </div>
+                            <div class="col-md-2">
+                                <mf-text-input id="tableName" label="table" enable="true"></mf-text-input>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-9 col-sm-10">
+                                <div class="tab-content" id="vert-tabs-right-tabContent">
+                                    <div class="tab-pane fade show active" id="entityColumn" role="tabpanel" aria-labelledby="entityColumn-tab">
+                                        <div id="entityColumnGrid"></div>
+                                    </div>
+                                    <div class="tab-pane fade" id="entityColumnSelect" role="tabpanel" aria-labelledby="entityColumnSelect-tab">
+                                        <div id="entityColumnSelectGrid"></div>
+                                    </div>
+                                    <div class="tab-pane fade" id="entityColumnInsert" role="tabpanel" aria-labelledby="entityColumnInsert-tab">
+                                        <div id="entityColumnInsertGrid"></div>
+                                    </div>
+                                    <div class="tab-pane fade" id="entityColumnUpdate" role="tabpanel" aria-labelledby="entityColumnUpdate-tab">
+                                        <div id="entityColumnUpdateGrid"></div>
+                                    </div>
+                                    <div class="tab-pane fade" id="entityColumnDelete" role="tabpanel" aria-labelledby="entityColumnDelete-tab">
+                                        <div id="entityColumnDeleteGrid"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3 col-sm-2">
+                                <div class="nav flex-column nav-tabs nav-tabs-right h-100" id="vert-tabs-right-tab" role="tablist" aria-orientation="vertical">
+                                    <a class="nav-link active" id="entityColumn-tab" data-toggle="pill" href="#entityColumn" role="tab" aria-controls="entityColumn" aria-selected="true">columns 설정</a>
+                                    <a class="nav-link" id="entityColumnSelect-tab" data-toggle="pill" href="#entityColumnSelect" role="tab" aria-controls="entityColumnSelect" aria-selected="false">select 쿼리 설정</a>
+                                    <a class="nav-link" id="entityColumnInsert-tab" data-toggle="pill" href="#entityColumnInsert" role="tab" aria-controls="entityColumnInsert" aria-selected="false">insert 쿼리 설정</a>
+                                    <a class="nav-link" id="entityColumnUpdate-tab" data-toggle="pill" href="#entityColumnUpdate" role="tab" aria-controls="entityColumnUpdate" aria-selected="false">update 쿼리 설정</a>
+                                    <a class="nav-link" id="entityColumnDelete-tab" data-toggle="pill" href="#entityColumnDelete" role="tab" aria-controls="entityColumnDelete" aria-selected="false">delete 쿼리 설정</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            $("#functionGrid").html(html);
+
+            sheet.initSheet('entityColumnGrid', "100%","500px",
+            [
+                {name: "id", title:"ID", type: "number", width: 20, editing: false, inserting: false},
+                {name: "columnName", title:"column", type: "text", width: 100},
+                {name: "displayName", title:"화면노출명", type: "text", width: 100},
+                {name: "useKey", title:"key", type: "checkbox", width: 50},
+                {name: "columnType", title:"type", type: "select", width: 50, items: codes["ColumnType"], valueField: "id", textField: "name" },
+                {name: "orderNum", title:"순서", type: "number", width: 30},
+                { type: "control", editButton: true, width: 30, modeSwitchButton: false }
+            ],
+            function(args) {},
+            {
+                inserting: true,
+                editing: true,
+                onItemInserting: function(args) {
+                    insertEntityColumn($("#id").val(), args.item);
+                },
+                onItemUpdated: function(args) {
+                    updateEntityColumn("", $("#id").val(),args.item.id,
+                          {
+                               columnName:args.item.columnName,
+                               displayName:args.item.displayName,
+                               useKey:args.item.useKey,
+                               columnType:args.item.columnType,
+                               orderNum:args.item.orderNum
+                          });
+                },
+                onItemDeleting: function(args) {
+                    deleteEntityColumn($("#id").val(), args.item);
+                }
+            });
+
+            sheet.initSheet('entityColumnSelectGrid', "100%","500px",
+            [
+                {name: "id", title:"ID", type: "number", width: 20, editing: false},
+                {name: "columnName", title:"column", type: "text", width: 100 , editing: false},
+                {name: "selectWhereType", title:"where 유형", type: "select", width: 50, items: codes["SelectWhereType"], valueField: "id", textField: "name" },
+                {name: "selectWhereCompareOperator", title:"where 비교 연산자", type: "select", width: 50, items: codes["SelectWhereCompareOperator"], valueField: "id", textField: "name" },
+                {name: "selectOrderByNum", title:"order by 순서", type: "number", width: 50},
+                {name: "selectOrderBySortOrder", title:"order by 정렬유형", type: "select", width: 50, items: codes["SortOrder"], valueField: "id", textField: "name" },
+                { type: "control", editButton: true, deleteButton: false, width: 30, modeSwitchButton: false, }
+            ],
+            function(args) {},
+            {
+                inserting: false,
+                editing: true,
+                onItemUpdated: function(args) {
+                    updateEntityColumn("/select", $("#id").val(),args.item.id,
+                          {
+                               selectWhereType:args.item.selectWhereType,
+                               selectWhereCompareOperator:args.item.selectWhereCompareOperator,
+                               selectOrderByNum:args.item.selectOrderByNum,
+                               selectOrderBySortOrder:args.item.selectOrderBySortOrder
+                          });
+                }
+            });
+
+            sheet.initSheet('entityColumnInsertGrid', "100%","500px",
+            [
+                {name: "id", title:"ID", type: "number", width: 20, editing: false},
+                {name: "columnName", title:"column", type: "text", width: 100 , editing: false},
+                {name: "insertNullResolveType", title:"null 처리유형", type: "select", width: 50, items: codes["NullResolveType"], valueField: "id", textField: "name" },
+                {name: "insertAutoValueType", title:"자동값 유형", type: "select", width: 50, items: codes["AutoValueType"], valueField: "id", textField: "name" },
+                {name: "insertAutoValue", title:"자동값", type: "text", width: 100},
+                { type: "control", editButton: true, deleteButton: false, width: 30, modeSwitchButton: false, }
+            ],
+            function(args) {},
+            {
+                inserting: false,
+                editing: true,
+                onItemUpdated: function(args) {
+                    updateEntityColumn("/insert", $("#id").val(),args.item.id,
+                          {
+                               selectWhereType:args.item.selectWhereType,
+                               selectWhereCompareOperator:args.item.selectWhereCompareOperator,
+                               selectOrderByNum:args.item.selectOrderByNum,
+                               selectOrderBySortOrder:args.item.selectOrderBySortOrder
+                          });
+                }
+            });
+
+            sheet.initSheet('entityColumnUpdateGrid', "100%","500px",
+            [
+                {name: "id", title:"ID", type: "number", width: 20, editing: false},
+                {name: "columnName", title:"column", type: "text", width: 100 , editing: false},
+                {name: "updateNullResolveType", title:"null 처리유형", type: "select", width: 50, items: codes["NullResolveType"], valueField: "id", textField: "name" },
+                {name: "updateAutoValueType", title:"자동값 유형", type: "select", width: 50, items: codes["AutoValueType"], valueField: "id", textField: "name" },
+                {name: "updateAutoValue", title:"자동값", type: "text", width: 100},
+                { type: "control", editButton: true, deleteButton: false, width: 30, modeSwitchButton: false, }
+            ],
+            function(args) {},
+            {
+                inserting: false,
+                editing: true,
+                onItemUpdated: function(args) {
+                    updateEntityColumn("/update", $("#id").val(),args.item.id,
+                          {
+                               updateNullResolveType:args.item.updateNullResolveType,
+                               updateAutoValueType:args.item.updateAutoValueType,
+                               updateAutoValue:args.item.updateAutoValue
+                          });
+                }
+            });
+
+            sheet.initSheet('entityColumnDeleteGrid', "100%","500px",
+            [
+                {name: "id", title:"ID", type: "number", width: 20, editing: false},
+                {name: "columnName", title:"column", type: "text", width: 100 , editing: false},
+                {name: "deleteAutoValueType", title:"자동값 유형", type: "select", width: 50, items: codes["AutoValueType"], valueField: "id", textField: "name" },
+                {name: "deleteAutoValue", title:"자동값", type: "text", width: 100},
+                { type: "control", editButton: true, deleteButton: false, width: 30, modeSwitchButton: false, }
+            ],
+            function(args) {},
+            {
+                inserting: false,
+                editing: true,
+                onItemUpdated: function(args) {
+                    updateEntityColumn("/delete", $("#id").val(),args.item.id,
+                          {
+                               deleteAutoValueType:args.item.deleteAutoValueType,
+                               deleteAutoValue:args.item.deleteAutoValue
+                          });
+                }
+            });
+        }
     </script>
 <div th:fragment="view">
     <div class="row">
         <div class="col-3">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">워크플로우 목록</h3>
+                    <h3 class="card-title">목록</h3>
                     <div class="card-tools">
                         <mf-action-button id="search" actionName="getWorkflow()" icon="fas fa-search"></mf-action-button>
                     </div>
@@ -588,7 +1085,7 @@
                 <div class="card-header">
                     <h3 class="card-title">정의</h3>
                     <div class="card-tools">
-                        <mf-action-button id="new" actionName="newContent()" icon="fas fa-plus"></mf-action-button>
+                        <mf-action-button id="new" actionName="newContent()" label="신규입력"></mf-action-button>
                         <mf-action-button id="save" actionName="save()" icon="fas fa-save"></mf-action-button>
                         <mf-action-button id="delete" actionName="deleteContent()" icon="fas fa-trash"></mf-action-button>
                     </div>
@@ -596,7 +1093,7 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-1" style="display:none;">
-                            <mf-text-input id="id" label="ID" enable="false" ></mf-text-input>
+                            <mf-text-input id="workflowId" label="ID" enable="false" ></mf-text-input>
                         </div>
                         <div class="col-md-3">
                             <mf-text-input id="workflowCode" label="코드" enable="true"></mf-text-input>
@@ -607,6 +1104,7 @@
                         <div class="col-md-2">
                             <mf-select id="useAuthValidation" label="인증사용" enable="true" useFirstItem="true" firstItemLabel="" firstItemValue=""></mf-select>
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -615,6 +1113,7 @@
                     <h3 class="card-title">워크플로우</h3>
                     <div class="card-tools">
                         <mf-action-button id="new" actionName="addStepItem()" icon="fas fa-plus"></mf-action-button>
+                        <mf-action-button id="save" actionName="saveFunction()" icon="fas fa-save"></mf-action-button>
                     </div>
                 </div>
                 <div class="card-body">
@@ -623,16 +1122,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-5">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">기능</h3>
-                    <div class="card-tools">
-                        <mf-action-button id="save" actionName="save()" icon="fas fa-save"></mf-action-button>
-                    </div>
-                </div>
-                <div class="card-body" id="functionGrid"></div>
-            </div>
+        <div class="col-5"  id="functionGrid">
         </div>
     </div>
 </div>

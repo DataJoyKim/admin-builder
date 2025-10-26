@@ -6,9 +6,9 @@ export class Form extends AbstractComponents {
 
         let className = 'form';
 
-        const div = document.createElement('div');
-        div.id = id;
-        div.className = className;
+        const form = document.createElement('form');
+        form.id = id;
+        form.className = className;
 
         while (this.firstChild) div.appendChild(this.firstChild);
         this.replaceWith(div);
