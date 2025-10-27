@@ -23,8 +23,16 @@ public class QueryRestController {
     private QueryService queryService;
 
     @GetMapping("")
-    public ResponseEntity<?> getQuery() {
-        List<Query> results = queryRepository.findAll();
+    public ResponseEntity<?> getQuery(
+            @RequestParam(name = "queryName", required = false) String queryName
+    ) {
+        List<Query> results;
+        if(queryName != null) {
+            results = queryRepository.findByQueryName(queryName);
+        }
+        else {
+            results = queryRepository.findAll();
+        }
 
         return new ResponseEntity<>(results, HttpStatus.OK);
     }

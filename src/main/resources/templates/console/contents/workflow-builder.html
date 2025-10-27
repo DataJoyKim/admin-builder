@@ -70,11 +70,12 @@
     }
 </style>
 <script th:fragment="script">
+        let codes;
+        let sqlEditor;
 
         $( document ).ready(function() {
             init();
         });
-        let codes;
 
         function init() {
             setWorkflowGrid();
@@ -585,12 +586,12 @@
                         </span>
                         <span class="step-message-id"   style="color: #065f9e;">
                             <i class="display-element" ${hiddenDisplayElement}>${data.requestMessageId}</i>
-                            <input class="input-element" type="text" name="requestMessageId" value="${data.requestMessageId}" style="width:150px;" autocomplete="off" ${hiddenInputElement}></input>
+                            <input class="input-element" type="text" name="requestMessageId" value="${data.requestMessageId}" placeholder="요청메시지ID 입력" style="width:150px;" autocomplete="off" ${hiddenInputElement}></input>
                         </span>
                     </div>
 
                     <!-- 기능 영역 -->
-                    <div class="step-function" onclick="clickStepItem('${data.functionType}')" >
+                    <div class="step-function" onclick="clickStepItem('${data.functionType}','${data.functionName}')" >
                         <span class="step-function-img">
                             <img class="display-element" src="${iconPath}" width="70" height="70" style="display:block;" ${hiddenDisplayElement}>
                             <select class="input-element" name="functionType" style="width:80px;" ${hiddenInputElement}>
@@ -606,7 +607,7 @@
                             <font class="display-element"  style="color: #1f2937; font-weight: 300;font-size: 14px;" ${hiddenDisplayElement}>
                                 ${data.functionName}
                             </font>
-                            <input class="input-element" type="text" name="functionName" value="${data.functionName}" style="width:180px;" autocomplete="off" ${hiddenInputElement}></input>
+                            <input class="input-element" type="text" name="functionName" value="${data.functionName}" placeholder="기능코드 입력" style="width:180px;" autocomplete="off" ${hiddenInputElement}></input>
                         </span>
                     </div>
 
@@ -617,7 +618,7 @@
                         </span>
                         <span class="step-message-id"   style="color: #065f46;">
                             <i class="display-element" ${hiddenDisplayElement}>${data.responseMessageId}</i>
-                            <input class="input-element" type="text" name="responseMessageId" value="${data.responseMessageId}" style="width:150px;" autocomplete="off" ${hiddenInputElement}></input>
+                            <input class="input-element" type="text" name="responseMessageId" value="${data.responseMessageId}" placeholder="응답메시지ID 입력" style="width:150px;" autocomplete="off" ${hiddenInputElement}></input>
                         </span>
                     </div>
 
@@ -631,11 +632,13 @@
             `;
         }
 
-        function clickStepItem(functionType) {
+        function clickStepItem(functionType, functionName) {
             initFunctionGrid();
 
             if(functionType == "SQL") {
                 drawSqlGrid();
+                setCodeBoxDataSource();
+                getQuery(functionName);
             }
             else if(functionType == "ENTITY") {
                 drawEntityGrid();
@@ -804,28 +807,31 @@
             $("#functionGrid").html('');
         }
 
+/******************************************************************
+* SQL
+*******************************************************************/
         function drawSqlGrid() {
             let html = `
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">기능</h3>
                     <div class="card-tools">
-                        <mf-action-button id="save" actionName="save()" icon="fas fa-save"></mf-action-button>
+                        <mf-action-button id="saveQuery" actionName="saveQuery()" icon="fas fa-save"></mf-action-button>
                     </div>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-1" style="display:none;">
-                            <mf-text-input id="id" label="ID" enable="false"></mf-text-input>
+                            <mf-text-input id="query-id" label="ID" enable="false"></mf-text-input>
                         </div>
                         <div class="col-md-3">
-                            <mf-text-input id="queryName" label="query 명" enable="true"></mf-text-input>
+                            <mf-text-input id="query-queryName" label="쿼리명" enable="false"></mf-text-input>
                         </div>
                         <div class="col-md-3">
-                            <mf-text-input id="displayName" label="화면 노출명" enable="true" ></mf-text-input>
+                            <mf-text-input id="query-displayName" label="화면노출명" enable="true" ></mf-text-input>
                         </div>
                         <div class="col-md-3">
-                            <mf-select id="dataSourceName" label="dataSource" enable="true" useFirstItem="true" firstItemLabel="" firstItemValue=""></mf-select>
+                            <mf-select id="query-dataSourceName" label="데이터소스" enable="true" useFirstItem="true" firstItemLabel="" firstItemValue=""></mf-select>
                         </div>
                     </div>
                     <div class="row">
@@ -848,7 +854,7 @@
 
             sheet.initSheet('queryParameterGrid', "100%","300px",
             [
-                {name: "id", title:"ID", type: "number", width: 20, editing: false, inserting: false},
+                {name: "queryParameterId", title:"ID", type: "number", width: 20, editing: false, inserting: false},
                 {name: "paramName", title:"파라미터명", type: "text", width: 80 },
                 {name: "paramType", title:"type", type: "select", width: 50, items: codes["ParamType"], valueField: "id", textField: "name" },
                 {name: "autoValueType", title:"자동값유형", type: "select", width: 50, items: codes["AutoValueType"], valueField: "id", textField: "name" },
@@ -871,6 +877,118 @@
             });
         }
 
+        function getQuery(functionName) {
+            httpClient.get(`/console/api/query`, {queryName:`${functionName}`},
+                function(response){
+                    let data = response[0];
+                    if(data) {
+                        setQueryContent(data);
+                        getQueryParam(data.id);
+                    }
+                    else {
+                        setQueryContent({
+                            id:'',
+                            queryName:functionName,
+                            displayName:'',
+                            dataSourceName:'',
+                            query:'',
+                        });
+                    }
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function getQueryParam(queryId) {
+            httpClient.get(`/console/api/query-param/${queryId}`, {},
+                function(response){
+                    sheet.setSheetData('queryParameterGrid', response);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function setQueryContent(response) {
+            setQueryContent({
+                id:response.id,
+                queryName:response.queryName,
+                displayName:response.displayName,
+                dataSourceName:response.dataSourceName,
+                query:response.query
+              });
+        }
+
+        function getQueryContent() {
+            return {
+                id: $("#query-id").val(),
+                queryName: $("#query-queryName").val(),
+                displayName: $("#query-displayName").val(),
+                dataSourceName: $("#query-dataSourceName").val(),
+                query: sqlEditor.getValue()
+            }
+        }
+
+        function setQueryContent(params) {
+            $("#query-id").val(params.id);
+            $("#query-queryName").val(params.queryName);
+            $("#query-displayName").val(params.displayName);
+            $("#query-dataSourceName").val(params.dataSourceName);
+            sqlEditor.setValue(params.query);
+        }
+
+        function setCodeBoxDataSource() {
+            httpClient.get(`/console/api/datasource/database`, {},
+                function(response){
+                    let codes = new Array();
+                    for(let i=0; i<response.length; i++) {
+                        codes.push({id:response[i].dataSourceName,name:response[i].displayName});
+                    }
+
+                    setCodeBox("query-dataSourceName", codes);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function saveQuery() {
+            let id = $("#query-id").val();
+
+            if(id) updateQuery(id);
+            else insertQuery();
+        }
+
+        function insertQuery() {
+            httpClient.post(`/console/api/query`,{},getQueryContent(),
+                function(response){
+                    alert("저장완료되었습니다.");
+                    getQuery($("#query-queryName").val());
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function updateQuery(id) {
+          httpClient.put(`/console/api/query/${id}`, {}, getQueryContent(),
+              function(response){
+                  alert("저장완료되었습니다.");
+                  getQuery($("#query-queryName").val());
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+/******************************************************************
+* Entity
+*******************************************************************/
         function drawEntityGrid() {
             let html = `
             <div class="card">
