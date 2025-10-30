@@ -11,9 +11,6 @@ export class ActionButton extends AbstractComponents {
        const buttonEl = document.createElement('button');
        buttonEl.type = 'button';
        buttonEl.className = 'btn btn-default btn-sm';
-       if(label) {
-        buttonEl.textContent = label;
-       }
 
        if (id) buttonEl.id = id;
        if (actionName) buttonEl.setAttribute('onclick', super.actionNameToFunction(actionName));
@@ -23,6 +20,11 @@ export class ActionButton extends AbstractComponents {
            const iconEl = document.createElement('i');
            iconEl.className = icon;
            buttonEl.appendChild(iconEl);
+       }
+
+       if(label) {
+            const textNode = document.createTextNode(label);
+            buttonEl.appendChild(textNode);
        }
 
        this.replaceWith(buttonEl);
