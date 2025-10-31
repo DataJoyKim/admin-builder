@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface ConsoleEntityRepository extends JpaRepository<Entity, Long> {
 
     @Transactional
@@ -25,4 +27,6 @@ public interface ConsoleEntityRepository extends JpaRepository<Entity, Long> {
             @Param("dataSourceName") String dataSourceName,
             @Param("tableName") String tableName
     );
+
+    List<Entity> findByEntityName(String entityName);
 }

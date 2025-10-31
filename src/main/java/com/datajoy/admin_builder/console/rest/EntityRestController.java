@@ -18,8 +18,16 @@ public class EntityRestController {
     private ConsoleEntityRepository entityRepository;
 
     @GetMapping("")
-    public ResponseEntity<?> getEntity() {
-        List<Entity> results = entityRepository.findAll();
+    public ResponseEntity<?> getEntity(
+            @RequestParam(name = "entityName", required = false) String entityName
+    ) {
+        List<Entity> results;
+        if(entityName != null) {
+            results = entityRepository.findByEntityName(entityName);
+        }
+        else {
+            results = entityRepository.findAll();
+        }
 
         return new ResponseEntity<>(results, HttpStatus.OK);
     }
