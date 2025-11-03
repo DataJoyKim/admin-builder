@@ -637,13 +637,14 @@
 
             if(functionType == "SQL") {
                 drawSqlGrid();
-                setCodeBoxDataSource();
                 getQuery(functionName);
             }
             else if(functionType == "ENTITY") {
                 drawEntityGrid();
                 getEntity(functionName);
             }
+
+            setCodeBoxDataSource();
         }
 
         function addStepItem() {
@@ -950,6 +951,7 @@
                     }
 
                     setCodeBox("query-dataSourceName", codes);
+                    setCodeBox("entity-dataSourceName", codes);
                 },
                 function(error){
                     alert('error');
@@ -1027,7 +1029,7 @@
                         <a class="nav-link active" id="entityColumn-tab" data-toggle="pill" href="#entityColumn" role="tab" aria-controls="entityColumn" aria-selected="true">Column 설정</a>
                       </li>
                       <li class="nav-item">
-                        <a class="nav-link" id="entityColumnSelect-profile-tab" data-toggle="pill" href="#entityColumnSelect-profile" role="tab" aria-controls="entityColumnSelect" aria-selected="false">Select 쿼리</a>
+                        <a class="nav-link" id="entityColumnSelect-tab" data-toggle="pill" href="#entityColumnSelect" role="tab" aria-controls="entityColumnSelect" aria-selected="false">Select 쿼리</a>
                       </li>
                       <li class="nav-item">
                         <a class="nav-link" id="entityColumnInsert-tab" data-toggle="pill" href="#entityColumnInsert" role="tab" aria-controls="entityColumnInsert" aria-selected="false">Insert 쿼리</a>
@@ -1079,10 +1081,10 @@
                 inserting: true,
                 editing: true,
                 onItemInserting: function(args) {
-                    insertEntityColumn($("#id").val(), args.item);
+                    insertEntityColumn($("#entity-id").val(), args.item);
                 },
                 onItemUpdated: function(args) {
-                    updateEntityColumn("", $("#id").val(),args.item.id,
+                    updateEntityColumn("", $("#entity-id").val(),args.item.id,
                           {
                                columnName:args.item.columnName,
                                displayName:args.item.displayName,
@@ -1092,7 +1094,7 @@
                           });
                 },
                 onItemDeleting: function(args) {
-                    deleteEntityColumn($("#id").val(), args.item);
+                    deleteEntityColumn($("#entity-id").val(), args.item);
                 }
             });
 
@@ -1249,6 +1251,94 @@
                 tableName:''
                 });
           }
+
+        function saveEntity() {
+          let id = $("#entity-id").val();
+
+            if(id) updateEntityContent(id);
+            else insertEntityContent();
+        }
+
+        function insertEntityContent() {
+            httpClient.post(`/console/api/entity`,{},getEntityContent(),
+                function(response){
+                    alert("저장완료되었습니다.");
+                    getEntity($("#entity-entityName").val());
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function updateEntityContent(id) {
+          httpClient.put(`/console/api/entity/${id}`, {}, getEntityContent(),
+              function(response){
+                  alert("저장완료되었습니다.");
+                  getEntity($("#entity-entityName").val());
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+        function deleteEntityContent() {
+          let id = $("#entity-id").val();
+
+          httpClient.delete(`/console/api/entity/${id}`, {},
+              function(response){
+                  alert("삭제 처리 완료되었습니다.");
+                  getEntity($("#entity-entityName").val());
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+        function insertEntityColumn(entityId, item) {
+            httpClient.post(`/console/api/entity-column`,{},
+                {
+                   entityId:entityId,
+                   columnName:item.columnName,
+                   displayName:item.displayName,
+                   useKey:item.useKey,
+                   columnType:item.columnType
+                },
+                function(response){
+                    alert("생성 완료되었습니다.");
+                    getEntityColumn(entityId);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function updateEntityColumn(path, entityId, entityColumnId, params) {
+          httpClient.put(`/console/api/entity-column/${entityColumnId}${path}`, {},params,
+              function(response){
+                  alert("변경 완료되었습니다.");
+                  getEntityColumn(entityId);
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+        function deleteEntityColumn(entityId, item) {
+          httpClient.delete(`/console/api/entity-column/${item.id}`, {},
+              function(response){
+                  alert("삭제 완료되었습니다.");
+                  getEntityColumn(entityId);
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
     </script>
 <div th:fragment="view">
     <div class="row">
