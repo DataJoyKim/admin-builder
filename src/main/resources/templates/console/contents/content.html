@@ -13,6 +13,11 @@
     <link rel="stylesheet" href="/plugins/codemirror/theme/darcula.css">
     <link rel="stylesheet" href="/plugins/jstree/themes/default/style.min.css" />
     <style th:replace="~{${contentPath}::style}"></style>
+    <style>
+        mf-action {
+            display: none;
+        }
+    </style>
 </head>
 <body>
 <div class="content-wrapper">
@@ -30,11 +35,13 @@
 <script src="/plugins/codemirror/mode/javascript/javascript.js"></script>
 <script src="/plugins/jstree/jstree.min.js"></script>
 <script src="/dist/js/adminlte.js?v=1"></script>
-<script src="/core/common.js"></script>
 <script src="/core/Util.js"></script>
 <script src="/core/LoadingBar.js"></script>
 <script src="/core/HttpClient.js"></script>
 <script src="/core/sheet.js"></script>
+<script src="/core/Grid.js"></script>
+<script src="/core/Form.js"></script>
+<script src="/core/WorkflowClient.js"></script>
 <script type="module" src="/ui/tag/mf/module.js"></script>
 <script>
     const sheet = new Sheet();

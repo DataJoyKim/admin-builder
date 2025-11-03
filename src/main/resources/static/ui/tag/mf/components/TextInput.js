@@ -8,6 +8,7 @@ export class TextInput extends AbstractComponents {
         const size = this.getAttribute('size');
         const enableAttr = this.getAttribute('enable');
         const elementType = this.getAttribute('type') || 'text';
+        const hidden = this.getAttribute('hidden');
 
         // enable 속성 처리
         const enable = enableAttr ? enableAttr.toLowerCase() === 'true' : false;
@@ -19,6 +20,8 @@ export class TextInput extends AbstractComponents {
         const wrapper = document.createElement('div');
         wrapper.className = 'form-group';
         if(size) wrapper.className += ' '+size;
+
+        if(hidden && hidden == 'true')  className += ' d-none';
 
         // label 생성
         if (label) {

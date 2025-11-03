@@ -89,6 +89,9 @@ export class Grid extends AbstractComponents {
             column.title = child.getAttribute("label");
             column.type = child.getAttribute("type");
 
+            let visible = child.getAttribute("visible");
+            if(visible) column.visible = visible;
+
             let width = child.getAttribute("width");
             column.width = (width) ? width : '100px';
 
