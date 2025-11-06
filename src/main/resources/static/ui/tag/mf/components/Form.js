@@ -10,7 +10,7 @@ export class Form extends AbstractComponents {
         form.id = id;
         form.className = className;
 
-        while (this.firstChild) div.appendChild(this.firstChild);
-        this.replaceWith(div);
+        while (this.firstChild) form.appendChild(this.firstChild);
+        this.replaceWith(form);
     }
 }

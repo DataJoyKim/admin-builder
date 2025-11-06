@@ -20,8 +20,7 @@ export class TextInput extends AbstractComponents {
         const wrapper = document.createElement('div');
         wrapper.className = 'form-group';
         if(size) wrapper.className += ' '+size;
-
-        if(hidden && hidden == 'true')  className += ' d-none';
+        if(hidden && hidden == 'true')  wrapper.className += ' d-none';
 
         // label 생성
         if (label) {

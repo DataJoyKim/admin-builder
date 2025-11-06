@@ -44,8 +44,10 @@ export class Select extends AbstractComponents {
             let codeVariable = super.getCodeVariable();
             let codes = codeVariable[codeKind];
             console.log('codes',codes);
-            for(const code of codes) {
-                selectEl.appendChild(this.createOptionEl(code.code, code.name));
+            if(codes) {
+                for(const code of codes) {
+                    selectEl.appendChild(this.createOptionEl(code.code, code.name));
+                }
             }
         }
 

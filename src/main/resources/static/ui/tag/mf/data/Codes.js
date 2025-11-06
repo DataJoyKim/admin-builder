@@ -20,18 +20,32 @@ export class Codes extends AbstractData {
             });
         }
 
-        App.httpClient.post(`/code`,{},codes,
-            function(response){
-                if(response) {
-                    self.setCodeVariable(response);
+        if(codes.length > 0) {
+            App.httpClient.post(`/code`,{},codes,
+                function(response){
+                    if(response) {
+                        let codeVariable = self.getCodeVariable();
+                        if(codeVariable) {
+                            for(let key in response) {
+                                codeVariable[key] = response[key];
+                            }
+
+                            self.setCodeVariable(codeVariable);
+                        }
+                        else {
+                            self.setCodeVariable(response);
+                        }
+                    }
+                },
+                function(error){
+                    alert('코드를 불러오는데 실패하였습니다.');
+                },
+                {
+                    async:false
                 }
-            },
-            function(error){
-                alert('코드를 불러오는데 실패하였습니다.');
-            },
-            {
-                async:false
-            }
-        );
+            );
+        }
+
+
     }
 }

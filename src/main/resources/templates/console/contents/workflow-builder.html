@@ -70,6 +70,64 @@
     }
 </style>
 <script th:fragment="script">
+    App.codes = {
+        "FUNCTION_TYPE":[
+            {code:"ENTITY",name:"Entity"},
+            {code:"SQL",name:"SQL"},
+            {code:"REST_CLIENT",name:"Rest Client"}
+        ],
+        "YN_CD":[
+            {code:"true",name:"Y"},
+            {code:"false",name:"N"}
+        ],
+        "AUTO_VALUE_TYPE":[
+            {code:"DEFAULT",name:"기본"},
+            {code:"STATIC_VALUE",name:"static 값"},
+            {code:"RESERVED_WORD",name:"예약어"}
+        ]
+        ,"PARAM_TYPE":[
+            {code:"STRING",name:"String"},
+            {code:"NUMBER",name:"Number"},
+            {code:"DATE",name:"Date"}
+        ]
+        ,"IN_OUT":[
+            {code:"IN",name:"IN"},
+            {code:"OUT",name:"OUT"}
+        ],
+        "COLUMN_TYPE":[
+            {code:"STRING",name:"String"},
+            {code:"NUMBER",name:"Number"},
+            {code:"DATE",name:"Date"},
+            {code:"DATETIME",name:"Datetime"}
+        ],
+        "SELECT_WHERE_TYPE":[
+            {code:"COMPARE_REQUIRED",name:"필수"},
+            {code:"COMPARE_NOT_REQUIRED",name:"필수아님"}
+        ],
+        "SELECT_WHERE_COMPARE_OPERATOR":[
+            {code:"=",name:"="},
+            {code:"!=",name:"!="},
+            {code:">",name:">"},
+            {code:">=",name:">="},
+            {code:"<",name:"<"},
+            {code:"<=",name:"<="},
+            {code:"like",name:"like"}
+        ],
+        "SORT_ORDER":[
+            {code:"ASC",name:"오름차순"},
+            {code:"DESC",name:"내림차순"}
+        ],
+        "NULL_RESOLVE_TYPE":[
+            {code:"EXCEPTION",name:"예외처리"},
+            {code:"SET_NULL",name:"null 셋팅"},
+            {code:"EXCLUDE_QUERY",name:"제외"}
+        ],
+        "AUTO_VALUE_TYPE":[
+            {code:"STATIC_VALUE",name:"static 값"},
+            {code:"QUERY",name:"쿼리"},
+            {code:"RESERVED_WORD",name:"예약어"}
+        ]
+    };
     let codes;
     let sqlEditor;
 
@@ -78,49 +136,8 @@
     });
 
     function init() {
+
         setWorkflowGrid();
-
-        sheet.initSheet('workflowExecute', "300px","300px",
-        [
-            {name: "key", title:"key", type: "text", width: 100},
-            {name: "value", title:"value", type: "text", width: 100},
-            { type: "control", editButton: false, width: 30, modeSwitchButton: false }
-        ],
-        function(args) {},
-        {
-            inserting: true,
-            editing: true,
-            onItemInserting: function(args) {
-            },
-            onItemUpdated: function(args) {
-            },
-            onItemDeleting: function(args) {
-            }
-        });
-
-        sheet.initSheet('workflowAuthorityGrid', "100%","500px",
-        [
-            {name: "id", title:"ID", type: "number", width: 20, editing: false, inserting: false},
-            {name: "authorityCode", title:"권한코드", type: "text", width: 150},
-            { type: "control", editButton: true, width: 30, modeSwitchButton: false }
-        ],
-        function(args) {},
-        {
-            inserting: true,
-            editing: true,
-            onItemInserting: function(args) {
-                insertWorkflowAuthority($("#id").val(), args.item);
-            },
-            onItemUpdated: function(args) {
-                updateWorkflowAuthority($("#id").val(),args.item);
-            },
-            onItemDeleting: function(args) {
-                deleteWorkflowAuthority($("#id").val(), args.item);
-            }
-        });
-
-        getWorkflow();
-
         drawSqlGrid();
         drawEntityGrid();
         setCodeBoxDataSource();
@@ -147,17 +164,6 @@
             updateContent(id);
     }
 
-    function getWorkflow() {
-        httpClient.get(`/console/api/workflow`, {},
-            function(response){
-                sheet.setSheetData('jsGrid1', response);
-            },
-            function(error){
-                alert('error');
-            }
-        );
-    }
-
     function selectedContent(item) {
         httpClient.get(`/console/api/workflow/${item.id}`, {},
             function(response){
@@ -175,7 +181,7 @@
         httpClient.post(`/console/api/workflow`,{},getContent(),
             function(response){
                 alert("저장완료되었습니다.");
-                getWorkflow();
+                getWorkflowList();
             },
             function(error){
                 alert('error');
@@ -187,7 +193,7 @@
       httpClient.put(`/console/api/workflow/${id}`, {}, getContent(),
           function(response){
               alert("저장완료되었습니다.");
-              getWorkflow();
+              getWorkflowList();
           },
           function(error){
               alert('error');
@@ -201,7 +207,7 @@
       httpClient.delete(`/console/api/workflow/${id}`, {},
           function(response){
               alert("삭제 처리 완료되었습니다.");
-              getWorkflow();
+              getWorkflowList();
           },
           function(error){
               alert('error');
@@ -749,9 +755,9 @@
         [
             {name: "queryParameterId", title:"ID", type: "number", width: 20, editing: false, inserting: false},
             {name: "paramName", title:"파라미터명", type: "text", width: 80 },
-            {name: "paramType", title:"type", type: "select", width: 50, items: codes["ParamType"], valueField: "id", textField: "name" },
-            {name: "autoValueType", title:"자동값유형", type: "select", width: 50, items: codes["AutoValueType"], valueField: "id", textField: "name" },
-            {name: "inOut", title:"IN/OUT", type: "select", width: 50, items: codes["InOut"], valueField: "id", textField: "name" },
+            {name: "paramType", title:"type", type: "select", width: 50, items: App.codes["PARAM_TYPE"], valueField: "code", textField: "name" },
+            {name: "autoValueType", title:"자동값유형", type: "select", width: 50, items: App.codes["AUTO_VALUE_TYPE"], valueField: "code", textField: "name" },
+            {name: "inOut", title:"IN/OUT", type: "select", width: 50, items: App.codes["IN_OUT"], valueField: "code", textField: "name" },
             { type: "control", editButton: true, width: 30, modeSwitchButton: false }
         ],
         function(args) {},
@@ -768,6 +774,7 @@
                 deleteQueryParam($("#id").val(), args.item);
             }
         });
+
     }
 
     function getQuery(functionName) {
@@ -841,8 +848,8 @@
                     codes.push({id:response[i].dataSourceName,name:response[i].displayName});
                 }
 
-                setCodeBox("query-dataSourceName", codes);
-                setCodeBox("entity-dataSourceName", codes);
+                //setCodeBox("query-dataSourceName", codes);
+                //setCodeBox("entity-dataSourceName", codes);
             },
             function(error){
                 alert('error');
@@ -894,7 +901,7 @@
             {name: "columnName", title:"column", type: "text", width: 100},
             {name: "displayName", title:"화면노출명", type: "text", width: 100},
             {name: "useKey", title:"key", type: "checkbox", width: 50},
-            {name: "columnType", title:"type", type: "select", width: 50, items: codes["ColumnType"], valueField: "id", textField: "name" },
+            {name: "columnType", title:"type", type: "select", width: 50, items: App.codes["COLUMN_TYPE"], valueField: "code", textField: "name" },
             {name: "orderNum", title:"순서", type: "number", width: 30},
             { type: "control", editButton: true, width: 30, modeSwitchButton: false }
         ],
@@ -924,10 +931,10 @@
         [
             {name: "id", title:"ID", type: "number", width: 20, editing: false},
             {name: "columnName", title:"column", type: "text", width: 100 , editing: false},
-            {name: "selectWhereType", title:"where 유형", type: "select", width: 50, items: codes["SelectWhereType"], valueField: "id", textField: "name" },
-            {name: "selectWhereCompareOperator", title:"where 비교 연산자", type: "select", width: 50, items: codes["SelectWhereCompareOperator"], valueField: "id", textField: "name" },
+            {name: "selectWhereType", title:"where 유형", type: "select", width: 50, items: App.codes["SELECT_WHERE_TYPE"], valueField: "code", textField: "name" },
+            {name: "selectWhereCompareOperator", title:"where 비교 연산자", type: "select", width: 50, items: App.codes["SELECT_WHERE_COMPARE_OPERATOR"], valueField: "code", textField: "name" },
             {name: "selectOrderByNum", title:"order by 순서", type: "number", width: 50},
-            {name: "selectOrderBySortOrder", title:"order by 정렬유형", type: "select", width: 50, items: codes["SortOrder"], valueField: "id", textField: "name" },
+            {name: "selectOrderBySortOrder", title:"order by 정렬유형", type: "select", width: 50, items: App.codes["SORT_ORDER"], valueField: "code", textField: "name" },
             { type: "control", editButton: true, deleteButton: false, width: 30, modeSwitchButton: false, }
         ],
         function(args) {},
@@ -949,8 +956,8 @@
         [
             {name: "id", title:"ID", type: "number", width: 20, editing: false},
             {name: "columnName", title:"column", type: "text", width: 100 , editing: false},
-            {name: "insertNullResolveType", title:"null 처리유형", type: "select", width: 50, items: codes["NullResolveType"], valueField: "id", textField: "name" },
-            {name: "insertAutoValueType", title:"자동값 유형", type: "select", width: 50, items: codes["AutoValueType"], valueField: "id", textField: "name" },
+            {name: "insertNullResolveType", title:"null 처리유형", type: "select", width: 50, items: App.codes["NULL_RESOLVE_TYPE"], valueField: "code", textField: "name" },
+            {name: "insertAutoValueType", title:"자동값 유형", type: "select", width: 50, items: App.codes["AUTO_VALUE_TYPE"], valueField: "code", textField: "name" },
             {name: "insertAutoValue", title:"자동값", type: "text", width: 100},
             { type: "control", editButton: true, deleteButton: false, width: 30, modeSwitchButton: false, }
         ],
@@ -973,8 +980,8 @@
         [
             {name: "id", title:"ID", type: "number", width: 20, editing: false},
             {name: "columnName", title:"column", type: "text", width: 100 , editing: false},
-            {name: "updateNullResolveType", title:"null 처리유형", type: "select", width: 50, items: codes["NullResolveType"], valueField: "id", textField: "name" },
-            {name: "updateAutoValueType", title:"자동값 유형", type: "select", width: 50, items: codes["AutoValueType"], valueField: "id", textField: "name" },
+            {name: "updateNullResolveType", title:"null 처리유형", type: "select", width: 50, items: App.codes["NULL_RESOLVE_TYPE"], valueField: "code", textField: "name" },
+            {name: "updateAutoValueType", title:"자동값 유형", type: "select", width: 50, items: App.codes["AUTO_VALUE_TYPE"], valueField: "code", textField: "name" },
             {name: "updateAutoValue", title:"자동값", type: "text", width: 100},
             { type: "control", editButton: true, deleteButton: false, width: 30, modeSwitchButton: false, }
         ],
@@ -996,7 +1003,7 @@
         [
             {name: "id", title:"ID", type: "number", width: 20, editing: false},
             {name: "columnName", title:"column", type: "text", width: 100 , editing: false},
-            {name: "deleteAutoValueType", title:"자동값 유형", type: "select", width: 50, items: codes["AutoValueType"], valueField: "id", textField: "name" },
+            {name: "deleteAutoValueType", title:"자동값 유형", type: "select", width: 50, items: App.codes["AUTO_VALUE_TYPE"], valueField: "code", textField: "name" },
             {name: "deleteAutoValue", title:"자동값", type: "text", width: 100},
             { type: "control", editButton: true, deleteButton: false, width: 30, modeSwitchButton: false, }
         ],
@@ -1165,15 +1172,6 @@
 <mf-view th:fragment="view">
     <mf-data>
         <mf-codes>
-            <mf-code id="YN_CD"                 name="YN_CD"                    type="COMMON_CODE"></mf-code>
-            <mf-code id="SYS_AUTO_VALUE_TYPE"   name="SYS_AUTO_VALUE_TYPE"      type="COMMON_CODE"></mf-code>
-            <mf-code id="SYS_PARAM_TYPE"        name="SYS_PARAM_TYPE"           type="COMMON_CODE"></mf-code>
-            <mf-code id="SYS_IN_OUT"            name="SYS_IN_OUT"               type="COMMON_CODE"></mf-code>
-            <mf-code id="SYS_COLUMN_TYPE"       name="SYS_COLUMN_TYPE"          type="COMMON_CODE"></mf-code>
-            <mf-code id="SYS_SELECT_WHERE_TYPE" name="SYS_SELECT_WHERE_TYPE"    type="COMMON_CODE"></mf-code>
-            <mf-code id="SYS_SORT_ORDER"        name="SYS_SORT_ORDER"           type="COMMON_CODE"></mf-code>
-            <mf-code id="SYS_NULL_RESOLVE_TYPE" name="SYS_NULL_RESOLVE_TYPE"    type="COMMON_CODE"></mf-code>
-            <mf-code id="SYS_SELECT_WHERE_COMPARE_OPERATOR" name="SYS_SELECT_WHERE_COMPARE_OPERATOR" type="COMMON_CODE"></mf-code>
         </mf-codes>
         <mf-messages>
             <mf-message id="ME_EVAL0001_01"></mf-message>
@@ -1182,6 +1180,17 @@
         </mf-messages>
     </mf-data>
     <mf-actions>
+        <mf-action name="getWorkflowList" >
+            httpClient.get(`/console/api/workflow`, {},
+                function(response){
+                    sheet.setSheetData('workflowListGrid', response);
+                },
+                function(error){
+                    alert('조회하는데 실패하였습니다.');
+                }
+            );
+        </mf-action>
+
         <mf-action name="clickWorkflowList" args="args">
             selectedContent(args.item);
         </mf-action>
@@ -1191,7 +1200,7 @@
             <mf-col size="col-3">
                 <mf-card>
                     <mf-card-header title="목록">
-                        <mf-action-button id="search" actionName="getWorkflow" icon="fas fa-search"></mf-action-button>
+                        <mf-action-button id="search" actionName="getWorkflowList" icon="fas fa-search"></mf-action-button>
                     </mf-card-header>
                     <mf-card-body>
                         <mf-grid id="workflowListGrid" width="100%" height="800px"
