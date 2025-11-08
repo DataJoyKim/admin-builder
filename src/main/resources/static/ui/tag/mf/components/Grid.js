@@ -89,8 +89,8 @@ export class Grid extends AbstractComponents {
             column.title = child.getAttribute("label");
             column.type = child.getAttribute("type");
 
-            let visible = child.getAttribute("visible");
-            if(visible) column.visible = visible;
+            let hidden = child.getAttribute("hidden");
+            if(hidden) column.visible = !hidden;
 
             let width = child.getAttribute("width");
             column.width = (width) ? width : '100px';
@@ -105,8 +105,10 @@ export class Grid extends AbstractComponents {
             if(inserting) column.inserting = App.util.stringToBoolean(inserting);
 
             if(column.type == 'select') {
-                let items = child.getAttribute('dataProvider');
-                if(items) column.items = items;
+                let dataProvider = child.getAttribute('dataProvider');
+                if(dataProvider) {
+                    column.items = this.getCodeVariable()[dataProvider];
+                }
 
                 let valueField = child.getAttribute("valueField");
                 column.valueField = (valueField) ? valueField : 'code';

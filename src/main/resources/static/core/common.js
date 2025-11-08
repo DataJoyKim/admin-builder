@@ -11,12 +11,12 @@
     }
 
     function setCodeBox(id, codes) {
-        let sHtml = '';
+        let sHtml = `<option value=''>선택</option>`;
         for(let i=0; i<codes.length; i++) {
             sHtml += `<option value='${codes[i].id}'>${codes[i].name}</option>`;
         }
 
-        $("#"+id).append(sHtml);
+        $("#"+id).html(sHtml);
     }
 
     function isEmpty(v) {

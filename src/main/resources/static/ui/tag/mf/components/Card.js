@@ -18,6 +18,7 @@ export class Card extends AbstractComponents {
 
         const div = document.createElement('div');
         div.className = className;
+        div.id = id;
 
         while (this.firstChild) div.appendChild(this.firstChild);
         this.replaceWith(div);
