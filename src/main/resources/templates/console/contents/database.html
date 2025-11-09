@@ -9,10 +9,10 @@
         function init() {
             var codes = {
                 "DatabaseKind":[
-                    {id:"MYSQL",name:"Mysql"},
-                    {id:"MARIADB",name:"MariaDB"},
-                    {id:"MSSQL",name:"Mssql"},
-                    {id:"ORACLE",name:"Oracle"}
+                    {code:"MYSQL",name:"Mysql"},
+                    {code:"MARIADB",name:"MariaDB"},
+                    {code:"MSSQL",name:"Mssql"},
+                    {code:"ORACLE",name:"Oracle"}
                 ]
             };
 
@@ -33,7 +33,7 @@
         }
 
         function setCodes(codes) {
-            setCodeBox("databaseKind", codes["DatabaseKind"]);
+            App.util.setCodeBox("databaseKind", codes["DatabaseKind"]);
         }
 
         function getDataSource() {

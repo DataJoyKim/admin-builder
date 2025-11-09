@@ -26,8 +26,16 @@ public class RestClientRestController {
     private RestClientService restClientService;
 
     @GetMapping("")
-    public ResponseEntity<?> getRestClient() {
-        List<RestClient> results = restClientRepository.findAll();
+    public ResponseEntity<?> getRestClient(
+            @RequestParam(name = "clientName", required = false) String clientName
+    ) {
+        List<RestClient> results;
+        if(clientName != null) {
+            results = restClientRepository.findByClientName(clientName);
+        }
+        else {
+            results = restClientRepository.findAll();
+        }
 
         return new ResponseEntity<>(results, HttpStatus.OK);
     }

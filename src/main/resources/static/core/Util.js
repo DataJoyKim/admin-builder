@@ -16,6 +16,22 @@ class Util {
     stringToBoolean(value) {
         return (value && value.toLowerCase() == "true") ? true : false;
     }
+
+    setCodeBox(id, codes, options) {
+        let codeBox = ``;
+        if(options && options.useFirstItem) {
+            let value = (options.firstItemValue) ? options.firstItemValue : '';
+            let label = (options.firstItemLabel) ? options.firstItemLabel : '';
+
+            codeBox = `<option value='${value}'>${label}</option>`;
+        }
+
+        for(let code of codes) {
+            codeBox += `<option value='${code.code}'>${code.name}</option>`;
+        }
+
+        $("#"+id).html(codeBox);
+    }
 }
 
 window.App = window.App || {};

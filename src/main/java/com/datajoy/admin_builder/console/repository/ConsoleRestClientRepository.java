@@ -10,6 +10,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface ConsoleRestClientRepository extends JpaRepository<RestClient, Long> {
 
     @Transactional
@@ -34,4 +36,6 @@ public interface ConsoleRestClientRepository extends JpaRepository<RestClient, L
             @Param("contentType") ContentType contentType,
             @Param("bodyMessageFormat") BodyMessageFormat bodyMessageFormat
     );
+
+    List<RestClient> findByClientName(String clientName);
 }

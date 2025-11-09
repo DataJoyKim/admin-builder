@@ -5,7 +5,6 @@ export class Card extends AbstractComponents {
         const id = super.getId();
         const size = this.getAttribute('size');
         const addClass = this.getAttribute('addClass');
-        const hidden = this.getAttribute('hidden');
 
         let className = 'card';
         if(size != null) {
@@ -14,7 +13,7 @@ export class Card extends AbstractComponents {
 
         if(addClass) className += ' ' + addClass;
 
-        if(hidden && hidden == 'true')  className += ' d-none';
+        if(this.hasAttribute('hidden'))  className += ' d-none';
 
         const div = document.createElement('div');
         div.className = className;

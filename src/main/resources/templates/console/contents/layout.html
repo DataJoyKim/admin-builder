@@ -10,8 +10,8 @@
         function init() {
             var codes = {
                 "Boolean":[
-                    {id:"true",name:"true"},
-                    {id:"false",name:"false"}
+                    {code:"true",name:"true"},
+                    {code:"false",name:"false"}
                 ]
             };
 
@@ -21,9 +21,9 @@
         }
 
         function setCodes(codes) {
-            setCodeBox("useAuthValidation", codes["Boolean"]);
-            setCodeBox("useProfile", codes["Boolean"]);
-            setCodeBox("useLogo", codes["Boolean"]);
+            App.util.setCodeBox("useAuthValidation", codes["Boolean"]);
+            App.util.setCodeBox("useProfile", codes["Boolean"]);
+            App.util.setCodeBox("useLogo", codes["Boolean"]);
         }
 
         function getList() {

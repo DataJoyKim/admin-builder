@@ -10,13 +10,13 @@
         function init() {
             let codes = {
                 "FunctionType":[
-                    {id:"ENTITY",name:"Entity"},
-                    {id:"SQL",name:"SQL"},
-                    {id:"REST_CLIENT",name:"Rest Client"}
+                    {code:"ENTITY",name:"Entity"},
+                    {code:"SQL",name:"SQL"},
+                    {code:"REST_CLIENT",name:"Rest Client"}
                 ],
                 "YnCd":[
-                    {id:"true",name:"Y"},
-                    {id:"false",name:"N"}
+                    {code:"true",name:"Y"},
+                    {code:"false",name:"N"}
                 ]
             };
 
@@ -37,7 +37,7 @@
             sheet.initSheet('workflowFunctionGrid', "100%","500px",
             [
                 {name: "id", title:"ID", type: "number", width: 20, editing: false, inserting: false},
-                {name: "functionType", title:"type", type: "select", width: 50, items: codes["FunctionType"], valueField: "id", textField: "name" },
+                {name: "functionType", title:"type", type: "select", width: 50, items: codes["FunctionType"], valueField: "code", textField: "name" },
                 {name: "functionName", title:"function", type: "text", width: 100},
                 {name: "requestMessageId", title:"요청메시지ID", type: "text", width: 100},
                 {name: "responseMessageId", title:"응답메시지ID", type: "text", width: 100},
@@ -103,7 +103,7 @@
         }
 
         function setCodes(codes) {
-            setCodeBox("useAuthValidation", codes["YnCd"]);
+            App.util.setCodeBox("useAuthValidation", codes["YnCd"]);
         }
 
         function save() {

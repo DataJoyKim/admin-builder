@@ -12,10 +12,10 @@
                 function(response){
                     let codes = new Array();
                     for(let i=0; i<response.length; i++) {
-                        codes.push({id:response[i].dataSourceName,name:response[i].displayName});
+                        codes.push({code:response[i].dataSourceName,name:response[i].displayName});
                     }
 
-                    setCodeBox("dataSourceName", codes);
+                    App.util.setCodeBox("dataSourceName", codes);
                 },
                 function(error){
                     alert('error');

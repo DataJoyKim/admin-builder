@@ -122,10 +122,32 @@
             {code:"SET_NULL",name:"null 셋팅"},
             {code:"EXCLUDE_QUERY",name:"제외"}
         ],
-        "AUTO_VALUE_TYPE":[
+        "ENTITY_AUTO_VALUE_TYPE":[
             {code:"STATIC_VALUE",name:"static 값"},
             {code:"QUERY",name:"쿼리"},
             {code:"RESERVED_WORD",name:"예약어"}
+        ],
+        "METHOD":[
+            {code:"GET",name:"GET"},
+            {code:"POST",name:"POST"},
+            {code:"PUT",name:"PUT"},
+            {code:"DELETE",name:"DELETE"}
+        ],
+        "CONTENT_TYPE":[
+            {code:"APPLICATION_JSON",name:"application/json"},
+            {code:"APPLICATION_FORM_URLENCODED",name:"application/x-www-form-urlencoded"},
+            {code:"TEXT_PLAIN",name:"text/plain"}
+        ],
+        "BODY_MESSAGE_FORMAT":[
+            {code:"ARRAY",name:"Array"},
+            {code:"OBJECT",name:"Object"}
+        ],
+        "REST_DATA_TYPE":[
+            {code:"STRING",name:"String"},
+            {code:"NUMBER",name:"Number"},
+            {code:"BOOLEAN",name:"Boolean"},
+            {code:"OBJECT",name:"Object"},
+            {code:"ARRAY",name:"Array"}
         ]
     };
 
@@ -137,12 +159,11 @@
     });
 
     function init() {
-        setCodesDataSource();
+        setDatSourceAsDatabase();
+        setDatSourceAsRestServer();
 
         getWorkflowList();
         setWorkflowGrid();
-        drawSqlGrid();
-        drawEntityGrid();
     }
 
     function initCodeEditor(id,mode) {
@@ -157,7 +178,7 @@
         });
     }
 
-    function setCodesDataSource() {
+    function setDatSourceAsDatabase() {
         httpClient.get(`/console/api/datasource/database`, {},
             function(response){
                 let codes = new Array();
@@ -165,8 +186,8 @@
                     codes.push({code:response[i].dataSourceName,name:response[i].displayName});
                 }
 
-                setCodeBox("query-dataSourceName", codes);
-                setCodeBox("entity-dataSourceName", codes);
+                App.util.setCodeBox("query-dataSourceName", codes);
+                App.util.setCodeBox("entity-dataSourceName", codes);
             },
             function(error){
                 alert('error');
@@ -174,13 +195,20 @@
         );
     }
 
-    function setCodeBox(id, _codes) {
-        let codeBox = `<option value=''>선택</option>`;
-        for(let code of _codes) {
-            codeBox += `<option value='${code.code}'>${code.name}</option>`;
-        }
+    function setDatSourceAsRestServer() {
+        httpClient.get(`/console/api/datasource/rest-server`, {},
+            function(response){
+                let codes = new Array();
+                for(let i=0; i<response.length; i++) {
+                    codes.push({code:response[i].dataSourceName,name:response[i].displayName});
+                }
 
-        $("#"+id).html(codeBox);
+                 App.util.setCodeBox("rest-client-dataSourceName", codes);
+            },
+            function(error){
+                alert('error');
+            }
+        );
     }
 
     function save() {
@@ -598,11 +626,16 @@
 
         if(functionType == "SQL") {
             showGrid('sql-card',true);
+            sqlEditor = initCodeEditor('query','text/x-sql');
             getQuery(functionName);
         }
         else if(functionType == "ENTITY") {
             showGrid('entity-card',true);
             getEntity(functionName);
+        }
+        else if(functionType == "REST_CLIENT") {
+            showGrid('rest-client-card',true);
+            getRestClient(functionName);
         }
     }
 
@@ -765,13 +798,17 @@
     }
 
     function initFunctionGrid() {
+        showGrid('workflow-authority-card',false);
         showGrid('sql-card',false);
         showGrid('entity-card',false);
+        showGrid('rest-client-card',false);
+
+        if (sqlEditor) {
+          sqlEditor.toTextArea();
+          sqlEditor = null;
+        }
     }
 
-/******************************************************************
-* SQL
-*******************************************************************/
     function showGrid(id, show) {
         if(show) {
             $("#"+id).removeClass('d-none');
@@ -781,9 +818,9 @@
         }
     }
 
-    function drawSqlGrid() {
-        sqlEditor = initCodeEditor('query','text/x-sql');
-    }
+/******************************************************************
+* SQL
+*******************************************************************/
 
     function getQuery(functionName) {
         httpClient.get(`/console/api/query`, {queryName:`${functionName}`},
@@ -895,102 +932,6 @@
 /******************************************************************
 * Entity
 *******************************************************************/
-
-    function drawEntityGrid() {
-
-        sheet.initSheet('entityColumnSelectGrid', "100%","500px",
-        [
-            {name: "id", title:"ID", type: "number", width: 20, editing: false},
-            {name: "columnName", title:"column", type: "text", width: 100 , editing: false},
-            {name: "selectWhereType", title:"where 유형", type: "select", width: 50, items: App.codes["SELECT_WHERE_TYPE"], valueField: "code", textField: "name" },
-            {name: "selectWhereCompareOperator", title:"where 비교 연산자", type: "select", width: 50, items: App.codes["SELECT_WHERE_COMPARE_OPERATOR"], valueField: "code", textField: "name" },
-            {name: "selectOrderByNum", title:"order by 순서", type: "number", width: 50},
-            {name: "selectOrderBySortOrder", title:"order by 정렬유형", type: "select", width: 50, items: App.codes["SORT_ORDER"], valueField: "code", textField: "name" },
-            { type: "control", editButton: true, deleteButton: false, width: 30, modeSwitchButton: false, }
-        ],
-        function(args) {},
-        {
-            inserting: false,
-            editing: true,
-            onItemUpdated: function(args) {
-                updateEntityColumn("/select", $("#id").val(),args.item.id,
-                      {
-                           selectWhereType:args.item.selectWhereType,
-                           selectWhereCompareOperator:args.item.selectWhereCompareOperator,
-                           selectOrderByNum:args.item.selectOrderByNum,
-                           selectOrderBySortOrder:args.item.selectOrderBySortOrder
-                      });
-            }
-        });
-
-        sheet.initSheet('entityColumnInsertGrid', "100%","500px",
-        [
-            {name: "id", title:"ID", type: "number", width: 20, editing: false},
-            {name: "columnName", title:"column", type: "text", width: 100 , editing: false},
-            {name: "insertNullResolveType", title:"null 처리유형", type: "select", width: 50, items: App.codes["NULL_RESOLVE_TYPE"], valueField: "code", textField: "name" },
-            {name: "insertAutoValueType", title:"자동값 유형", type: "select", width: 50, items: App.codes["AUTO_VALUE_TYPE"], valueField: "code", textField: "name" },
-            {name: "insertAutoValue", title:"자동값", type: "text", width: 100},
-            { type: "control", editButton: true, deleteButton: false, width: 30, modeSwitchButton: false, }
-        ],
-        function(args) {},
-        {
-            inserting: false,
-            editing: true,
-            onItemUpdated: function(args) {
-                updateEntityColumn("/insert", $("#id").val(),args.item.id,
-                      {
-                           selectWhereType:args.item.selectWhereType,
-                           selectWhereCompareOperator:args.item.selectWhereCompareOperator,
-                           selectOrderByNum:args.item.selectOrderByNum,
-                           selectOrderBySortOrder:args.item.selectOrderBySortOrder
-                      });
-            }
-        });
-
-        sheet.initSheet('entityColumnUpdateGrid', "100%","500px",
-        [
-            {name: "id", title:"ID", type: "number", width: 20, editing: false},
-            {name: "columnName", title:"column", type: "text", width: 100 , editing: false},
-            {name: "updateNullResolveType", title:"null 처리유형", type: "select", width: 50, items: App.codes["NULL_RESOLVE_TYPE"], valueField: "code", textField: "name" },
-            {name: "updateAutoValueType", title:"자동값 유형", type: "select", width: 50, items: App.codes["AUTO_VALUE_TYPE"], valueField: "code", textField: "name" },
-            {name: "updateAutoValue", title:"자동값", type: "text", width: 100},
-            { type: "control", editButton: true, deleteButton: false, width: 30, modeSwitchButton: false, }
-        ],
-        function(args) {},
-        {
-            inserting: false,
-            editing: true,
-            onItemUpdated: function(args) {
-                updateEntityColumn("/update", $("#id").val(),args.item.id,
-                      {
-                           updateNullResolveType:args.item.updateNullResolveType,
-                           updateAutoValueType:args.item.updateAutoValueType,
-                           updateAutoValue:args.item.updateAutoValue
-                      });
-            }
-        });
-
-        sheet.initSheet('entityColumnDeleteGrid', "100%","500px",
-        [
-            {name: "id", title:"ID", type: "number", width: 20, editing: false},
-            {name: "columnName", title:"column", type: "text", width: 100 , editing: false},
-            {name: "deleteAutoValueType", title:"자동값 유형", type: "select", width: 50, items: App.codes["AUTO_VALUE_TYPE"], valueField: "code", textField: "name" },
-            {name: "deleteAutoValue", title:"자동값", type: "text", width: 100},
-            { type: "control", editButton: true, deleteButton: false, width: 30, modeSwitchButton: false, }
-        ],
-        function(args) {},
-        {
-            inserting: false,
-            editing: true,
-            onItemUpdated: function(args) {
-                updateEntityColumn("/delete", $("#id").val(),args.item.id,
-                      {
-                           deleteAutoValueType:args.item.deleteAutoValueType,
-                           deleteAutoValue:args.item.deleteAutoValue
-                      });
-            }
-        });
-    }
 
     function getEntity(entityName) {
         httpClient.get(`/console/api/entity`, {entityName:entityName},
@@ -1139,6 +1080,293 @@
           }
       );
     }
+
+/******************************************************************
+* Rest Client
+*******************************************************************/
+
+        function getRestClient(clientName) {
+            httpClient.get(`/console/api/rest-client`, {clientName:clientName},
+                function(response){
+                    if(response[0]) {
+                        setRestClientContent(response[0]);
+                        getRestClientQueryParam(response[0].id);
+                        getRestClientHeader(response[0].id);
+                        getRestClientBody(response[0].id);
+                    }
+                    else {
+                        newRestClientContent(clientName);
+                    }
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function getRestClientContent() {
+            return {
+                id: $("#rest-client-id").val(),
+                clientName: $("#rest-client-clientName").val(),
+                displayName: $("#rest-client-displayName").val(),
+                dataSourceName: $("#rest-client-dataSourceName").val(),
+                method: $("#rest-client-method").val(),
+                path: $("#rest-client-path").val(),
+                contentType: $("#rest-client-contentType").val(),
+                bodyMessageFormat: $("#rest-client-bodyMessageFormat").val()
+            }
+        }
+
+        function setRestClientContent(params) {
+            $("#rest-client-id").val(params.id);
+            $("#rest-client-clientName").val(params.clientName);
+            $("#rest-client-displayName").val(params.displayName);
+            $("#rest-client-dataSourceName").val(params.dataSourceName);
+            $("#rest-client-method").val(params.method);
+            $("#rest-client-path").val(params.path);
+            $("#rest-client-contentType").val(params.contentType);
+            $("#rest-client-bodyMessageFormat").val(params.bodyMessageFormat);
+          }
+
+          function newRestClientContent(clientName){
+            setRestClientContent({
+                id:'',
+                clientName:clientName,
+                displayName:'',
+                dataSourceName:'',
+                method:'',
+                path:'',
+                contentType:'',
+                bodyMessageFormat:''
+                });
+          }
+
+          function saveRestClient() {
+            let id = $('#rest-client-id').val();
+            if(id) {
+                updateRestClient(id);
+            }
+            else {
+                insertRestClient();
+            }
+          }
+
+        function insertRestClient() {
+            httpClient.post(`/console/api/rest-client`,{},getRestClientContent(),
+                function(response){
+                    alert("저장완료되었습니다.");
+                    getRestClient();
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function updateRestClient(id) {
+          httpClient.put(`/console/api/rest-client/${id}`, {}, getRestClientContent(),
+              function(response){
+                  alert("저장완료되었습니다.");
+                  getRestClient();
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+        function deleteRestClient() {
+          let id = $("#rest-client-id").val();
+
+          httpClient.delete(`/console/api/rest-client/${id}`, {},
+              function(response){
+                  alert("삭제 처리 완료되었습니다.");
+                  getRestClient();
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+        function getRestClientQueryParam(clientId) {
+            httpClient.get(`/console/api/rest-client/query-param/${clientId}`, {},
+                function(response){
+                    sheet.setSheetData('restClientQueryParamsGrid', response);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function insertRestClientQueryParam(clientId, item) {
+            httpClient.post(`/console/api/rest-client/query-param`,{},
+                {
+                   clientId:clientId,
+                   paramName:item.paramName,
+                   autoValueType:item.autoValueType,
+                   autoValue:item.autoValue
+                },
+                function(response){
+                    alert("생성 완료되었습니다.");
+                    getRestClientQueryParam(clientId);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function updateRestClientQueryParam(clientId,item) {
+          httpClient.put(`/console/api/rest-client/query-param/${item.id}`, {},
+              {
+                   paramName:item.paramName,
+                   autoValueType:item.autoValueType,
+                   autoValue:item.autoValue
+              },
+              function(response){
+                  alert("변경 완료되었습니다.");
+                  getRestClientQueryParam(clientId);
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+        function deleteRestClientQueryParam(clientId, item) {
+          httpClient.delete(`/console/api/rest-client/query-param/${item.id}`, {},
+              function(response){
+                  alert("삭제 완료되었습니다.");
+                  getRestClientQueryParam(clientId);
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+
+        function getRestClientHeader(clientId) {
+            httpClient.get(`/console/api/rest-client/header/${clientId}`, {},
+                function(response){
+                    sheet.setSheetData('restClientHeadersGrid', response);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function insertRestClientHeader(clientId, item) {
+            httpClient.post(`/console/api/rest-client/header`,{},
+                {
+                   clientId:clientId,
+                   name:item.name,
+                   headerValue:item.headerValue
+                },
+                function(response){
+                    alert("생성 완료되었습니다.");
+                    getRestClientHeader(clientId);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function updateRestClientHeader(clientId,item) {
+          httpClient.put(`/console/api/rest-client/header/${item.id}`, {},
+              {
+                   name:item.name,
+                   headerValue:item.headerValue
+              },
+              function(response){
+                  alert("변경 완료되었습니다.");
+                  getRestClientHeader(clientId);
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+        function deleteRestClientHeader(clientId, item) {
+          httpClient.delete(`/console/api/rest-client/header/${item.id}`, {},
+              function(response){
+                  alert("삭제 완료되었습니다.");
+                  getRestClientHeader(clientId);
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+        function getRestClientBody(clientId) {
+            httpClient.get(`/console/api/rest-client/body/${clientId}`, {},
+                function(response){
+                    sheet.setSheetData('restClientBodyGrid', response);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function insertRestClientBody(clientId, item) {
+            httpClient.post(`/console/api/rest-client/body`,{},
+                {
+                   clientId:clientId,
+                   paramName:item.paramName,
+                   parentParamName:item.parentParamName,
+                   dataType:item.dataType,
+                   autoValueType:item.autoValueType,
+                   orderNum:item.orderNum,
+                   autoValue:item.autoValue
+                },
+                function(response){
+                    alert("생성 완료되었습니다.");
+                    getRestClientBody(clientId);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function updateRestClientBody(clientId,item) {
+          httpClient.put(`/console/api/rest-client/body/${item.id}`, {},
+              {
+                   paramName:item.paramName,
+                   parentParamName:item.parentParamName,
+                   dataType:item.dataType,
+                   autoValueType:item.autoValueType,
+                   orderNum:item.orderNum,
+                   autoValue:item.autoValue
+              },
+              function(response){
+                  alert("변경 완료되었습니다.");
+                  getRestClientBody(clientId);
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+        function deleteRestClientBody(clientId, item) {
+          httpClient.delete(`/console/api/rest-client/body/${item.id}`, {},
+              function(response){
+                  alert("삭제 완료되었습니다.");
+                  getRestClientBody(clientId);
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
 </script>
 <mf-view th:fragment="view">
     <mf-data>
@@ -1244,6 +1472,96 @@
             deleteEntityColumn($("#entity-id").val(), args.item);
         </mf-action>
 
+        <mf-action name="updateEntityColumnSelectEvent" args="args">
+            updateEntityColumn("/select", $("#entity-id").val(),args.item.id,
+            {
+                selectWhereType:args.item.selectWhereType,
+                selectWhereCompareOperator:args.item.selectWhereCompareOperator,
+                selectOrderByNum:args.item.selectOrderByNum,
+                selectOrderBySortOrder:args.item.selectOrderBySortOrder
+            });
+        </mf-action>
+
+        <mf-action name="updateEntityColumnInsertEvent" args="args">
+            updateEntityColumn("/insert", $("#entity-id").val(),args.item.id,
+            {
+                selectWhereType:args.item.selectWhereType,
+                selectWhereCompareOperator:args.item.selectWhereCompareOperator,
+                selectOrderByNum:args.item.selectOrderByNum,
+                selectOrderBySortOrder:args.item.selectOrderBySortOrder
+            });
+        </mf-action>
+
+        <mf-action name="updateEntityColumnUpdateEvent" args="args">
+            updateEntityColumn("/update", $("#entity-id").val(),args.item.id,
+            {
+                updateNullResolveType:args.item.updateNullResolveType,
+                updateAutoValueType:args.item.updateAutoValueType,
+                updateAutoValue:args.item.updateAutoValue
+            });
+        </mf-action>
+
+        <mf-action name="updateEntityColumnDeleteEvent" args="args">
+            updateEntityColumn("/delete", $("#entity-id").val(),args.item.id,
+            {
+                deleteAutoValueType:args.item.deleteAutoValueType,
+                deleteAutoValue:args.item.deleteAutoValue
+            });
+        </mf-action>
+
+        <mf-action name="insertWorkflowAuthorityEvent" args="args">
+            insertWorkflowAuthority($("#workflowId").val(), args.item);
+        </mf-action>
+
+        <mf-action name="updateWorkflowAuthorityEvent" args="args">
+            updateWorkflowAuthority($("#workflowId").val(),args.item);
+        </mf-action>
+
+        <mf-action name="deleteWorkflowAuthorityEvent" args="args">
+            deleteWorkflowAuthority($("#workflowId").val(), args.item);
+        </mf-action>
+
+        <mf-action name="security" args="args">
+            initFunctionGrid();
+
+            showGrid('workflow-authority-card',true);
+        </mf-action>
+
+        <mf-action name="insertRestClientQueryParamEvent" args="args">
+            insertRestClientQueryParam($("#rest-client-id").val(), args.item);
+        </mf-action>
+
+        <mf-action name="updateRestClientQueryParamEvent" args="args">
+            updateRestClientQueryParam($("#rest-client-id").val(),args.item);
+        </mf-action>
+
+        <mf-action name="deleteRestClientQueryParamEvent" args="args">
+            deleteRestClientQueryParam($("#rest-client-id").val(), args.item);
+        </mf-action>
+
+        <mf-action name="insertRestClientHeaderEvent" args="args">
+            insertRestClientHeader($("#rest-client-id").val(), args.item);
+        </mf-action>
+
+        <mf-action name="updateRestClientHeaderEvent" args="args">
+            updateRestClientHeader($("#rest-client-id").val(),args.item);
+        </mf-action>
+
+        <mf-action name="deleteRestClientHeaderEvent" args="args">
+            deleteRestClientHeader($("#rest-client-id").val(), args.item);
+        </mf-action>
+
+        <mf-action name="insertRestClientBodyEvent" args="args">
+            insertRestClientBody($("#rest-client-id").val(), args.item);
+        </mf-action>
+
+        <mf-action name="updateRestClientBodyEvent" args="args">
+            updateRestClientBody($("#rest-client-id").val(),args.item);
+        </mf-action>
+
+        <mf-action name="deleteRestClientBodyEvent" args="args">
+            deleteRestClientBody($("#rest-client-id").val(), args.item);
+        </mf-action>
     </mf-actions>
     <mf-layout>
         <mf-row>
@@ -1292,7 +1610,24 @@
                 </mf-card>
             </mf-col>
             <mf-col size="col-5">
-                <mf-card id="sql-card" hidden="true">
+
+                <mf-card id="workflow-authority-card" hidden>
+                    <mf-card-header title="접근제어">
+                    </mf-card-header>
+                    <mf-card-body>
+                        <mf-grid id="workflowAuthorityGrid" width="100%" height="800px"
+                                 control="true" editing="true" inserting="true"
+                                 insertActionName="insertWorkflowAuthorityEvent"
+                                 updateActionName="updateWorkflowAuthorityEvent"
+                                 deleteActionName="deleteWorkflowAuthorityEvent"
+                        >
+                            <mf-grid-column  type="number" id="id" label="ID"         width="20px"  hidden="true" ></mf-grid-column>
+                            <mf-grid-column  type="text"   id="authorityCode"        label="권한코드"   width="150px" ></mf-grid-column>
+                        </mf-grid>
+                    </mf-card-body>
+                </mf-card>
+
+                <mf-card id="sql-card" hidden>
                     <mf-card-header title="기능">
                         <mf-action-button id="saveQuery" actionName="saveQuery" icon="fas fa-save"></mf-action-button>
                         <mf-action-button id="deleteQuery" actionName="deleteQuery" icon="fas fa-trash"></mf-action-button>
@@ -1331,7 +1666,7 @@
                     </mf-card-body>
                 </mf-card>
 
-                <mf-card id="entity-card" hidden="true">
+                <mf-card id="entity-card" hidden>
                     <mf-card-header title="기능">
                         <mf-action-button id="save" actionName="saveEntity" icon="fas fa-save"></mf-action-button>
                         <mf-action-button id="delete" actionName="deleteEntityContent" icon="fas fa-trash"></mf-action-button>
@@ -1364,17 +1699,126 @@
                                 <mf-grid-column  type="number"   id="orderNum"     label="순서"   width="30px" ></mf-grid-column>
                             </mf-grid>
                         </mf-tab>
+
                         <mf-tab id="entityColumnSelect" title="select 쿼리 설정" >
-                            <div id="entityColumnSelectGrid"></div>
+                            <mf-grid id="entityColumnSelectGrid" width="100%" height="500px"
+                                     control="true" editing="true"
+                                     updateActionName="updateEntityColumnSelectEvent"
+                            >
+                                <mf-grid-column  type="number"   id="id"                            label="ID"           width="20px"  hidden="true" ></mf-grid-column>
+                                <mf-grid-column  type="text"     id="columnName"                    label="컬럼명"         width="100px" ></mf-grid-column>
+                                <mf-grid-column  type="select"   id="selectWhereType"               label="where 유형"     width="50px" dataProvider="SELECT_WHERE_TYPE"></mf-grid-column>
+                                <mf-grid-column  type="select"   id="selectWhereCompareOperator"    label="where 비교 연산자"   width="50px" dataProvider="SELECT_WHERE_COMPARE_OPERATOR"></mf-grid-column>
+                                <mf-grid-column  type="number"   id="selectOrderByNum"              label="order by 순서"   width="50px" ></mf-grid-column>
+                                <mf-grid-column  type="select"   id="selectOrderBySortOrder"        label="order by 정렬유형"       width="50px" dataProvider="SORT_ORDER"></mf-grid-column>
+                            </mf-grid>
                         </mf-tab>
+
                         <mf-tab id="entityColumnInsert" title="insert 쿼리 설정">
-                            <div id="entityColumnInsertGrid"></div>
+                            <mf-grid id="entityColumnInsertGrid" width="100%" height="500px"
+                                     control="true" editing="true"
+                                     updateActionName="updateEntityColumnInsertEvent"
+                            >
+                                <mf-grid-column  type="number"   id="id"                            label="ID"           width="20px"  hidden="true" ></mf-grid-column>
+                                <mf-grid-column  type="text"     id="columnName"                    label="컬럼명"         width="100px" ></mf-grid-column>
+                                <mf-grid-column  type="select"   id="insertNullResolveType"               label="null 처리유형"     width="50px" dataProvider="NULL_RESOLVE_TYPE"></mf-grid-column>
+                                <mf-grid-column  type="select"   id="insertAutoValueType"    label="자동값 유형"   width="50px" dataProvider="ENTITY_AUTO_VALUE_TYPE"></mf-grid-column>
+                                <mf-grid-column  type="text"   id="insertAutoValue"        label="자동값"       width="100px" ></mf-grid-column>
+                            </mf-grid>
                         </mf-tab>
+
                         <mf-tab id="entityColumnUpdate" title="update 쿼리 설정">
-                            <div id="entityColumnUpdateGrid"></div>
+                            <mf-grid id="entityColumnUpdateGrid" width="100%" height="500px"
+                                     control="true" editing="true"
+                                     updateActionName="updateEntityColumnUpdateEvent"
+                            >
+                                <mf-grid-column  type="number"   id="id"                            label="ID"           width="20px"  hidden="true" ></mf-grid-column>
+                                <mf-grid-column  type="text"     id="columnName"                    label="컬럼명"         width="100px" ></mf-grid-column>
+                                <mf-grid-column  type="select"   id="updateNullResolveType"               label="null 처리유형"     width="50px" dataProvider="NULL_RESOLVE_TYPE"></mf-grid-column>
+                                <mf-grid-column  type="select"   id="updateAutoValueType"    label="자동값 유형"   width="50px" dataProvider="ENTITY_AUTO_VALUE_TYPE"></mf-grid-column>
+                                <mf-grid-column  type="text"   id="updateAutoValue"        label="자동값"       width="100px" ></mf-grid-column>
+                            </mf-grid>
                         </mf-tab>
+
                         <mf-tab id="entityColumnDelete" title="delete 쿼리 설정">
-                            <div id="entityColumnDeleteGrid"></div>
+                            <mf-grid id="entityColumnDeleteGrid" width="100%" height="500px"
+                                     control="true" editing="true"
+                                     updateActionName="updateEntityColumnDeleteEvent"
+                            >
+                                <mf-grid-column  type="number"   id="id"                            label="ID"           width="20px"  hidden="true" ></mf-grid-column>
+                                <mf-grid-column  type="text"     id="columnName"                    label="컬럼명"         width="100px" ></mf-grid-column>
+                                <mf-grid-column  type="select"   id="deleteAutoValueType"    label="자동값 유형"   width="50px" dataProvider="ENTITY_AUTO_VALUE_TYPE"></mf-grid-column>
+                                <mf-grid-column  type="text"   id="deleteAutoValue"        label="자동값"       width="100px" ></mf-grid-column>
+                            </mf-grid>
+                        </mf-tab>
+                    </mf-tab-group>
+                </mf-card>
+
+                <mf-card id="rest-client-card" hidden>
+                    <mf-card-header title="기능">
+                        <mf-action-button id="saveRestClient" actionName="saveRestClient" icon="fas fa-save"></mf-action-button>
+                        <mf-action-button id="deleteRestClient" actionName="deleteRestClient" icon="fas fa-trash"></mf-action-button>
+                    </mf-card-header>
+                    <mf-card-body>
+                        <mf-form id="entityForm">
+                            <mf-row>
+                                <mf-text-input id="rest-client-id" label="ID" size="col-1" enable="false" hidden="true"></mf-text-input>
+                                <mf-text-input id="rest-client-clientName" label="클라이언트명" size="col-3" enable="false"></mf-text-input>
+                                <mf-text-input id="rest-client-displayName" label="화면노출명" size="col-3" enable="true" ></mf-text-input>
+                                <mf-select     id="rest-client-dataSourceName" label="데이터소스" size="col-3" enable="true" ></mf-select>
+                            </mf-row>
+                            <mf-row>
+                                <mf-select id="method" label="method" enable="true" size="col-2" dataProvider="METHOD" useFirstItem="true" firstItemLabel="" firstItemValue=""></mf-select>
+                                <mf-text-input id="path" label="path" enable="true" size="col-4" ></mf-text-input>
+                            </mf-row>
+                            <mf-row>
+                                <mf-select id="contentType" label="contentType" enable="true" size="col-3" dataProvider="CONTENT_TYPE" useFirstItem="true" firstItemLabel="" firstItemValue=""></mf-select>
+                                <mf-select id="bodyMessageFormat" label="body 포맷" enable="true" size="col-2" dataProvider="BODY_MESSAGE_FORMAT" useFirstItem="true" firstItemLabel="" firstItemValue=""></mf-select>
+                            </mf-row>
+                        </mf-form>
+                    </mf-card-body>
+
+                    <mf-tab-group>
+                        <mf-tab id="restClientQueryParams" title="Query Params" active>
+                            <mf-grid id="restClientQueryParamsGrid" width="100%" height="500px"
+                                     control="true" editing="true" inserting="true"
+                                     insertActionName="insertRestClientQueryParamEvent"
+                                     updateActionName="updateRestClientQueryParamEvent"
+                                     deleteActionName="deleteRestClientQueryParamEvent"
+                            >
+                                <mf-grid-column  type="number"   id="id"             label="ID"           width="20px"  hidden="true" ></mf-grid-column>
+                                <mf-grid-column  type="text"     id="paramName"      label="파라미터명"    width="100px" ></mf-grid-column>
+                                <mf-grid-column  type="select"   id="autoValueType"  label="자동값 유형"   width="50px" dataProvider="AUTO_VALUE_TYPE"></mf-grid-column>
+                                <mf-grid-column  type="text"     id="autoValue"      label="자동값"       width="100px" ></mf-grid-column>
+                            </mf-grid>
+                        </mf-tab>
+                        <mf-tab id="restClientHeaders" title="Headers">
+                            <mf-grid id="restClientHeadersGrid" width="100%" height="500px"
+                                     control="true" editing="true" inserting="true"
+                                     insertActionName="insertRestClientHeaderEvent"
+                                     updateActionName="updateRestClientHeaderEvent"
+                                     deleteActionName="deleteRestClientHeaderEvent"
+                            >
+                                <mf-grid-column  type="number"   id="id"            label="ID"           width="20px"  hidden="true" ></mf-grid-column>
+                                <mf-grid-column  type="text"     id="name"          label="key"    width="100px" ></mf-grid-column>
+                                <mf-grid-column  type="text"     id="headerValue"   label="value"       width="100px" ></mf-grid-column>
+                            </mf-grid>
+                        </mf-tab>
+                        <mf-tab id="restClientBody" title="Body">
+                            <mf-grid id="restClientBodyGrid" width="100%" height="500px"
+                                     control="true" editing="true" inserting="true"
+                                     insertActionName="insertRestClientQueryParamEvent"
+                                     updateActionName="updateRestClientQueryParamEvent"
+                                     deleteActionName="deleteRestClientQueryParamEvent"
+                            >
+                                <mf-grid-column  type="number"   id="id"             label="ID"           width="20px"  hidden="true" ></mf-grid-column>
+                                <mf-grid-column  type="text"     id="paramName"      label="파라미터명"    width="100px" ></mf-grid-column>
+                                <mf-grid-column  type="text"     id="부모 파라미터명"      label="파라미터명"    width="100px" ></mf-grid-column>
+                                <mf-grid-column  type="select"   id="dataType"  label="데이터유형"   width="50px" dataProvider="REST_DATA_TYPE"></mf-grid-column>
+                                <mf-grid-column  type="select"   id="autoValueType"  label="자동값 유형"   width="50px" dataProvider="AUTO_VALUE_TYPE"></mf-grid-column>
+                                <mf-grid-column  type="text"     id="autoValue"      label="자동값"       width="100px" ></mf-grid-column>
+                                <mf-grid-column  type="number"     id="orderNum"      label="순서"       width="30px" ></mf-grid-column>
+                            </mf-grid>
                         </mf-tab>
                     </mf-tab-group>
                 </mf-card>

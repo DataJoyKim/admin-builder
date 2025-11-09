@@ -9,10 +9,10 @@
 
         function init() {
             var codes = {
-                "ObjectType":[ {id:"FILE",name:"파일"}],
+                "ObjectType":[ {code:"FILE",name:"파일"}],
                 "Boolean":[
-                    {id:"true",name:"true"},
-                    {id:"false",name:"false"}
+                    {code:"true",name:"true"},
+                    {code:"false",name:"false"}
                 ]
             };
 
@@ -32,9 +32,9 @@
         }
 
         function setCodes(codes) {
-            setCodeBox("type", codes["ObjectType"]);
-            setCodeBox("useAuthValidation", codes["Boolean"]);
-            setCodeBox("useAuthorityValidation", codes["Boolean"]);
+            App.util.setCodeBox("type", codes["ObjectType"]);
+            App.util.setCodeBox("useAuthValidation", codes["Boolean"]);
+            App.util.setCodeBox("useAuthorityValidation", codes["Boolean"]);
         }
 
         function getList() {
