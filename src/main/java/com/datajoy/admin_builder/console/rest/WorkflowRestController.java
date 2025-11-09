@@ -39,7 +39,7 @@ public class WorkflowRestController {
                 .workflowCode((String) params.get("workflowCode"))
                 .displayName((String) params.get("displayName"))
                 .note((String) params.get("note"))
-                .useAuthValidation(Boolean.valueOf((String) params.get("useAuthValidation")))
+                .useAuthValidation((Boolean) params.get("useAuthValidation"))
                 .build();
 
         Workflow results = repository.save(workflowBuilder);
@@ -56,7 +56,7 @@ public class WorkflowRestController {
                 (String) params.get("workflowCode"),
                 (String) params.get("displayName"),
                 (String) params.get("note"),
-                Boolean.valueOf((String) params.get("useAuthValidation"))
+                (Boolean) params.get("useAuthValidation")
         );
 
         Workflow results = repository.save(workflowBuilder);

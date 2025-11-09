@@ -32,6 +32,21 @@ class Util {
 
         $("#"+id).html(codeBox);
     }
+
+
+    check(id, v) {
+        if(v) {
+            $('#'+id).prop('checked', true);
+        }
+        else {
+            $('#'+id).prop('checked', false);
+        }
+    }
+
+    isCheck(id) {
+        const toggle = document.getElementById(id);
+        return toggle.checked;
+    }
 }
 
 window.App = window.App || {};
