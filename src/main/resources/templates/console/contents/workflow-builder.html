@@ -393,11 +393,11 @@
     }
 
     function execute() {
-        let workflowCode = $("#validworkflowCode").val();
+        let workflowCode = $("#validWorkflowCode").val();
         let requestMessageId = $("#requestMessageId").val();
 
         let contents = {};
-        let gridData = sheet.getSheetData("workflowExecute");
+        let gridData = sheet.getSheetData("workflowExecuteGrid");
         console.log('gridData',gridData);
         for(let i=0; i<gridData.length; i++) {
             let value = gridData[i]["value"];
@@ -802,6 +802,8 @@
 
     function initFunctionGrid() {
         showGrid('workflow-authority-card',false);
+        showGrid('workflow-execute-card',false);
+
         showGrid('sql-card',false);
         showGrid('entity-card',false);
         showGrid('rest-client-card',false);
@@ -1532,6 +1534,14 @@
             showGrid('workflow-authority-card',true);
         </mf-action>
 
+        <mf-action name="workflowExecute" args="args">
+            initFunctionGrid();
+
+            $("#validWorkflowCode").val($("#workflowCode").val());
+
+            showGrid('workflow-execute-card',true);
+        </mf-action>
+
         <mf-action name="insertRestClientQueryParamEvent" args="args">
             insertRestClientQueryParam($("#rest-client-id").val(), args.item);
         </mf-action>
@@ -1589,6 +1599,7 @@
             <mf-col size="col-4">
                 <mf-card>
                     <mf-card-header title="정의">
+                        <mf-action-button id="workflowExecute" actionName="workflowExecute"       icon="fas fa-play"    label="실행"></mf-action-button>
                         <mf-action-button id="security" actionName="security"       icon="fas fa-shield-alt"    label="접근제어"></mf-action-button>
                         <mf-action-button id="new"      actionName="newContent"     icon="fas fa-plus"          label="신규입력"></mf-action-button>
                         <mf-action-button id="save"     actionName="save"           icon="fas fa-save"          ></mf-action-button>
@@ -1632,6 +1643,36 @@
                     </mf-card-body>
                 </mf-card>
 
+                <mf-card id="workflow-execute-card" hidden>
+                    <mf-card-header title="실행">
+                        <mf-action-button id="execute" actionName="execute" icon="fas fa-play"></mf-action-button>
+                    </mf-card-header>
+                    <mf-card-body>
+                        <mf-form id="workflowExecuteForm">
+                            <mf-row>
+                                <mf-text-input id="validWorkflowCode" label="워크플로우 코드" size="col-3"  enable="false"></mf-text-input>
+                            </mf-row>
+                            <mf-row>
+                                <mf-text-input id="requestMessageId" label="요청메시지ID" size="col-3" enable="true" ></mf-text-input>
+                            </mf-row>
+                            <mf-row>
+                                <mf-grid id="workflowExecuteGrid" width="100%" height="800px"
+                                         control="true" editing="true" inserting="true"
+                                >
+                                    <mf-grid-column  type="text"   id="key"    label="key"     width="100px" align="left" ></mf-grid-column>
+                                    <mf-grid-column  type="text"   id="value"  label="value"   width="100px" align="left" ></mf-grid-column>
+                                </mf-grid>
+                            </mf-row>
+                            <mf-row>
+                                <div class="form-group col-3">
+                                    <label>실행 결과</label>
+                                    <textarea id="responseData"  rows="20" cols="100"></textarea>
+                                </div>
+                            </mf-row>
+                        </mf-form>
+                    </mf-card-body>
+                </mf-card>
+
                 <mf-card id="sql-card" hidden>
                     <mf-card-header title="기능">
                         <mf-action-button id="saveQuery"   actionName="saveQuery"   icon="fas fa-save"></mf-action-button>
@@ -1660,7 +1701,7 @@
                                              deleteActionName="deleteQueryParam"
                                     >
                                         <mf-grid-column  type="number" id="queryParameterId" label="ID"         width="20px"  hidden="true" ></mf-grid-column>
-                                        <mf-grid-column  type="text"   id="paramName"        label="파라미터명"   width="80px" ></mf-grid-column>
+                                        <mf-grid-column  type="text"   id="paramName"        label="파라미터명"   width="80px" align="left" ></mf-grid-column>
                                         <mf-grid-column  type="select" id="paramType"        label="type"       width="50px" dataProvider="PARAM_TYPE"></mf-grid-column>
                                         <mf-grid-column  type="select" id="autoValueType"    label="자동값유형"   width="50px" dataProvider="AUTO_VALUE_TYPE" ></mf-grid-column>
                                         <mf-grid-column  type="select" id="inOut"            label="IN/OUT"     width="50px" dataProvider="IN_OUT"></mf-grid-column>
@@ -1697,8 +1738,8 @@
                                      deleteActionName="deleteEntityColumnEvent"
                             >
                                 <mf-grid-column  type="number"   id="id"           label="ID"        width="20px"  hidden="true" ></mf-grid-column>
-                                <mf-grid-column  type="text"     id="columnName"   label="컬럼명"     width="100px" ></mf-grid-column>
-                                <mf-grid-column  type="text"     id="displayName"  label="화면노출명"  width="100px" ></mf-grid-column>
+                                <mf-grid-column  type="text"     id="columnName"   label="컬럼명"     width="100px" align="left" ></mf-grid-column>
+                                <mf-grid-column  type="text"     id="displayName"  label="화면노출명"  width="100px" align="left" ></mf-grid-column>
                                 <mf-grid-column  type="checkbox" id="useKey"       label="key"       width="50px" ></mf-grid-column>
                                 <mf-grid-column  type="select"   id="columnType"   label="type"      width="50px" dataProvider="COLUMN_TYPE"></mf-grid-column>
                                 <mf-grid-column  type="number"   id="orderNum"     label="순서"       width="30px" ></mf-grid-column>
@@ -1711,7 +1752,7 @@
                                      updateActionName="updateEntityColumnSelectEvent"
                             >
                                 <mf-grid-column  type="number"   id="id"                            label="ID"               width="20px"  hidden="true" ></mf-grid-column>
-                                <mf-grid-column  type="text"     id="columnName"                    label="컬럼명"            width="100px" ></mf-grid-column>
+                                <mf-grid-column  type="text"     id="columnName"                    label="컬럼명"            width="100px" align="left" ></mf-grid-column>
                                 <mf-grid-column  type="select"   id="selectWhereType"               label="where 유형"        width="50px" dataProvider="SELECT_WHERE_TYPE"></mf-grid-column>
                                 <mf-grid-column  type="select"   id="selectWhereCompareOperator"    label="where 비교 연산자"  width="50px" dataProvider="SELECT_WHERE_COMPARE_OPERATOR"></mf-grid-column>
                                 <mf-grid-column  type="number"   id="selectOrderByNum"              label="order by 순서"     width="50px" ></mf-grid-column>
@@ -1725,10 +1766,10 @@
                                      updateActionName="updateEntityColumnInsertEvent"
                             >
                                 <mf-grid-column  type="number"   id="id"                      label="ID"           width="20px"  hidden="true" ></mf-grid-column>
-                                <mf-grid-column  type="text"     id="columnName"              label="컬럼명"        width="100px" ></mf-grid-column>
+                                <mf-grid-column  type="text"     id="columnName"              label="컬럼명"        width="100px" align="left" ></mf-grid-column>
                                 <mf-grid-column  type="select"   id="insertNullResolveType"   label="null 처리유형"  width="50px" dataProvider="NULL_RESOLVE_TYPE"></mf-grid-column>
                                 <mf-grid-column  type="select"   id="insertAutoValueType"     label="자동값 유형"    width="50px" dataProvider="ENTITY_AUTO_VALUE_TYPE"></mf-grid-column>
-                                <mf-grid-column  type="text"     id="insertAutoValue"         label="자동값"        width="100px" ></mf-grid-column>
+                                <mf-grid-column  type="text"     id="insertAutoValue"         label="자동값"        width="100px" align="left" ></mf-grid-column>
                             </mf-grid>
                         </mf-tab>
 
@@ -1738,10 +1779,10 @@
                                      updateActionName="updateEntityColumnUpdateEvent"
                             >
                                 <mf-grid-column  type="number"   id="id"                     label="ID"           width="20px"  hidden="true" ></mf-grid-column>
-                                <mf-grid-column  type="text"     id="columnName"             label="컬럼명"        width="100px" ></mf-grid-column>
+                                <mf-grid-column  type="text"     id="columnName"             label="컬럼명"        width="100px" align="left" ></mf-grid-column>
                                 <mf-grid-column  type="select"   id="updateNullResolveType"  label="null 처리유형"  width="50px" dataProvider="NULL_RESOLVE_TYPE"></mf-grid-column>
                                 <mf-grid-column  type="select"   id="updateAutoValueType"    label="자동값 유형"    width="50px" dataProvider="ENTITY_AUTO_VALUE_TYPE"></mf-grid-column>
-                                <mf-grid-column  type="text"     id="updateAutoValue"        label="자동값"        width="100px" ></mf-grid-column>
+                                <mf-grid-column  type="text"     id="updateAutoValue"        label="자동값"        width="100px" align="left" ></mf-grid-column>
                             </mf-grid>
                         </mf-tab>
 
@@ -1751,9 +1792,9 @@
                                      updateActionName="updateEntityColumnDeleteEvent"
                             >
                                 <mf-grid-column  type="number"   id="id"                     label="ID"          width="20px"  hidden="true" ></mf-grid-column>
-                                <mf-grid-column  type="text"     id="columnName"             label="컬럼명"       width="100px" ></mf-grid-column>
+                                <mf-grid-column  type="text"     id="columnName"             label="컬럼명"       width="100px" align="left" ></mf-grid-column>
                                 <mf-grid-column  type="select"   id="deleteAutoValueType"    label="자동값 유형"   width="50px" dataProvider="ENTITY_AUTO_VALUE_TYPE"></mf-grid-column>
-                                <mf-grid-column  type="text"     id="deleteAutoValue"        label="자동값"       width="100px" ></mf-grid-column>
+                                <mf-grid-column  type="text"     id="deleteAutoValue"        label="자동값"       width="100px" align="left" ></mf-grid-column>
                             </mf-grid>
                         </mf-tab>
                     </mf-tab-group>
@@ -1792,9 +1833,9 @@
                                      deleteActionName="deleteRestClientQueryParamEvent"
                             >
                                 <mf-grid-column  type="number"   id="id"          label="ID"          width="20px"  hidden="true" ></mf-grid-column>
-                                <mf-grid-column  type="text"     id="paramName"   label="파라미터명"    width="100px" ></mf-grid-column>
+                                <mf-grid-column  type="text"     id="paramName"   label="파라미터명"    width="100px" align="left" ></mf-grid-column>
                                 <mf-grid-column  type="select"   id="valueType"   label="값유형"       width="50px" dataProvider="VALUE_TYPE"></mf-grid-column>
-                                <mf-grid-column  type="text"     id="inputValue"  label="입력값"       width="100px" ></mf-grid-column>
+                                <mf-grid-column  type="text"     id="inputValue"  label="입력값"       width="100px" align="left" ></mf-grid-column>
                             </mf-grid>
                         </mf-tab>
                         <mf-tab id="restClientHeaders" title="Headers">
@@ -1805,9 +1846,9 @@
                                      deleteActionName="deleteRestClientHeaderEvent"
                             >
                                 <mf-grid-column  type="number"   id="id"            label="ID"      width="20px"  hidden="true" ></mf-grid-column>
-                                <mf-grid-column  type="text"     id="name"          label="key"     width="100px" ></mf-grid-column>
+                                <mf-grid-column  type="text"     id="name"          label="key"     width="100px" align="left" ></mf-grid-column>
                                 <mf-grid-column  type="select"   id="valueType"     label="값유형"   width="50px" dataProvider="VALUE_TYPE"></mf-grid-column>
-                                <mf-grid-column  type="text"     id="inputValue"    label="입력값"   width="100px" ></mf-grid-column>
+                                <mf-grid-column  type="text"     id="inputValue"    label="입력값"   width="100px" align="left" ></mf-grid-column>
                             </mf-grid>
                         </mf-tab>
                         <mf-tab id="restClientBody" title="Body">
@@ -1818,11 +1859,11 @@
                                      deleteActionName="deleteRestClientBodyEvent"
                             >
                                 <mf-grid-column  type="number"   id="id"                label="ID"            width="20px"  hidden="true" ></mf-grid-column>
-                                <mf-grid-column  type="text"     id="paramName"         label="파라미터명"      width="100px" ></mf-grid-column>
-                                <mf-grid-column  type="text"     id="parentParamName"   label="부모 파라미터명"  width="100px" ></mf-grid-column>
+                                <mf-grid-column  type="text"     id="paramName"         label="파라미터명"      width="100px" align="left" ></mf-grid-column>
+                                <mf-grid-column  type="text"     id="parentParamName"   label="부모 파라미터명"  width="100px" align="left" ></mf-grid-column>
                                 <mf-grid-column  type="select"   id="dataType"          label="데이터유형"      width="50px" dataProvider="REST_DATA_TYPE"></mf-grid-column>
                                 <mf-grid-column  type="select"   id="valueType"         label="값유형"         width="50px" dataProvider="VALUE_TYPE"></mf-grid-column>
-                                <mf-grid-column  type="text"     id="inputValue"        label="입력값"         width="100px" ></mf-grid-column>
+                                <mf-grid-column  type="text"     id="inputValue"        label="입력값"         width="100px" align="left" ></mf-grid-column>
                                 <mf-grid-column  type="number"   id="orderNum"          label="순서"           width="30px" ></mf-grid-column>
                             </mf-grid>
                         </mf-tab>
