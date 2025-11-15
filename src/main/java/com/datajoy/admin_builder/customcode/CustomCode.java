@@ -23,4 +23,9 @@ public class CustomCode {
     @Lob
     @Basic(fetch = FetchType.LAZY)
     private String script;
+
+    public void update(String displayName, String script) {
+        this.displayName = displayName;
+        this.script = script;
+    }
 }

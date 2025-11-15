@@ -14,10 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -50,9 +47,7 @@ public class WorkflowService {
                 validateAuthorization(user, workflow);
             }
 
-            Map<String, List<Map<String, Object>>> contents = executeFunction(requestMessage, user, workflow.getFunctions());
-
-            return ResponseMessage.createSuccessMessage(contents);
+            return executeFunction(requestMessage, user, workflow.getFunctions());
         }
         catch (SecurityBusinessException e) {
             return ResponseMessage.createErrorMessage(e.getStatus(), e.getErrorCode(), e.getErrorMsg());
@@ -95,27 +90,45 @@ public class WorkflowService {
         }
     }
 
-    private Map<String, List<Map<String, Object>>> executeFunction(
+    private ResponseMessage executeFunction(
             RequestMessage requestMessage,
             AuthenticatedUser user,
             List<WorkflowFunction> functions
     ) {
-        Map<String, List<Map<String, Object>>> contents = new HashMap<>();
+        Map<String, List<Map<String, Object>>> messageStorage = requestMessage.getBody();
 
+        boolean hasFailure = false;
         for(WorkflowFunction func : functions) {
             FunctionExecutor executor = functionFactory.instance(func.getFunctionType());
 
-            List<Map<String, Object>> params = requestMessage.getBody().get(func.getRequestMessageId());
+            List<Map<String, Object>> params = messageStorage.get(func.getRequestMessageId());
 
             FunctionResult result = executor.execute(user, func.getFunctionName(), params);
 
             if(ResultType.FAILURE.equals(result.getResultType())) {
-                //TODO resolved
+                hasFailure = true;
             }
 
-            contents.put(func.getResponseMessageId(), result.getResults());
+            messageStorage.put(func.getResponseMessageId(), result.getResults());
         }
 
-        return contents;
+        if(!hasFailure) {
+            return ResponseMessage.createSuccessMessage(createResponseData(functions, messageStorage));
+        }
+        else {
+            return ResponseMessage.createErrorMessage(500, "E-EXE-001", "응답 실패하였습니다.");
+        }
+    }
+
+    private static Map<String, List<Map<String, Object>>> createResponseData(
+            List<WorkflowFunction> functions,
+            Map<String, List<Map<String, Object>>> messageStorage
+    ) {
+        Map<String, List<Map<String, Object>>> responseData = new HashMap<>();
+        for(WorkflowFunction func : functions) {
+            responseData.put(func.getResponseMessageId(), messageStorage.get(func.getResponseMessageId()));
+        }
+
+        return responseData;
     }
 }

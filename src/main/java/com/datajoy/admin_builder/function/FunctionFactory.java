@@ -1,8 +1,10 @@
 package com.datajoy.admin_builder.function;
 
 import com.datajoy.admin_builder.function.code.FunctionType;
+import com.datajoy.admin_builder.function.executor.CustomCodeExecutor;
 import com.datajoy.admin_builder.function.executor.EntityExecutor;
 import com.datajoy.admin_builder.function.executor.QueryExecutor;
+import com.datajoy.admin_builder.function.executor.RestClientExecutor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -12,16 +14,15 @@ public class FunctionFactory {
 
     private final EntityExecutor entityExecutor;
     private final QueryExecutor queryExecutor;
+    private final RestClientExecutor restClientExecutor;
+    private final CustomCodeExecutor customCodeExecutor;
 
     public FunctionExecutor instance(FunctionType functionType) {
-        if(FunctionType.ENTITY.equals(functionType)){
-            return entityExecutor;
-        }
-        else if(FunctionType.SQL.equals(functionType)){
-            return queryExecutor;
-        }
-        else {
-            return null;
-        }
+        return switch (functionType) {
+            case ENTITY -> entityExecutor;
+            case SQL -> queryExecutor;
+            case REST_CLIENT -> restClientExecutor;
+            case CODE -> customCodeExecutor;
+        };
     }
 }

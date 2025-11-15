@@ -1,12 +1,14 @@
 package com.datajoy.admin_builder.customcode;
 
 import groovy.lang.Binding;
+import groovy.lang.GroovyRuntimeException;
 import groovy.lang.GroovyShell;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CustomCodeService {
@@ -29,8 +31,13 @@ public class CustomCodeService {
 
             return CustomCodeResult.createSuccessMessage(result);
         }
+        catch (GroovyRuntimeException e) {
+            log.error("error",e);
+            return CustomCodeResult.createErrorMessage("E-CCD-001", e.getMessage());
+        }
         catch (Exception e) {
-            return CustomCodeResult.createErrorMessage(e.getMessage());
+            log.error("error",e);
+            return CustomCodeResult.createErrorMessage("E-CCD-999", e.getMessage());
         }
     }
 }

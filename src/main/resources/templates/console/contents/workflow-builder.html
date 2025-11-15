@@ -74,7 +74,8 @@
         "FUNCTION_TYPE":[
             {code:"ENTITY",name:"Entity"},
             {code:"SQL",name:"SQL"},
-            {code:"REST_CLIENT",name:"Rest Client"}
+            {code:"REST_CLIENT",name:"Rest Client"},
+            {code:"CODE",name:"Code"}
         ],
         "YN_CD":[
             {code:"true",name:"Y"},
@@ -153,11 +154,14 @@
             {code:"PARAM_VALUE",name:"파라미터값"},
             {code:"INPUT_VALUE",name:"입력값"},
             {code:"SESSION_USER_ID",name:"세션 유저 ID"}
+        ],
+        "CODE_LANGUAGE":[
+            {code:"GROOVY",name:"Groovy"}
         ]
     };
 
     let codes;
-    let sqlEditor;
+    let sqlEditor, codeEditor;
 
     $( document ).ready(function() {
         init();
@@ -393,11 +397,12 @@
     }
 
     function execute() {
-        let workflowCode = $("#validWorkflowCode").val();
+        let executeType = $("#executeType").val();
+        let executeTarget = $("#executeTarget").val();
         let requestMessageId = $("#requestMessageId").val();
 
         let contents = {};
-        let gridData = sheet.getSheetData("workflowExecuteGrid");
+        let gridData = sheet.getSheetData("executeGrid");
         console.log('gridData',gridData);
         for(let i=0; i<gridData.length; i++) {
             let value = gridData[i]["value"];
@@ -409,26 +414,54 @@
             }
         }
 
-        let body = {};
-        body[requestMessageId] = [contents];
-        console.log('body',body);
+        if(executeType == "WORKFLOW") {
+            let body = {};
+            body[requestMessageId] = [contents];
+            let header = {workflowCode : executeTarget};
 
-        let header = {
-            workflowCode : workflowCode
-        };
+            httpClient.post(`/workflow`,{},{body:body,header:header},
+                function(response){
+                    $("#responseData").val(JSON.stringify(response,null,3));
+                },
+                function(error){
+                    $("#responseData").val(JSON.stringify(error.responseJSON,null,3));
+                }
+            );
+        }
+        else if(executeType == "SQL") {
+            httpClient.get(`/console/api/query/${executeTarget}/execute`,contents,
+                function(response){
+                    $("#responseData").val(JSON.stringify(response,null,3));
+                },
+                function(error){
+                    $("#responseData").val(JSON.stringify(error.responseJSON,null,3));
+                }
+            );
+        }
+        else if(executeType == "ENTITY") {
+            alert('아직 지원하지 않습니다.');
+        }
+        else if(executeType == "REST_CLIENT") {
+            httpClient.post(`/console/api/rest-client/${executeTarget}/execute`,contents, null,
+                function(response){
+                    $("#responseData").val(JSON.stringify(response,null,3));
+                },
+                function(error){
+                    $("#responseData").val(JSON.stringify(error.responseJSON,null,3));
+                }
+            );
+        }
+        else if(executeType == "CODE") {
+            httpClient.post(`/console/api/custom-code/${executeTarget}/execute`,{}, [contents],
+                function(response){
+                    $("#responseData").val(JSON.stringify(response,null,3));
+                },
+                function(error){
+                    $("#responseData").val(JSON.stringify(error.responseJSON,null,3));
+                }
+            );
+        }
 
-        httpClient.post(`/workflow`,{},
-            {
-               body:body,
-               header:header
-            },
-            function(response){
-                $("#responseData").val(JSON.stringify(response,null,3));
-            },
-            function(error){
-                alert('error');
-            }
-        );
     }
 
     function getWorkflowAuthority(workflowId) {
@@ -559,14 +592,17 @@
         else if(data.functionType == 'REST_CLIENT'){
             iconPath = '/dist/img/func-restclient.png';
         }
+        else if(data.functionType == 'CODE'){
+            iconPath = '/dist/img/func-code.png';
+        }
 
         let hiddenDisplayElement = '';
         let hiddenInputElement = 'hidden';
         let hiddenUndoBtn = 'hidden';
         let hiddenEditBtn = '';
+        let hiddenDeleteBtn = '';
         if(create) {
             hiddenDisplayElement = 'hidden';
-            hiddenInputElement = '';
             hiddenEditBtn = 'hidden';
             hiddenUndoBtn = 'hidden';
         }
@@ -595,11 +631,12 @@
                             <option value="SQL">SQL</option>
                             <option value="ENTITY">Entity</option>
                             <option value="REST_CLIENT">Rest Client</option>
+                            <option value="CODE">Code</option>
                         </select>
                     </span>
                     <span class="step-function-name">
                         <font class="display-element"  style="color: #1f2937; font-weight: 500;font-size: 18px;" ${hiddenDisplayElement}>
-                            ${data.functionName}
+                            ${data.displayName}
                         </font>
                         <font class="display-element"  style="color: #1f2937; font-weight: 300;font-size: 14px;" ${hiddenDisplayElement}>
                             ${data.functionName}
@@ -621,9 +658,10 @@
 
                 <!-- 드래그 핸들 -->
                 <span class="step-tools" style="color: #065f9e;">
+                    <i class="fas fa-play" name="btnExecute" style="cursor: pointer;" onclick="executeFunction('${data.functionType}','${data.functionName}','${data.requestMessageId}')"  ${hiddenDisplayElement}></i>
                     <i class="fas fa-undo" name="btnCancel" style="cursor: pointer;" onclick="cancelEditFunction(event)" ${hiddenUndoBtn}></i>
                     <i class="fas fa-pen" name="btnEdit" style="cursor: pointer;" onclick="editFunction(event)" ${hiddenEditBtn}></i>
-                    <i class="fas fa-times" name="btnDelete"  style="cursor: pointer;" onclick="deleteFunction(event)"></i>
+                    <i class="fas fa-times" name="btnDelete"  style="cursor: pointer;" onclick="deleteFunction(event)" ${hiddenDeleteBtn}></i>
                 </span>
             </div>
         `;
@@ -645,6 +683,23 @@
             showGrid('rest-client-card',true);
             getRestClient(functionName);
         }
+        else if(functionType == "CODE") {
+            showGrid('code-card',true);
+            codeEditor = initCodeEditor('script','text/x-groovy');
+            codeEditor.setSize("100%", "800px");
+            getCode(functionName);
+        }
+    }
+
+    function executeFunction(functionType, functionName, requestMessageId) {
+        initFunctionGrid();
+
+        $("#executeTarget").val(functionName);
+        $("#executeType").val(functionType);
+        $("#requestMessageId").val(requestMessageId);
+        $("#responseData").val('');
+
+        showGrid('execute-card',true);
     }
 
     function addStepItem() {
@@ -735,6 +790,11 @@
         btnEdits.forEach(el => {
             el.hidden = true;
         });
+
+        const btnDeletes = stepItem.querySelectorAll('[name="btnDelete"]');
+        btnDeletes.forEach(el => {
+            el.hidden = true;
+        });
     }
 
     function cancelEditFunction(event) {
@@ -764,6 +824,11 @@
 
         const btnEdits = stepItem.querySelectorAll('[name="btnEdit"]');
         btnEdits.forEach(el => {
+            el.hidden = false;
+        });
+
+        const btnDeletes = stepItem.querySelectorAll('[name="btnDelete"]');
+        btnDeletes.forEach(el => {
             el.hidden = false;
         });
     }
@@ -807,15 +872,21 @@
 
     function initFunctionGrid() {
         showGrid('workflow-authority-card',false);
-        showGrid('workflow-execute-card',false);
+        showGrid('execute-card',false);
 
         showGrid('sql-card',false);
         showGrid('entity-card',false);
         showGrid('rest-client-card',false);
+        showGrid('code-card',false);
 
         if (sqlEditor) {
           sqlEditor.toTextArea();
           sqlEditor = null;
+        }
+
+        if (codeEditor) {
+          codeEditor.toTextArea();
+          codeEditor = null;
         }
     }
 
@@ -1379,6 +1450,90 @@
               }
           );
         }
+
+/******************************************************************
+* CODE
+*******************************************************************/
+    function getCode(functionName) {
+        let defaultScript = "params.each { map ->\n";
+        defaultScript+= "// TODO processing params\n";
+        defaultScript+= "}\n";
+        defaultScript+= "return params";
+
+        httpClient.get(`/console/api/custom-code`, {codeName:`${functionName}`},
+            function(response){
+                let data = response;
+                if(data) {
+                    setCodeContent(data);
+                }
+                else {
+                    setCodeContent({
+                        id:'',
+                        codeName:functionName,
+                        displayName:'',
+                        script:defaultScript
+                    });
+                }
+            },
+            function(error){
+                alert('error');
+            }
+        );
+    }
+
+    function saveCode() {
+        httpClient.post(`/console/api/custom-code/save`,{},getCodeContent(),
+            function(response){
+                alert("저장완료되었습니다.");
+                getCode($("#code-codeName").val());
+            },
+            function(error){
+                alert('error');
+            }
+        );
+    }
+
+    function deleteCode() {
+      let id = $("#code-id").val();
+
+      httpClient.delete(`/console/api/custom-code/${id}`, {},
+          function(response){
+              alert("삭제 되었습니다.");
+              getCode($("#code-codeName").val());
+          },
+          function(error){
+              alert('error');
+          }
+      );
+    }
+
+    function executeCode() {
+        httpClient.post(`/console/api/custom-code/execute`,{},getCodeContent(),
+            function(response){
+                alert("저장완료되었습니다.");
+            },
+            function(error){
+                alert('error');
+            }
+        );
+    }
+
+    function getCodeContent() {
+        let id = $("#code-id").val();
+        return {
+            id: ((id) ? id : null),
+            codeName: $("#code-codeName").val(),
+            displayName: $("#code-displayName").val(),
+            script: codeEditor.getValue()
+        }
+    }
+
+    function setCodeContent(params) {
+        $("#code-id").val(params.id);
+        $("#code-codeName").val(params.codeName);
+        $("#code-displayName").val(params.displayName);
+        codeEditor.setValue(params.script);
+    }
 </script>
 <mf-view th:fragment="view">
     <mf-data>
@@ -1392,6 +1547,7 @@
     </mf-data>
     <mf-actions>
         <mf-action name="clickWorkflowList" args="args">
+            initFunctionGrid();
             selectedContent(args.item);
         </mf-action>
 
@@ -1539,12 +1695,14 @@
             showGrid('workflow-authority-card',true);
         </mf-action>
 
-        <mf-action name="workflowExecute" args="args">
+        <mf-action name="executeWorkflow" >
             initFunctionGrid();
 
-            $("#validWorkflowCode").val($("#workflowCode").val());
-
-            showGrid('workflow-execute-card',true);
+            $("#executeTarget").val($("#workflowCode").val());
+            $("#executeType").val('WORKFLOW');
+            $("#requestMessageId").val('');
+            $("#responseData").val('');
+            showGrid('execute-card',true);
         </mf-action>
 
         <mf-action name="insertRestClientQueryParamEvent" args="args">
@@ -1594,7 +1752,7 @@
                         <mf-grid id="workflowListGrid" width="100%" height="800px"
                                  rowClickActionName="clickWorkflowList"
                         >
-                            <mf-grid-column  type="number" id="id"           label="ID"    width="50px"  visible="false" ></mf-grid-column>
+                            <mf-grid-column  type="number" id="id"           label="ID"    width="50px"  hidden="true" ></mf-grid-column>
                             <mf-grid-column  type="text"   id="workflowCode" label="코드"   width="150px" ></mf-grid-column>
                             <mf-grid-column  type="text"   id="displayName"  label="명칭"   width="200px" ></mf-grid-column>
                         </mf-grid>
@@ -1604,7 +1762,6 @@
             <mf-col size="col-4">
                 <mf-card>
                     <mf-card-header title="정의">
-                        <mf-action-button id="workflowExecute" actionName="workflowExecute"       icon="fas fa-play"    label="실행"></mf-action-button>
                         <mf-action-button id="security" actionName="security"       icon="fas fa-shield-alt"    label="접근제어"></mf-action-button>
                         <mf-action-button id="new"      actionName="newContent"     icon="fas fa-plus"          label="신규입력"></mf-action-button>
                         <mf-action-button id="save"     actionName="save"           icon="fas fa-save"          ></mf-action-button>
@@ -1621,6 +1778,7 @@
                         </mf-form>
                     </mf-card-body>
                     <mf-card-header title="워크플로우">
+                        <mf-action-button id="executeWorkflow" actionName="executeWorkflow"       icon="fas fa-play"></mf-action-button>
                         <mf-action-button id="new"  actionName="addStepItem"  icon="fas fa-plus" ></mf-action-button>
                         <mf-action-button id="save" actionName="saveFunction" icon="fas fa-save" ></mf-action-button>
                     </mf-card-header>
@@ -1648,20 +1806,19 @@
                     </mf-card-body>
                 </mf-card>
 
-                <mf-card id="workflow-execute-card" hidden>
+                <mf-card id="execute-card" hidden>
                     <mf-card-header title="실행">
                         <mf-action-button id="execute" actionName="execute" icon="fas fa-play"></mf-action-button>
                     </mf-card-header>
                     <mf-card-body>
-                        <mf-form id="workflowExecuteForm">
+                        <mf-form id="executeForm">
                             <mf-row>
-                                <mf-text-input id="validWorkflowCode" label="워크플로우 코드" size="col-3"  enable="false" hidden="true"></mf-text-input>
-                            </mf-row>
-                            <mf-row>
+                                <mf-text-input id="executeType" label="실행유형" size="col-1"  enable="false" hidden="true"></mf-text-input>
+                                <mf-text-input id="executeTarget" label="대상" size="col-3"  enable="false" ></mf-text-input>
                                 <mf-text-input id="requestMessageId" label="요청메시지ID" size="col-3" enable="true" ></mf-text-input>
                             </mf-row>
                             <mf-row>
-                                <mf-grid id="workflowExecuteGrid" width="100%" height="300px"
+                                <mf-grid id="executeGrid" width="100%" height="300px"
                                          control="true" editing="true" inserting="true"
                                 >
                                     <mf-grid-column  type="text"   id="key"    label="key"     width="100px" align="left" ></mf-grid-column>
@@ -1873,6 +2030,29 @@
                             </mf-grid>
                         </mf-tab>
                     </mf-tab-group>
+                </mf-card>
+
+                <mf-card id="code-card" hidden>
+                    <mf-card-header title="기능">
+                        <mf-action-button id="saveCode"   actionName="saveCode"   icon="fas fa-save"></mf-action-button>
+                        <mf-action-button id="deleteCode" actionName="deleteCode" icon="fas fa-trash"></mf-action-button>
+                    </mf-card-header>
+                    <mf-card-body>
+                        <mf-form id="codeForm">
+                            <mf-row>
+                                <mf-text-input id="code-id"            label="ID"        enable="false" size="col-1" hidden="true"></mf-text-input>
+                                <mf-text-input id="code-codeName"     label="코드명"     enable="false" size="col-3" ></mf-text-input>
+                                <mf-text-input id="code-displayName"   label="화면노출명"  enable="true"  size="col-3" ></mf-text-input>
+                                <mf-select id="code-language"   label="언어"     enable="false" size="col-2" dataProvider="CODE_LANGUAGE" useFirstItem="false" firstItemLabel="" firstItemValue=""></mf-select>
+                            </mf-row>
+                            <mf-row>
+                                <mf-col class="col-md-12">
+                                    <label>스크립트</label>
+                                    <textarea id="script" name="script" ></textarea>
+                                </mf-col>
+                            </mf-row>
+                        </mf-form>
+                    </mf-card-body>
                 </mf-card>
             </mf-col>
         </mf-row>
