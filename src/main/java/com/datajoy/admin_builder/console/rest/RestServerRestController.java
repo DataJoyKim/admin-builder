@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@RestController
+@RestController("console.RestServerRestController")
 @RequestMapping("/console/api/datasource/rest-server")
 public class RestServerRestController {
     @Autowired

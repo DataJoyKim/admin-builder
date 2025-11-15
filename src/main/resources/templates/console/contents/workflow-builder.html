@@ -410,12 +410,17 @@
         }
 
         let body = {};
-        body[requestMessageId] = contents;
+        body[requestMessageId] = [contents];
         console.log('body',body);
 
-        httpClient.post(`/workflow/${workflowCode}`,{},
+        let header = {
+            workflowCode : workflowCode
+        };
+
+        httpClient.post(`/workflow`,{},
             {
-               body:body
+               body:body,
+               header:header
             },
             function(response){
                 $("#responseData").val(JSON.stringify(response,null,3));
@@ -1650,13 +1655,13 @@
                     <mf-card-body>
                         <mf-form id="workflowExecuteForm">
                             <mf-row>
-                                <mf-text-input id="validWorkflowCode" label="워크플로우 코드" size="col-3"  enable="false"></mf-text-input>
+                                <mf-text-input id="validWorkflowCode" label="워크플로우 코드" size="col-3"  enable="false" hidden="true"></mf-text-input>
                             </mf-row>
                             <mf-row>
                                 <mf-text-input id="requestMessageId" label="요청메시지ID" size="col-3" enable="true" ></mf-text-input>
                             </mf-row>
                             <mf-row>
-                                <mf-grid id="workflowExecuteGrid" width="100%" height="800px"
+                                <mf-grid id="workflowExecuteGrid" width="100%" height="300px"
                                          control="true" editing="true" inserting="true"
                                 >
                                     <mf-grid-column  type="text"   id="key"    label="key"     width="100px" align="left" ></mf-grid-column>

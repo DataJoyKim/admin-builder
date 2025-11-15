@@ -1,6 +1,8 @@
 package com.datajoy.admin_builder.function;
 
 import com.datajoy.admin_builder.function.code.FunctionType;
+import com.datajoy.admin_builder.function.executor.EntityExecutor;
+import com.datajoy.admin_builder.function.executor.QueryExecutor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

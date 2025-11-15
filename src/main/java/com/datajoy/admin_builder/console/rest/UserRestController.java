@@ -12,9 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@RestController
+@RestController("console.UserRestController")
 @RequestMapping("/console/api/user")
-public class ConsoleUserRestController {
+public class UserRestController {
     @Autowired
     private UserRepository repository;
     @Autowired

@@ -1,5 +1,8 @@
-package com.datajoy.admin_builder.function;
+package com.datajoy.admin_builder.function.executor;
 
+import com.datajoy.admin_builder.function.FunctionConfig;
+import com.datajoy.admin_builder.function.FunctionExecutor;
+import com.datajoy.admin_builder.function.FunctionResult;
 import com.datajoy.admin_builder.function.code.ResultType;
 import com.datajoy.admin_builder.restclient.RestClientRequest;
 import com.datajoy.admin_builder.restclient.RestClientResult;
@@ -12,9 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@Component
+@Component("function.RestClientExecutor")
 @RequiredArgsConstructor
-public class RestClientFunctionExecutor implements FunctionExecutor {
+public class RestClientExecutor implements FunctionExecutor {
     private final RestClientService restClientService;
     private final FunctionConfig config;
 

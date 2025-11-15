@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@RestController
+@RestController("console.RestClientQueryParamRestController")
 @RequestMapping("/console/api/rest-client/query-param")
 public class RestClientQueryParamRestController {
     @Autowired

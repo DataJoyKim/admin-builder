@@ -15,9 +15,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-@RestController
+@RestController("console.MenuRestController")
 @RequestMapping("/console/api/menu")
-public class ConsoleMenuRestController {
+public class MenuRestController {
     @Autowired
     private MenuRepository repository;
     @Autowired

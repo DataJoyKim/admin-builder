@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@RestController
+@RestController("console.QueryParamRestController")
 @RequestMapping("/console/api/query-param")
 public class QueryParamRestController {
     @Autowired

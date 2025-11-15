@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@RestController
+@RestController("console.WorkflowFunctionRestController")
 @RequestMapping("/console/api/workflow-function")
 public class WorkflowFunctionRestController {
     @Autowired

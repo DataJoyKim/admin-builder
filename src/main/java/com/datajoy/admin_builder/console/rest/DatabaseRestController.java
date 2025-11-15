@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@RestController
+@RestController("console.DatabaseRestController")
 @RequestMapping("/console/api/datasource/database")
 public class DatabaseRestController {
     @Autowired

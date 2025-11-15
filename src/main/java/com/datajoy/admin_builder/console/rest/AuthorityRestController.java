@@ -1,7 +1,7 @@
 package com.datajoy.admin_builder.console.rest;
 
-import com.datajoy.admin_builder.user.UserGroup;
-import com.datajoy.admin_builder.user.UserGroupRepository;
+import com.datajoy.admin_builder.security.Authority;
+import com.datajoy.admin_builder.security.AuthorityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,22 +11,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@RestController
-@RequestMapping("/console/api/user-group")
-public class ConsoleUserGroupRestController {
+@RestController("console.AuthorityRestController")
+@RequestMapping("/console/api/authority")
+public class AuthorityRestController {
     @Autowired
-    private UserGroupRepository repository;
+    private AuthorityRepository repository;
 
     @GetMapping("")
     public ResponseEntity<?> getList() {
-        List<UserGroup> results = repository.findAll();
+        List<Authority> results = repository.findAll();
 
         return new ResponseEntity<>(results, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> get(@PathVariable("id") Long id) {
-        UserGroup results = repository.findById(id)
+        Authority results = repository.findById(id)
                 .orElseThrow(RuntimeException::new);
 
         return new ResponseEntity<>(results, HttpStatus.OK);
@@ -35,7 +35,7 @@ public class ConsoleUserGroupRestController {
     @PostMapping("")
     public ResponseEntity<?> create(@RequestBody Map<String,Object> params) {
 
-        UserGroup createdData = UserGroup.builder()
+        Authority createdData = Authority.builder()
                 .code((String) params.get("code"))
                 .name((String) params.get("name"))
                 .build();
@@ -45,7 +45,7 @@ public class ConsoleUserGroupRestController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable("id") Long id, @RequestBody Map<String,Object> params) {
-        UserGroup savedData = repository.findById(id)
+        Authority savedData = repository.findById(id)
                 .orElseThrow(RuntimeException::new);
 
         savedData.update(
@@ -60,7 +60,7 @@ public class ConsoleUserGroupRestController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable("id") Long id) {
-        UserGroup savedData = repository.findById(id)
+        Authority savedData = repository.findById(id)
                 .orElseThrow(RuntimeException::new);
 
         repository.deleteById(savedData.getId());

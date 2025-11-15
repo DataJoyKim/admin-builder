@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@RestController
+@RestController("console.RestClientBodyRestController")
 @RequestMapping("/console/api/rest-client/body")
 public class RestClientBodyRestController {
     @Autowired

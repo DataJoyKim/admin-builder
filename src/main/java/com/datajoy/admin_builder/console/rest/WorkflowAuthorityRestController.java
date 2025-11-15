@@ -13,9 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@RestController
+@RestController("console.WorkflowAuthorityRestController")
 @RequestMapping("/console/api/workflow-authority")
-public class ConsoleWorkflowAuthorityRestController {
+public class WorkflowAuthorityRestController {
     @Autowired
     private WorkflowAuthorityRepository repository;
     @Autowired

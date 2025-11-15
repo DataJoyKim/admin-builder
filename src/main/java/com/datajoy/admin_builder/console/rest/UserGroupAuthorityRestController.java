@@ -14,9 +14,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@RestController
+@RestController("console.UserGroupAuthorityRestController")
 @RequestMapping("/console/api/user-group/authority")
-public class ConsoleUserGroupAuthorityRestController {
+public class UserGroupAuthorityRestController {
     @Autowired
     private UserGroupAuthorityRepository repository;
     @Autowired

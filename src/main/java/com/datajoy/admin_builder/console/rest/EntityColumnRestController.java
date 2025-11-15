@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@RestController
+@RestController("console.EntityColumnRestController")
 @RequestMapping("/console/api/entity-column")
 public class EntityColumnRestController {
     @Autowired

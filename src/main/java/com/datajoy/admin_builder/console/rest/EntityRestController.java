@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@RestController
+@RestController("console.EntityRestController")
 @RequestMapping("/console/api/entity")
 public class EntityRestController {
     @Autowired

@@ -13,9 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@RestController
+@RestController("console.CommonCodeRestController")
 @RequestMapping("/console/api/common-code")
-public class ConsoleCommonCodeRestController {
+public class CommonCodeRestController {
     @Autowired
     private CommonCodeKindRepository commonCodeKindRepository;
     @Autowired

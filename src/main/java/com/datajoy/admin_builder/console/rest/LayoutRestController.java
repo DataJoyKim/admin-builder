@@ -11,9 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@RestController
+@RestController("console.LayoutRestController")
 @RequestMapping("/console/api/layout")
-public class ConsoleLayoutRestController {
+public class LayoutRestController {
     @Autowired
     private LayoutRepository repository;
 
