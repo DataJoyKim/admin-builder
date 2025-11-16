@@ -7,6 +7,7 @@ export class Col extends ViewObject {
 
         const div = document.createElement('div');
         div.className = ((size) ? size : 'col');
+        div.id = id;
 
         while (this.firstChild) div.appendChild(this.firstChild);
         this.replaceWith(div);

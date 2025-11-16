@@ -602,9 +602,16 @@
         let hiddenEditBtn = '';
         let hiddenDeleteBtn = '';
         if(create) {
+            hiddenInputElement = '';
             hiddenDisplayElement = 'hidden';
             hiddenEditBtn = 'hidden';
             hiddenUndoBtn = 'hidden';
+        }
+
+        let htmlOptionFunctionType = '';
+        let functionTypeCode = App.codes['FUNCTION_TYPE'];
+        for(let v of functionTypeCode) {
+            htmlOptionFunctionType += `<option value="${v.code}" ${data.functionType == v.code ? 'selected' : ''}>${v.name}</option>`;
         }
 
         return `
@@ -628,10 +635,7 @@
                     <span class="step-function-img">
                         <img class="display-element" src="${iconPath}" width="70" height="70" style="display:block;" ${hiddenDisplayElement}>
                         <select class="input-element" name="functionType" style="width:80px;" ${hiddenInputElement}>
-                            <option value="SQL">SQL</option>
-                            <option value="ENTITY">Entity</option>
-                            <option value="REST_CLIENT">Rest Client</option>
-                            <option value="CODE">Code</option>
+                            ${htmlOptionFunctionType}
                         </select>
                     </span>
                     <span class="step-function-name">
@@ -1779,8 +1783,8 @@
                     </mf-card-body>
                     <mf-card-header title="워크플로우">
                         <mf-action-button id="executeWorkflow" actionName="executeWorkflow"       icon="fas fa-play"></mf-action-button>
-                        <mf-action-button id="new"  actionName="addStepItem"  icon="fas fa-plus" ></mf-action-button>
-                        <mf-action-button id="save" actionName="saveFunction" icon="fas fa-save" ></mf-action-button>
+                        <mf-action-button id="addStepItem"  actionName="addStepItem"  icon="fas fa-plus" ></mf-action-button>
+                        <mf-action-button id="saveFunction" actionName="saveFunction" icon="fas fa-save" ></mf-action-button>
                     </mf-card-header>
                     <mf-card-body>
                         <div id="workflowGrid" style="display:flex; flex-direction:column; gap:10px; align-items: center; justify-content: center;">

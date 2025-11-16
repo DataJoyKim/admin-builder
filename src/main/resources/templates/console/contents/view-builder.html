@@ -1,0 +1,170 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<style th:fragment="style">
+    #app-container {
+      margin: 0;
+      display: flex;
+      height: 100vh;
+      font-family: Arial, sans-serif;
+    }
+    #left-panel {
+      width: 200px;
+      background: #f2f2f2;
+      border-right: 1px solid #ccc;
+      padding: 10px;
+    }
+    #center-panel {
+      flex: 1;
+      background: #fff;
+      padding: 10px;
+      position: relative;
+    }
+    #right-panel {
+      width: 250px;
+      background: #fafafa;
+      border-left: 1px solid #ccc;
+      padding: 10px;
+    }
+    .component-item {
+      padding: 10px;
+      margin-bottom: 8px;
+      background: #ddd;
+      cursor: grab;
+      border-radius: 4px;
+    }
+    .drop-area {
+      width: 100%;
+      height: 100%;
+      border: 2px dashed #bbb;
+      position: relative;
+    }
+    .card-ui {
+      width: 200px;
+      height: 100px;
+      background: white;
+      border: 1px solid #aaa;
+      border-radius: 6px;
+      position: absolute;
+      padding: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      cursor: pointer;
+    }
+    .selected {
+      outline: 2px solid #007bff;
+    }
+</style>
+<script th:fragment="script">
+    $(function () {
+        $(".component-item").draggable({ helper: "clone" });
+
+         $(".card-header").each(function() {
+            $(this).droppable({
+                drop: function (event, ui) {
+                    const type = ui.draggable.data("type");
+                    if (type === "button") {
+                        let elHtml = `<mf-action-button id="security" icon="fas fa-shield-alt"    label="버튼"></mf-action-button>`;
+
+                        const newEl = $(elHtml);
+                        $(this).append(newEl);
+
+                        newEl.draggable({
+                            containment: $(this),
+                            start: function() { $(this).css("z-index", 1000); },
+                            stop: function() { $(this).css("z-index", ""); }
+                        });
+                    }
+                },
+            });
+         });
+
+         $(".card-body").each(function() {
+            $(this).droppable({
+                drop: function (event, ui) {
+                    const type = ui.draggable.data("type");
+                    if (type === "text-input") {
+                        const wrapper = $('<div class="draggable-wrapper"></div>');
+                        const newEl = $('<mf-text-input id="goal_id" label="ID" enable="false" size="col-6"></mf-text-input>');
+                        wrapper.append(newEl);
+                        $(this).append(wrapper);
+
+                        wrapper.draggable({
+                            containment: $(this),
+                            helper: "original",
+                            scroll: false,
+                            start: function() { $(this).css("z-index", 1000); },
+                            stop: function() { $(this).css("z-index", ""); }
+                        });
+                    }
+                },
+            });
+         });
+
+
+        $(document).on("click", ".card-ui", function (e) {
+            $(".card-ui").removeClass("selected");
+            $(this).addClass("selected");
+
+
+            const optionsHtml = `
+            <h4>Card 옵션</h4>
+            <label>텍스트: </label>
+            <input id="card-text" type="text" value="${$(this).text()}" /><br/><br/>
+            `;
+
+
+            $("#options").html(optionsHtml);
+
+
+            $("#card-text").on("input", () => {
+                $(".card-ui.selected").text($("#card-text").val());
+            });
+        });
+    });
+
+    function checkHtml() {
+        console.log($('#canvas').html());
+    }
+</script>
+<mf-view th:fragment="view">
+    <div id="app-container" style="margin:0; display:flex; height:100vh; font-family:Arial, sans-serif;">
+        <div id="left-panel">
+            <h3>컴포넌트</h3>
+            <button onclick="checkHtml()">html확인</button>
+            <div class="component-item" data-type="button">Button</div>
+            <div class="component-item" data-type="text-input">Text 입력</div>
+        </div>
+
+
+        <div id="center-panel">
+            <div class="drop-area" id="canvas">
+                <mf-layout>
+                    <mf-row>
+                        <mf-col id="x-1-y-1" size="col-6">
+                            <mf-card>
+                                <mf-card-header title="test2">
+                                </mf-card-header>
+                                <mf-card-body>
+                                </mf-card-body>
+                            </mf-card>
+                        </mf-col>
+                        <mf-col id="x-2-y-1" size="col-6">
+                            <mf-card>
+                                <mf-card-header title="test2">
+                                </mf-card-header>
+                                <mf-card-body>
+                                </mf-card-body>
+                            </mf-card>
+                        </mf-col>
+                    </mf-row>
+                </mf-layout>
+            </div>
+        </div>
+
+
+        <div id="right-panel">
+            <h3>옵션 패널</h3>
+            <div id="options">
+                컴포넌트를 선택하세요
+            </div>
+        </div>
+    </div>
+</mf-view>
