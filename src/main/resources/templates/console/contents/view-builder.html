@@ -30,6 +30,7 @@
       background: #ddd;
       cursor: grab;
       border-radius: 4px;
+      z-index:1000;
     }
     .drop-area {
       width: 100%;
@@ -37,19 +38,16 @@
       border: 2px dashed #bbb;
       position: relative;
     }
-    .card-ui {
-      width: 200px;
-      height: 100px;
-      background: white;
-      border: 1px solid #aaa;
-      border-radius: 6px;
-      position: absolute;
-      padding: 10px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      cursor: pointer;
-    }
     .selected {
       outline: 2px solid #007bff;
+    }
+    .row-size {
+        padding: 10px;
+        height:100px;
+        border: 2px dashed #bbb;
+    }
+    .form-size {
+        height:500px;
     }
 </style>
 <script th:fragment="script">
@@ -76,23 +74,14 @@
             });
          });
 
-         $(".card-body").each(function() {
+         $(".form").each(function() {
             $(this).droppable({
                 drop: function (event, ui) {
                     const type = ui.draggable.data("type");
-                    if (type === "text-input") {
-                        const wrapper = $('<div class="draggable-wrapper"></div>');
-                        const newEl = $('<mf-text-input id="goal_id" label="ID" enable="false" size="col-6"></mf-text-input>');
-                        wrapper.append(newEl);
-                        $(this).append(wrapper);
-
-                        wrapper.draggable({
-                            containment: $(this),
-                            helper: "original",
-                            scroll: false,
-                            start: function() { $(this).css("z-index", 1000); },
-                            stop: function() { $(this).css("z-index", ""); }
-                        });
+                    if (type === "row") {
+                        const newEl = $('<mf-row size="row-size" ></mf-row>');
+                        $(this).append(newEl);
+                        dropRow();
                     }
                 },
             });
@@ -123,14 +112,35 @@
     function checkHtml() {
         console.log($('#canvas').html());
     }
+
+    function dropRow() {
+         $(".form .row").each(function() {
+            $(this).droppable({
+                drop: function (event, ui) {
+                    const type = ui.draggable.data("type");
+                    if (type === "text-input") {
+                        const newEl = $('<mf-text-input id="goal_id" label="ID" enable="false" size="col-6"></mf-text-input>');
+                        $(this).append(newEl);
+                    }
+                },
+            });
+
+            $(this).sortable({
+                items: ".form-group",
+                containment: "parent",
+                tolerance: "pointer"
+            });
+         });
+
+    }
 </script>
 <mf-view th:fragment="view">
     <div id="app-container" style="margin:0; display:flex; height:100vh; font-family:Arial, sans-serif;">
         <div id="left-panel">
             <h3>컴포넌트</h3>
-            <button onclick="checkHtml()">html확인</button>
             <div class="component-item" data-type="button">Button</div>
             <div class="component-item" data-type="text-input">Text 입력</div>
+            <div class="component-item" data-type="row">row 영역</div>
         </div>
 
 
@@ -143,6 +153,8 @@
                                 <mf-card-header title="test2">
                                 </mf-card-header>
                                 <mf-card-body>
+                                    <mf-form id="x-1-y-1-form" size="form-size">
+                                    </mf-form>
                                 </mf-card-body>
                             </mf-card>
                         </mf-col>
