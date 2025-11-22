@@ -41,52 +41,36 @@
     .selected {
       outline: 2px solid #007bff;
     }
-    .row-size {
-        padding: 10px;
-        height:100px;
-        border: 2px dashed #bbb;
+    .vb-row {
+        min-height: 80px;
+        height: auto;
+        margin: 0 !important;
+        border: 1px dashed #bbb;
     }
-    .form-size {
-        height:500px;
+    .vb-card-tools {
+        padding-left: 10px;
+        min-width: 60px;
+        width: auto;
+        min-height: 30px;
+        height: auto;
+        border: 1px dashed #bbb;
+    }
+    .vb-card-body {
+        min-height: 100px;
+        height: auto;
+    }
+    .vb-form {
+        padding-bottom: 10px;
+        min-height: 100px;
+        height: auto;
+        border: 1px dotted #f39c12;
     }
 </style>
 <script th:fragment="script">
-    $(function () {
+    $(document).ready(function () {
         $(".component-item").draggable({ helper: "clone" });
 
-         $(".card-header").each(function() {
-            $(this).droppable({
-                drop: function (event, ui) {
-                    const type = ui.draggable.data("type");
-                    if (type === "button") {
-                        let elHtml = `<mf-action-button id="security" icon="fas fa-shield-alt"    label="버튼"></mf-action-button>`;
-
-                        const newEl = $(elHtml);
-                        $(this).append(newEl);
-
-                        newEl.draggable({
-                            containment: $(this),
-                            start: function() { $(this).css("z-index", 1000); },
-                            stop: function() { $(this).css("z-index", ""); }
-                        });
-                    }
-                },
-            });
-         });
-
-         $(".form").each(function() {
-            $(this).droppable({
-                drop: function (event, ui) {
-                    const type = ui.draggable.data("type");
-                    if (type === "row") {
-                        const newEl = $('<mf-row size="row-size" ></mf-row>');
-                        $(this).append(newEl);
-                        dropRow();
-                    }
-                },
-            });
-         });
-
+        dndLayout();
 
         $(document).on("click", ".card-ui", function (e) {
             $(".card-ui").removeClass("selected");
@@ -109,65 +93,168 @@
         });
     });
 
-    function checkHtml() {
-        console.log($('#canvas').html());
+    function dndLayout() {
+        $(".vb-layout").droppable({
+            greedy: true,
+            drop: function (event, ui) {
+                const type = ui.draggable.data("type");
+                if (type === "row") {
+                    let $row = row(1);
+                    $(this).append($row);
+                    dndRow($row);
+                }
+            },
+        });
     }
 
-    function dropRow() {
-         $(".form .row").each(function() {
-            $(this).droppable({
-                drop: function (event, ui) {
-                    const type = ui.draggable.data("type");
-                    if (type === "text-input") {
-                        const newEl = $('<mf-text-input id="goal_id" label="ID" enable="false" size="col-6"></mf-text-input>');
-                        $(this).append(newEl);
-                    }
-                },
-            });
+    function dndCardHeader($el) {
+        $el.droppable({
+            greedy: true,
+            drop: function (event, ui) {
+                const type = ui.draggable.data("type");
+                if (type === "button") {
+                    $(this).append(button(1));
+                }
+            },
+        });
 
-            $(this).sortable({
-                items: ".form-group",
-                containment: "parent",
-                tolerance: "pointer"
-            });
-         });
+        $el.sortable({
+            items: ".vb-button",
+            containment: "parent",
+            tolerance: "pointer"
+        });
+    }
 
+    function dndCardBody($el) {
+        $el.droppable({
+            greedy: true,
+            drop: function (event, ui) {
+                const type = ui.draggable.data("type");
+                if (type === "form") {
+                    let $form = form(1);
+                    $(this).append($form);
+                    dndForm($form);
+                }
+            },
+        });
+    }
+
+    function dndForm($el) {
+        $el.droppable({
+            greedy: true,
+            drop: function (event, ui) {
+                const type = ui.draggable.data("type");
+                if (type === "row") {
+                    let $row = row(1);
+                    $(this).append($row);
+                    dndRow($row);
+                }
+            },
+        });
+    }
+
+    function dndRow($el) {
+        $el.droppable({
+            greedy: true,
+            drop: function (event, ui) {
+                const type = ui.draggable.data("type");
+                if(type === "card") {
+                    let $card = card(1);
+                    $(this).append($card);
+                    dndCardHeader($card.find(".vb-card-tools"));
+                    dndCardBody($card.find(".vb-card-body"));
+                }
+                else if (type === "text-input") {
+                    $(this).append(textInput(1));
+                }
+            },
+        });
+
+        $el.sortable({
+            items: ".vb-input, .vb-card",
+            containment: "parent",
+            tolerance: "pointer",
+            placeholder: "sortable-placeholder",
+            start: function(event, ui){
+                ui.placeholder.css({
+                    height: ui.item.outerHeight(),
+                    border: "1px dashed #bbb",
+                    background: "#f0f0f0"
+                });
+            }
+        });
+    }
+
+    function textInput(num) {
+        let el = ``;
+        el += `<div id="input${num}" class="vb-input form-group col-6">`;
+        el +=   `<label for="inputEl${num}">Label</label>`;
+        el +=   `<input type="text" class="form-control rounded-0" id="inputEl${num}" placeholder="" spellcheck="false" autocomplete="off" data-watch="true" disabled="">`;
+        el += `</div>`;
+
+        return $(el);
+    }
+
+    function row(num) {
+        let el = ``;
+        el += `<div view-type="row" class="vb-row row" id="row${num}">`;
+        el += `</div>`;
+
+        return $(el);
+    }
+
+    function button(num) {
+        let el = ``;
+        el += `<button id="button${num}" type="button" class="vb-button btn btn-default btn-sm"><i class="fas fa-shield-alt"></i>Button</button>`;
+
+        return $(el);
+    }
+
+    function card(num) {
+        let el = ``;
+        el += `<div class="vb-card col-6" id="card-col${num}">`;
+        el += `     <div class="card" id="card${num}">`;
+        el += `         <div class="vb-card-header card-header">`;
+        el += `              <h3 class="card-title">test2</h3>`;
+        el += `              <div class="vb-card-tools card-tools">`;
+        el += `              </div>`;
+        el += `         </div>`;
+        el += `         <div class="vb-card-body card-body">`;
+        el += `         </div>`;
+        el += `     </div>`;
+        el += `</div>`;
+
+        return $(el);
+    }
+
+    function form(num) {
+        let el = ``;
+        el += `<form class="vb-form form">`;
+        el += `</form>`;
+        return $(el);
+    }
+
+    function checkHtml() {
+        console.log($('#canvas').html());
     }
 </script>
 <mf-view th:fragment="view">
     <div id="app-container" style="margin:0; display:flex; height:100vh; font-family:Arial, sans-serif;">
         <div id="left-panel">
             <h3>컴포넌트</h3>
+            <button onclick="checkHtml()">Html 변환</button>
             <div class="component-item" data-type="button">Button</div>
             <div class="component-item" data-type="text-input">Text 입력</div>
             <div class="component-item" data-type="row">row 영역</div>
+            <div class="component-item" data-type="card">Card</div>
+            <div class="component-item" data-type="form">Form</div>
         </div>
 
 
         <div id="center-panel">
             <div class="drop-area" id="canvas">
-                <mf-layout>
-                    <mf-row>
-                        <mf-col id="x-1-y-1" size="col-6">
-                            <mf-card>
-                                <mf-card-header title="test2">
-                                </mf-card-header>
-                                <mf-card-body>
-                                    <mf-form id="x-1-y-1-form" size="form-size">
-                                    </mf-form>
-                                </mf-card-body>
-                            </mf-card>
-                        </mf-col>
-                        <mf-col id="x-2-y-1" size="col-6">
-                            <mf-card>
-                                <mf-card-header title="test2">
-                                </mf-card-header>
-                                <mf-card-body>
-                                </mf-card-body>
-                            </mf-card>
-                        </mf-col>
-                    </mf-row>
-                </mf-layout>
+                <div class="vb-layout content-wrapper" style="min-height: 993px;">
+                </div>
             </div>
         </div>
 
