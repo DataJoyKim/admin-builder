@@ -39,9 +39,10 @@
       position: relative;
     }
     .selected {
-      outline: 2px solid #007bff;
+      outline: 1px solid #007bff;
     }
     .vb-row {
+        padding: 5px;
         min-height: 80px;
         height: auto;
         margin: 0 !important;
@@ -70,7 +71,6 @@
         height: 300px;
         width: 100%;
         display: flex;
-        margin: -10px;
         justify-content: center;
         align-items: center;
         font-size: 18px;
@@ -78,8 +78,8 @@
         border: 2px solid #ddd;
         box-shadow: 0 2px 3px rgba(0,0,0,0.2);
     }
-    .hover-highlight {
-        outline: 1px dashed #007bff;
+    .vb-layout {
+        cursor: pointer;
     }
     .component-delete-btn {
         display: none;
@@ -133,18 +133,13 @@
             drop: function (event, ui) {
                 const type = ui.draggable.data("type");
                 if (type === "row") {
-                    let $row = row(getIdNumber('row'));
-                    $(this).append($row);
-                    dndRow($row);
+                    appendRow($(this));
                 }
             },
         });
 
-        $(".vb-layout").sortable({
-            items: ".vb-button, .vb-row",
-            containment: "parent",
-            tolerance: "pointer"
-        });
+        sortable($(".vb-layout"), ".vb-button, .vb-row");
+        appendRow($(".vb-layout"));
     }
 
     function dndCardHeader($el) {
@@ -158,11 +153,7 @@
             },
         });
 
-        $el.sortable({
-            items: ".vb-button",
-            containment: "parent",
-            tolerance: "pointer"
-        });
+        sortable($el, ".vb-button");
     }
 
     function dndCardBody($el) {
@@ -171,31 +162,15 @@
             drop: function (event, ui) {
                 const type = ui.draggable.data("type");
                 if (type === "form") {
-                    let $form = form(getIdNumber('form'));
-                    $(this).append($form);
-                    dndForm($form);
+                    appendForm($(this));
                 }
                 else if(type === "row") {
-                    let $row = row(getIdNumber('row'));
-                    $(this).append($row);
-                    dndRow($row);
+                    appendRow($(this));
                 }
             },
         });
 
-        $el.sortable({
-            items: ".vb-row",
-            containment: "parent",
-            tolerance: "pointer",
-            placeholder: "sortable-placeholder",
-            start: function(event, ui){
-                ui.placeholder.css({
-                    height: ui.item.outerHeight(),
-                    border: "1px dashed #bbb",
-                    background: "#f0f0f0"
-                });
-            }
-        });
+        sortable($el, ".vb-row");
     }
 
     function dndForm($el) {
@@ -204,9 +179,7 @@
             drop: function (event, ui) {
                 const type = ui.draggable.data("type");
                 if (type === "row") {
-                    let $row = row(getIdNumber('row'));
-                    $(this).append($row);
-                    dndRow($row);
+                    appendRow($(this));
                 }
             },
         });
@@ -218,10 +191,7 @@
             drop: function (event, ui) {
                 const type = ui.draggable.data("type");
                 if(type === "card") {
-                    let $card = card(getIdNumber('card'));
-                    $(this).append($card);
-                    dndCardHeader($card.find(".vb-card-tools"));
-                    dndCardBody($card.find(".vb-card-body"));
+                    appendCard($(this));
                 }
                 else if (type === "text-input") {
                     $(this).append(textInput(getIdNumber('input')));
@@ -232,8 +202,29 @@
             },
         });
 
+        sortable($el, ".vb-input, .vb-card, vb-grid");
+    }
+
+    $(document).on("click", ".component-delete-btn", function(e) {
+        e.stopPropagation();
+        $(this).closest(".component").remove();
+    });
+
+    $(document).on("click", ".component", function(e) {
+        e.stopPropagation();
+
+        // 이전 선택 제거
+        $(".component").removeClass("selected");
+        $(".component-delete-btn").hide();
+
+        // 현재 요소 선택
+        $(this).addClass("selected");
+        $(this).children(".component-delete-btn").show();
+    });
+
+    function sortable($el, items) {
         $el.sortable({
-            items: ".vb-input, .vb-card, vb-grid",
+            items: items,
             containment: "parent",
             tolerance: "pointer",
             placeholder: "sortable-placeholder",
@@ -247,56 +238,102 @@
         });
     }
 
-    $(document).on("mouseenter", ".component", function(e) {
-        e.stopPropagation();
-        $(this).addClass("hover-highlight");
-        $(this).find(".component-delete-btn").first().show();
-    });
-
-    $(document).on("mouseleave", ".component", function(e) {
-        e.stopPropagation();
-        $(this).removeClass("hover-highlight");
-        $(this).find(".component-delete-btn").first().hide();
-    });
-
-    $(document).on("click", ".component-delete-btn", function(e) {
-        e.stopPropagation();
-        $(this).closest(".component").remove();
-    });
-
 //***************************************************
 //** 옵션 패널
 //***************************************************
+    function getSizeOption(value) {
+        let html = ``;
+        for(let i=12; i>=1; i--) {
+            let selected = '';
+            if(value == `col-${i}`) {
+                selected = 'selected';
+            }
+
+            html += `<option value="col-${i}" ${selected}>${i}</option>`;
+        }
+
+        return html;
+    }
 
     $(document).on("click", ".vb-card", function(e) {
         e.stopPropagation();
 
         const $card = $(this);
 
-        const value = $card.find(".card-title").text();
+        const valueTitle = $card.find(".card-title").text();
+        const valueSize = getSize($card);
 
         let html = ``;
-        html += `<div class="form-group col-12">`;
-        html +=   `<label for="card-title-input">Card 제목</label>`;
-        html +=   `<input type="text" class="form-control rounded-0" id="card-title-input" spellcheck="false" autocomplete="off" value="${value}">`;
-        html += `</div>`;
 
-        html += `<div id="card-row-add" type="button" class="btn btn-default btn-sm">`;
-        html += `<i class="fas fa-plus"></i>`;
-        html += `행 추가`;
-        html += `</div>`;
+        html += optionSelect('card-size', '크기', 'col-12', getSizeOption(valueSize));
+
+        html += optionInput('card-title-input', 'Card 제목', 'col-12', valueTitle);
+
+        html += optionButton('card-row-add', 'Card 내용', 'col-12', '행 추가');
 
         $("#options").html(html);
 
+        $("#card-size").off("change").on("change", function() {
+            changeSize($card, $(this).val());
+        });
+
         $("#card-title-input").off("input").on("input", function() {
-            const newTitle = $(this).val();
-            $card.find(".card-title").text(newTitle);
+            $card.find(".card-title").text($(this).val());
         });
 
         $(document).off("click", "#card-row-add").on("click", "#card-row-add", function() {
-            let $row = row(getIdNumber('row'));
-            $card.find(".card-body").append($row);
-            dndRow($row);
+            appendRow($card.find(".card-body"));
+        });
+    });
+
+    $(document).on("click", ".vb-input", function(e) {
+        e.stopPropagation();
+
+        const $inputGroup = $(this);
+
+        const valueLabel = $inputGroup.find(".vb-input-label").text();
+        const valueSize = getSize($inputGroup);
+
+        let html = ``;
+
+        html += optionSelect('input-size', '크기', 'col-12', getSizeOption(valueSize));
+
+        html += optionInput('input-label', 'Input 라벨', 'col-12', valueLabel);
+
+        $("#options").html(html);
+
+        $("#input-size").off("change").on("change", function() {
+            changeSize($inputGroup, $(this).val());
+        });
+
+        $("#input-label").off("input").on("input", function() {
+            $inputGroup.find(".vb-input-label").text($(this).val());
+        });
+    });
+
+    $(document).on("click", ".vb-button", function(e) {
+        e.stopPropagation();
+
+        const $button = $(this);
+
+        const valueText = $button.find(".vb-button-label").text();
+        const valueIcon = $button.find("i").attr("class");
+
+        let html = ``;
+
+        html += optionInput('button-icon', '버튼 아이콘', 'col-12', valueIcon);
+
+        html += optionInput('button-text', '버튼 라벨', 'col-12', valueText);
+
+        $("#options").html(html);
+
+        $("#button-text").off("input").on("input", function() {
+            $button.find(".vb-button-label").text($(this).val());
+        });
+
+        $("#button-icon").off("input").on("input", function() {
+            $button.find("i").removeClass(valueIcon);
+            $button.find("i").addClass($(this).val());
         });
     });
 
@@ -304,86 +341,160 @@
         const $layout = $(this);
 
         let html = ``;
-        html += `<div id="layout-row-add" type="button" class="btn btn-default btn-sm">`;
-        html += `<i class="fas fa-plus"></i>`;
-        html += `행 추가`;
-        html += `</div>`;
+
+        html += optionButton('layout-row-add', 'Layout 내용', 'col-12', '행 추가');
 
         $("#options").html(html);
 
         $(document).off("click", "#layout-row-add").on("click", "#layout-row-add", function() {
-            let $row = row(getIdNumber('row'));
-            $layout.append($row);
-            dndRow($row);
+            appendRow($layout);
         });
     });
+
+    function optionSelect(id, label, size, options) {
+        return `
+            <div class="form-group ${size}">
+               <label for="${id}">${label}</label>
+               <select type="text" class="form-control rounded-0" id="${id}">
+                   ${options}
+               </select>
+            </div>
+        `;
+    }
+
+    function optionButton(id, label, size, buttonLabel) {
+        return `
+            <div class="form-group ${size}">
+               <label for="${id}">${label}</label>
+               <div id="${id}" type="button" class="btn btn-default btn-sm form-control">
+               <i class="fas fa-plus"></i>
+               ${buttonLabel}
+               </div>
+            </div>
+        `;
+    }
+
+    function optionInput(id, label, size, value) {
+        return `
+            <div class="form-group ${size}">
+                <label for="${id}">${label}</label>
+                <input type="text" class="form-control rounded-0" id="${id}" spellcheck="false" autocomplete="off" value="${value}">
+            </div>
+        `;
+    }
+
+    function changeSize($target, newSize) {
+        $target.removeClass(function(i, cls) {
+            return (cls.match(/col-\d+/g) || []).join(' ');
+        });
+        $target.addClass(newSize);
+    }
+
+    function getSize($target) {
+        return $target.attr("class").split(/\s+/).find(cls => cls.startsWith("col-"));
+    }
+
+    function appendRow($target) {
+        let $row = row(getIdNumber('row'));
+        $target.append($row);
+        dndRow($row);
+    }
+
+    function appendForm($target) {
+        let $form = form(getIdNumber('form'));
+        $target.append($form);
+        dndForm($form);
+    }
+
+    function appendCard($target) {
+        let $card = card(getIdNumber('card'));
+        $target.append($card);
+        dndCardHeader($card.find(".vb-card-tools"));
+        dndCardBody($card.find(".vb-card-body"));
+
+        appendRow($card.find(".card-body"));
+    }
 
 //***************************************************
 //** 컴포넌트
 //***************************************************
     function textInput(num) {
-        let el = ``;
-        el += `<div id="input${num}" class="component vb-input form-group col-3">`;
-        el +=   componentDeleteBtn();
-        el +=   `<label for="inputEl${num}">Label</label>`;
-        el +=   `<input type="text" class="form-control rounded-0" id="inputEl${num}" placeholder="" spellcheck="false" autocomplete="off" data-watch="true" >`;
-        el += `</div>`;
+        let btnDelete = componentDeleteBtn();
+        let el = `
+            <div id="input${num}" class="component vb-input form-group col-3">
+                ${btnDelete}
+                <label class="vb-input-label" for="inputEl${num}">Label</label>
+                <input type="text" class="vb-input-box form-control rounded-0" id="inputEl${num}" placeholder="" spellcheck="false" autocomplete="off" data-watch="true" >
+            </div>
+        `;
 
         return $(el);
     }
 
     function row(num) {
-        let el = ``;
-        el += `<div view-type="row" class="component vb-row row" id="row${num}">`;
-        el += componentDeleteBtn();
-        el += `</div>`;
+        let btnDelete = componentDeleteBtn();
+        let el = `
+            <div view-type="row" class="component vb-row row" id="row${num}">
+                ${btnDelete}
+            </div>
+        `;
 
         return $(el);
     }
 
     function button(num) {
-        let el = ``;
-        el += `<div id="button${num}" type="button" class="component vb-button btn btn-default btn-sm">`
-        el += componentDeleteBtn();
-        el += `<i class="fas fa-shield-alt"></i>`;
-        el += `Button`;
-        el += `</div>`;
+        let btnDelete = componentDeleteBtn();
+        let el = `
+            <div id="button${num}" type="button" class="component vb-button btn btn-default btn-sm">
+                ${btnDelete}
+                <i class="fas fa-search"></i>
+                <span class="vb-button-label">Button</span>
+            </div>
+        `;
 
         return $(el);
     }
 
     function card(num) {
-        let el = ``;
-        el += `<div class="component vb-card col-6" id="card-col${num}">`;
-        el +=       componentDeleteBtn();
-        el += `     <div class="card" id="card${num}">`;
-        el += `         <div class="vb-card-header card-header">`;
-        el += `              <h3 class="card-title">Title</h3>`;
-        el += `              <div class="vb-card-tools card-tools">`;
-        el += `              </div>`;
-        el += `         </div>`;
-        el += `         <div class="vb-card-body card-body">`;
-        el += `         </div>`;
-        el += `     </div>`;
-        el += `</div>`;
+        let btnDelete = componentDeleteBtn();
+        let el = `
+            <div class="component vb-card col-6" id="card-col${num}">
+                ${btnDelete}
+                 <div class="card" id="card${num}">
+                     <div class="vb-card-header card-header">
+                          <h3 class="card-title">Title</h3>
+                          <div class="vb-card-tools card-tools">
+                          </div>
+                     </div>
+                     <div class="vb-card-body card-body">
+                     </div>
+                 </div>
+            </div>
+        `;
 
         return $(el);
     }
 
     function form(num) {
-        let el = ``;
-        el += `<form class="component vb-form form">`;
-        el += componentDeleteBtn();
-        el += `</form>`;
+        let btnDelete = componentDeleteBtn();
+        let el = `
+            <form class="component vb-form form">
+                ${btnDelete}
+            </form>
+        `;
+
         return $(el);
     }
 
     function grid(num) {
-        let el = ``;
-        el += `<div class="component vb-grid" id="grid${num}">`;
-        el += componentDeleteBtn();
-        el += `Grid`;
-        el += `</div>`;
+        let btnDelete = componentDeleteBtn();
+        let el = `
+            <div class="component vb-grid" id="grid${num}">
+                ${btnDelete}
+                Grid
+            </div>
+        `;
+
         return $(el);
     }
 
@@ -399,10 +510,9 @@
     <div id="app-container" style="margin:0; display:flex; height:100vh; font-family:Arial, sans-serif;">
         <div id="left-panel">
             <h3>컴포넌트</h3>
-            <button onclick="checkHtml()">Html 변환</button>
+            <div class="component-item" data-type="card">Card</div>
             <div class="component-item" data-type="button">Button</div>
             <div class="component-item" data-type="text-input">Text 입력</div>
-            <div class="component-item" data-type="card">Card</div>
             <div class="component-item" data-type="grid">Grid</div>
         </div>
 
@@ -417,6 +527,7 @@
 
         <div id="right-panel">
             <h3>옵션 패널</h3>
+            <button onclick="checkHtml()">Html 변환</button>
             <div id="options">
                 컴포넌트를 선택하세요
             </div>
