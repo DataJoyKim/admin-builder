@@ -434,7 +434,7 @@
     function row(num) {
         let btnDelete = componentDeleteBtn();
         let el = `
-            <div view-type="row" class="component vb-row row" id="row${num}">
+            <div id="row${num}" class="component vb-row row" >
                 ${btnDelete}
             </div>
         `;
@@ -458,9 +458,9 @@
     function card(num) {
         let btnDelete = componentDeleteBtn();
         let el = `
-            <div class="component vb-card col-6" id="card-col${num}">
+            <div id="card${num}" class="component vb-card col-6">
                 ${btnDelete}
-                 <div class="card" id="card${num}">
+                 <div class="card">
                      <div class="vb-card-header card-header">
                           <h3 class="card-title">Title</h3>
                           <div class="vb-card-tools card-tools">
@@ -478,7 +478,7 @@
     function form(num) {
         let btnDelete = componentDeleteBtn();
         let el = `
-            <form class="component vb-form form">
+            <form id="form${num}" class="component vb-form form">
                 ${btnDelete}
             </form>
         `;
@@ -489,7 +489,7 @@
     function grid(num) {
         let btnDelete = componentDeleteBtn();
         let el = `
-            <div class="component vb-grid" id="grid${num}">
+            <div id="grid${num}" class="component vb-grid">
                 ${btnDelete}
                 Grid
             </div>
@@ -502,8 +502,75 @@
         return `<button class="component-delete-btn">×</button>`;
     }
 
-    function checkHtml() {
-        console.log($('#canvas').html());
+//***************************************************
+//** 저장
+//***************************************************
+    function serializeComponent($el) {
+        let type;
+        if($el.hasClass('vb-row')) type = 'row';
+        else if($el.hasClass('vb-card')) type = 'card';
+        else if($el.hasClass('vb-input')) type = 'input';
+        else if($el.hasClass('vb-button')) type = 'button';
+        else if($el.hasClass('vb-grid')) type = 'grid';
+        else if($el.hasClass('vb-form')) type = 'form';
+        else return null;
+
+        let data = {
+            type,
+            id: $el.attr('id') || null,
+            size: getSize($el) || null
+        };
+
+        if (type === 'input') {
+            data.label = $el.find('.vb-input-label').text();
+        }
+
+        if (type === 'card') {
+            data.title = $el.find('.card-title').text();
+        }
+
+        const children = findDirectLogicalChildren($el).map(childEl =>
+            serializeComponent(childEl)
+        ).filter(Boolean);
+
+        if (children.length > 0) data.children = children;
+
+        return data;
+    }
+
+    function findDirectLogicalChildren($el) {
+        let result = [];
+
+        $el.children().each(function () {
+            const $child = $(this);
+
+            if ($child.hasClass('component')) {
+                result.push($child);
+            }
+            else {
+                result = result.concat(findDirectLogicalChildren($child));
+            }
+        });
+
+        return result;
+    }
+
+    function save() {
+        const root = $("#layout");
+        const json = [];
+
+        root.children(".component").each(function() {
+            json.push(serializeComponent($(this)));
+        });
+
+        console.log(JSON.stringify(json, null, 2));
+    }
+
+//***************************************************
+//** 미리보기
+//***************************************************
+    function preview() {
+
     }
 </script>
 <mf-view th:fragment="view">
@@ -527,7 +594,8 @@
 
         <div id="right-panel">
             <h3>옵션 패널</h3>
-            <button onclick="checkHtml()">Html 변환</button>
+            <button onclick="preview()">미리보기</button>
+            <button onclick="save()">저장</button>
             <div id="options">
                 컴포넌트를 선택하세요
             </div>
