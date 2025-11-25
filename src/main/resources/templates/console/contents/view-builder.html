@@ -418,37 +418,12 @@
 //***************************************************
 //** 컴포넌트
 //***************************************************
-    function textInput(num) {
-        let btnDelete = componentDeleteBtn();
-        let el = `
-            <div id="input${num}" class="component vb-input form-group col-3">
-                ${btnDelete}
-                <label class="vb-input-label" for="inputEl${num}">Label</label>
-                <input type="text" class="vb-input-box form-control rounded-0" id="inputEl${num}" placeholder="" spellcheck="false" autocomplete="off" data-watch="true" >
-            </div>
-        `;
-
-        return $(el);
-    }
 
     function row(num) {
         let btnDelete = componentDeleteBtn();
         let el = `
             <div id="row${num}" class="component vb-row row" >
                 ${btnDelete}
-            </div>
-        `;
-
-        return $(el);
-    }
-
-    function button(num) {
-        let btnDelete = componentDeleteBtn();
-        let el = `
-            <div id="button${num}" type="button" class="component vb-button btn btn-default btn-sm">
-                ${btnDelete}
-                <i class="fas fa-search"></i>
-                <span class="vb-button-label">Button</span>
             </div>
         `;
 
@@ -469,6 +444,32 @@
                      <div class="vb-card-body card-body">
                      </div>
                  </div>
+            </div>
+        `;
+
+        return $(el);
+    }
+
+    function textInput(num) {
+        let btnDelete = componentDeleteBtn();
+        let el = `
+            <div id="input${num}" class="component vb-input form-group col-3">
+                ${btnDelete}
+                <label class="vb-input-label" for="inputEl${num}">Label</label>
+                <input type="text" class="vb-input-box form-control rounded-0" id="inputEl${num}" placeholder="" spellcheck="false" autocomplete="off" data-watch="true" >
+            </div>
+        `;
+
+        return $(el);
+    }
+
+    function button(num) {
+        let btnDelete = componentDeleteBtn();
+        let el = `
+            <div id="button${num}" type="button" class="component vb-button btn btn-default btn-sm">
+                ${btnDelete}
+                <i class="fas fa-search"></i>
+                <span class="vb-button-label">Button</span>
             </div>
         `;
 
@@ -515,6 +516,7 @@
         else if($el.hasClass('vb-form')) type = 'form';
         else return null;
 
+        // 데이터 정의
         let data = {
             type,
             id: $el.attr('id') || null,
@@ -555,13 +557,19 @@
         return result;
     }
 
-    function save() {
+    function getViewData() {
         const root = $("#layout");
         const json = [];
 
         root.children(".component").each(function() {
             json.push(serializeComponent($(this)));
         });
+
+        return json;
+    }
+
+    function save() {
+        const json = getViewData();
 
         console.log(JSON.stringify(json, null, 2));
     }
@@ -570,8 +578,86 @@
 //** 미리보기
 //***************************************************
     function preview() {
+        let html = ``;
+        html = `<div class="content-wrapper">`;
+        html = renderComponent(getViewData());
+        html += `</div>`;
 
+        $("#canvas").html(html);
     }
+
+    function renderComponent(data) {
+        let html = ``;
+        for(let el of data) {
+            if(el.type == 'row') {
+                html += renderRow(el, ((el.children) ? renderComponent(el.children) : ''));
+            }
+            else if(el.type == 'card') {
+                html += renderCard(el, ((el.children) ? renderComponent(el.children) : ''));
+            }
+        }
+
+        return html;
+    }
+
+    function renderRow(el, htmlChild) {
+        return `
+            <div id="${el.id}" class="row" >
+                ${htmlChild}
+            </div>
+        `;
+    }
+
+    function renderCard(el, htmlCardTools, htmlCardBody) {
+        return `
+            <div class="${el.size}">
+                 <div id="${el.id}" class="card">
+                     <div class="card-header">
+                          <h3 class="card-title">${el.title}</h3>
+                          <div class="card-tools">
+                            ${htmlCardTools}
+                          </div>
+                     </div>
+                     <div class="card-body">
+                        ${htmlCardBody}
+                     </div>
+                 </div>
+            </div>
+        `;
+    }
+
+    function renderTextInput(el) {
+        return `
+            <div class="form-group ${el.size}">
+                <label for="${el.id}">${el.label}</label>
+                <input type="text" class="form-control rounded-0" id="${el.id}" placeholder="" spellcheck="false" autocomplete="off" data-watch="true" >
+            </div>
+        `;
+    }
+
+    function renderButton(el) {
+        return `
+            <div id="${el.id}" class="btn btn-default btn-sm">
+                <i class="${el.icon}"></i>
+                ${el.label}
+            </div>
+        `;
+    }
+
+    function renderForm(el) {
+        return `
+            <form id="${el.id}" class="form">
+            </form>
+        `;
+    }
+
+    function renderGrid(el) {
+        return `
+            <div id="${el.id}">
+            </div>
+        `;
+    }
+
 </script>
 <mf-view th:fragment="view">
     <div id="app-container" style="margin:0; display:flex; height:100vh; font-family:Arial, sans-serif;">
