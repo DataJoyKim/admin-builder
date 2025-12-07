@@ -148,7 +148,7 @@
             drop: function (event, ui) {
                 const type = ui.draggable.data("type");
                 if (type === "button") {
-                    $(this).append(button(getIdNumber('button')));
+                    appendButton($(this));
                 }
             },
         });
@@ -194,10 +194,10 @@
                     appendCard($(this));
                 }
                 else if (type === "text-input") {
-                    $(this).append(textInput(getIdNumber('input')));
+                    appendTextInput($(this));
                 }
                 else if(type === "grid") {
-                    $(this).append(grid(getIdNumber('grid')));
+                    appendGrid($(this));
                 }
             },
         });
@@ -238,47 +238,121 @@
         });
     }
 
+    function appendRow($target) {
+        let options = {
+            id:'row' + getIdNumber('row')
+        }
+
+        let $row = row(options.id, options);
+        $target.append($row);
+        dndRow($row);
+
+        setOptions($row, options);
+    }
+
+    function appendForm($target) {
+        let options = {
+            id:'form' + getIdNumber('form')
+        }
+
+        let $form = form(options.id, options);
+        $target.append($form);
+        dndForm($form);
+
+        setOptions($form, options);
+    }
+
+    function appendCard($target) {
+        let options = {
+            id:'card' + getIdNumber('card'),
+            size:"col-6",
+            title:"Title"
+        }
+
+        let $card = card(options.id, options);
+        $target.append($card);
+        dndCardHeader($card.find(".vb-card-tools"));
+        dndCardBody($card.find(".vb-card-body"));
+
+        appendRow($card.find(".card-body"));
+
+        setOptions($card, options);
+    }
+
+    function appendTextInput($target) {
+        let options = {
+            id:'input' + getIdNumber('input'),
+            size:'col-3',
+            label:'Label'
+        }
+
+        let $input = textInput(options.id, options);
+        $target.append($input);
+
+        setOptions($input, options);
+    }
+
+    function appendGrid($target) {
+        let options = {
+            id:'grid' + getIdNumber('grid')
+        }
+
+        let $grid = grid(options.id, options);
+
+        $target.append($grid);
+        setOptions($grid, options);
+    }
+
+    function appendButton($target) {
+        let options = {
+            id:'button' + getIdNumber('button'),
+            label:'Button',
+            icon:'fas fa-search'
+        }
+
+        let $button = button(options.id, options);
+
+        $target.append( $button);
+        setOptions($button, options);
+    }
+
+    function setOptions($target, options) {
+        $target.data('options', options);
+    }
+
+    function getOptions($target) {
+        return $target.data('options');
+    }
 //***************************************************
 //** 옵션 패널
 //***************************************************
-    function getSizeOption(value) {
-        let html = ``;
-        for(let i=12; i>=1; i--) {
-            let selected = '';
-            if(value == `col-${i}`) {
-                selected = 'selected';
-            }
-
-            html += `<option value="col-${i}" ${selected}>${i}</option>`;
-        }
-
-        return html;
-    }
 
     $(document).on("click", ".vb-card", function(e) {
         e.stopPropagation();
 
         const $card = $(this);
 
-        const valueTitle = $card.find(".card-title").text();
-        const valueSize = getSize($card);
+        let options = getOptions($card);
 
         let html = ``;
 
-        html += optionSelect('card-size', '크기', 'col-12', getSizeOption(valueSize));
-
-        html += optionInput('card-title-input', 'Card 제목', 'col-12', valueTitle);
+        html += optionSelect('card-size', '크기', 'col-12', getSizeOption(options.size));
+        html += optionInput('card-title-input', 'Card 제목', 'col-12', options.title);
 
         html += optionButton('card-row-add', 'Card 내용', 'col-12', '행 추가');
 
         $("#options").html(html);
 
         $("#card-size").off("change").on("change", function() {
-            changeSize($card, $(this).val());
+            options.size = $(this).val();
+            setOptions($card, options);
+            changeSize($card, options.size);
         });
 
         $("#card-title-input").off("input").on("input", function() {
-            $card.find(".card-title").text($(this).val());
+            options.title = $(this).val();
+            setOptions($card, options);
+            $card.find(".card-title").text(options.title);
         });
 
         $(document).off("click", "#card-row-add").on("click", "#card-row-add", function() {
@@ -291,23 +365,24 @@
 
         const $inputGroup = $(this);
 
-        const valueLabel = $inputGroup.find(".vb-input-label").text();
-        const valueSize = getSize($inputGroup);
+        let options = getOptions($inputGroup);
 
         let html = ``;
-
-        html += optionSelect('input-size', '크기', 'col-12', getSizeOption(valueSize));
-
-        html += optionInput('input-label', 'Input 라벨', 'col-12', valueLabel);
+        html += optionSelect('input-size', '크기', 'col-12', getSizeOption(options.size));
+        html += optionInput('input-label', 'Input 라벨', 'col-12', options.label);
 
         $("#options").html(html);
 
         $("#input-size").off("change").on("change", function() {
-            changeSize($inputGroup, $(this).val());
+            options.size = $(this).val();
+            setOptions($inputGroup, options);
+            changeSize($inputGroup, options.size);
         });
 
         $("#input-label").off("input").on("input", function() {
-            $inputGroup.find(".vb-input-label").text($(this).val());
+            options.label = $(this).val();
+            setOptions($inputGroup, options);
+            $inputGroup.find(".vb-input-label").text(options.label);
         });
     });
 
@@ -316,24 +391,27 @@
 
         const $button = $(this);
 
-        const valueText = $button.find(".vb-button-label").text();
-        const valueIcon = $button.find("i").attr("class");
+        let options = getOptions($button);
 
         let html = ``;
-
-        html += optionInput('button-icon', '버튼 아이콘', 'col-12', valueIcon);
-
-        html += optionInput('button-text', '버튼 라벨', 'col-12', valueText);
+        html += optionInput('button-icon', '버튼 아이콘', 'col-12', options.icon);
+        html += optionInput('button-text', '버튼 라벨', 'col-12', options.label);
 
         $("#options").html(html);
 
         $("#button-text").off("input").on("input", function() {
-            $button.find(".vb-button-label").text($(this).val());
+            options.label = $(this).val();
+            setOptions($button, options);
+            $button.find(".vb-button-label").text(options.label);
         });
 
         $("#button-icon").off("input").on("input", function() {
-            $button.find("i").removeClass(valueIcon);
-            $button.find("i").addClass($(this).val());
+            $button.find("i").removeClass(options.icon);
+
+            options.icon = $(this).val();
+            setOptions($button, options);
+
+            $button.find("i").addClass(options.icon);
         });
     });
 
@@ -350,6 +428,20 @@
             appendRow($layout);
         });
     });
+
+    function getSizeOption(value) {
+        let html = ``;
+        for(let i=12; i>=1; i--) {
+            let selected = '';
+            if(value == `col-${i}`) {
+                selected = 'selected';
+            }
+
+            html += `<option value="col-${i}" ${selected}>${i}</option>`;
+        }
+
+        return html;
+    }
 
     function optionSelect(id, label, size, options) {
         return `
@@ -394,35 +486,14 @@
         return $target.attr("class").split(/\s+/).find(cls => cls.startsWith("col-"));
     }
 
-    function appendRow($target) {
-        let $row = row(getIdNumber('row'));
-        $target.append($row);
-        dndRow($row);
-    }
-
-    function appendForm($target) {
-        let $form = form(getIdNumber('form'));
-        $target.append($form);
-        dndForm($form);
-    }
-
-    function appendCard($target) {
-        let $card = card(getIdNumber('card'));
-        $target.append($card);
-        dndCardHeader($card.find(".vb-card-tools"));
-        dndCardBody($card.find(".vb-card-body"));
-
-        appendRow($card.find(".card-body"));
-    }
-
 //***************************************************
 //** 컴포넌트
 //***************************************************
 
-    function row(num) {
+    function row(id, options) {
         let btnDelete = componentDeleteBtn();
         let el = `
-            <div id="row${num}" class="component vb-row row" >
+            <div id="${id}" class="component vb-row row" >
                 ${btnDelete}
             </div>
         `;
@@ -430,14 +501,14 @@
         return $(el);
     }
 
-    function card(num) {
+    function card(id, options) {
         let btnDelete = componentDeleteBtn();
         let el = `
-            <div id="card${num}" class="component vb-card col-6">
+            <div id="${id}" class="component vb-card ${options.size}">
                 ${btnDelete}
                  <div class="card">
                      <div class="vb-card-header card-header">
-                          <h3 class="card-title">Title</h3>
+                          <h3 class="card-title">${options.title}</h3>
                           <div class="vb-card-tools card-tools">
                           </div>
                      </div>
@@ -450,36 +521,36 @@
         return $(el);
     }
 
-    function textInput(num) {
+    function textInput(id, options) {
         let btnDelete = componentDeleteBtn();
         let el = `
-            <div id="input${num}" class="component vb-input form-group col-3">
+            <div id="${id}" class="component vb-input form-group ${options.size}">
                 ${btnDelete}
-                <label class="vb-input-label" for="inputEl${num}">Label</label>
-                <input type="text" class="vb-input-box form-control rounded-0" id="inputEl${num}" placeholder="" spellcheck="false" autocomplete="off" data-watch="true" >
+                <label class="vb-input-label" for="${id}-el">${options.label}</label>
+                <input type="text" class="vb-input-box form-control rounded-0" id="${id}-el" placeholder="" spellcheck="false" autocomplete="off" data-watch="true" >
             </div>
         `;
 
         return $(el);
     }
 
-    function button(num) {
+    function button(id, options) {
         let btnDelete = componentDeleteBtn();
         let el = `
-            <div id="button${num}" type="button" class="component vb-button btn btn-default btn-sm">
+            <div id="${id}" type="button" class="component vb-button btn btn-default btn-sm">
                 ${btnDelete}
-                <i class="fas fa-search"></i>
-                <span class="vb-button-label">Button</span>
+                <i class="${options.icon}"></i>
+                <span class="vb-button-label">${options.label}</span>
             </div>
         `;
 
         return $(el);
     }
 
-    function form(num) {
+    function form(id, options) {
         let btnDelete = componentDeleteBtn();
         let el = `
-            <form id="form${num}" class="component vb-form form">
+            <form id="${id}" class="component vb-form form">
                 ${btnDelete}
             </form>
         `;
@@ -487,10 +558,10 @@
         return $(el);
     }
 
-    function grid(num) {
+    function grid(id, options) {
         let btnDelete = componentDeleteBtn();
         let el = `
-            <div id="grid${num}" class="component vb-grid">
+            <div id="${id}" class="component vb-grid">
                 ${btnDelete}
                 Grid
             </div>
@@ -516,26 +587,18 @@
         else if($el.hasClass('vb-form')) type = 'form';
         else return null;
 
-        // 데이터 정의
-        let data = {
-            type,
-            id: $el.attr('id') || null,
-            size: getSize($el) || null
-        };
+        let data = getOptions($el);
+        data.type= type;
 
-        if (type === 'input') {
-            data.label = $el.find('.vb-input-label').text();
+        const children = findDirectLogicalChildren($el)
+                        .map(childEl =>
+                            serializeComponent(childEl)
+                        )
+                        .filter(Boolean);
+
+        if (children.length > 0) {
+            data.children = children;
         }
-
-        if (type === 'card') {
-            data.title = $el.find('.card-title').text();
-        }
-
-        const children = findDirectLogicalChildren($el).map(childEl =>
-            serializeComponent(childEl)
-        ).filter(Boolean);
-
-        if (children.length > 0) data.children = children;
 
         return data;
     }
@@ -592,8 +655,30 @@
             if(el.type == 'row') {
                 html += renderRow(el, ((el.children) ? renderComponent(el.children) : ''));
             }
+            else if(el.type == 'button') {
+                html += renderButton(el, ((el.children) ? renderComponent(el.children) : ''));
+            }
+            else if(el.type == 'input') {
+                html += renderTextInput(el, ((el.children) ? renderComponent(el.children) : ''));
+            }
             else if(el.type == 'card') {
-                html += renderCard(el, ((el.children) ? renderComponent(el.children) : ''));
+                let cardHeaderEl = new Array();
+                let cardBodyEl = new Array();
+
+                for(let childEl of el.children) {
+                    if(childEl.type == 'button') {
+                        cardHeaderEl.push(childEl);
+                    }
+                    else {
+                        cardBodyEl.push(childEl);
+                    }
+                }
+
+                html += renderCard(
+                        el,
+                        ((cardHeaderEl) ? renderComponent(cardHeaderEl) : ''),
+                        ((cardBodyEl) ? renderComponent(cardBodyEl) : '')
+                    );
             }
         }
 
