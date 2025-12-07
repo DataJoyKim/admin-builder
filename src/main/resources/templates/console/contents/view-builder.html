@@ -57,14 +57,18 @@
         border: 1px dashed #bbb;
     }
     .vb-card-body {
+        padding: 2px;
         min-height: 100px;
         height: auto;
+        margin: 0 !important;
+        border: 1px dashed #bbb;
     }
     .vb-form {
-        padding-bottom: 30px;
-        min-height: 100px;
+        padding: 10px;
+        min-height: 80px;
         height: auto;
-        border: 1px dotted #f39c12;
+        border: 1px solid #ddd;
+        border-radius: 8px;
     }
     .vb-grid {
         background-color: #ffffff;
@@ -118,7 +122,8 @@
         form:0,
         card:0,
         grid:0,
-        input:0
+        input:0,
+        cardBody:0
     }
 
     function getIdNumber(id) {
@@ -164,13 +169,13 @@
                 if (type === "form") {
                     appendForm($(this));
                 }
-                else if(type === "row") {
-                    appendRow($(this));
+                else if(type === "grid") {
+                    appendGrid($(this));
                 }
             },
         });
 
-        sortable($el, ".vb-row");
+        sortable($el, ".vb-form, .vb-grid");
     }
 
     function dndForm($el) {
@@ -243,11 +248,11 @@
             id:'row' + getIdNumber('row')
         }
 
-        let $row = row(options.id, options);
-        $target.append($row);
-        dndRow($row);
+        let $el = row(options.id, options);
+        $target.append($el);
+        dndRow($el);
 
-        setOptions($row, options);
+        setOptions($el, options);
     }
 
     function appendForm($target) {
@@ -255,11 +260,13 @@
             id:'form' + getIdNumber('form')
         }
 
-        let $form = form(options.id, options);
-        $target.append($form);
-        dndForm($form);
+        let $el = form(options.id, options);
+        $target.append($el);
+        dndForm($el);
 
-        setOptions($form, options);
+        appendRow($el);
+
+        setOptions($el, options);
     }
 
     function appendCard($target) {
@@ -269,14 +276,26 @@
             title:"Title"
         }
 
-        let $card = card(options.id, options);
-        $target.append($card);
-        dndCardHeader($card.find(".vb-card-tools"));
-        dndCardBody($card.find(".vb-card-body"));
+        let $el = card(options.id, options);
+        $target.append($el);
+        dndCardHeader($el.find(".vb-card-tools"));
+        sortable($el, ".vb-card-body");
 
-        appendRow($card.find(".card-body"));
+        appendCardBody($el.find(".card"));
 
-        setOptions($card, options);
+        setOptions($el, options);
+    }
+
+    function appendCardBody($target) {
+        let options = {
+            id:'cardBody' + getIdNumber('cardBody')
+        }
+
+        let $el = cardBody(options.id, options);
+        $target.append($el);
+        dndCardBody($el);
+
+        setOptions($el, options);
     }
 
     function appendTextInput($target) {
@@ -286,10 +305,10 @@
             label:'Label'
         }
 
-        let $input = textInput(options.id, options);
-        $target.append($input);
+        let $el = textInput(options.id, options);
+        $target.append($el);
 
-        setOptions($input, options);
+        setOptions($el, options);
     }
 
     function appendGrid($target) {
@@ -297,10 +316,10 @@
             id:'grid' + getIdNumber('grid')
         }
 
-        let $grid = grid(options.id, options);
+        let $el = grid(options.id, options);
 
-        $target.append($grid);
-        setOptions($grid, options);
+        $target.append($el);
+        setOptions($el, options);
     }
 
     function appendButton($target) {
@@ -310,10 +329,10 @@
             icon:'fas fa-search'
         }
 
-        let $button = button(options.id, options);
+        let $el = button(options.id, options);
 
-        $target.append( $button);
-        setOptions($button, options);
+        $target.append( $el);
+        setOptions($el, options);
     }
 
     function setOptions($target, options) {
@@ -330,42 +349,58 @@
     $(document).on("click", ".vb-card", function(e) {
         e.stopPropagation();
 
-        const $card = $(this);
+        const $el = $(this);
 
-        let options = getOptions($card);
+        let options = getOptions($el);
 
         let html = ``;
 
         html += optionSelect('card-size', '크기', 'col-12', getSizeOption(options.size));
         html += optionInput('card-title-input', 'Card 제목', 'col-12', options.title);
-
-        html += optionButton('card-row-add', 'Card 내용', 'col-12', '행 추가');
+        html += optionButton('card-body-add', 'Card 내용', 'col-12', '컨텐츠 영역 추가');
 
         $("#options").html(html);
 
         $("#card-size").off("change").on("change", function() {
             options.size = $(this).val();
-            setOptions($card, options);
-            changeSize($card, options.size);
+            setOptions($el, options);
+            changeSize($el, options.size);
         });
 
         $("#card-title-input").off("input").on("input", function() {
             options.title = $(this).val();
-            setOptions($card, options);
-            $card.find(".card-title").text(options.title);
+            setOptions($el, options);
+            $el.find(".card-title").text(options.title);
         });
 
-        $(document).off("click", "#card-row-add").on("click", "#card-row-add", function() {
-            appendRow($card.find(".card-body"));
+        $(document).off("click", "#card-body-add").on("click", "#card-body-add", function() {
+            appendCardBody($el.find(".card"));
+        });
+    });
+
+    $(document).on("click", ".vb-form", function(e) {
+        e.stopPropagation();
+
+        const $el = $(this);
+
+        let options = getOptions($el);
+
+        let html = ``;
+        html += optionButton('form-row-add', 'Form 내용', 'col-12', '행 추가');
+
+        $("#options").html(html);
+
+        $(document).off("click", "#form-row-add").on("click", "#form-row-add", function() {
+            appendRow($el);
         });
     });
 
     $(document).on("click", ".vb-input", function(e) {
         e.stopPropagation();
 
-        const $inputGroup = $(this);
+        const $el = $(this);
 
-        let options = getOptions($inputGroup);
+        let options = getOptions($el);
 
         let html = ``;
         html += optionSelect('input-size', '크기', 'col-12', getSizeOption(options.size));
@@ -375,23 +410,23 @@
 
         $("#input-size").off("change").on("change", function() {
             options.size = $(this).val();
-            setOptions($inputGroup, options);
-            changeSize($inputGroup, options.size);
+            setOptions($el, options);
+            changeSize($el, options.size);
         });
 
         $("#input-label").off("input").on("input", function() {
             options.label = $(this).val();
-            setOptions($inputGroup, options);
-            $inputGroup.find(".vb-input-label").text(options.label);
+            setOptions($el, options);
+            $el.find(".vb-input-label").text(options.label);
         });
     });
 
     $(document).on("click", ".vb-button", function(e) {
         e.stopPropagation();
 
-        const $button = $(this);
+        const $el = $(this);
 
-        let options = getOptions($button);
+        let options = getOptions($el);
 
         let html = ``;
         html += optionInput('button-icon', '버튼 아이콘', 'col-12', options.icon);
@@ -401,31 +436,30 @@
 
         $("#button-text").off("input").on("input", function() {
             options.label = $(this).val();
-            setOptions($button, options);
-            $button.find(".vb-button-label").text(options.label);
+            setOptions($el, options);
+            $el.find(".vb-button-label").text(options.label);
         });
 
         $("#button-icon").off("input").on("input", function() {
-            $button.find("i").removeClass(options.icon);
+            $el.find("i").removeClass(options.icon);
 
             options.icon = $(this).val();
-            setOptions($button, options);
+            setOptions($el, options);
 
-            $button.find("i").addClass(options.icon);
+            $el.find("i").addClass(options.icon);
         });
     });
 
     $(document).on("click", ".vb-layout", function(e) {
-        const $layout = $(this);
+        const $el = $(this);
 
         let html = ``;
-
         html += optionButton('layout-row-add', 'Layout 내용', 'col-12', '행 추가');
 
         $("#options").html(html);
 
         $(document).off("click", "#layout-row-add").on("click", "#layout-row-add", function() {
-            appendRow($layout);
+            appendRow($el);
         });
     });
 
@@ -512,10 +546,19 @@
                           <div class="vb-card-tools card-tools">
                           </div>
                      </div>
-                     <div class="vb-card-body card-body">
-                     </div>
                  </div>
             </div>
+        `;
+
+        return $(el);
+    }
+
+    function cardBody(id, options) {
+        let btnDelete = componentDeleteBtn();
+        let el = `
+             <div id="${id}" class="component vb-card-body card-body">
+                ${btnDelete}
+             </div>
         `;
 
         return $(el);
@@ -581,6 +624,7 @@
         let type;
         if($el.hasClass('vb-row')) type = 'row';
         else if($el.hasClass('vb-card')) type = 'card';
+        else if($el.hasClass('vb-card-body')) type = 'card-body';
         else if($el.hasClass('vb-input')) type = 'input';
         else if($el.hasClass('vb-button')) type = 'button';
         else if($el.hasClass('vb-grid')) type = 'grid';
@@ -661,23 +705,33 @@
             else if(el.type == 'input') {
                 html += renderTextInput(el, ((el.children) ? renderComponent(el.children) : ''));
             }
+            else if(el.type == 'card-body') {
+                html += renderCardBody(el, ((el.children) ? renderComponent(el.children) : ''));
+            }
+            else if(el.type == 'form') {
+                html += renderForm(el, ((el.children) ? renderComponent(el.children) : ''));
+            }
+            else if(el.type == 'grid') {
+                html += renderGrid(el, ((el.children) ? renderComponent(el.children) : ''));
+            }
             else if(el.type == 'card') {
                 let cardHeaderEl = new Array();
-                let cardBodyEl = new Array();
+                let cardChildEl = new Array();
 
                 for(let childEl of el.children) {
-                    if(childEl.type == 'button') {
-                        cardHeaderEl.push(childEl);
+                    if(childEl.type == 'card-body') {
+                        cardChildEl.push(childEl);
                     }
                     else {
-                        cardBodyEl.push(childEl);
+                        cardHeaderEl.push(childEl);
                     }
                 }
+                console.log('cardChildEl',cardChildEl);
 
                 html += renderCard(
                         el,
                         ((cardHeaderEl) ? renderComponent(cardHeaderEl) : ''),
-                        ((cardBodyEl) ? renderComponent(cardBodyEl) : '')
+                        ((cardChildEl) ? renderComponent(cardChildEl) : '')
                     );
             }
         }
@@ -693,7 +747,7 @@
         `;
     }
 
-    function renderCard(el, htmlCardTools, htmlCardBody) {
+    function renderCard(el, htmlCardTools, htmlChild) {
         return `
             <div class="${el.size}">
                  <div id="${el.id}" class="card">
@@ -703,11 +757,17 @@
                             ${htmlCardTools}
                           </div>
                      </div>
-                     <div class="card-body">
-                        ${htmlCardBody}
-                     </div>
+                     ${htmlChild}
                  </div>
             </div>
+        `;
+    }
+
+    function renderCardBody(el, htmlChild) {
+        return `
+             <div class="card-body">
+                ${htmlChild}
+             </div>
         `;
     }
 
@@ -729,9 +789,10 @@
         `;
     }
 
-    function renderForm(el) {
+    function renderForm(el, htmlChild) {
         return `
             <form id="${el.id}" class="form">
+                ${htmlChild}
             </form>
         `;
     }
@@ -752,6 +813,7 @@
             <div class="component-item" data-type="button">Button</div>
             <div class="component-item" data-type="text-input">Text 입력</div>
             <div class="component-item" data-type="grid">Grid</div>
+            <div class="component-item" data-type="form">Form</div>
         </div>
 
 
