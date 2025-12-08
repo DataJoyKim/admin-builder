@@ -684,124 +684,183 @@
 //***************************************************
 //** 미리보기
 //***************************************************
-    function preview() {
-        let html = ``;
-        html = `<div class="content-wrapper">`;
-        html = renderComponent(getViewData());
-        html += `</div>`;
+    let initQueue = [];
 
-        $("#canvas").html(html);
+    function preview() {
+        initQueue = [];
+
+        render(getViewData());
+
+        for (let init of initQueue) {
+            init();
+        }
+    }
+
+    function render(data) {
+        const frag = $(document.createDocumentFragment());
+
+        const contentWrapper = $('<div>').addClass('content-wrapper');
+        contentWrapper.append(renderComponent(data));
+        frag.append(contentWrapper);
+
+        $("#canvas").empty().append(frag);
     }
 
     function renderComponent(data) {
-        let html = ``;
-        for(let el of data) {
-            if(el.type == 'row') {
-                html += renderRow(el, ((el.children) ? renderComponent(el.children) : ''));
-            }
-            else if(el.type == 'button') {
-                html += renderButton(el, ((el.children) ? renderComponent(el.children) : ''));
-            }
-            else if(el.type == 'input') {
-                html += renderTextInput(el, ((el.children) ? renderComponent(el.children) : ''));
-            }
-            else if(el.type == 'card-body') {
-                html += renderCardBody(el, ((el.children) ? renderComponent(el.children) : ''));
-            }
-            else if(el.type == 'form') {
-                html += renderForm(el, ((el.children) ? renderComponent(el.children) : ''));
-            }
-            else if(el.type == 'grid') {
-                html += renderGrid(el, ((el.children) ? renderComponent(el.children) : ''));
-            }
-            else if(el.type == 'card') {
-                let cardHeaderEl = new Array();
-                let cardChildEl = new Array();
+        if (!data) {
+            return $();
+        }
 
-                for(let childEl of el.children) {
-                    if(childEl.type == 'card-body') {
-                        cardChildEl.push(childEl);
-                    }
-                    else {
-                        cardHeaderEl.push(childEl);
-                    }
+        const frag = $(document.createDocumentFragment());
+
+        for (let el of data) {
+            if (el.type === 'row') {
+                frag.append(renderRow(el, renderComponent(el.children)));
+            }
+            else if (el.type === 'button') {
+                frag.append(renderButton(el));
+            }
+            else if (el.type === 'input') {
+                frag.append(renderTextInput(el));
+            }
+            else if (el.type === 'card-body') {
+                frag.append(renderCardBody(el, renderComponent(el.children)));
+            }
+            else if (el.type === 'form') {
+                frag.append(renderForm(el, renderComponent(el.children)));
+            }
+            else if (el.type === 'grid') {
+                frag.append(renderGrid(el));
+            }
+            else if (el.type === 'card') {
+
+                const cardHeaderEl = [];
+                const cardChildEl = [];
+
+                for (let childEl of el.children) {
+                    if (childEl.type === 'card-body') cardChildEl.push(childEl);
+                    else cardHeaderEl.push(childEl);
                 }
-                console.log('cardChildEl',cardChildEl);
 
-                html += renderCard(
+                frag.append(
+                    renderCard(
                         el,
-                        ((cardHeaderEl) ? renderComponent(cardHeaderEl) : ''),
-                        ((cardChildEl) ? renderComponent(cardChildEl) : '')
-                    );
+                        renderComponent(cardHeaderEl),
+                        renderComponent(cardChildEl)
+                    )
+                );
             }
         }
 
-        return html;
+        return frag;
     }
 
-    function renderRow(el, htmlChild) {
-        return `
-            <div id="${el.id}" class="row" >
-                ${htmlChild}
+    function renderRow(data, children) {
+        let el = $(`
+            <div id="${data.id}" class="row" >
             </div>
-        `;
+        `);
+
+        if (children) {
+            el.append(children);
+        }
+
+        return el;
     }
 
-    function renderCard(el, htmlCardTools, htmlChild) {
-        return `
-            <div class="${el.size}">
-                 <div id="${el.id}" class="card">
+    function renderCard(data, htmlCardTools, htmlChild) {
+        let el = $(`
+            <div class="${data.size}">
+                 <div id="${data.id}" class="card">
                      <div class="card-header">
-                          <h3 class="card-title">${el.title}</h3>
+                          <h3 class="card-title">${data.title}</h3>
                           <div class="card-tools">
-                            ${htmlCardTools}
                           </div>
                      </div>
-                     ${htmlChild}
                  </div>
             </div>
-        `;
+        `);
+
+        if (htmlCardTools) {
+            el.find(".card-tools").append(htmlCardTools);
+        }
+
+        if (htmlChild) {
+            el.find(".card").append(htmlChild);
+        }
+
+        return el;
     }
 
-    function renderCardBody(el, htmlChild) {
-        return `
+    function renderCardBody(data, children) {
+        let el = $(`
              <div class="card-body">
-                ${htmlChild}
              </div>
-        `;
+        `);
+
+        if (children) {
+            el.append(children);
+        }
+
+        return el;
     }
 
-    function renderTextInput(el) {
-        return `
-            <div class="form-group ${el.size}">
-                <label for="${el.id}">${el.label}</label>
-                <input type="text" class="form-control rounded-0" id="${el.id}" placeholder="" spellcheck="false" autocomplete="off" data-watch="true" >
+    function renderTextInput(data) {
+        let el = $(`
+            <div class="form-group ${data.size}">
+                <label for="${data.id}">${data.label}</label>
+                <input type="text" class="form-control rounded-0" id="${data.id}" placeholder="" spellcheck="false" autocomplete="off" data-watch="true" >
             </div>
-        `;
+        `);
+        return el;
     }
 
-    function renderButton(el) {
-        return `
-            <div id="${el.id}" class="btn btn-default btn-sm">
-                <i class="${el.icon}"></i>
-                ${el.label}
+    function renderButton(data) {
+        let el =  $(`
+            <div id="${data.id}" class="btn btn-default btn-sm">
+                <i class="${data.icon}"></i>
+                ${data.label}
             </div>
-        `;
+        `);
+
+        return el;
     }
 
-    function renderForm(el, htmlChild) {
-        return `
-            <form id="${el.id}" class="form">
-                ${htmlChild}
+    function renderForm(data, children) {
+        let el = $(`
+            <form id="${data.id}" class="form">
             </form>
-        `;
+        `);
+
+        if (children) {
+            el.append(children);
+        }
+
+        return el;
     }
 
-    function renderGrid(el) {
-        return `
-            <div id="${el.id}">
+    function renderGrid(data) {
+        let el = $(`
+            <div id="${data.id}">
             </div>
-        `;
+        `);
+
+        initQueue.push(() => {
+            let columns = [
+                {name: "test1", title:"코드", type: "text", width: 150 },
+                {name: "test2", title:"명칭", type: "text", width: 150 }
+            ]
+            columns.push({ type: "control", editButton: true, width: 30, modeSwitchButton: false });
+            let rowClickEvent = function(args) {}
+
+            let options = {};
+            options.inserting = App.util.stringToBoolean("false");
+            options.editing = App.util.stringToBoolean("false");
+
+            App.grid.init(data.id, "100%","600px", columns,rowClickEvent,options);
+        });
+
+        return el;
     }
 
 </script>
