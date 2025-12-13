@@ -19,7 +19,7 @@
       position: relative;
     }
     #right-panel {
-      width: 250px;
+      width: 400px;
       background: #fafafa;
       border-left: 1px solid #ccc;
       padding: 10px;
@@ -313,7 +313,10 @@
 
     function appendGrid($target) {
         let options = {
-            id:'grid' + getIdNumber('grid')
+            id:'grid' + getIdNumber('grid'),
+            width: "100%",
+            height: "800px",
+            columns:[]
         }
 
         let $el = grid(options.id, options);
@@ -463,6 +466,96 @@
         });
     });
 
+    $(document).on("click", ".vb-grid", function(e) {
+        e.stopPropagation();
+
+        const $el = $(this);
+
+        let options = getOptions($el);
+
+        let html = ``;
+        html += `<div class="row">`;
+        html += optionInput('grid-width', '넓이', 'col-6', options.width);
+        html += optionInput('grid-height', '높이', 'col-6', options.height);
+        html += `</div>`;
+        html += `
+            <div class="form-group col-12">
+               <label for="grid-columns">컬럼 설정</label>
+               <div style="display: flex;justify-content: flex-end;"><a id="grid-create-column" style="cursor: pointer;">+create column</a></div>
+               <div id="grid-columns"></div>
+            </div>
+               `;
+
+        $("#options").html(html);
+
+        let isInit = true;
+
+        App.grid.init('grid-columns', "100%","600px",
+            [
+                {width: 30, align: "center",
+                    itemTemplate: function () {
+                      return "<span class='drag-handle'>☰</span>";
+                    }
+                },
+                {type: "control", editButton: false, width: 30, modeSwitchButton: false },
+                {name: "name", title:"필드", type: "text", width: 100 },
+                {name: "title", title:"컬럼명", type: "text", width: 100 },
+                {name: "width", title:"크기", type: "text", width: 80 },
+                {name: "type", title:"타입", type: "text", width: 100 }
+            ],
+            function(args) {},
+            {
+                inserting:false,
+                editing:true,
+                onRefreshed: function () {
+                    App.grid.enableRowDrag('grid-columns',{
+                        updateEvent:function() {
+                            options.columns = App.grid.getData('grid-columns');
+                            console.log('options.columns',options.columns);
+                            setOptions($el, options);
+                        }
+                    });
+                },
+                onItemUpdated:function(args) {
+                    options.columns = App.grid.getData('grid-columns');
+                    setOptions($el, options);
+                },
+                onItemInserting:function(args) {
+                    options.columns = App.grid.getData('grid-columns');
+                    setOptions($el, options);
+                },
+                onItemDeleting:function(args) {
+                    options.columns = App.grid.getData('grid-columns');
+                    setOptions($el, options);
+                }
+            }
+        );
+
+        App.grid.setData('grid-columns', options.columns);
+
+        $(document).off("click", "#grid-create-column").on("click", "#grid-create-column", function() {
+            App.grid.insertItem("grid-columns", {
+                name: "Field",
+                title: "Label",
+                width: 100,
+                type: "text"
+            });
+
+            options.columns = App.grid.getData('grid-columns');
+            setOptions($el, options);
+        });
+
+        $("#grid-width").off("input").on("input", function() {
+            options.width = $(this).val();
+            setOptions($el, options);
+        });
+
+        $("#grid-height").off("input").on("input", function() {
+            options.height = $(this).val();
+            setOptions($el, options);
+        });
+    });
+
     function getSizeOption(value) {
         let html = ``;
         for(let i=12; i>=1; i--) {
@@ -519,7 +612,6 @@
     function getSize($target) {
         return $target.attr("class").split(/\s+/).find(cls => cls.startsWith("col-"));
     }
-
 //***************************************************
 //** 컴포넌트
 //***************************************************
@@ -846,10 +938,7 @@
         `);
 
         initQueue.push(() => {
-            let columns = [
-                {name: "test1", title:"코드", type: "text", width: 150 },
-                {name: "test2", title:"명칭", type: "text", width: 150 }
-            ]
+            let columns = data.columns;
             columns.push({ type: "control", editButton: true, width: 30, modeSwitchButton: false });
             let rowClickEvent = function(args) {}
 
@@ -857,7 +946,7 @@
             options.inserting = App.util.stringToBoolean("false");
             options.editing = App.util.stringToBoolean("false");
 
-            App.grid.init(data.id, "100%","600px", columns,rowClickEvent,options);
+            App.grid.init(data.id, data.width,data.height,columns,rowClickEvent,options);
         });
 
         return el;
