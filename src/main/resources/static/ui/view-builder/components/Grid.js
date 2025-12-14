@@ -30,7 +30,7 @@ export class Grid extends ViewObject {
     component(id, options) {
         let btnDelete = super.componentDeleteBtn();
         let el = `
-            <div id="${id}" class="component vb-grid">
+            <div id="${id}" class="component vb-item vb-grid" data-type="grid">
                 ${btnDelete}
                 Grid
             </div>
@@ -102,7 +102,7 @@ export class Grid extends ViewObject {
         this.grid.setData('grid-columns', options.columns);
     }
 
-    optionPanelEvent($el, options) {
+    optionPanelEvent($el, options, componentFactory) {
         $(document).off("click", "#grid-create-column").on("click", "#grid-create-column",  () => {
             this.grid.insertItem("grid-columns", {
                 name: "Field",
@@ -124,5 +124,24 @@ export class Grid extends ViewObject {
             options.height =  $(e.target).val();
             super.setOptions($el, options);
         });
+    }
+
+    addComponent($el, componentFactory) {
+        super.plusComponentIdNumber('grid');
+
+        let options = {
+            id:'grid' + super.getComponentIdNumber('grid'),
+            width: "100%",
+            height: "800px",
+            columns:[]
+        }
+
+        let $componentEl = this.component(options.id, options);
+
+        $el.append($componentEl);
+        super.setOptions($componentEl, options);
+    }
+
+    dropComponent($el, componentFactory) {
     }
 }

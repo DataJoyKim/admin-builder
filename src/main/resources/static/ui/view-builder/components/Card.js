@@ -18,12 +18,12 @@ export class Card extends ViewObject {
             </div>
         `);
 
-        if (children && children.htmlCardTools) {
-            el.find(".card-tools").append(children.htmlCardTools);
+        if (children && children.cardHeader) {
+            el.find(".card-tools").append(children.cardHeader);
         }
 
-        if (children && children.htmlChild) {
-            el.find(".card").append(children.htmlChild);
+        if (children && children.cardChildren) {
+            el.find(".card").append(children.cardChildren);
         }
 
         return el;
@@ -34,7 +34,7 @@ export class Card extends ViewObject {
     component(id, options) {
         let btnDelete = super.componentDeleteBtn();
         let el = `
-            <div id="${id}" class="component vb-card ${options.size}">
+            <div id="${id}" class="component vb-item vb-card ${options.size}" data-type="card">
                 ${btnDelete}
                  <div class="card">
                      <div class="vb-card-header card-header">
@@ -60,7 +60,7 @@ export class Card extends ViewObject {
 
     optionPanelScript($el, options) {}
 
-    optionPanelEvent($el, options) {
+    optionPanelEvent($el, options, componentFactory) {
         $("#card-size").off("change").on("change", (e) => {
             options.size = $(e.target).val();
             super.setOptions($el, options);
@@ -74,7 +74,39 @@ export class Card extends ViewObject {
         });
 
         $(document).off("click", "#card-body-add").on("click", "#card-body-add", (e) => {
-            //appendCardBody($el.find(".card"));
+            super.addComponentByType(componentFactory, 'card-body', $el.find(".card"));
         });
+    }
+
+    addComponent($el, componentFactory) {
+        super.plusComponentIdNumber('card');
+
+        let options = {
+            id:'card' + super.getComponentIdNumber('card'),
+            size:"col-6",
+            title:"Title"
+        }
+
+        let $componentEl = this.component(options.id, options);
+        $el.append($componentEl);
+
+        this.dropCardTools($componentEl.find(".vb-card-tools"), componentFactory);
+
+        super.sortable($componentEl, ".vb-card-body");
+
+        super.addComponentByType(componentFactory, 'card-body', $componentEl.find(".card"));
+
+        super.setOptions($componentEl, options);
+    }
+
+    dropComponent($el, componentFactory) {
+    }
+
+    dropCardTools($el, componentFactory) {
+        let allowedTypes = ["component-button"];
+
+        super.drop($el, allowedTypes, componentFactory);
+
+        super.sortable($el, ".vb-button");
     }
 }

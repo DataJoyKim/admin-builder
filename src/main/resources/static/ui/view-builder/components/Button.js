@@ -21,7 +21,7 @@ export class Button extends ViewObject {
     component(id, options) {
         let btnDelete = super.componentDeleteBtn();
         let el = `
-            <div id="${id}" type="button" class="component vb-button btn btn-default btn-sm">
+            <div id="${id}" type="button" class="component vb-item vb-button btn btn-default btn-sm" data-type="button">
                 ${btnDelete}
                 <i class="${options.icon}"></i>
                 <span class="vb-button-label">${options.label}</span>
@@ -41,7 +41,7 @@ export class Button extends ViewObject {
 
     optionPanelScript($el, options) {}
 
-    optionPanelEvent($el, options) {
+    optionPanelEvent($el, options, componentFactory) {
         $("#button-text").off("input").on("input", (e) => {
             options.label = $(e.target).val();
             super.setOptions($el, options);
@@ -56,5 +56,24 @@ export class Button extends ViewObject {
 
             $el.find("i").addClass(options.icon);
         });
+    }
+
+    addComponent($el, componentFactory) {
+        super.plusComponentIdNumber('button');
+
+        let options = {
+            id:'button' + super.getComponentIdNumber('button'),
+            label:'Button',
+            icon:'fas fa-search'
+        }
+
+        let $componentEl = this.component(options.id, options);
+
+        $el.append($componentEl);
+
+        super.setOptions($componentEl, options);
+    }
+
+    dropComponent($el, componentFactory) {
     }
 }

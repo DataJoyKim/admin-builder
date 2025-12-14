@@ -11,19 +11,19 @@ export class ViewObject {
     script(el, initQueue, data) {}
     component(id, options) {}
 
-    optionPanel($el, id) {
+    optionPanel($el, id, componentFactory) {
         let options = this.getOptions($el);
 
         $("#"+id).html(this.optionPanelView(options));
 
         this.optionPanelScript($el, options);
 
-        this.optionPanelEvent($el, options);
+        this.optionPanelEvent($el, options, componentFactory);
     }
 
     optionPanelView(options) {}
     optionPanelScript($el, options) {}
-    optionPanelEvent($el, options) {}
+    optionPanelEvent($el, options, componentFactory) {}
 
     setOptions($target, options) {
         $target.data('options', options);
@@ -92,5 +92,52 @@ export class ViewObject {
                 <input type="text" class="form-control rounded-0" id="${id}" spellcheck="false" autocomplete="off" value="${value}">
             </div>
         `;
+    }
+
+    addComponent($el, componentFactory) {}
+    dropComponent($el, componentFactory) {}
+
+    drop($el, allowedTypes, componentFactory) {
+        let self = this;
+        $el.droppable({
+            greedy: true,
+            drop: function (event, ui) {
+                const type = ui.draggable.data("type");
+                if (!allowedTypes.includes(type)) {
+                    return;
+                }
+
+                self.addComponentByType(componentFactory, type.replace('component-',''), $el);
+            },
+        });
+    }
+
+    addComponentByType(componentFactory, type, $el) {
+        componentFactory[type].addComponent($el, componentFactory);
+    }
+
+    sortable($el, items) {
+        $el.sortable({
+            items: items,
+            containment: "parent",
+            tolerance: "pointer",
+            placeholder: "sortable-placeholder",
+            start: function(event, ui){
+                ui.placeholder.css({
+                    height: ui.item.outerHeight(),
+                    border: "1px dashed #bbb",
+                    background: "#f0f0f0"
+                });
+            }
+        });
+    }
+
+    plusComponentIdNumber(id) {
+        let numberId = window.componentIdMap[id];
+        window.componentIdMap[id] = numberId+1;
+    }
+
+    getComponentIdNumber(id) {
+        return window.componentIdMap[id];
     }
 }

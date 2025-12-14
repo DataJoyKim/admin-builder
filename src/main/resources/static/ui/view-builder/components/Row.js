@@ -23,7 +23,7 @@ export class Row extends ViewObject {
     component(id, options) {
         let btnDelete = super.componentDeleteBtn();
         let el = `
-            <div id="${id}" class="component vb-row row" >
+            <div id="${id}" class="component vb-item vb-row row" data-type="row">
                 ${btnDelete}
             </div>
         `;
@@ -37,5 +37,28 @@ export class Row extends ViewObject {
 
     optionPanelScript($el, options) {}
 
-    optionPanelEvent($el, options) {}
+    optionPanelEvent($el, options, componentFactory) {}
+
+    addComponent($el, componentFactory) {
+        super.plusComponentIdNumber('row');
+
+        let options = {
+            id:'row' + super.getComponentIdNumber('row')
+        }
+
+        let $componentEl = this.component(options.id, options);
+        $el.append($componentEl);
+
+        this.dropComponent($componentEl, componentFactory);
+
+        super.setOptions($componentEl, options);
+    }
+
+    dropComponent($el, componentFactory) {
+        let allowedTypes = ["component-card", "component-input", "component-grid"];
+
+        super.drop($el, allowedTypes, componentFactory);
+
+        super.sortable($el, ".vb-input, .vb-card, vb-grid");
+    }
 }

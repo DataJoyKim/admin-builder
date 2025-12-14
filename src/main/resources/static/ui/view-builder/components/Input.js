@@ -21,7 +21,7 @@ export class Input extends ViewObject {
     component(id, options) {
         let btnDelete = super.componentDeleteBtn();
         let el = `
-            <div id="${id}" class="component vb-input form-group ${options.size}">
+            <div id="${id}" class="component vb-item vb-input form-group ${options.size}" data-type="input">
                 ${btnDelete}
                 <label class="vb-input-label" for="${id}-el">${options.label}</label>
                 <input type="text" class="vb-input-box form-control rounded-0" id="${id}-el" placeholder="" spellcheck="false" autocomplete="off" data-watch="true" >
@@ -41,7 +41,7 @@ export class Input extends ViewObject {
 
     optionPanelScript($el, options) {}
 
-    optionPanelEvent($el, options) {
+    optionPanelEvent($el, options, componentFactory) {
         $("#input-size").off("change").on("change", (e) => {
             options.size = $(e.target).val();
             super.setOptions($el, options);
@@ -53,5 +53,23 @@ export class Input extends ViewObject {
             super.setOptions($el, options);
             $el.find(".vb-input-label").text(options.label);
         });
+    }
+
+    addComponent($el, componentFactory) {
+        super.plusComponentIdNumber('input');
+
+        let options = {
+            id:'input' + super.getComponentIdNumber('input'),
+            size:'col-3',
+            label:'Label'
+        }
+
+        let $componentEl = this.component(options.id, options);
+        $el.append($componentEl);
+
+        super.setOptions($componentEl, options);
+    }
+
+    dropComponent($el, componentFactory) {
     }
 }

@@ -23,7 +23,7 @@ export class Form extends ViewObject {
     component(id, options) {
         let btnDelete = super.componentDeleteBtn();
         let el = `
-            <form id="${id}" class="component vb-form form">
+            <form id="${id}" class="component vb-item vb-form form" data-type="form">
                 ${btnDelete}
             </form>
         `;
@@ -39,9 +39,32 @@ export class Form extends ViewObject {
 
     optionPanelScript($el, options) {}
 
-    optionPanelEvent($el, options) {
+    optionPanelEvent($el, options, componentFactory) {
         $(document).off("click", "#form-row-add").on("click", "#form-row-add", (e) => {
-            //appendRow($el);
+            super.addComponentByType(componentFactory, 'row', $el);
         });
+    }
+
+    addComponent($el, componentFactory) {
+        super.plusComponentIdNumber('form');
+
+        let options = {
+            id:'form' + super.getComponentIdNumber('form')
+        }
+
+        let $componentEl = this.component(options.id, options);
+        $el.append($componentEl);
+
+        this.dropComponent($componentEl, componentFactory);
+
+        super.addComponentByType(componentFactory, 'row', $componentEl);
+
+        super.setOptions($componentEl, options);
+    }
+
+    dropComponent($el, componentFactory) {
+        let allowedTypes = ["component-row"];
+
+        super.drop($el, allowedTypes, componentFactory);
     }
 }
