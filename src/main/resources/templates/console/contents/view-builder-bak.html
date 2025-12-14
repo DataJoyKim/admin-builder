@@ -772,6 +772,186 @@
 
         console.log(JSON.stringify(json, null, 2));
     }
+
+//***************************************************
+//** 미리보기
+//***************************************************
+    let initQueue = [];
+
+    function preview() {
+        initQueue = [];
+
+        render(getViewData());
+
+        for (let init of initQueue) {
+            init();
+        }
+    }
+
+    function render(data) {
+        const frag = $(document.createDocumentFragment());
+
+        const contentWrapper = $('<div>').addClass('content-wrapper');
+        contentWrapper.append(renderComponent(data));
+        frag.append(contentWrapper);
+
+        $("#canvas").empty().append(frag);
+    }
+
+    function renderComponent(data) {
+        if (!data) {
+            return $();
+        }
+
+        const frag = $(document.createDocumentFragment());
+
+        for (let el of data) {
+            if (el.type === 'row') {
+                frag.append(renderRow(el, renderComponent(el.children)));
+            }
+            else if (el.type === 'button') {
+                frag.append(renderButton(el));
+            }
+            else if (el.type === 'input') {
+                frag.append(renderTextInput(el));
+            }
+            else if (el.type === 'card-body') {
+                frag.append(renderCardBody(el, renderComponent(el.children)));
+            }
+            else if (el.type === 'form') {
+                frag.append(renderForm(el, renderComponent(el.children)));
+            }
+            else if (el.type === 'grid') {
+                frag.append(renderGrid(el));
+            }
+            else if (el.type === 'card') {
+
+                const cardHeaderEl = [];
+                const cardChildEl = [];
+
+                for (let childEl of el.children) {
+                    if (childEl.type === 'card-body') cardChildEl.push(childEl);
+                    else cardHeaderEl.push(childEl);
+                }
+
+                frag.append(
+                    renderCard(
+                        el,
+                        renderComponent(cardHeaderEl),
+                        renderComponent(cardChildEl)
+                    )
+                );
+            }
+        }
+
+        return frag;
+    }
+
+    function renderRow(data, children) {
+        let el = $(`
+            <div id="${data.id}" class="row" >
+            </div>
+        `);
+
+        if (children) {
+            el.append(children);
+        }
+
+        return el;
+    }
+
+    function renderCard(data, htmlCardTools, htmlChild) {
+        let el = $(`
+            <div class="${data.size}">
+                 <div id="${data.id}" class="card">
+                     <div class="card-header">
+                          <h3 class="card-title">${data.title}</h3>
+                          <div class="card-tools">
+                          </div>
+                     </div>
+                 </div>
+            </div>
+        `);
+
+        if (htmlCardTools) {
+            el.find(".card-tools").append(htmlCardTools);
+        }
+
+        if (htmlChild) {
+            el.find(".card").append(htmlChild);
+        }
+
+        return el;
+    }
+
+    function renderCardBody(data, children) {
+        let el = $(`
+             <div class="card-body">
+             </div>
+        `);
+
+        if (children) {
+            el.append(children);
+        }
+
+        return el;
+    }
+
+    function renderTextInput(data) {
+        let el = $(`
+            <div class="form-group ${data.size}">
+                <label for="${data.id}">${data.label}</label>
+                <input type="text" class="form-control rounded-0" id="${data.id}" placeholder="" spellcheck="false" autocomplete="off" data-watch="true" >
+            </div>
+        `);
+        return el;
+    }
+
+    function renderButton(data) {
+        let el =  $(`
+            <div id="${data.id}" class="btn btn-default btn-sm">
+                <i class="${data.icon}"></i>
+                ${data.label}
+            </div>
+        `);
+
+        return el;
+    }
+
+    function renderForm(data, children) {
+        let el = $(`
+            <form id="${data.id}" class="form">
+            </form>
+        `);
+
+        if (children) {
+            el.append(children);
+        }
+
+        return el;
+    }
+
+    function renderGrid(data) {
+        let el = $(`
+            <div id="${data.id}">
+            </div>
+        `);
+
+        initQueue.push(() => {
+            let columns = data.columns;
+            columns.push({ type: "control", editButton: true, width: 30, modeSwitchButton: false });
+            let rowClickEvent = function(args) {}
+
+            let options = {};
+            options.inserting = App.util.stringToBoolean("false");
+            options.editing = App.util.stringToBoolean("false");
+
+            App.grid.init(data.id, data.width,data.height,columns,rowClickEvent,options);
+        });
+
+        return el;
+    }
+
 </script>
 <mf-view th:fragment="view">
     <div id="app-container" style="margin:0; display:flex; height:100vh; font-family:Arial, sans-serif;">
@@ -802,13 +982,4 @@
             </div>
         </div>
     </div>
-
-    <script type="module">
-        import { Render } from '/ui/view-builder/Render.js';
-
-        window.preview = function () {
-            const render = new Render();
-            render.init('canvas', getViewData());
-        };
-    </script>
 </mf-view>
