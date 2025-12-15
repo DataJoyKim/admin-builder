@@ -27,16 +27,32 @@ export class Grid extends ViewObject {
         });
     }
 
-    component(id, options) {
-        let btnDelete = super.componentDeleteBtn();
+    componentTemplate(id, options) {
         let el = `
             <div id="${id}" class="component vb-item vb-grid" data-type="grid">
-                ${btnDelete}
+                ${super.componentDeleteBtn()}
                 Grid
             </div>
         `;
 
         return $(el);
+    }
+
+    componentStyle() {
+        return `
+            .vb-item[data-type="grid"] {
+                background-color: #ffffff;
+                height: 300px;
+                width: 100%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-size: 18px;
+                border-radius: 8px;
+                border: 2px solid #ddd;
+                box-shadow: 0 2px 3px rgba(0,0,0,0.2);
+            }
+        `;
     }
 
     optionPanelView(options) {

@@ -18,17 +18,28 @@ export class Input extends ViewObject {
 
     script(el, initQueue, data) {}
 
-    component(id, options) {
-        let btnDelete = super.componentDeleteBtn();
+    componentTemplate(id, options) {
         let el = `
             <div id="${id}" class="component vb-item vb-input form-group ${options.size}" data-type="input">
-                ${btnDelete}
+                ${super.componentDeleteBtn()}
                 <label class="vb-input-label" for="${id}-el">${options.label}</label>
                 <input type="text" class="vb-input-box form-control rounded-0" id="${id}-el" placeholder="" spellcheck="false" autocomplete="off" data-watch="true" >
             </div>
         `;
 
         return $(el);
+    }
+
+    componentStyle() {
+        return `
+            .vb-item[data-type="row"] {
+                padding: 5px;
+                min-height: 80px;
+                height: auto;
+                margin: 0 !important;
+                border: 1px dashed #bbb;
+            }
+        `;
     }
 
     optionPanelView(options) {

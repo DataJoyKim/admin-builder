@@ -2,20 +2,22 @@ import { Render } from '/ui/view-builder/Render.js';
 import { ComponentFactory } from '/ui/view-builder/ComponentFactory.js';
 import { DropComponent } from '/ui/view-builder/DropComponent.js';
 
-
+// 컴포넌트 랜더링
 $(function () {
     $(".component-item").draggable({ helper: "clone" });
 
     window.dropComponent = new DropComponent();
-    window.dropComponent.dropLayout($(".vb-layout"));
+    window.dropComponent.dropLayout('canvas');
 });
 
+// 미리보기 랜더링
 window.preview = function () {
     const render = new Render();
 
     render.init('canvas', getViewData());
 };
 
+// 옵션패널
 $(document).on("click", ".vb-item", function(e) {
     e.stopPropagation();
 
@@ -27,12 +29,14 @@ $(document).on("click", ".vb-item", function(e) {
     componentEl.optionPanel($el, "options", window.dropComponent.getComponentFactory());
 });
 
+// 컴포넌트 삭제
 $(document).on("click", ".component-delete-btn", function(e) {
     e.stopPropagation();
 
     $(this).closest(".component").remove();
 });
 
+// 컴포넌트 선택 영역
 $(document).on("click", ".component", function(e) {
     e.stopPropagation();
 

@@ -9,7 +9,31 @@ export class ViewObject {
 
     template(data, children) {}
     script(el, initQueue, data) {}
-    component(id, options) {}
+
+    component(id, options) {
+        this.mountComponentStyle();
+
+        let el = this.componentTemplate(id, options);
+
+        return el;
+    }
+
+    componentTemplate(id, options) {}
+    componentStyle() {}
+
+    mountComponentStyle() {
+        if (!this.componentStyle) return;
+
+        const con = this.constructor;
+        if (con.__componentStyleMounted) return; //중복방지
+
+        const styleEl = document.createElement('style');
+        styleEl.textContent = this.componentStyle();
+
+        document.head.appendChild(styleEl);
+
+        con.__componentStyleMounted = true; //중복방지
+    }
 
     optionPanel($el, id, componentFactory) {
         let options = this.getOptions($el);

@@ -20,15 +20,26 @@ export class CardBody extends ViewObject {
 
     script(el, initQueue, data) {}
 
-    component(id, options) {
-        let btnDelete = super.componentDeleteBtn();
+    componentTemplate(id, options) {
         let el = `
              <div id="${id}" class="component vb-item vb-card-body card-body" data-type="card-body">
-                ${btnDelete}
+                ${super.componentDeleteBtn()}
              </div>
         `;
 
         return $(el);
+    }
+
+    componentStyle() {
+        return `
+            .vb-item[data-type="card-body"] {
+                padding: 2px;
+                min-height: 100px;
+                height: auto;
+                margin: 0 !important;
+                border: 1px dashed #bbb;
+            }
+        `;
     }
 
     optionPanelView(options) {

@@ -18,17 +18,28 @@ export class Button extends ViewObject {
 
     script(el, initQueue, data) {}
 
-    component(id, options) {
-        let btnDelete = super.componentDeleteBtn();
+    componentTemplate(id, options) {
         let el = `
             <div id="${id}" type="button" class="component vb-item vb-button btn btn-default btn-sm" data-type="button">
-                ${btnDelete}
+                ${super.componentDeleteBtn()}
                 <i class="${options.icon}"></i>
                 <span class="vb-button-label">${options.label}</span>
             </div>
         `;
 
         return $(el);
+    }
+
+    componentStyle() {
+        return `
+            .vb-item[data-type="row"] {
+                padding: 5px;
+                min-height: 80px;
+                height: auto;
+                margin: 0 !important;
+                border: 1px dashed #bbb;
+            }
+        `;
     }
 
     optionPanelView(options) {

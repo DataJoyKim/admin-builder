@@ -16,14 +16,21 @@ export class Layout extends ViewObject {
 
     script(el, initQueue, data) {}
 
-    component(id, options) {
-        let btnDelete = super.componentDeleteBtn();
+    componentTemplate(id, options) {
         let el = `
-           <div class="layout vb-item vb-layout content-wrapper" id="layout" style="min-height: 993px;" data-type="layout">
+           <div class="layout vb-item vb-layout content-wrapper" id="${id}" style="min-height: 993px;" data-type="layout">
            </div>
         `;
 
         return $(el);
+    }
+
+    componentStyle() {
+        return `
+            .vb-item[data-type="layout"] {
+                cursor: pointer;
+            }
+        `;
     }
 
     optionPanelView(options) {

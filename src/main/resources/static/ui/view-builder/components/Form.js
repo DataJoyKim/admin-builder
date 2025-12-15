@@ -20,15 +20,26 @@ export class Form extends ViewObject {
 
     script(el, initQueue, data) {}
 
-    component(id, options) {
-        let btnDelete = super.componentDeleteBtn();
+    componentTemplate(id, options) {
         let el = `
             <form id="${id}" class="component vb-item vb-form form" data-type="form">
-                ${btnDelete}
+                ${super.componentDeleteBtn()}
             </form>
         `;
 
         return $(el);
+    }
+
+    componentStyle() {
+        return `
+            .vb-item[data-type="form"] {
+                padding: 10px;
+                min-height: 80px;
+                height: auto;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+            }
+        `;
     }
 
     optionPanelView(options) {

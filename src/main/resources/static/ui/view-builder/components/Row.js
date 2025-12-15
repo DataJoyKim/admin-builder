@@ -20,15 +20,26 @@ export class Row extends ViewObject {
 
     script(el, initQueue, data) {}
 
-    component(id, options) {
-        let btnDelete = super.componentDeleteBtn();
+    componentTemplate(id, options) {
         let el = `
             <div id="${id}" class="component vb-item vb-row row" data-type="row">
-                ${btnDelete}
+                ${super.componentDeleteBtn()}
             </div>
         `;
 
         return $(el);
+    }
+
+    componentStyle() {
+        return `
+            .vb-item[data-type="row"] {
+                padding: 5px;
+                min-height: 80px;
+                height: auto;
+                margin: 0 !important;
+                border: 1px dashed #bbb;
+            }
+        `;
     }
 
     optionPanelView(options) {

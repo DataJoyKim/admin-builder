@@ -31,11 +31,10 @@ export class Card extends ViewObject {
 
     script(el, initQueue, data) {}
 
-    component(id, options) {
-        let btnDelete = super.componentDeleteBtn();
+    componentTemplate(id, options) {
         let el = `
             <div id="${id}" class="component vb-item vb-card ${options.size}" data-type="card">
-                ${btnDelete}
+                ${super.componentDeleteBtn()}
                  <div class="card">
                      <div class="vb-card-header card-header">
                           <h3 class="card-title">${options.title}</h3>
@@ -47,6 +46,19 @@ export class Card extends ViewObject {
         `;
 
         return $(el);
+    }
+
+    componentStyle() {
+        return `
+            .vb-item[data-type="card"] .card-tools {
+                padding-left: 30px;
+                min-width: 60px;
+                width: auto;
+                min-height: 30px;
+                height: auto;
+                border: 1px dashed #bbb;
+            }
+        `;
     }
 
     optionPanelView(options) {

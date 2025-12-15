@@ -41,50 +41,6 @@
     .selected {
       outline: 1px solid #007bff;
     }
-    .vb-row {
-        padding: 5px;
-        min-height: 80px;
-        height: auto;
-        margin: 0 !important;
-        border: 1px dashed #bbb;
-    }
-    .vb-card-tools {
-        padding-left: 30px;
-        min-width: 60px;
-        width: auto;
-        min-height: 30px;
-        height: auto;
-        border: 1px dashed #bbb;
-    }
-    .vb-card-body {
-        padding: 2px;
-        min-height: 100px;
-        height: auto;
-        margin: 0 !important;
-        border: 1px dashed #bbb;
-    }
-    .vb-form {
-        padding: 10px;
-        min-height: 80px;
-        height: auto;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-    }
-    .vb-grid {
-        background-color: #ffffff;
-        height: 300px;
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 18px;
-        border-radius: 8px;
-        border: 2px solid #ddd;
-        box-shadow: 0 2px 3px rgba(0,0,0,0.2);
-    }
-    .vb-layout {
-        cursor: pointer;
-    }
     .component-delete-btn {
         display: none;
         position: absolute;
@@ -123,8 +79,6 @@
 
         <div id="center-panel">
             <div class="drop-area" id="canvas">
-                <div class="layout vb-item vb-layout content-wrapper" id="layout" style="min-height: 993px;" data-type="layout">
-                </div>
             </div>
         </div>
 
@@ -146,18 +100,12 @@
 //** 저장
 //***************************************************
     function serializeComponent($el) {
-        let type;
-        if($el.hasClass('vb-row')) type = 'row';
-        else if($el.hasClass('vb-card')) type = 'card';
-        else if($el.hasClass('vb-card-body')) type = 'card-body';
-        else if($el.hasClass('vb-input')) type = 'input';
-        else if($el.hasClass('vb-button')) type = 'button';
-        else if($el.hasClass('vb-grid')) type = 'grid';
-        else if($el.hasClass('vb-form')) type = 'form';
-        else return null;
+        if(!$el.hasClass('vb-item')) {
+            return;
+        }
 
         let data = $el.data('options');
-        data.type= type;
+        data.type= $el.data("type");
 
         const children = findDirectLogicalChildren($el)
                         .map(childEl =>
