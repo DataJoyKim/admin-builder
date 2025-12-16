@@ -123,6 +123,7 @@ export class ViewObject {
 
     drop($el, allowedTypes, componentFactory) {
         let self = this;
+
         $el.droppable({
             greedy: true,
             drop: function (event, ui) {
@@ -131,7 +132,9 @@ export class ViewObject {
                     return;
                 }
 
-                self.addComponentByType(componentFactory, type.replace('component-',''), $el);
+                const componentType = type.replace('component-','');
+
+                self.addComponentByType(componentFactory, componentType, $el);
             },
         });
     }

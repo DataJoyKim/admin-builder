@@ -7,8 +7,8 @@
       font-family: Arial, sans-serif;
     }
     #left-panel {
-      width: 200px;
-      background: #f2f2f2;
+      width: 300px;
+      background: white;
       border-right: 1px solid #ccc;
       padding: 10px;
     }
@@ -20,17 +20,27 @@
     }
     #right-panel {
       width: 400px;
-      background: #fafafa;
+      background: white;
       border-left: 1px solid #ccc;
       padding: 10px;
     }
+    .component-row {
+        display: flex;
+    }
     .component-item {
+      width: 100px;
+      height: 120px;
+      margin: 8px;
       padding: 10px;
-      margin-bottom: 8px;
-      background: #ddd;
-      cursor: grab;
+      background: white;
       border-radius: 4px;
+      text-align: center;
       z-index:1000;
+    }
+    .component-item:hover {
+      border: 2px solid #4a90e2;
+      background: #eef5ff;
+      cursor: grab;
     }
     .drop-area {
       width: 100%;
@@ -69,11 +79,26 @@
     <div id="app-container" style="margin:0; display:flex; height:100vh; font-family:Arial, sans-serif;">
         <div id="left-panel">
             <h3>컴포넌트</h3>
-            <div class="component-item" data-type="component-card">Card</div>
-            <div class="component-item" data-type="component-button">Button</div>
-            <div class="component-item" data-type="component-input">Text 입력</div>
-            <div class="component-item" data-type="component-grid">Grid</div>
-            <div class="component-item" data-type="component-form">Form</div>
+            <div id="component-panel" >
+                <div class="component-row">
+                    <div class="component-item" data-type="component-card" >
+                        <img src="/dist/img/com-card.png" width="100" height="100" s>
+                        <div>
+                        Card
+                        </div>
+                    </div>
+                </div>
+                <div class="component-row">
+                    <div class="component-item" data-type="component-form">Form</div>
+                    <div class="component-item" data-type="component-grid">Grid</div>
+                </div>
+                <div class="component-row">
+                    <div class="component-item" data-type="component-button">Button</div>
+                </div>
+                <div class="component-row">
+                    <div class="component-item" data-type="component-input">Input</div>
+                </div>
+            </div>
         </div>
 
 
