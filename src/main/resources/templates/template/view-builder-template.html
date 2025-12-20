@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>title</title>
+    <!-- css -->
+    <link rel="stylesheet" href="/plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="/plugins/jsgrid/jsgrid.min.css">
+    <link rel="stylesheet" href="/plugins/jsgrid/jsgrid-theme.min.css">
+    <link rel="stylesheet" href="/plugins/jquery-flowchart/jquery.flowchart.css">
+    <link rel="stylesheet" href="/dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="/plugins/codemirror/codemirror.css">
+    <link rel="stylesheet" href="/plugins/codemirror/theme/darcula.css">
+    <link rel="stylesheet" href="/plugins/jstree/themes/default/style.min.css" />
+</head>
+<body>
+
+<div id="canvas"></div>
+
+<!-- script -->
+<script src="/plugins/jquery/jquery.min.js"></script>
+<script src="/plugins/jquery-ui/jquery-ui.min.js"></script>
+<script src="/plugins/jquery-flowchart/jquery.flowchart.js"></script>
+<script src="/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
+<script src="/plugins/jsgrid/jsgrid.min.js"></script>
+<script src="/plugins/codemirror/codemirror.js"></script>
+<script src="/plugins/codemirror/mode/sql/sql.js"></script>
+<script src="/plugins/codemirror/mode/javascript/javascript.js"></script>
+<script src="/plugins/jstree/jstree.min.js"></script>
+<script src="/dist/js/adminlte.js?v=1"></script>
+<script src="/core/Util.js"></script>
+<script src="/core/LoadingBar.js"></script>
+<script src="/core/HttpClient.js"></script>
+<script src="/core/sheet.js"></script>
+<script src="/core/Grid.js"></script>
+<script src="/core/Form.js"></script>
+<script src="/core/WorkflowClient.js"></script>
+<script type="module" src="/ui/view-builder/app.js"></script>
+<!-- common script -->
+<script th:inline="javascript">
+    $.widget.bridge('uibutton', $.ui.button); // adminlte 버튼 충돌방지
+
+    const sheet = new Sheet();
+    App.loadingBar.render();
+    App.objectCode = [[${objectCode}]];
+</script>
+</body>
+</html>

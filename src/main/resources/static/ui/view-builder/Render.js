@@ -42,15 +42,13 @@ export class Render {
     }
 
     render(id, data) {
-        const frag = $(document.createDocumentFragment());
-
-        const contentWrapper = $('<div>').addClass('content-wrapper');
+        const contentWrapper = $('<div>')
+            .addClass('content-wrapper')
+            .attr('id', id);
 
         contentWrapper.append(this.component(data));
 
-        frag.append(contentWrapper);
-
-        $("#"+id).empty().append(frag);
+        $("#"+id).replaceWith(contentWrapper);
     }
 
     expendChildren(children, data) {

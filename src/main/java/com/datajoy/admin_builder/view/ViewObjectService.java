@@ -4,6 +4,7 @@ import com.datajoy.admin_builder.security.AuthenticatedUser;
 import com.datajoy.admin_builder.security.GrantedAuthority;
 import com.datajoy.admin_builder.view.domain.Menu;
 import com.datajoy.admin_builder.view.domain.ViewObject;
+import com.datajoy.admin_builder.view.domain.ViewObjectContent;
 import com.datajoy.core.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ public class ViewObjectService {
     private final ViewObjectRepository viewObjectRepository;
     private final MenuRepository menuRepository;
     private final MenuAuthorityRepository menuAuthorityRepository;
+    private final ViewObjectContentRepository viewObjectContentRepository;
 
     public ViewObject getViewObject(String objectCode) {
         Optional<ViewObject> optionalViewObject = viewObjectRepository.findByObjectCode(objectCode);
@@ -71,5 +73,10 @@ public class ViewObjectService {
         if(!hasAuthority) {
             throw new BusinessException(MenuErrorMessage.PERMISSION_DENIED);
         }
+    }
+
+    public ViewObjectContent getViewObjectContent(String objectCode) {
+        return viewObjectContentRepository.findByObjectCode(objectCode)
+                .orElseThrow();
     }
 }

@@ -1,6 +1,7 @@
 package com.datajoy.admin_builder.view;
 
 import com.datajoy.admin_builder.security.*;
+import com.datajoy.admin_builder.view.code.ObjectType;
 import com.datajoy.admin_builder.view.domain.Layout;
 import com.datajoy.admin_builder.view.domain.ViewObject;
 import com.datajoy.core.exception.BusinessException;
@@ -72,6 +73,14 @@ public class ViewBuilderController {
         model.addAttribute("objectPath","/pages" + viewObject.getPath());
         model.addAttribute("objectCode",objectCode);
 
-        return "/template/mf-template";
+        if(ObjectType.FILE.equals(viewObject.getType())) {
+            return "/template/mf-template";
+        }
+        else if(ObjectType.VIEW_BUILDER.equals(viewObject.getType())) {
+            return "/template/view-builder-template";
+        }
+        else {
+            return null;
+        }
     }
 }

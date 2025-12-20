@@ -79,24 +79,45 @@
     <div id="app-container" style="margin:0; display:flex; height:100vh; font-family:Arial, sans-serif;">
         <div id="left-panel">
             <h3>컴포넌트</h3>
+            <input type="text" class="form-control rounded-0" id="objectCode" placeholder="오브젝트코드" spellcheck="false" autocomplete="off" data-watch="true" >
             <div id="component-panel" >
                 <div class="component-row">
                     <div class="component-item" data-type="component-card" >
-                        <img src="/dist/img/com-card.png" width="100" height="100" s>
+                        <img src="/dist/img/com-card.png" width="80" height="80" >
                         <div>
-                        Card
+                            Card
                         </div>
                     </div>
                 </div>
                 <div class="component-row">
-                    <div class="component-item" data-type="component-form">Form</div>
-                    <div class="component-item" data-type="component-grid">Grid</div>
+                    <div class="component-item" data-type="component-form">
+                        <img src="/dist/img/com-form.png" width="80" height="80" >
+                        <div>
+                            Form
+                        </div>
+                    </div>
+                    <div class="component-item" data-type="component-grid">
+                        <img src="/dist/img/com-grid.png" width="80" height="80" >
+                        <div>
+                            Grid
+                        </div>
+                    </div>
                 </div>
                 <div class="component-row">
-                    <div class="component-item" data-type="component-button">Button</div>
+                    <div class="component-item" data-type="component-button">
+                        <img src="/dist/img/com-button.png" width="80" height="40" >
+                        <div>
+                            Button
+                        </div>
+                    </div>
                 </div>
                 <div class="component-row">
-                    <div class="component-item" data-type="component-input">Input</div>
+                    <div class="component-item" data-type="component-input">
+                        <img src="/dist/img/com-input.png" width="80" height="70" >
+                        <div>
+                            Input
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -118,7 +139,7 @@
         </div>
     </div>
 
-    <script type="module" src="/ui/view-builder/app.js"></script>
+    <script type="module" src="/ui/view-builder/app-editor.js"></script>
 </mf-view>
 <script th:fragment="script">
 //***************************************************
@@ -175,7 +196,24 @@
 
     function save() {
         const json = getViewData();
+        const objectCode = $("#objectCode").val();
 
-        console.log(JSON.stringify(json, null, 2));
+        if(!objectCode) {
+            alert("오브젝트 코드를 입력해주세요.");
+            return;
+        }
+
+        App.httpClient.post(`/console/api/object/content`,{},{
+                objectCode:objectCode,
+                content:JSON.stringify(json, null, 2)
+            },
+            function(response){
+                alert("저장에성공하였습니다.");
+                location.reload();
+            },
+            function(error){
+                alert("에러가 발생되었습니다.");
+            }
+        );
     }
 </script>

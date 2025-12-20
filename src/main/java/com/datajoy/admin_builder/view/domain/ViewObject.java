@@ -8,7 +8,7 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-@Table
+@Table(uniqueConstraints = {@UniqueConstraint(name="VIEW_OBJECT_UQ",columnNames={"objectCode"})})
 @Entity
 public class ViewObject {
     @Id
