@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController("console.ViewObjectContentRestController")
 @RequestMapping("/console/api/object/content")
@@ -18,8 +19,18 @@ public class ViewObjectContentRestController {
     private ViewObjectContentRepository repository;
 
     @GetMapping("")
-    public ResponseEntity<?> getList() {
-        List<ViewObjectContent> results = repository.findAll();
+    public ResponseEntity<?> getList(@RequestParam("objectCode") String objectCode) {
+        List<ViewObjectContent> results = new ArrayList<>();
+
+        if(objectCode != null && !objectCode.isEmpty()) {
+             Optional<ViewObjectContent> viewObjectContentOptional = repository.findByObjectCode(objectCode);
+             if(viewObjectContentOptional.isPresent()) {
+                 results.add(viewObjectContentOptional.get());
+             }
+        }
+        else {
+            results = repository.findAll();
+        }
 
         return new ResponseEntity<>(results, HttpStatus.OK);
     }

@@ -57,12 +57,17 @@ export class Row extends ViewObject {
             id:'row' + super.getComponentIdNumber('row')
         }
 
-        let $componentEl = this.component(options.id, options);
-        $el.append($componentEl);
+        $el.append(this.createComponent(options.id, options, componentFactory));
+    }
+
+    createComponent(id, options, componentFactory) {
+        let $componentEl = this.component(id, options);
 
         this.dropComponent($componentEl, componentFactory);
 
         super.setOptions($componentEl, options);
+
+        return $componentEl;
     }
 
     dropComponent($el, componentFactory) {

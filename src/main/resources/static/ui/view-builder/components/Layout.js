@@ -50,6 +50,9 @@ export class Layout extends ViewObject {
     addComponent($el, componentFactory) {
     }
 
+    createComponent(id, options, componentFactory) {
+    }
+
     dropComponent($el, componentFactory) {
         let allowedTypes = ["component-row"];
 

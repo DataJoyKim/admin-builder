@@ -1,6 +1,6 @@
 import { ComponentFactory } from './ComponentFactory.js';
 
-export class Render {
+export class RenderEditor {
     constructor() {
         this.initQueue = [];
     }
@@ -33,7 +33,9 @@ export class Render {
         const frag = $(document.createDocumentFragment());
 
         for (let data of viewData) {
-            const componentEl = ComponentFactory.instance(data.type);
+            const comp = ComponentFactory.instance(data.type);
+
+            const componentEl = comp.createComponent(data.id, data, ComponentFactory.instanceMap());
 
             let children = null;
             if(data.children) {
@@ -43,8 +45,17 @@ export class Render {
             }
 
             if(componentEl != null) {
-                const viewObject = componentEl.render(this.initQueue, data, children);
-                frag.append(viewObject);
+                if(children) {
+                    if(data.type == 'card') {
+                        componentEl.find(".card-tools").append(children.cardHeader);
+                        componentEl.find(".card").append(children.cardChildren);
+                    }
+                    else {
+                        componentEl.append(children);
+                    }
+                }
+
+                frag.append(componentEl);
             }
         }
 

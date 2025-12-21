@@ -79,7 +79,17 @@
     <div id="app-container" style="margin:0; display:flex; height:100vh; font-family:Arial, sans-serif;">
         <div id="left-panel">
             <h3>컴포넌트</h3>
-            <input type="text" class="form-control rounded-0" id="objectCode" placeholder="오브젝트코드" spellcheck="false" autocomplete="off" data-watch="true" >
+            <div class="input-group col-12">
+                <input type="text" class="form-control rounded-0 col-10" id="objectCode" placeholder="오브젝트코드" spellcheck="false" autocomplete="off" data-watch="true" >
+                <div class="input-group-append btn btn-default btn-sm" onclick="openPopup()">
+                    <i class="fas fa-search"></i>
+                </div>
+            </div>
+            <div class="form-group col-12">
+                <div class="btn btn-default btn-sm" onclick="load()">
+                    <i class="fas fa-search">불러오기</i>
+                </div>
+            </div>
             <div id="component-panel" >
                 <div class="component-row">
                     <div class="component-item" data-type="component-card" >
@@ -105,7 +115,7 @@
                 </div>
                 <div class="component-row">
                     <div class="component-item" data-type="component-button">
-                        <img src="/dist/img/com-button.png" width="80" height="40" >
+                        <img src="/dist/img/com-button.png" width="80" height="70" >
                         <div>
                             Button
                         </div>
@@ -142,9 +152,10 @@
     <script type="module" src="/ui/view-builder/app-editor.js"></script>
 </mf-view>
 <script th:fragment="script">
-//***************************************************
-//** 저장
-//***************************************************
+    function openPopup() {
+        App.popup.open('/console/view-object',{title:'테스트'});
+    }
+
     function serializeComponent($el) {
         if(!$el.hasClass('vb-item')) {
             return;
@@ -210,6 +221,27 @@
             function(response){
                 alert("저장에성공하였습니다.");
                 location.reload();
+            },
+            function(error){
+                alert("에러가 발생되었습니다.");
+            }
+        );
+    }
+
+    function load() {
+        const objectCode = $("#objectCode").val();
+
+        if(!objectCode) {
+            alert("오브젝트 코드를 입력해주세요.");
+            return;
+        }
+
+        App.httpClient.get(`/console/api/object/content`,{objectCode:objectCode},
+            function(response){
+                if(response[0]) {
+                    const content = response[0].content;
+                    loadEditor(JSON.parse(content));
+                }
             },
             function(error){
                 alert("에러가 발생되었습니다.");

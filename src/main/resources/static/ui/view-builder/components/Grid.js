@@ -152,10 +152,15 @@ export class Grid extends ViewObject {
             columns:[]
         }
 
-        let $componentEl = this.component(options.id, options);
 
-        $el.append($componentEl);
+        $el.append(this.createComponent(options.id, options, componentFactory));
+    }
+
+    createComponent(id, options, componentFactory) {
+        let $componentEl = this.component(id, options);
         super.setOptions($componentEl, options);
+
+        return $componentEl;
     }
 
     dropComponent($el, componentFactory) {

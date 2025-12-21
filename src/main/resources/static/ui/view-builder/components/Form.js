@@ -63,14 +63,20 @@ export class Form extends ViewObject {
             id:'form' + super.getComponentIdNumber('form')
         }
 
-        let $componentEl = this.component(options.id, options);
+        let $componentEl = this.createComponent(options.id, options, componentFactory);
         $el.append($componentEl);
+
+        super.addComponentByType(componentFactory, 'row', $componentEl);
+    }
+
+    createComponent(id, options, componentFactory) {
+        let $componentEl = this.component(id, options);
 
         this.dropComponent($componentEl, componentFactory);
 
-        super.addComponentByType(componentFactory, 'row', $componentEl);
-
         super.setOptions($componentEl, options);
+
+        return $componentEl;
     }
 
     dropComponent($el, componentFactory) {

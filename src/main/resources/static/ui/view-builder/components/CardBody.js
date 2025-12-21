@@ -57,11 +57,17 @@ export class CardBody extends ViewObject {
             id:'cardBody' + super.getComponentIdNumber('card-body')
         }
 
-        let $componentEl = this.component(options.id, options);
-        $el.append($componentEl);
+        $el.append(this.createComponent(options.id, options, componentFactory));
+    }
+
+    createComponent(id, options, componentFactory) {
+
+        let $componentEl = this.component(id, options);
         this.dropComponent($componentEl, componentFactory);
 
         super.setOptions($componentEl, options);
+
+        return $componentEl;
     }
 
     dropComponent($el, componentFactory) {

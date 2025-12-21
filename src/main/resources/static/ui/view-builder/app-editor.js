@@ -1,4 +1,5 @@
 import { Render } from '/ui/view-builder/Render.js';
+import { RenderEditor } from '/ui/view-builder/RenderEditor.js';
 import { ComponentFactory } from '/ui/view-builder/ComponentFactory.js';
 import { DropComponent } from '/ui/view-builder/DropComponent.js';
 
@@ -15,6 +16,14 @@ window.preview = function () {
     const render = new Render();
 
     render.init('canvas', getViewData());
+};
+
+// 미리보기 랜더링
+window.loadEditor = function (data) {
+    const render = new RenderEditor();
+    console.log('data',data);
+
+    render.init('canvas', data);
 };
 
 // 옵션패널

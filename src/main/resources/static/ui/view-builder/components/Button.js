@@ -78,11 +78,15 @@ export class Button extends ViewObject {
             icon:'fas fa-search'
         }
 
-        let $componentEl = this.component(options.id, options);
+        $el.append(this.createComponent(options.id, options, componentFactory));
+    }
 
-        $el.append($componentEl);
+    createComponent(id, options, componentFactory) {
+        let $componentEl = this.component(id, options);
 
         super.setOptions($componentEl, options);
+
+        return $componentEl;
     }
 
     dropComponent($el, componentFactory) {

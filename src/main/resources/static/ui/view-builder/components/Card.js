@@ -99,22 +99,25 @@ export class Card extends ViewObject {
             title:"Title"
         }
 
-        let $componentEl = this.component(options.id, options);
+        let $componentEl = this.createComponent(options.id, options, componentFactory);
         $el.append($componentEl);
 
-        this.dropCardTools($componentEl.find(".vb-card-tools"), componentFactory);
+        super.addComponentByType(componentFactory, 'card-body', $componentEl.find(".card"));
+    }
+
+    createComponent(id, options, componentFactory) {
+        let $componentEl = this.component(id, options);
+
+        this.dropComponent($componentEl.find(".vb-card-tools"), componentFactory);
 
         super.sortable($componentEl, ".vb-card-body");
 
-        super.addComponentByType(componentFactory, 'card-body', $componentEl.find(".card"));
-
         super.setOptions($componentEl, options);
+
+        return $componentEl;
     }
 
     dropComponent($el, componentFactory) {
-    }
-
-    dropCardTools($el, componentFactory) {
         let allowedTypes = ["component-button"];
 
         super.drop($el, allowedTypes, componentFactory);
