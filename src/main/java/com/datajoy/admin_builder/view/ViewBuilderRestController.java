@@ -5,10 +5,12 @@ import com.datajoy.admin_builder.security.AuthenticatedUser;
 import com.datajoy.admin_builder.security.SecurityBusinessException;
 import com.datajoy.admin_builder.security.TokenUtil;
 import com.datajoy.admin_builder.view.domain.Layout;
+import com.datajoy.admin_builder.view.domain.ViewAction;
 import com.datajoy.admin_builder.view.domain.ViewObject;
 import com.datajoy.admin_builder.view.domain.ViewObjectContent;
 import com.datajoy.admin_builder.view.dto.MenuDto;
 import com.datajoy.admin_builder.view.dto.ProfileDto;
+import com.datajoy.admin_builder.view.dto.ViewDto;
 import com.datajoy.core.exception.BusinessException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,6 +103,12 @@ public class ViewBuilderRestController {
 
         ViewObjectContent viewObjectContent = viewObjectService.getViewObjectContent(objectCode);
 
-        return new ResponseEntity<>(viewObjectContent, HttpStatus.OK);
+        List<ViewAction> viewActions = viewObjectService.getViewActions(objectCode);
+
+        return new ResponseEntity<>(ViewDto.builder()
+                .viewObject(viewObject)
+                .viewObjectContent(viewObjectContent)
+                .viewActions(viewActions)
+                .build(), HttpStatus.OK);
     }
 }

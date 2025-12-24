@@ -20,7 +20,11 @@ export class RenderEditor {
             .addClass('content-wrapper')
             .attr('id', id);
 
-        contentWrapper.append(this.component(data));
+        const layout = ComponentFactory.instance('layout');
+        const layoutEl = layout.component('layout', {});
+
+        layoutEl.append(this.component(data));
+        contentWrapper.append(layoutEl);
 
         $("#"+id).replaceWith(contentWrapper);
     }

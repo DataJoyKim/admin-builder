@@ -3,6 +3,7 @@ package com.datajoy.admin_builder.view;
 import com.datajoy.admin_builder.security.AuthenticatedUser;
 import com.datajoy.admin_builder.security.GrantedAuthority;
 import com.datajoy.admin_builder.view.domain.Menu;
+import com.datajoy.admin_builder.view.domain.ViewAction;
 import com.datajoy.admin_builder.view.domain.ViewObject;
 import com.datajoy.admin_builder.view.domain.ViewObjectContent;
 import com.datajoy.core.exception.BusinessException;
@@ -18,6 +19,7 @@ public class ViewObjectService {
     private final MenuRepository menuRepository;
     private final MenuAuthorityRepository menuAuthorityRepository;
     private final ViewObjectContentRepository viewObjectContentRepository;
+    private final ViewActionRepository viewActionRepository;
 
     public ViewObject getViewObject(String objectCode) {
         Optional<ViewObject> optionalViewObject = viewObjectRepository.findByObjectCode(objectCode);
@@ -78,5 +80,9 @@ public class ViewObjectService {
     public ViewObjectContent getViewObjectContent(String objectCode) {
         return viewObjectContentRepository.findByObjectCode(objectCode)
                 .orElseThrow();
+    }
+
+    public List<ViewAction> getViewActions(String objectCode) {
+        return viewActionRepository.findByObjectCode(objectCode);
     }
 }

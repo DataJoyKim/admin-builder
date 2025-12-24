@@ -58,6 +58,9 @@ export class Grid extends ViewObject {
     optionPanelView(options) {
         let html = ``;
         html += `<div class="row">`;
+        html += super.optionInput('grid-id', 'ID', 'col-3', options.id);
+        html += `</div>`;
+        html += `<div class="row">`;
         html += super.optionInput('grid-width', '넓이', 'col-6', options.width);
         html += super.optionInput('grid-height', '높이', 'col-6', options.height);
         html += `</div>`;
@@ -119,6 +122,11 @@ export class Grid extends ViewObject {
     }
 
     optionPanelEvent($el, options, componentFactory) {
+        $("#grid-id").off("input").on("input", (e) => {
+            options.id = $(e.target).val();
+            super.setOptions($el, options);
+        });
+
         $(document).off("click", "#grid-create-column").on("click", "#grid-create-column",  () => {
             this.grid.insertItem("grid-columns", {
                 name: "Field",

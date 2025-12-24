@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController("console.ViewObjectContentRestController")
-@RequestMapping("/console/api/object/content")
+@RequestMapping("/console/api/object-content")
 public class ViewObjectContentRestController {
     @Autowired
     private ViewObjectContentRepository repository;
@@ -43,6 +43,26 @@ public class ViewObjectContentRestController {
         return new ResponseEntity<>(results, HttpStatus.OK);
     }
 
+    @PostMapping("/upsert")
+    public ResponseEntity<?> upsert(@RequestBody Map<String,Object> params) {
+        Optional<ViewObjectContent> optionalData = repository.findByObjectCode((String) params.get("objectCode"));
+        ViewObjectContent data;
+        if(optionalData.isPresent()) {
+            data = optionalData.get();
+            data.update(
+                    (String) params.get("content")
+            );
+        }
+        else {
+            data = ViewObjectContent.builder()
+                    .objectCode((String) params.get("objectCode"))
+                    .content((String) params.get("content"))
+                    .build();
+        }
+
+        return new ResponseEntity<>(repository.save(data), HttpStatus.OK);
+    }
+
     @PostMapping("")
     public ResponseEntity<?> create(@RequestBody Map<String,Object> params) {
 
@@ -60,7 +80,6 @@ public class ViewObjectContentRestController {
                 .orElseThrow(RuntimeException::new);
 
         savedData.update(
-                (String) params.get("objectCode"),
                 (String) params.get("content")
         );
 

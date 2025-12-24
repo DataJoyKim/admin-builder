@@ -7,7 +7,7 @@ export class Button extends ViewObject {
 
     template(data, children) {
         let el =  $(`
-            <div id="${data.id}" class="btn btn-default btn-sm">
+            <div id="${data.id}" class="btn btn-default btn-sm" onclick="${data.action}()">
                 <i class="${data.icon}"></i>
                 ${data.label}
             </div>
@@ -44,8 +44,10 @@ export class Button extends ViewObject {
 
     optionPanelView(options) {
         let html = ``;
+        html += super.optionInput('button-id', 'ID', 'col-3', options.id);
         html += super.optionInput('button-icon', '버튼 아이콘', 'col-12', options.icon);
         html += super.optionInput('button-text', '버튼 라벨', 'col-12', options.label);
+        html += super.optionInput('button-action', 'Action', 'col-12', options.action);
 
         return html;
     }
@@ -53,6 +55,11 @@ export class Button extends ViewObject {
     optionPanelScript($el, options) {}
 
     optionPanelEvent($el, options, componentFactory) {
+        $("#button-id").off("input").on("input", (e) => {
+            options.id = $(e.target).val();
+            super.setOptions($el, options);
+        });
+
         $("#button-text").off("input").on("input", (e) => {
             options.label = $(e.target).val();
             super.setOptions($el, options);
@@ -67,6 +74,11 @@ export class Button extends ViewObject {
 
             $el.find("i").addClass(options.icon);
         });
+
+        $("#button-action").off("input").on("input", (e) => {
+            options.action = $(e.target).val();
+            super.setOptions($el, options);
+        });
     }
 
     addComponent($el, componentFactory) {
@@ -75,7 +87,8 @@ export class Button extends ViewObject {
         let options = {
             id:'button' + super.getComponentIdNumber('button'),
             label:'Button',
-            icon:'fas fa-search'
+            icon:'fas fa-search',
+            action:''
         }
 
         $el.append(this.createComponent(options.id, options, componentFactory));

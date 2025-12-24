@@ -1,17 +1,39 @@
 import { ComponentFactory } from './ComponentFactory.js';
+import { ActionsFactory } from './ActionsFactory.js';
+import { GlobalVariable } from './GlobalVariable.js';
 
 export class Render {
     constructor() {
         this.initQueue = [];
     }
 
-    init(id, data) {
+    init(id, viewData, actionsData) {
         this.initQueue = [];
 
-        this.render(id, data);
+        this.registerGlobalVariable();
+
+        this.registerActions(actionsData);
+
+        this.render(id, viewData);
 
         for (let initQ of this.initQueue) {
             initQ();
+        }
+    }
+
+    registerGlobalVariable() {
+        GlobalVariable.init();
+    }
+
+    registerActions(data) {
+        if(!data) {
+            return;
+        }
+
+        for(const actionData of data) {
+            const action = ActionsFactory.instance(actionData.type);
+
+            action.register(actionData);
         }
     }
 

@@ -18,12 +18,15 @@ window.preview = function () {
     render.init('canvas', getViewData());
 };
 
-// 미리보기 랜더링
+// 컴포넌트 불러오기
 window.loadEditor = function (data) {
     const render = new RenderEditor();
-    console.log('data',data);
-
-    render.init('canvas', data);
+    if(data && data.length > 0) {
+        render.init('canvas', data);
+    }
+    else {
+        window.dropComponent.dropLayout('canvas');
+    }
 };
 
 // 옵션패널

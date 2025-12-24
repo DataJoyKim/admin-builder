@@ -20,8 +20,7 @@ public class ViewObjectContent {
     @Column
     private String content;
 
-    public void update(String objectCode, String content) {
-        this.objectCode = objectCode;
+    public void update(String content) {
         this.content = content;
     }
 }

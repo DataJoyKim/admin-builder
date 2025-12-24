@@ -1,0 +1,212 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<style th:fragment="style">
+</style>
+<script th:fragment="script">
+        let P_OBJECT_CODE;
+        $( document ).ready(function() {
+            console.log('version.0.0.1');
+            init();
+        });
+
+        function init() {
+            var codes = {
+                "ActionType":[
+                    {code:"WORKFLOW",name:"워크플로우"},
+                    {code:"SCRIPT",name:"Script"}
+                ]
+            };
+
+            setCodes(codes);
+
+            sheet.initSheet('jsGrid1', "100%","500px",
+            [
+                {name: "id", title:"ID", type: "number", width: 50, hidden:true, editing: false, inserting: false},
+                {name: "actionName", title:"Action", type: "text", width: 150 },
+                {name: "displayName", title:"명칭", type: "text", width: 200 }
+            ],
+            function(args) {
+                selectedContent(args.item);
+            });
+
+            App.modalPopup.getParam(function(data){
+                P_OBJECT_CODE = data.objectCode;
+                getList();
+            });
+        }
+
+        function setCodes(codes) {
+            App.util.setCodeBox("type", codes["ActionType"]);
+        }
+
+        function getList() {
+            httpClient.get(`/console/api/action`, {objectCode:P_OBJECT_CODE},
+                function(response){
+                    sheet.setSheetData('jsGrid1', response);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function selectedContent(item) {
+            httpClient.get(`/console/api/action/${item.id}`, {},
+                function(response){
+                    setContent(response);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function save() {
+            httpClient.post(`/console/api/action/upsert`,{},getContent(),
+                function(response){
+                    alert("저장완료되었습니다.");
+                    getList();
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function deleteContent() {
+          let id = $("#id").val();
+
+          httpClient.delete(`/console/api/action/${id}`, {},
+              function(response){
+                  alert("삭제 처리 완료되었습니다.");
+                  getList();
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+        function resolveEmpty(v) {
+            if(!v || v == '') return null;
+            else return v;
+        }
+
+        function getContent() {
+            return {
+                id: resolveEmpty($("#id").val()),
+                objectCode: resolveEmpty(P_OBJECT_CODE),
+                actionName: resolveEmpty($("#actionName").val()),
+                displayName: resolveEmpty($("#displayName").val()),
+                type: resolveEmpty($("#type").val()),
+                workflowCode: resolveEmpty($("#workflowCode").val()),
+                workflowRequestMessageId: resolveEmpty($("#workflowRequestMessageId").val()),
+                workflowResponseGridId: resolveEmpty($("#workflowResponseGridId").val()),
+                workflowResponseMessageId: resolveEmpty($("#workflowResponseMessageId").val())
+            }
+        }
+
+        function setContent(params) {
+            $("#id").val(params.id);
+            $("#objectCode").val(params.objectCode);
+            $("#actionName").val(params.actionName);
+            $("#displayName").val(params.displayName);
+            $("#type").val(params.type);
+            $("#workflowCode").val(params.workflowCode);
+            $("#workflowRequestMessageId").val(params.workflowRequestMessageId);
+            $("#workflowResponseGridId").val(params.workflowResponseGridId);
+            $("#workflowResponseMessageId").val(params.workflowResponseMessageId);
+          }
+
+          function newContent(){
+            setContent({
+                id:'',
+                objectCode:P_OBJECT_CODE,
+                actionName:'',
+                displayName:'',
+                type:'WORKFLOW',
+                workflowCode:'',
+                workflowRequestMessageId:'',
+                workflowResponseGridId:'',
+                workflowResponseMessageId:''
+              });
+          }
+
+          function openPopupWorkflow() {
+            App.popup.open('/console/workflow-builder',{title:'워크플로우 팝업'});
+          }
+    </script>
+<div th:fragment="view">
+    <div class="row">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Action</h3>
+                        <div class="card-tools">
+                            <mf-action-button id="search" actionName="getList()" icon="fas fa-search"></mf-action-button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="jsGrid1"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">상세 내용</h3>
+                        <div class="card-tools">
+                            <mf-action-button id="new" actionName="newContent()" icon="fas fa-plus"></mf-action-button>
+                            <mf-action-button id="save" actionName="save()" icon="fas fa-save"></mf-action-button>
+                            <mf-action-button id="delete" actionName="deleteContent()" icon="fas fa-trash"></mf-action-button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-1 d-none">
+                                <mf-text-input id="id" label="ID" enable="false" ></mf-text-input>
+                                <mf-text-input id="objectCode" label="오브젝트코드" enable="false" ></mf-text-input>
+                            </div>
+                            <div class="col-md-6">
+                                <mf-text-input id="actionName" label="Action 명" enable="true"></mf-text-input>
+                            </div>
+                            <div class="col-md-6">
+                                <mf-text-input id="displayName" label="화면노출명" enable="true" ></mf-text-input>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-5">
+                                <mf-select id="type" label="유형" enable="true" useFirstItem="true" firstItemLabel="" firstItemValue=""></mf-select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-header">
+                        <h3 class="card-title">Action</h3>
+                        <div class="card-tools">
+                            <mf-action-button id="openPopupWorkflow" actionName="openPopupWorkflow()" icon="fas fa-external-link-alt"></mf-action-button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <mf-text-input id="workflowCode" label="워크플로우코드" enable="true"></mf-text-input>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <mf-text-input id="workflowRequestMessageId" label="요청메시지ID" enable="true" ></mf-text-input>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <mf-text-input id="workflowResponseMessageId" label="응답메시지ID" enable="true" ></mf-text-input>
+                            </div>
+                            <div class="col-md-4">
+                                <mf-text-input id="workflowResponseGridId" label="데이터바인딩 grid" enable="true" ></mf-text-input>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</html>
