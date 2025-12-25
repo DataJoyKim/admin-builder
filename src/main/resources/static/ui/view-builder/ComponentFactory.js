@@ -51,4 +51,16 @@ export class ComponentFactory {
                 return null;
         }
     }
+
+    static getComponentIdMap() {
+        return {
+               "row":0,
+               "button":0,
+               "form":0,
+               "card":0,
+               "grid":0,
+               "input":0,
+               "card-body":0
+           }
+    }
 }

@@ -78,7 +78,7 @@
 <mf-view th:fragment="view">
     <div id="app-container" style="margin:0; display:flex; height:100vh; font-family:Arial, sans-serif;">
         <div id="left-panel">
-            <h3>컴포넌트</h3>
+            <h3>오브젝트 설정</h3>
             <div class="input-group col-12">
                 <input type="text" class="form-control rounded-0" id="objectCode" placeholder="오브젝트코드" spellcheck="false" autocomplete="off" data-watch="true" >
                 <span class="input-group-append">
@@ -88,10 +88,16 @@
                 </span>
             </div>
             <div class="form-group col-12">
-                <div class="btn btn-primary btn-sm form-control" onclick="load()">
-                    <i class="fas fa-download">불러오기</i>
-                </div>
+                <button type="button" class="btn btn-primary btn-sm form-control" onclick="load()">
+                    <i class="fas fa-download"></i>불러오기
+                </button>
             </div>
+            <div class="form-group col-12">
+                <button type="button" class="btn btn-default btn-sm form-control" onclick="openPopupMenu()">
+                    메뉴등록
+                </button>
+            </div>
+            <h3>컴포넌트</h3>
             <div id="component-panel" >
                 <div class="component-row">
                     <div class="component-item" data-type="component-card" >
@@ -144,20 +150,20 @@
         <div id="right-panel">
             <div class="form-group col-12">
                 <h3>옵션 패널</h3>
-                <div class="btn btn-default btn-sm" onclick="reload()">
-                    <i class="fas fa-redo-alt">화면 새로고침</i>
-                </div>
+                <button type="button" class="btn btn-default btn-sm" onclick="reload()">
+                    <i class="fas fa-redo-alt"></i>화면 새로고침
+                </button>
             </div>
             <div class="form-group col-12">
-                <div class="btn btn-default btn-sm" onclick="preview()">
-                    <i class="fas fa-eye">미리보기</i>
-                </div>
-                <div class="btn btn-default btn-sm" onclick="save()">
-                    <i class="fas fa-save">저장</i>
-                </div>
-                <div class="btn btn-default btn-sm" onclick="openPopupAction()">
-                    <i class="fas fa-layer-group">Action 등록</i>
-                </div>
+                <button type="button" class="btn btn-default btn-sm" onclick="preview()">
+                    <i class="fas fa-eye"></i>미리보기
+                </button>
+                <button type="button" class="btn btn-default btn-sm" onclick="save()">
+                    <i class="fas fa-save"></i>저장
+                </button>
+                <button type="button" class="btn btn-default btn-sm" onclick="openPopupAction()">
+                    <i class="fas fa-layer-group"></i>Action 등록
+                </button>
             </div>
             <div id="options">
                 컴포넌트를 선택하세요
@@ -168,6 +174,10 @@
     <script type="module" src="/ui/view-builder/app-editor.js"></script>
 </mf-view>
 <script th:fragment="script">
+    function openPopupMenu() {
+        App.modalPopup.open('/console/menu',{title:'메뉴 팝업'});
+    }
+
     function openPopupObject() {
         App.modalPopup.open('/console/view-object',{title:'오브젝트 팝업'});
     }

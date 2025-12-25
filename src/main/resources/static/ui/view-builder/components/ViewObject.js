@@ -101,10 +101,10 @@ export class ViewObject {
         return `
             <div class="form-group ${size}">
                <label for="${id}">${label}</label>
-               <div id="${id}" type="button" class="btn btn-default btn-sm form-control">
-               <i class="fas fa-plus"></i>
-               ${buttonLabel}
-               </div>
+               <button id="${id}" type="button" class="btn btn-default btn-sm form-control">
+                   <i class="fas fa-plus"></i>
+                   ${buttonLabel}
+               </button>
             </div>
         `;
     }

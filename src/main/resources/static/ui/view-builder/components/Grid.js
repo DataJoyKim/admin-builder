@@ -42,7 +42,7 @@ export class Grid extends ViewObject {
         return `
             .vb-item[data-type="grid"] {
                 background-color: #ffffff;
-                height: 300px;
+                height: 400px;
                 width: 100%;
                 display: flex;
                 justify-content: center;
@@ -156,7 +156,7 @@ export class Grid extends ViewObject {
         let options = {
             id:'grid' + super.getComponentIdNumber('grid'),
             width: "100%",
-            height: "800px",
+            height: "400px",
             columns:[]
         }
 

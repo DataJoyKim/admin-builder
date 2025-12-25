@@ -23,8 +23,9 @@ export class Workflow extends Actions {
 
         // 요청메시지 코드 생성
         code += `
+            let messageData = ${message}['${requestMessageId}'];
             let requestMessage = {
-                '${requestMessageId}': ${message}['${requestMessageId}']
+                '${requestMessageId}': ((messageData) ? messageData : [{}])
             };
         `;
 

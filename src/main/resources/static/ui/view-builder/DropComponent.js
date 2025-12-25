@@ -4,15 +4,7 @@ export class DropComponent {
     constructor() {
         this.componentFactory = ComponentFactory.instanceMap();
 
-        window.componentIdMap = {
-            "row":0,
-            "button":0,
-            "form":0,
-            "card":0,
-            "grid":0,
-            "input":0,
-            "card-body":0
-        }
+        window.componentIdMap = ComponentFactory.getComponentIdMap();
     }
 
     dropLayout(canvasId) {

@@ -7,10 +7,10 @@ export class Button extends ViewObject {
 
     template(data, children) {
         let el =  $(`
-            <div id="${data.id}" class="btn btn-default btn-sm" onclick="${data.action}()">
+            <button id="${data.id}" type="button" class="btn btn-default btn-sm" onclick="${data.action}()">
                 <i class="${data.icon}"></i>
                 ${data.label}
-            </div>
+            </button>
         `);
 
         return el;
@@ -20,11 +20,11 @@ export class Button extends ViewObject {
 
     componentTemplate(id, options) {
         let el = `
-            <div id="${id}" type="button" class="component vb-item vb-button btn btn-default btn-sm" data-type="button">
+            <button id="${id}" type="button" class="component vb-item vb-button btn btn-default btn-sm" data-type="button">
                 ${super.componentDeleteBtn()}
                 <i class="${options.icon}"></i>
                 <span class="vb-button-label">${options.label}</span>
-            </div>
+            </button>
         `;
 
         return $(el);
