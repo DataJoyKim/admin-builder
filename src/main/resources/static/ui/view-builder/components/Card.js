@@ -33,12 +33,12 @@ export class Card extends ViewObject {
 
     componentTemplate(id, options) {
         let el = `
-            <div id="${id}" class="component vb-item vb-card ${options.size}" data-type="card">
+            <div id="${id}" class="component ${options.size} vb-item" data-type="card">
                 ${super.componentDeleteBtn()}
                  <div class="card">
-                     <div class="vb-card-header card-header">
+                     <div class="card-header">
                           <h3 class="card-title">${options.title}</h3>
-                          <div class="vb-card-tools card-tools">
+                          <div class="card-tools">
                           </div>
                      </div>
                  </div>
@@ -63,6 +63,7 @@ export class Card extends ViewObject {
 
     optionPanelView(options) {
          let html = ``;
+        html += super.optionInput('card-id', 'ID', 'col-3', options.id);
         html += super.optionSelect('card-size', '크기', 'col-12', super.getSizeOption(options.size));
         html += super.optionInput('card-title-input', 'Card 제목', 'col-12', options.title);
         html += super.optionButton('card-body-add', 'Card 내용', 'col-12', '컨텐츠 영역 추가');
@@ -73,6 +74,11 @@ export class Card extends ViewObject {
     optionPanelScript($el, options) {}
 
     optionPanelEvent($el, options, componentFactory) {
+        $("#card-id").off("input").on("input", (e) => {
+            options.id = $(e.target).val();
+            super.setOptions($el, options);
+        });
+
         $("#card-size").off("change").on("change", (e) => {
             options.size = $(e.target).val();
             super.setOptions($el, options);
@@ -108,9 +114,9 @@ export class Card extends ViewObject {
     createComponent(id, options, componentFactory) {
         let $componentEl = this.component(id, options);
 
-        this.dropComponent($componentEl.find(".vb-card-tools"), componentFactory);
+        this.dropComponent($componentEl.find(".card-tools"), componentFactory);
 
-        super.sortable($componentEl, ".vb-card-body");
+        super.sortable($componentEl, ".card-body");
 
         super.setOptions($componentEl, options);
 
@@ -118,10 +124,10 @@ export class Card extends ViewObject {
     }
 
     dropComponent($el, componentFactory) {
-        let allowedTypes = ["component-button"];
+        let allowedTypes = ["button"];
 
         super.drop($el, allowedTypes, componentFactory);
 
-        super.sortable($el, ".vb-button");
+        super.sortable($el, super.getSortableType(allowedTypes));
     }
 }

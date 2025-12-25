@@ -121,32 +121,37 @@ export class ViewObject {
     addComponent($el, componentFactory) {}
     dropComponent($el, componentFactory) {}
 
+    addComponentByType(componentFactory, type, $el) {
+        componentFactory[type].addComponent($el, componentFactory);
+    }
+
     drop($el, allowedTypes, componentFactory) {
         let self = this;
 
         $el.droppable({
             greedy: true,
+            hoverClass: "drop-hover",
             drop: function (event, ui) {
                 const type = ui.draggable.data("type");
-                if (!allowedTypes.includes(type)) {
+                if(!type.includes('component-')) { // 좌측 패널의 컴포넌트만 Drop 허용
                     return;
                 }
 
                 const componentType = type.replace('component-','');
+                if (!allowedTypes.includes(componentType)) {
+                    return;
+                }
 
                 self.addComponentByType(componentFactory, componentType, $el);
             },
         });
     }
 
-    addComponentByType(componentFactory, type, $el) {
-        componentFactory[type].addComponent($el, componentFactory);
-    }
-
     sortable($el, items) {
         $el.sortable({
             items: items,
-            containment: "parent",
+            helper: "clone",
+            //containment: "parent",
             tolerance: "pointer",
             placeholder: "sortable-placeholder",
             start: function(event, ui){
@@ -166,5 +171,11 @@ export class ViewObject {
 
     getComponentIdNumber(id) {
         return window.componentIdMap[id];
+    }
+
+    getSortableType(allowedTypes) {
+        return allowedTypes
+                .map(type => `.vb-item[data-type="${type}"]`)
+                .join(",");
     }
 }

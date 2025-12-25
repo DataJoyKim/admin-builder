@@ -29,7 +29,7 @@ export class Grid extends ViewObject {
 
     componentTemplate(id, options) {
         let el = `
-            <div id="${id}" class="component vb-item vb-grid" data-type="grid">
+            <div id="${id}" class="component vb-item" data-type="grid">
                 ${super.componentDeleteBtn()}
                 Grid
             </div>

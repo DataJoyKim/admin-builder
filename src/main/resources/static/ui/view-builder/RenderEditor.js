@@ -17,7 +17,7 @@ export class RenderEditor {
 
     render(id, data) {
         const contentWrapper = $('<div>')
-            .addClass('content-wrapper')
+            .addClass('wrapper')
             .attr('id', id);
 
         const layout = ComponentFactory.instance('layout');

@@ -20,10 +20,10 @@ export class Input extends ViewObject {
 
     componentTemplate(id, options) {
         let el = `
-            <div id="${id}" class="component vb-item vb-input form-group ${options.size}" data-type="input">
+            <div id="${id}" class="component form-group ${options.size} vb-item vb-input" data-type="input">
                 ${super.componentDeleteBtn()}
-                <label class="vb-input-label" for="${id}-el">${options.label}</label>
-                <input type="text" class="vb-input-box form-control rounded-0" id="${id}-el" placeholder="" spellcheck="false" autocomplete="off" data-watch="true" >
+                <label for="${id}-el">${options.label}</label>
+                <input type="text" class="form-control rounded-0" id="${id}-el" placeholder="" spellcheck="false" autocomplete="off" data-watch="true" >
             </div>
         `;
 
@@ -44,6 +44,7 @@ export class Input extends ViewObject {
 
     optionPanelView(options) {
         let html = ``;
+        html += super.optionInput('input-id', 'ID', 'col-3', options.id);
         html += super.optionSelect('input-size', '크기', 'col-12', super.getSizeOption(options.size));
         html += super.optionInput('input-label', 'Input 라벨', 'col-12', options.label);
 
@@ -53,6 +54,11 @@ export class Input extends ViewObject {
     optionPanelScript($el, options) {}
 
     optionPanelEvent($el, options, componentFactory) {
+        $("#input-id").off("input").on("input", (e) => {
+            options.id = $(e.target).val();
+            super.setOptions($el, options);
+        });
+
         $("#input-size").off("change").on("change", (e) => {
             options.size = $(e.target).val();
             super.setOptions($el, options);
@@ -62,7 +68,7 @@ export class Input extends ViewObject {
         $("#input-label").off("input").on("input", (e) => {
             options.label = $(e.target).val();
             super.setOptions($el, options);
-            $el.find(".vb-input-label").text(options.label);
+            $el.find("label").text(options.label);
         });
     }
 

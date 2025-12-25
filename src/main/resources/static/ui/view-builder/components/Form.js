@@ -22,8 +22,9 @@ export class Form extends ViewObject {
 
     componentTemplate(id, options) {
         let el = `
-            <form id="${id}" class="component vb-item vb-form form" data-type="form">
+            <form id="${id}" class="component form vb-item" data-type="form">
                 ${super.componentDeleteBtn()}
+                <div style="text-align: center;width:100%;">Form</div>
             </form>
         `;
 
@@ -44,6 +45,7 @@ export class Form extends ViewObject {
 
     optionPanelView(options) {
         let html = ``;
+        html += super.optionInput('form-id', 'ID', 'col-3', options.id);
         html += super.optionButton('form-row-add', 'Form 내용', 'col-12', '행 추가');
         return html;
     }
@@ -51,6 +53,11 @@ export class Form extends ViewObject {
     optionPanelScript($el, options) {}
 
     optionPanelEvent($el, options, componentFactory) {
+        $("#form-id").off("input").on("input", (e) => {
+            options.id = $(e.target).val();
+            super.setOptions($el, options);
+        });
+
         $(document).off("click", "#form-row-add").on("click", "#form-row-add", (e) => {
             super.addComponentByType(componentFactory, 'row', $el);
         });
@@ -80,7 +87,7 @@ export class Form extends ViewObject {
     }
 
     dropComponent($el, componentFactory) {
-        let allowedTypes = ["component-row"];
+        let allowedTypes = ["row"];
 
         super.drop($el, allowedTypes, componentFactory);
     }

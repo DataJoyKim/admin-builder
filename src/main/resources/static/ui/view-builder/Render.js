@@ -39,7 +39,7 @@ export class Render {
 
     render(id, data) {
         const contentWrapper = $('<div>')
-            .addClass('content-wrapper')
+            .addClass('wrapper')
             .attr('id', id);
 
         contentWrapper.append(this.component(data));

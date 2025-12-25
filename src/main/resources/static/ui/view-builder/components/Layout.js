@@ -18,7 +18,7 @@ export class Layout extends ViewObject {
 
     componentTemplate(id, options) {
         let el = `
-           <div class="layout vb-item vb-layout content-wrapper" id="${id}" style="min-height: 993px;" data-type="layout">
+           <div class="layout wrapper vb-item" id="${id}" style="min-height: 993px;" data-type="layout">
            </div>
         `;
 
@@ -54,11 +54,11 @@ export class Layout extends ViewObject {
     }
 
     dropComponent($el, componentFactory) {
-        let allowedTypes = ["component-row"];
+        let allowedTypes = ["row"];
 
         super.drop($el, allowedTypes, componentFactory);
 
-        super.sortable($el, ".vb-row");
+        super.sortable($el, super.getSortableType(allowedTypes));
 
         super.addComponentByType(componentFactory, "row", $el);
     }

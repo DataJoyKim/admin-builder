@@ -20,11 +20,11 @@ export class Button extends ViewObject {
 
     componentTemplate(id, options) {
         let el = `
-            <button id="${id}" type="button" class="component vb-item vb-button btn btn-default btn-sm" data-type="button">
+            <div id="${id}" class="component vb-item btn btn-default btn-sm" data-type="button">
                 ${super.componentDeleteBtn()}
                 <i class="${options.icon}"></i>
-                <span class="vb-button-label">${options.label}</span>
-            </button>
+                <span class="button-label">${options.label}</span>
+            </div>
         `;
 
         return $(el);
@@ -63,7 +63,7 @@ export class Button extends ViewObject {
         $("#button-text").off("input").on("input", (e) => {
             options.label = $(e.target).val();
             super.setOptions($el, options);
-            $el.find(".vb-button-label").text(options.label);
+            $el.find(".button-label").text(options.label);
         });
 
         $("#button-icon").off("input").on("input", (e) => {

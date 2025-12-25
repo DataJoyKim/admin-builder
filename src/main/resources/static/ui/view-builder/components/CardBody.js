@@ -22,7 +22,7 @@ export class CardBody extends ViewObject {
 
     componentTemplate(id, options) {
         let el = `
-             <div id="${id}" class="component vb-item vb-card-body card-body" data-type="card-body">
+             <div id="${id}" class="component card-body vb-item" data-type="card-body">
                 ${super.componentDeleteBtn()}
              </div>
         `;
@@ -71,10 +71,10 @@ export class CardBody extends ViewObject {
     }
 
     dropComponent($el, componentFactory) {
-        let allowedTypes = ["component-form","component-grid"];
+        let allowedTypes = ["form","grid","input","button"];
 
         super.drop($el, allowedTypes, componentFactory);
 
-        super.sortable($el, ".vb-form, .vb-grid");
+        super.sortable($el, super.getSortableType(allowedTypes));
     }
 }
