@@ -61,37 +61,31 @@ export class Card extends ViewObject {
         `;
     }
 
-    optionPanelView(options) {
-         let html = ``;
-        html += super.optionInput('card-id', 'ID', 'col-3', options.id);
-        html += super.optionSelect('card-size', '크기', 'col-12', super.getSizeOption(options.size));
-        html += super.optionInput('card-title-input', 'Card 제목', 'col-12', options.title);
-        html += super.optionButton('card-body-add', 'Card 내용', 'col-12', '컨텐츠 영역 추가');
-
-        return html;
+    optionPanelView($panel, options) {
+        $panel.append(super.opComponent.input('card-id',{label:'ID', size:'col-3', value:options.id}));
+        $panel.append(super.opComponent.select('card-size',{label:'크기', size:'col-12', options:super.opComponent.optionSize(options.size)}));
+        $panel.append(super.opComponent.input('card-title-input',{label:'Card 제목', size:'col-12', value:options.title}));
+        $panel.append(super.opComponent.button('card-body-add',{label:'Card 내용', size:'col-12', btnLabel:'컨텐츠 영역 추가',icon:'fas fa-plus'}));
     }
 
     optionPanelScript($el, options) {}
 
     optionPanelEvent($el, options, componentFactory) {
-        $("#card-id").off("input").on("input", (e) => {
-            options.id = $(e.target).val();
-            super.setOptions($el, options);
+        super.opComponent.inputEvent('card-id',(e) => {
+            super.opComponent.changeOptionValue($el, options, 'id', $(e.target).val());
         });
 
-        $("#card-size").off("change").on("change", (e) => {
-            options.size = $(e.target).val();
-            super.setOptions($el, options);
-            super.changeSize($el, options.size);
+        super.opComponent.changeEvent('card-size',(e) => {
+            super.opComponent.changeOptionValue($el, options, 'size', $(e.target).val());
+            super.opComponent.changeSize($el, options.size);
         });
 
-        $("#card-title-input").off("input").on("input", (e) => {
-            options.title = $(e.target).val();
-            super.setOptions($el, options);
+        super.opComponent.inputEvent('card-title-input',(e) => {
+            super.opComponent.changeOptionValue($el, options, 'title', $(e.target).val());
             $el.find(".card-title").text(options.title);
         });
 
-        $(document).off("click", "#card-body-add").on("click", "#card-body-add", (e) => {
+        super.opComponent.clickEvent('card-body-add',(e) => {
             super.addComponentByType(componentFactory, 'card-body', $el.find(".card"));
         });
     }
@@ -118,7 +112,7 @@ export class Card extends ViewObject {
 
         super.sortable($componentEl, ".card-body");
 
-        super.setOptions($componentEl, options);
+        super.opComponent.setOptions($componentEl, options);
 
         return $componentEl;
     }

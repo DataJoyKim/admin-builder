@@ -42,42 +42,35 @@ export class Button extends ViewObject {
         `;
     }
 
-    optionPanelView(options) {
-        let html = ``;
-        html += super.optionInput('button-id', 'ID', 'col-3', options.id);
-        html += super.optionInput('button-icon', '버튼 아이콘', 'col-12', options.icon);
-        html += super.optionInput('button-text', '버튼 라벨', 'col-12', options.label);
-        html += super.optionInput('button-action', 'Action', 'col-12', options.action);
-
-        return html;
+    optionPanelView($panel, options) {
+        $panel.append(super.opComponent.input('button-id',{label:'ID', size:'col-3', value:options.id}));
+        $panel.append(super.opComponent.input('button-icon',{label:'아이콘', size:'col-12', value:options.icon}));
+        $panel.append(super.opComponent.input('button-text',{label:'라벨', size:'col-12', value:options.label}));
+        $panel.append(super.opComponent.input('button-action',{label:'Action', size:'col-12', value:options.action}));
     }
 
     optionPanelScript($el, options) {}
 
     optionPanelEvent($el, options, componentFactory) {
-        $("#button-id").off("input").on("input", (e) => {
-            options.id = $(e.target).val();
-            super.setOptions($el, options);
+        super.opComponent.inputEvent('button-id',(e) => {
+            super.opComponent.changeOptionValue($el, options, 'id', $(e.target).val());
         });
 
-        $("#button-text").off("input").on("input", (e) => {
-            options.label = $(e.target).val();
-            super.setOptions($el, options);
+        super.opComponent.inputEvent('button-text',(e) => {
+            super.opComponent.changeOptionValue($el, options, 'label', $(e.target).val());
             $el.find(".button-label").text(options.label);
         });
 
-        $("#button-icon").off("input").on("input", (e) => {
+        super.opComponent.inputEvent('button-icon',(e) => {
             $el.find("i").removeClass(options.icon);
 
-            options.icon = $(e.target).val();
-            super.setOptions($el, options);
+            super.opComponent.changeOptionValue($el, options, 'icon', $(e.target).val());
 
             $el.find("i").addClass(options.icon);
         });
 
-        $("#button-action").off("input").on("input", (e) => {
-            options.action = $(e.target).val();
-            super.setOptions($el, options);
+        super.opComponent.inputEvent('button-action',(e) => {
+            super.opComponent.changeOptionValue($el, options, 'action', $(e.target).val());
         });
     }
 
@@ -97,7 +90,7 @@ export class Button extends ViewObject {
     createComponent(id, options, componentFactory) {
         let $componentEl = this.component(id, options);
 
-        super.setOptions($componentEl, options);
+        super.opComponent.setOptions($componentEl, options);
 
         return $componentEl;
     }

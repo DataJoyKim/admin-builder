@@ -42,8 +42,8 @@ export class Row extends ViewObject {
         `;
     }
 
-    optionPanelView(options) {
-        return ``;
+    optionPanelView($panel, options) {
+        $panel.append('');
     }
 
     optionPanelScript($el, options) {}
@@ -65,7 +65,7 @@ export class Row extends ViewObject {
 
         this.dropComponent($componentEl, componentFactory);
 
-        super.setOptions($componentEl, options);
+        super.opComponent.setOptions($componentEl, options);
 
         return $componentEl;
     }

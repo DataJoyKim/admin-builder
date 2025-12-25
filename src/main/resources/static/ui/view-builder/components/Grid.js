@@ -55,24 +55,23 @@ export class Grid extends ViewObject {
         `;
     }
 
-    optionPanelView(options) {
-        let html = ``;
-        html += `<div class="row">`;
-        html += super.optionInput('grid-id', 'ID', 'col-3', options.id);
-        html += `</div>`;
-        html += `<div class="row">`;
-        html += super.optionInput('grid-width', '넓이', 'col-6', options.width);
-        html += super.optionInput('grid-height', '높이', 'col-6', options.height);
-        html += `</div>`;
-        html += `
+    optionPanelView($panel, options) {
+        let $row1 = super.opComponent.row();
+        $row1.append(super.opComponent.input('grid-id',{label:'ID', size:'col-3', value:options.id}));
+        $panel.append($row1);
+
+        let $row2 = super.opComponent.row();
+        $row2.append(super.opComponent.input('grid-width',{label:'넓이', size:'col-6', value:options.width}));
+        $row2.append(super.opComponent.input('grid-height',{label:'높이', size:'col-6', value:options.height}));
+        $panel.append($row2);
+
+        $panel.append($(`
             <div class="form-group col-12">
                <label for="grid-columns">컬럼 설정</label>
                <div style="display: flex;justify-content: flex-end;"><a id="grid-create-column" style="cursor: pointer;">+create column</a></div>
                <div id="grid-columns"></div>
             </div>
-        `;
-
-        return html;
+        `));
     }
 
     optionPanelScript($el, options) {
@@ -99,21 +98,21 @@ export class Grid extends ViewObject {
                     this.grid.enableRowDrag('grid-columns', {
                         updateEvent: () => {
                             options.columns = this.grid.getData('grid-columns');
-                            super.setOptions($el, options);
+                            super.opComponent.setOptions($el, options);
                         }
                     });
                 },
                 onItemUpdated:(args) => {
                     options.columns = this.grid.getData('grid-columns');
-                    super.setOptions($el, options);
+                    super.opComponent.setOptions($el, options);
                 },
                 onItemInserting:(args) => {
                     options.columns = this.grid.getData('grid-columns');
-                    super.setOptions($el, options);
+                    super.opComponent.setOptions($el, options);
                 },
                 onItemDeleting:(args) => {
                     options.columns = this.grid.getData('grid-columns');
-                    super.setOptions($el, options);
+                    super.opComponent.setOptions($el, options);
                 }
             }
         );
@@ -122,12 +121,19 @@ export class Grid extends ViewObject {
     }
 
     optionPanelEvent($el, options, componentFactory) {
-        $("#grid-id").off("input").on("input", (e) => {
-            options.id = $(e.target).val();
-            super.setOptions($el, options);
+        super.opComponent.inputEvent('grid-id',(e) => {
+            super.opComponent.changeOptionValue($el, options, 'id', $(e.target).val());
         });
 
-        $(document).off("click", "#grid-create-column").on("click", "#grid-create-column",  () => {
+        super.opComponent.inputEvent('grid-width',(e) => {
+            super.opComponent.changeOptionValue($el, options, 'width', $(e.target).val());
+        });
+
+        super.opComponent.inputEvent('grid-height',(e) => {
+            super.opComponent.changeOptionValue($el, options, 'height', $(e.target).val());
+        });
+
+        super.opComponent.clickEvent('grid-create-column',(e) => {
             this.grid.insertItem("grid-columns", {
                 name: "Field",
                 title: "Label",
@@ -136,17 +142,7 @@ export class Grid extends ViewObject {
             });
 
             options.columns = this.grid.getData('grid-columns');
-            super.setOptions($el, options);
-        });
-
-        $("#grid-width").off("input").on("input",  (e) => {
-            options.width = $(e.target).val();
-            super.setOptions($el, options);
-        });
-
-        $("#grid-height").off("input").on("input",  (e) => {
-            options.height =  $(e.target).val();
-            super.setOptions($el, options);
+            super.opComponent.setOptions($el, options);
         });
     }
 
@@ -166,7 +162,7 @@ export class Grid extends ViewObject {
 
     createComponent(id, options, componentFactory) {
         let $componentEl = this.component(id, options);
-        super.setOptions($componentEl, options);
+        super.opComponent.setOptions($componentEl, options);
 
         return $componentEl;
     }

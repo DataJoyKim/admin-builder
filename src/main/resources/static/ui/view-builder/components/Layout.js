@@ -33,17 +33,15 @@ export class Layout extends ViewObject {
         `;
     }
 
-    optionPanelView(options) {
-        let html = ``;
-        html += super.optionButton('layout-row-add', 'Layout 내용', 'col-12', '행 추가');
-        return html;
+    optionPanelView($panel, options) {
+        $panel.append(super.opComponent.button('layout-row-add',{label:'Layout 내용', size:'col-12', btnLabel:'행 추가',icon:'fas fa-plus'}));
     }
 
     optionPanelScript($el, options) {}
 
     optionPanelEvent($el, options, componentFactory) {
-        $(document).off("click", "#layout-row-add").on("click", "#layout-row-add", (e) => {
-            super.addComponentByType(componentFactory, 'row', $el);
+        super.opComponent.clickEvent('layout-row-add',(e) => {
+          super.addComponentByType(componentFactory, 'row', $el);
         });
     }
 

@@ -42,8 +42,8 @@ export class CardBody extends ViewObject {
         `;
     }
 
-    optionPanelView(options) {
-        return ``;
+    optionPanelView($panel, options) {
+        $panel.append('');
     }
 
     optionPanelScript($el, options) {}
@@ -65,7 +65,7 @@ export class CardBody extends ViewObject {
         let $componentEl = this.component(id, options);
         this.dropComponent($componentEl, componentFactory);
 
-        super.setOptions($componentEl, options);
+        super.opComponent.setOptions($componentEl, options);
 
         return $componentEl;
     }

@@ -42,32 +42,25 @@ export class Input extends ViewObject {
         `;
     }
 
-    optionPanelView(options) {
-        let html = ``;
-        html += super.optionInput('input-id', 'ID', 'col-3', options.id);
-        html += super.optionSelect('input-size', '크기', 'col-12', super.getSizeOption(options.size));
-        html += super.optionInput('input-label', 'Input 라벨', 'col-12', options.label);
-
-        return html;
+    optionPanelView($panel, options) {
+        $panel.append(super.opComponent.input('input-id',{label:'ID', size:'col-3', value:options.id}));
+        $panel.append(super.opComponent.select('input-size',{label:'크기', size:'col-12', options:super.opComponent.optionSize(options.size)}));
+        $panel.append(super.opComponent.input('input-label',{label:'라벨', size:'col-12', value:options.label}));
     }
 
     optionPanelScript($el, options) {}
 
     optionPanelEvent($el, options, componentFactory) {
-        $("#input-id").off("input").on("input", (e) => {
-            options.id = $(e.target).val();
-            super.setOptions($el, options);
+        super.opComponent.inputEvent('input-id',(e) => {
+            super.opComponent.changeOptionValue($el, options, 'id', $(e.target).val());
+        });
+        super.opComponent.changeEvent('input-size',(e) => {
+            super.opComponent.changeOptionValue($el, options, 'size', $(e.target).val());
+            super.opComponent.changeSize($el, options.size);
         });
 
-        $("#input-size").off("change").on("change", (e) => {
-            options.size = $(e.target).val();
-            super.setOptions($el, options);
-            super.changeSize($el, options.size);
-        });
-
-        $("#input-label").off("input").on("input", (e) => {
-            options.label = $(e.target).val();
-            super.setOptions($el, options);
+        super.opComponent.inputEvent('input-label',(e) => {
+            super.opComponent.changeOptionValue($el, options, 'label', $(e.target).val());
             $el.find("label").text(options.label);
         });
     }
@@ -87,7 +80,7 @@ export class Input extends ViewObject {
     createComponent(id, options, componentFactory) {
         let $componentEl = this.component(id, options);
 
-        super.setOptions($componentEl, options);
+        super.opComponent.setOptions($componentEl, options);
 
         return $componentEl;
     }

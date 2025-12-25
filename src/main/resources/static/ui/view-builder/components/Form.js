@@ -43,22 +43,19 @@ export class Form extends ViewObject {
         `;
     }
 
-    optionPanelView(options) {
-        let html = ``;
-        html += super.optionInput('form-id', 'ID', 'col-3', options.id);
-        html += super.optionButton('form-row-add', 'Form 내용', 'col-12', '행 추가');
-        return html;
+    optionPanelView($panel, options) {
+        $panel.append(super.opComponent.input('form-id',{label:'ID', size:'col-3', value:options.id}));
+        $panel.append(super.opComponent.button('form-row-add',{label:'Form 내용', size:'col-12', btnLabel:'행 추가',icon:'fas fa-plus'}));
     }
 
     optionPanelScript($el, options) {}
 
     optionPanelEvent($el, options, componentFactory) {
-        $("#form-id").off("input").on("input", (e) => {
-            options.id = $(e.target).val();
-            super.setOptions($el, options);
+        super.opComponent.inputEvent('form-id',(e) => {
+            super.opComponent.changeOptionValue($el, options, 'id', $(e.target).val());
         });
 
-        $(document).off("click", "#form-row-add").on("click", "#form-row-add", (e) => {
+        super.opComponent.clickEvent('form-row-add',(e) => {
             super.addComponentByType(componentFactory, 'row', $el);
         });
     }
@@ -81,7 +78,7 @@ export class Form extends ViewObject {
 
         this.dropComponent($componentEl, componentFactory);
 
-        super.setOptions($componentEl, options);
+        super.opComponent.setOptions($componentEl, options);
 
         return $componentEl;
     }
