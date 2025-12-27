@@ -177,6 +177,14 @@
     <script type="module" src="/ui/view-builder/app-editor.js"></script>
 </mf-view>
 <script th:fragment="script">
+    $( document ).ready(function() {
+        App.modalPopup.receiveParam(function(data){
+            if(data.objectCode) {
+                $("#objectCode").val(data.objectCode);
+            }
+        });
+    });
+
     function openPopupMenu() {
         App.modalPopup.open('/console/menu',{title:'메뉴 팝업'});
     }

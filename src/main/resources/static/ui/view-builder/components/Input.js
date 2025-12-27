@@ -54,6 +54,7 @@ export class Input extends ViewObject {
         super.opComponent.inputEvent('input-id',(e) => {
             super.opComponent.changeOptionValue($el, options, 'id', $(e.target).val());
         });
+
         super.opComponent.changeEvent('input-size',(e) => {
             super.opComponent.changeOptionValue($el, options, 'size', $(e.target).val());
             super.opComponent.changeSize($el, options.size);

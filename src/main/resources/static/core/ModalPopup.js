@@ -1,5 +1,7 @@
 class ModalPopup {
-    constructor() {}
+    constructor() {
+        this.POPUP_ID = 'popup';
+    }
 
     open(url, options = {}, params) {
       const settings = {
@@ -8,7 +10,7 @@ class ModalPopup {
         height: options.height || '80vh'
       };
 
-      let $popup = $('#popup');
+      let $popup = $('#'+this.POPUP_ID);
 
       if ($popup.length === 0) {
 
@@ -68,7 +70,13 @@ class ModalPopup {
       $('#popup-title').text(settings.title);
       $('#popup-frame')
          .on('load', function () {
-            this.contentWindow.postMessage(params,'*');
+            this.contentWindow.postMessage(
+                {
+                  type: 'POPUP_REQUEST',
+                  payload: params
+                },
+                '*'
+            );
          })
         .css('height', settings.height)
         .attr('src', url);
@@ -76,10 +84,34 @@ class ModalPopup {
       $popup.modal('show');
     }
 
-    getParam(_callback) {
-        window.addEventListener('message', (event) => {
-            _callback(event.data);
+    sendParamToParent(params) {
+        window.parent.postMessage(
+            {
+              type: 'POPUP_RESULT',
+              payload: params
+            },
+            '*'
+        );
+    }
+
+    receiveParam(_callback) {
+        window.addEventListener('message', function (event) {
+          // 보안 필요하면 origin 체크
+          // if (event.origin !== location.origin) return;
+
+          const { type, payload } = event.data || {};
+
+          if (type === 'POPUP_RESULT') {
+            _callback(payload);
+          }
+          else if (type === 'POPUP_REQUEST') {
+            _callback(payload);
+          }
         }, { once: true });
+    }
+
+    close() {
+        window.parent.$('#'+this.POPUP_ID).modal('hide');
     }
 }
 

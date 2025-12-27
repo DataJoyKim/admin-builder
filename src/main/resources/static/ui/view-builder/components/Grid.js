@@ -126,11 +126,15 @@ export class Grid extends ViewObject {
         });
 
         super.opComponent.inputEvent('grid-width',(e) => {
-            super.opComponent.changeOptionValue($el, options, 'width', $(e.target).val());
+            let value = $(e.target).val();
+            super.opComponent.changeOptionValue($el, options, 'width', value);
+            $el.css('width', value);
         });
 
         super.opComponent.inputEvent('grid-height',(e) => {
-            super.opComponent.changeOptionValue($el, options, 'height', $(e.target).val());
+            let value = $(e.target).val();
+            super.opComponent.changeOptionValue($el, options, 'height', value);
+            $el.css('height', value);
         });
 
         super.opComponent.clickEvent('grid-create-column',(e) => {
@@ -141,8 +145,7 @@ export class Grid extends ViewObject {
                 type: "text"
             });
 
-            options.columns = this.grid.getData('grid-columns');
-            super.opComponent.setOptions($el, options);
+            super.opComponent.changeOptionValue($el, options, 'columns', this.grid.getData('grid-columns'));
         });
     }
 

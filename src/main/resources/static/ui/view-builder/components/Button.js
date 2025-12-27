@@ -74,7 +74,7 @@ export class Button extends ViewObject {
         });
     }
 
-    addComponent($el, componentFactory) {
+    addComponent($el, componentFactory) {lo
         super.plusComponentIdNumber('button');
 
         let options = {

@@ -28,7 +28,7 @@
                 selectedContent(args.item);
             });
 
-            App.modalPopup.getParam(function(data){
+            App.modalPopup.receiveParam(function(data){
                 P_OBJECT_CODE = data.objectCode;
                 alert(P_OBJECT_CODE);
                 getList();

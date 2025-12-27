@@ -2,6 +2,10 @@ import { OptionPanel } from '../OptionPanel.js';
 
 export class ViewObject {
 
+    get opComponent() {
+        return OptionPanel;
+    }
+
     render(initQueue, data, children) {
         let el = this.template(data, children);
 
@@ -55,10 +59,6 @@ export class ViewObject {
     optionPanelView($panel, options) {}
     optionPanelScript($el, options) {}
     optionPanelEvent($el, options, componentFactory) {}
-
-    get opComponent() {
-        return OptionPanel;
-    }
 
     componentDeleteBtn() {
         return `<button class="component-delete-btn">×</button>`;

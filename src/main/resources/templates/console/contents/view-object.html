@@ -158,6 +158,14 @@
                 useAuthValidation:'true'
               });
           }
+
+          function apply() {
+            let params = {
+                objectCode: $("#objectCode").val()
+            };
+            App.modalPopup.sendParamToParent(params);
+            App.modalPopup.close();
+          }
     </script>
 <div th:fragment="view">
     <div class="row">
@@ -166,7 +174,7 @@
                     <div class="card-header">
                         <h3 class="card-title">Object</h3>
                         <div class="card-tools">
-                            <mf-action-button id="apply" actionName="apply()" icon="fas fa-plus"></mf-action-button>
+                            <mf-action-button id="apply" actionName="apply()" icon="" label="선택"></mf-action-button>
                             <mf-action-button id="search" actionName="getList()" icon="fas fa-search"></mf-action-button>
                         </div>
                     </div>
