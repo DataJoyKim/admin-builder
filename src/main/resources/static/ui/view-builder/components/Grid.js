@@ -6,14 +6,17 @@ export class Grid extends ViewObject {
         this.grid = grid;
     }
 
-    template(data, children) {
+/* =======================================
+ * Runtime Component Setting
+ * ======================================= */
+    renderRuntime(data, children) {
         return $(`
             <div id="${data.id}">
             </div>
         `);
     }
 
-    script(el, initQueue, data) {
+    scriptRuntime(el, initQueue, data) {
         initQueue.push(() => {
             let columns = data.columns;
             columns.push({ type: "control", editButton: true, width: 30, modeSwitchButton: false });
@@ -27,7 +30,10 @@ export class Grid extends ViewObject {
         });
     }
 
-    componentTemplate(id, options) {
+/* =======================================
+ * Builder Component Setting
+ * ======================================= */
+    renderBuilder(id, options) {
         let el = `
             <div id="${id}" class="component vb-item" data-type="grid">
                 ${super.componentDeleteBtn()}
@@ -38,7 +44,7 @@ export class Grid extends ViewObject {
         return $(el);
     }
 
-    componentStyle() {
+    styleBuilder() {
         return `
             .vb-item[data-type="grid"] {
                 background-color: #ffffff;
@@ -55,14 +61,41 @@ export class Grid extends ViewObject {
         `;
     }
 
+    addComponent($el, componentFactory) {
+        super.plusComponentIdNumber('grid');
+
+        let options = {
+            id:'grid' + super.getComponentIdNumber('grid'),
+            width: "100%",
+            height: "400px",
+            columns:[]
+        }
+
+
+        $el.append(this.createComponent(options.id, options, componentFactory));
+    }
+
+    createComponent(id, options, componentFactory) {
+        let $componentEl = this.component(id, options);
+        super.opComponent.setOptions($componentEl, options);
+
+        return $componentEl;
+    }
+
+    dropComponent($el, componentFactory) {
+    }
+
+/* =======================================
+ * Option Panel Setting
+ * ======================================= */
     optionPanelView($panel, options) {
         let $row1 = super.opComponent.row();
-        $row1.append(super.opComponent.input('grid-id',{label:'ID', size:'col-3', value:options.id}));
+        $row1.append(super.opComponent.input('grid-id',{label:'ID', size:'col-3'}));
         $panel.append($row1);
 
         let $row2 = super.opComponent.row();
-        $row2.append(super.opComponent.input('grid-width',{label:'넓이', size:'col-6', value:options.width}));
-        $row2.append(super.opComponent.input('grid-height',{label:'높이', size:'col-6', value:options.height}));
+        $row2.append(super.opComponent.input('grid-width',{label:'넓이', size:'col-6'}));
+        $row2.append(super.opComponent.input('grid-height',{label:'높이', size:'col-6'}));
         $panel.append($row2);
 
         $panel.append($(`
@@ -75,7 +108,9 @@ export class Grid extends ViewObject {
     }
 
     optionPanelScript($el, options) {
-        let isInit = true;
+        $('#grid-id').val(options.id);
+        $('#grid-width').val(options.width);
+        $('#grid-height').val(options.height);
 
         this.grid.init('grid-columns', "100%","600px",
             [
@@ -147,29 +182,5 @@ export class Grid extends ViewObject {
 
             super.opComponent.changeOptionValue($el, options, 'columns', this.grid.getData('grid-columns'));
         });
-    }
-
-    addComponent($el, componentFactory) {
-        super.plusComponentIdNumber('grid');
-
-        let options = {
-            id:'grid' + super.getComponentIdNumber('grid'),
-            width: "100%",
-            height: "400px",
-            columns:[]
-        }
-
-
-        $el.append(this.createComponent(options.id, options, componentFactory));
-    }
-
-    createComponent(id, options, componentFactory) {
-        let $componentEl = this.component(id, options);
-        super.opComponent.setOptions($componentEl, options);
-
-        return $componentEl;
-    }
-
-    dropComponent($el, componentFactory) {
     }
 }

@@ -5,7 +5,10 @@ export class Button extends ViewObject {
         super();
     }
 
-    template(data, children) {
+/* =======================================
+ * Runtime Component Setting
+ * ======================================= */
+    renderRuntime(data, children) {
         let el =  $(`
             <button id="${data.id}" type="button" class="btn btn-default btn-sm" onclick="${data.action}()">
                 <i class="${data.icon}"></i>
@@ -16,9 +19,12 @@ export class Button extends ViewObject {
         return el;
     }
 
-    script(el, initQueue, data) {}
+    scriptRuntime(el, initQueue, data) {}
 
-    componentTemplate(id, options) {
+/* =======================================
+ * Builder Component Setting
+ * ======================================= */
+    renderBuilder(id, options) {
         let el = `
             <div id="${id}" class="component vb-item btn btn-default btn-sm" data-type="button">
                 ${super.componentDeleteBtn()}
@@ -30,7 +36,7 @@ export class Button extends ViewObject {
         return $(el);
     }
 
-    componentStyle() {
+    styleBuilder() {
         return `
             .vb-item[data-type="row"] {
                 padding: 5px;
@@ -42,14 +48,47 @@ export class Button extends ViewObject {
         `;
     }
 
-    optionPanelView($panel, options) {
-        $panel.append(super.opComponent.input('button-id',{label:'ID', size:'col-3', value:options.id}));
-        $panel.append(super.opComponent.input('button-icon',{label:'아이콘', size:'col-12', value:options.icon}));
-        $panel.append(super.opComponent.input('button-text',{label:'라벨', size:'col-12', value:options.label}));
-        $panel.append(super.opComponent.input('button-action',{label:'Action', size:'col-12', value:options.action}));
+    addComponent($el, componentFactory) {
+        super.plusComponentIdNumber('button');
+
+        let options = {
+            id:'button' + super.getComponentIdNumber('button'),
+            label:'Button',
+            icon:'fas fa-search',
+            action:''
+        }
+
+        $el.append(this.createComponent(options.id, options, componentFactory));
     }
 
-    optionPanelScript($el, options) {}
+    createComponent(id, options, componentFactory) {
+        let $componentEl = this.component(id, options);
+
+        super.opComponent.setOptions($componentEl, options);
+
+        return $componentEl;
+    }
+
+    dropComponent($el, componentFactory) {
+    }
+
+/* =======================================
+ * Option Panel Setting
+ * ======================================= */
+    optionPanelView($panel, options) {
+        $panel.append(super.opComponent.input('button-id',{label:'ID', size:'col-3'}));
+        $panel.append(super.opComponent.input('button-icon',{label:'아이콘', size:'col-12'}));
+        $panel.append(super.opComponent.input('button-text',{label:'라벨', size:'col-12'}));
+        $panel.append(super.opComponent.input('button-action',{label:'Action', size:'col-8'}));
+        $panel.append(super.opComponent.button('button-action-popup',{size:'col-4', icon:'fas fa-search', btnLabel:'Action 검색'}));
+    }
+
+    optionPanelScript($el, options) {
+        $('#button-id').val(options.id);
+        $('#button-icon').val(options.icon);
+        $('#button-text').val(options.label);
+        $('#button-action').val(options.action);
+    }
 
     optionPanelEvent($el, options, componentFactory) {
         super.opComponent.inputEvent('button-id',(e) => {
@@ -72,29 +111,20 @@ export class Button extends ViewObject {
         super.opComponent.inputEvent('button-action',(e) => {
             super.opComponent.changeOptionValue($el, options, 'action', $(e.target).val());
         });
-    }
 
-    addComponent($el, componentFactory) {lo
-        super.plusComponentIdNumber('button');
+        super.opComponent.clickEvent('button-action-popup',(e) => {
+            let objectCode = $("#objectCode").val();
+            if(!objectCode) {
+                alert('오브젝트를 입력해주세요');
+                return;
+            }
 
-        let options = {
-            id:'button' + super.getComponentIdNumber('button'),
-            label:'Button',
-            icon:'fas fa-search',
-            action:''
-        }
-
-        $el.append(this.createComponent(options.id, options, componentFactory));
-    }
-
-    createComponent(id, options, componentFactory) {
-        let $componentEl = this.component(id, options);
-
-        super.opComponent.setOptions($componentEl, options);
-
-        return $componentEl;
-    }
-
-    dropComponent($el, componentFactory) {
+            App.modalPopup.open('/console/action',{title:'Action 팝업',messageId:'ACTION_REQUEST'},{objectCode:objectCode});
+            App.modalPopup.receiveParam('ACTION_RESULT', function(data){
+                if(data.actionName) {
+                    $("#button-action").val(data.actionName);
+                }
+            });
+        });
     }
 }

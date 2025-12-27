@@ -1,64 +1,47 @@
 import { OptionPanel } from '../OptionPanel.js';
 
 export class ViewObject {
-
-    get opComponent() {
-        return OptionPanel;
-    }
-
+/* =======================================
+ * Runtime Component Setting
+ * ======================================= */
     render(initQueue, data, children) {
-        let el = this.template(data, children);
+        let el = this.renderRuntime(data, children);
 
-        this.script(el, initQueue, data);
+        this.scriptRuntime(el, initQueue, data);
 
         return el;
     }
 
-    template(data, children) {}
-    script(el, initQueue, data) {}
+    renderRuntime(data, children) {}
+    scriptRuntime(el, initQueue, data) {}
 
+/* =======================================
+ * Builder Component Setting
+ * ======================================= */
     component(id, options) {
         this.mountComponentStyle();
 
-        let el = this.componentTemplate(id, options);
+        let el = this.renderBuilder(id, options);
 
         return el;
     }
 
-    componentTemplate(id, options) {}
-    componentStyle() {}
+    renderBuilder(id, options) {}
+    styleBuilder() {}
 
     mountComponentStyle() {
-        if (!this.componentStyle) return;
+        if (!this.styleBuilder) return;
 
         const con = this.constructor;
         if (con.__componentStyleMounted) return; //중복방지
 
         const styleEl = document.createElement('style');
-        styleEl.textContent = this.componentStyle();
+        styleEl.textContent = this.styleBuilder();
 
         document.head.appendChild(styleEl);
 
         con.__componentStyleMounted = true; //중복방지
     }
-
-    optionPanel($el, id, componentFactory) {
-        let options = this.opComponent.getOptions($el);
-
-        let $panel = $("#"+id);
-
-        $panel.empty();
-
-        this.optionPanelView($panel, options);
-
-        this.optionPanelScript($el, options);
-
-        this.optionPanelEvent($el, options, componentFactory);
-    }
-
-    optionPanelView($panel, options) {}
-    optionPanelScript($el, options) {}
-    optionPanelEvent($el, options, componentFactory) {}
 
     componentDeleteBtn() {
         return `<button class="component-delete-btn">×</button>`;
@@ -123,5 +106,30 @@ export class ViewObject {
         return allowedTypes
                 .map(type => `.vb-item[data-type="${type}"]`)
                 .join(",");
+    }
+
+/* =======================================
+ * Option Panel Setting
+ * ======================================= */
+    optionPanel($el, id, componentFactory) {
+        let options = this.opComponent.getOptions($el);
+
+        let $panel = $("#"+id);
+
+        $panel.empty();
+
+        this.optionPanelView($panel, options);
+
+        this.optionPanelScript($el, options);
+
+        this.optionPanelEvent($el, options, componentFactory);
+    }
+
+    optionPanelView($panel, options) {}
+    optionPanelScript($el, options) {}
+    optionPanelEvent($el, options, componentFactory) {}
+
+    get opComponent() {
+        return OptionPanel;
     }
 }

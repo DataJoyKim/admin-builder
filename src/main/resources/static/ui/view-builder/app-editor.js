@@ -1,33 +1,11 @@
-import { Render } from '/ui/view-builder/Render.js';
-import { RenderEditor } from '/ui/view-builder/RenderEditor.js';
 import { ComponentFactory } from '/ui/view-builder/ComponentFactory.js';
-import { DropComponent } from '/ui/view-builder/DropComponent.js';
+import { ViewAppEditor } from '/ui/view-builder/ViewAppEditor.js';
 
 // 컴포넌트 랜더링
 $(function () {
-    $(".component-item").draggable({ helper: "clone" });
-
-    window.dropComponent = new DropComponent();
-    window.dropComponent.dropLayout('canvas');
+    window.App.vb = new ViewAppEditor();
+    window.App.vb.init();
 });
-
-// 미리보기 랜더링
-window.preview = function () {
-    const render = new Render();
-
-    render.init('canvas', getViewData());
-};
-
-// 컴포넌트 불러오기
-window.loadEditor = function (data) {
-    const render = new RenderEditor();
-    if(data && data.length > 0) {
-        render.init('canvas', data);
-    }
-    else {
-        window.dropComponent.dropLayout('canvas');
-    }
-};
 
 // 옵션패널
 $(document).on("click", ".vb-item", function(e) {
@@ -38,7 +16,7 @@ $(document).on("click", ".vb-item", function(e) {
 
     const componentEl = ComponentFactory.instance(type);
 
-    componentEl.optionPanel($el, "options", window.dropComponent.getComponentFactory());
+    componentEl.optionPanel($el, "options", App.vb.dropComponent.getComponentFactory());
 });
 
 // 컴포넌트 삭제

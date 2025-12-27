@@ -28,9 +28,8 @@
                 selectedContent(args.item);
             });
 
-            App.modalPopup.receiveParam(function(data){
+            App.modalPopup.receiveParam('ACTION_REQUEST', function(data){
                 P_OBJECT_CODE = data.objectCode;
-                alert(P_OBJECT_CODE);
                 getList();
             });
         }
@@ -135,6 +134,15 @@
           function openPopupWorkflow() {
             App.popup.open('/console/workflow-builder',{title:'워크플로우 팝업'});
           }
+
+          function apply() {
+            let params = {
+                actionName: $("#actionName").val()
+            };
+
+            App.modalPopup.sendParamToParent(params);
+            App.modalPopup.close();
+          }
     </script>
 <div th:fragment="view">
     <div class="row">
@@ -143,6 +151,7 @@
                     <div class="card-header">
                         <h3 class="card-title">Action</h3>
                         <div class="card-tools">
+                            <mf-action-button id="apply" actionName="apply()" icon="" label="선택"></mf-action-button>
                             <mf-action-button id="search" actionName="getList()" icon="fas fa-search"></mf-action-button>
                         </div>
                     </div>

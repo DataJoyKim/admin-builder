@@ -163,7 +163,8 @@
             let params = {
                 objectCode: $("#objectCode").val()
             };
-            App.modalPopup.sendParamToParent(params);
+
+            App.modalPopup.sendParamToParent('OBJECT_RESULT', params);
             App.modalPopup.close();
           }
     </script>

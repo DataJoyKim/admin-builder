@@ -5,7 +5,10 @@ export class CardBody extends ViewObject {
         super();
     }
 
-    template(data, children) {
+/* =======================================
+ * Runtime Component Setting
+ * ======================================= */
+    renderRuntime(data, children) {
         let el = $(`
              <div class="card-body">
              </div>
@@ -18,9 +21,12 @@ export class CardBody extends ViewObject {
         return el;
     }
 
-    script(el, initQueue, data) {}
+    scriptRuntime(el, initQueue, data) {}
 
-    componentTemplate(id, options) {
+/* =======================================
+ * Builder Component Setting
+ * ======================================= */
+    renderBuilder(id, options) {
         let el = `
              <div id="${id}" class="component card-body vb-item" data-type="card-body">
                 ${super.componentDeleteBtn()}
@@ -30,25 +36,17 @@ export class CardBody extends ViewObject {
         return $(el);
     }
 
-    componentStyle() {
+    styleBuilder() {
         return `
             .vb-item[data-type="card-body"] {
-                padding: 2px;
+                padding: 5px;
                 min-height: 100px;
                 height: auto;
-                margin: 0 !important;
+                margin: 2px 5px 2px 5px;
                 border: 1px dashed #bbb;
             }
         `;
     }
-
-    optionPanelView($panel, options) {
-        $panel.append('');
-    }
-
-    optionPanelScript($el, options) {}
-
-    optionPanelEvent($el, options, componentFactory) {}
 
     addComponent($el, componentFactory) {
         super.plusComponentIdNumber('card-body');
@@ -77,4 +75,15 @@ export class CardBody extends ViewObject {
 
         super.sortable($el, super.getSortableType(allowedTypes));
     }
+
+/* =======================================
+ * Option Panel Setting
+ * ======================================= */
+    optionPanelView($panel, options) {
+        $panel.append('');
+    }
+
+    optionPanelScript($el, options) {}
+
+    optionPanelEvent($el, options, componentFactory) {}
 }

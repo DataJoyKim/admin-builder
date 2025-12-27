@@ -5,7 +5,10 @@ export class Input extends ViewObject {
         super();
     }
 
-    template(data, children) {
+/* =======================================
+ * Runtime Component Setting
+ * ======================================= */
+    renderRuntime(data, children) {
         let el = $(`
             <div class="form-group ${data.size}">
                 <label for="${data.id}">${data.label}</label>
@@ -16,9 +19,12 @@ export class Input extends ViewObject {
         return el;
     }
 
-    script(el, initQueue, data) {}
+    scriptRuntime(el, initQueue, data) {}
 
-    componentTemplate(id, options) {
+/* =======================================
+ * Builder Component Setting
+ * ======================================= */
+    renderBuilder(id, options) {
         let el = `
             <div id="${id}" class="component form-group ${options.size} vb-item vb-input" data-type="input">
                 ${super.componentDeleteBtn()}
@@ -30,7 +36,7 @@ export class Input extends ViewObject {
         return $(el);
     }
 
-    componentStyle() {
+    styleBuilder() {
         return `
             .vb-item[data-type="row"] {
                 padding: 5px;
@@ -40,30 +46,6 @@ export class Input extends ViewObject {
                 border: 1px dashed #bbb;
             }
         `;
-    }
-
-    optionPanelView($panel, options) {
-        $panel.append(super.opComponent.input('input-id',{label:'ID', size:'col-3', value:options.id}));
-        $panel.append(super.opComponent.select('input-size',{label:'크기', size:'col-12', options:super.opComponent.optionSize(options.size)}));
-        $panel.append(super.opComponent.input('input-label',{label:'라벨', size:'col-12', value:options.label}));
-    }
-
-    optionPanelScript($el, options) {}
-
-    optionPanelEvent($el, options, componentFactory) {
-        super.opComponent.inputEvent('input-id',(e) => {
-            super.opComponent.changeOptionValue($el, options, 'id', $(e.target).val());
-        });
-
-        super.opComponent.changeEvent('input-size',(e) => {
-            super.opComponent.changeOptionValue($el, options, 'size', $(e.target).val());
-            super.opComponent.changeSize($el, options.size);
-        });
-
-        super.opComponent.inputEvent('input-label',(e) => {
-            super.opComponent.changeOptionValue($el, options, 'label', $(e.target).val());
-            $el.find("label").text(options.label);
-        });
     }
 
     addComponent($el, componentFactory) {
@@ -87,5 +69,36 @@ export class Input extends ViewObject {
     }
 
     dropComponent($el, componentFactory) {
+    }
+
+/* =======================================
+ * Option Panel Setting
+ * ======================================= */
+    optionPanelView($panel, options) {
+        $panel.append(super.opComponent.input('input-id',{label:'ID', size:'col-3'}));
+        $panel.append(super.opComponent.select('input-size',{label:'크기', size:'col-12', options:super.opComponent.optionSize()}));
+        $panel.append(super.opComponent.input('input-label',{label:'라벨', size:'col-12'}));
+    }
+
+    optionPanelScript($el, options) {
+        $('#input-size').val(options.id);
+        $('#input-size').val(options.size);
+        $('#input-size').val(options.label);
+    }
+
+    optionPanelEvent($el, options, componentFactory) {
+        super.opComponent.inputEvent('input-id',(e) => {
+            super.opComponent.changeOptionValue($el, options, 'id', $(e.target).val());
+        });
+
+        super.opComponent.changeEvent('input-size',(e) => {
+            super.opComponent.changeOptionValue($el, options, 'size', $(e.target).val());
+            super.opComponent.changeSize($el, options.size);
+        });
+
+        super.opComponent.inputEvent('input-label',(e) => {
+            super.opComponent.changeOptionValue($el, options, 'label', $(e.target).val());
+            $el.find("label").text(options.label);
+        });
     }
 }

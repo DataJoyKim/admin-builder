@@ -5,7 +5,10 @@ export class Row extends ViewObject {
         super();
     }
 
-    template(data, children) {
+/* =======================================
+ * Runtime Component Setting
+ * ======================================= */
+    renderRuntime(data, children) {
         let el = $(`
             <div id="${data.id}" class="row" >
             </div>
@@ -18,9 +21,12 @@ export class Row extends ViewObject {
         return el;
     }
 
-    script(el, initQueue, data) {}
+    scriptRuntime(el, initQueue, data) {}
 
-    componentTemplate(id, options) {
+/* =======================================
+ * Builder Component Setting
+ * ======================================= */
+    renderBuilder(id, options) {
         let el = `
             <div id="${id}" class="component row vb-item" data-type="row">
                 ${super.componentDeleteBtn()}
@@ -30,7 +36,7 @@ export class Row extends ViewObject {
         return $(el);
     }
 
-    componentStyle() {
+    styleBuilder() {
         return `
             .vb-item[data-type="row"] {
                 padding: 5px;
@@ -41,14 +47,6 @@ export class Row extends ViewObject {
             }
         `;
     }
-
-    optionPanelView($panel, options) {
-        $panel.append('');
-    }
-
-    optionPanelScript($el, options) {}
-
-    optionPanelEvent($el, options, componentFactory) {}
 
     addComponent($el, componentFactory) {
         super.plusComponentIdNumber('row');
@@ -77,4 +75,15 @@ export class Row extends ViewObject {
 
         super.sortable($el, super.getSortableType(allowedTypes));
     }
+
+/* =======================================
+ * Option Panel Setting
+ * ======================================= */
+    optionPanelView($panel, options) {
+        $panel.append('');
+    }
+
+    optionPanelScript($el, options) {}
+
+    optionPanelEvent($el, options, componentFactory) {}
 }

@@ -7,7 +7,8 @@ class ModalPopup {
       const settings = {
         title: options.title || '',
         size: options.size || 'modal-xl',
-        height: options.height || '80vh'
+        height: options.height || '80vh',
+        messageId: "POPUP_REQUEST"
       };
 
       let $popup = $('#'+this.POPUP_ID);
@@ -69,11 +70,13 @@ class ModalPopup {
 
       $('#popup-title').text(settings.title);
       $('#popup-frame')
+         .off('load')
          .on('load', function () {
             this.contentWindow.postMessage(
                 {
-                  type: 'POPUP_REQUEST',
-                  payload: params
+                    messageId:settings.messageId,
+                    type: 'POPUP_REQUEST',
+                    payload: params
                 },
                 '*'
             );
@@ -84,30 +87,35 @@ class ModalPopup {
       $popup.modal('show');
     }
 
-    sendParamToParent(params) {
+    sendParamToParent(messageId, params) {
         window.parent.postMessage(
             {
-              type: 'POPUP_RESULT',
-              payload: params
+                messageId:messageId,
+                type: 'POPUP_RESULT',
+                payload: params
             },
             '*'
         );
     }
 
-    receiveParam(_callback) {
-        window.addEventListener('message', function (event) {
-          // 보안 필요하면 origin 체크
-          // if (event.origin !== location.origin) return;
+    receiveParam(receiveMessageId, _callback) {
+        if (this._messageHandler) {
+            window.removeEventListener('message', this._messageHandler);
+        }
 
-          const { type, payload } = event.data || {};
+        this._messageHandler = function (event) {
+            const {messageId, type, payload } = event.data || {};
 
-          if (type === 'POPUP_RESULT') {
-            _callback(payload);
-          }
-          else if (type === 'POPUP_REQUEST') {
-            _callback(payload);
-          }
-        }, { once: true });
+            if(receiveMessageId !== messageId) {
+                return;
+            }
+
+            if (type === 'POPUP_RESULT' || type === 'POPUP_REQUEST') {
+                _callback(payload);
+            }
+        };
+
+        window.addEventListener('message', this._messageHandler);
     }
 
     close() {

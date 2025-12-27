@@ -5,7 +5,10 @@ export class Form extends ViewObject {
         super();
     }
 
-    template(data, children) {
+/* =======================================
+ * Runtime Component Setting
+ * ======================================= */
+    renderRuntime(data, children) {
         let el = $(`
             <form id="${data.id}" class="form">
             </form>
@@ -18,9 +21,12 @@ export class Form extends ViewObject {
         return el;
     }
 
-    script(el, initQueue, data) {}
+    scriptRuntime(el, initQueue, data) {}
 
-    componentTemplate(id, options) {
+/* =======================================
+ * Builder Component Setting
+ * ======================================= */
+    renderBuilder(id, options) {
         let el = `
             <form id="${id}" class="component form vb-item" data-type="form">
                 ${super.componentDeleteBtn()}
@@ -31,7 +37,7 @@ export class Form extends ViewObject {
         return $(el);
     }
 
-    componentStyle() {
+    styleBuilder() {
         return `
             .vb-item[data-type="form"] {
                 padding: 10px;
@@ -41,23 +47,6 @@ export class Form extends ViewObject {
                 border-radius: 8px;
             }
         `;
-    }
-
-    optionPanelView($panel, options) {
-        $panel.append(super.opComponent.input('form-id',{label:'ID', size:'col-3', value:options.id}));
-        $panel.append(super.opComponent.button('form-row-add',{label:'Form 내용', size:'col-12', btnLabel:'행 추가',icon:'fas fa-plus'}));
-    }
-
-    optionPanelScript($el, options) {}
-
-    optionPanelEvent($el, options, componentFactory) {
-        super.opComponent.inputEvent('form-id',(e) => {
-            super.opComponent.changeOptionValue($el, options, 'id', $(e.target).val());
-        });
-
-        super.opComponent.clickEvent('form-row-add',(e) => {
-            super.addComponentByType(componentFactory, 'row', $el);
-        });
     }
 
     addComponent($el, componentFactory) {
@@ -87,5 +76,27 @@ export class Form extends ViewObject {
         let allowedTypes = ["row"];
 
         super.drop($el, allowedTypes, componentFactory);
+    }
+
+/* =======================================
+ * Option Panel Setting
+ * ======================================= */
+    optionPanelView($panel, options) {
+        $panel.append(super.opComponent.input('form-id',{label:'ID', size:'col-3'}));
+        $panel.append(super.opComponent.button('form-row-add',{label:'Form 내용', size:'col-12', btnLabel:'행 추가',icon:'fas fa-plus'}));
+    }
+
+    optionPanelScript($el, options) {
+        $('#form-id').val(options.id);
+    }
+
+    optionPanelEvent($el, options, componentFactory) {
+        super.opComponent.inputEvent('form-id',(e) => {
+            super.opComponent.changeOptionValue($el, options, 'id', $(e.target).val());
+        });
+
+        super.opComponent.clickEvent('form-row-add',(e) => {
+            super.addComponentByType(componentFactory, 'row', $el);
+        });
     }
 }

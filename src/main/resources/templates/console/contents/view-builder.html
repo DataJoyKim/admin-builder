@@ -167,7 +167,7 @@
                     <i class="fas fa-redo-alt"></i>화면초기화
                 </button>
             </div>
-            <h4>옵션 패널</h4>
+            <h4>옵션</h4>
             <div id="options">
                 컴포넌트를 선택하세요
             </div>
@@ -178,7 +178,7 @@
 </mf-view>
 <script th:fragment="script">
     $( document ).ready(function() {
-        App.modalPopup.receiveParam(function(data){
+        App.modalPopup.receiveParam('OBJECT_RESULT',function(data){
             if(data.objectCode) {
                 $("#objectCode").val(data.objectCode);
             }
@@ -186,11 +186,11 @@
     });
 
     function openPopupMenu() {
-        App.modalPopup.open('/console/menu',{title:'메뉴 팝업'});
+        App.modalPopup.open('/console/menu',{title:'메뉴 팝업',messageId:'MENU_REQUEST'});
     }
 
     function openPopupObject() {
-        App.modalPopup.open('/console/view-object',{title:'오브젝트 팝업'});
+        App.modalPopup.open('/console/view-object',{title:'오브젝트 팝업',messageId:'OBJECT_REQUEST'});
     }
 
     function openPopupAction() {
@@ -200,60 +200,12 @@
             return;
         }
 
-        App.modalPopup.open('/console/action',{title:'Action 팝업'},{objectCode:objectCode});
-    }
-
-    function serializeComponent($el) {
-        if(!$el.hasClass('vb-item')) {
-            return;
-        }
-
-        let data = $el.data('options');
-        data.type= $el.data("type");
-
-        const children = findDirectLogicalChildren($el)
-                        .map(childEl =>
-                            serializeComponent(childEl)
-                        )
-                        .filter(Boolean);
-
-        if (children.length > 0) {
-            data.children = children;
-        }
-
-        return data;
-    }
-
-    function findDirectLogicalChildren($el) {
-        let result = [];
-
-        $el.children().each(function () {
-            const $child = $(this);
-
-            if ($child.hasClass('component')) {
-                result.push($child);
-            }
-            else {
-                result = result.concat(findDirectLogicalChildren($child));
-            }
-        });
-
-        return result;
-    }
-
-    function getViewData() {
-        const root = $("#layout");
-        const json = [];
-
-        root.children(".component").each(function() {
-            json.push(serializeComponent($(this)));
-        });
-
-        return json;
+        App.modalPopup.open('/console/action',{title:'Action 팝업',messageId:'ACTION_REQUEST'},{objectCode:objectCode});
     }
 
     function save() {
-        const json = getViewData();
+        const json = App.vb.getViewData();
+
         const objectCode = $("#objectCode").val();
 
         if(!objectCode) {
@@ -289,11 +241,23 @@
                     console.log('content',content);
                     loadEditor(JSON.parse(content));
                 }
+                else {
+                    alert('오브젝트가 존재하지않아 생성해야합니다.');
+                    loadEditor([]);
+                }
             },
             function(error){
                 alert("에러가 발생되었습니다.");
             }
         );
+    }
+
+    function loadEditor(data) {
+        App.vb.loadEditor(data);
+    }
+
+    function preview() {
+        App.vb.preview();
     }
 
     function reload() {
