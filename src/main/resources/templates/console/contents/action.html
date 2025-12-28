@@ -3,14 +3,42 @@
 </style>
 <script th:fragment="script">
         let P_OBJECT_CODE;
+        let scriptEditor;
         $( document ).ready(function() {
             console.log('version.0.0.1');
             init();
+
+            $('#type').on('change', function () {
+                setActionGrid($('#type').val());
+            });
         });
+
+        function setActionGrid(type) {
+            showGrid('workflowGrid', false);
+            showGrid('scriptGrid', false);
+
+            if(type == 'WORKFLOW') {
+                showGrid('workflowGrid', true);
+            }
+            else if(type == 'SCRIPT') {
+                showGrid('scriptGrid', true);
+            }
+        }
+
+        function showGrid(id, show) {
+            if(show) {
+                $("#"+id).removeClass('d-none');
+            }
+            else {
+                $("#"+id).addClass('d-none');
+            }
+
+        }
 
         function init() {
             var codes = {
                 "ActionType":[
+                    {code:"",name:""},
                     {code:"WORKFLOW",name:"워크플로우"},
                     {code:"SCRIPT",name:"Script"}
                 ]
@@ -28,7 +56,14 @@
                 selectedContent(args.item);
             });
 
+            scriptEditor = initCodeEditor('script','javascript');
+            scriptEditor.setSize("100%", "500px");
+
             App.modalPopup.receiveParam('ACTION_REQUEST', function(data){
+                if(!data.objectCode) {
+                    alert('오브젝트코드가 존재하지않습니다.');
+                }
+
                 P_OBJECT_CODE = data.objectCode;
                 getList();
             });
@@ -36,6 +71,18 @@
 
         function setCodes(codes) {
             App.util.setCodeBox("type", codes["ActionType"]);
+        }
+
+        function initCodeEditor(id,mode) {
+            let textarea = document.getElementById(id);
+
+            return CodeMirror.fromTextArea(textarea, {
+                lineNumbers: true,
+                lineWrapping: true,
+                theme: "darcula",
+                mode: mode,
+                val: textarea.value
+            });
         }
 
         function getList() {
@@ -101,7 +148,8 @@
                 workflowCode: resolveEmpty($("#workflowCode").val()),
                 workflowRequestMessageId: resolveEmpty($("#workflowRequestMessageId").val()),
                 workflowResponseGridId: resolveEmpty($("#workflowResponseGridId").val()),
-                workflowResponseMessageId: resolveEmpty($("#workflowResponseMessageId").val())
+                workflowResponseMessageId: resolveEmpty($("#workflowResponseMessageId").val()),
+                script:scriptEditor.getValue()
             }
         }
 
@@ -115,6 +163,10 @@
             $("#workflowRequestMessageId").val(params.workflowRequestMessageId);
             $("#workflowResponseGridId").val(params.workflowResponseGridId);
             $("#workflowResponseMessageId").val(params.workflowResponseMessageId);
+
+            scriptEditor.setValue(params.script);
+
+            setActionGrid(params.type);
           }
 
           function newContent(){
@@ -124,11 +176,14 @@
                 actionName:'',
                 displayName:'',
                 type:'WORKFLOW',
+                script:'',
                 workflowCode:'',
                 workflowRequestMessageId:'',
                 workflowResponseGridId:'',
                 workflowResponseMessageId:''
               });
+
+            setActionGrid('WORKFLOW');
           }
 
           function openPopupWorkflow() {
@@ -189,13 +244,14 @@
                             </div>
                         </div>
                     </div>
-                    <div class="card-header">
-                        <h3 class="card-title">Action</h3>
-                        <div class="card-tools">
-                            <mf-action-button id="openPopupWorkflow" actionName="openPopupWorkflow()" icon="fas fa-external-link-alt"></mf-action-button>
+
+                    <div class="card-body d-none" id="workflowGrid">
+                        <div class="card-header">
+                            <h3 class="card-title">워크플로우</h3>
+                            <div class="card-tools">
+                                <mf-action-button id="openPopupWorkflow" actionName="openPopupWorkflow()" icon="fas fa-external-link-alt"></mf-action-button>
+                            </div>
                         </div>
-                    </div>
-                    <div class="card-body">
                         <div class="row">
                             <div class="col-md-4">
                                 <mf-text-input id="workflowCode" label="워크플로우코드" enable="true"></mf-text-input>
@@ -214,6 +270,15 @@
                                 <mf-text-input id="workflowResponseGridId" label="데이터바인딩 grid" enable="true" ></mf-text-input>
                             </div>
                         </div>
+                    </div>
+
+                    <div class="card-body d-none" id="scriptGrid">
+                        <div class="card-header">
+                            <h3 class="card-title">Script</h3>
+                            <div class="card-tools">
+                            </div>
+                        </div>
+                        <textarea id="script"></textarea>
                     </div>
                 </div>
             </div>

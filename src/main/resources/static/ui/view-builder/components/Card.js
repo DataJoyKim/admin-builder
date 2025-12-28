@@ -45,22 +45,20 @@ export class Card extends ViewObject {
  * Builder Component Setting
  * ======================================= */
     renderBuilder(id, options) {
-        let carHeaderHtml = ``;
-        if(options.useCardHeader) {
-            carHeaderHtml = `
-                <div class="card-header">
-                    <h3 class="card-title">${options.title}</h3>
-                    <div class="card-tools">
-                    </div>
-                </div>
-            `;
+        let cardHeaderClass = ``;
+        if(!options.useCardHeader) {
+            cardHeaderClass = `d-none`;
         }
 
         let el = `
             <div id="${id}" class="component ${options.size} vb-item" data-type="card">
                 ${super.componentDeleteBtn()}
                  <div class="card">
-                     ${carHeaderHtml}
+                    <div class="card-header ${cardHeaderClass}">
+                        <h3 class="card-title">${options.title}</h3>
+                        <div class="card-tools">
+                        </div>
+                    </div>
                  </div>
             </div>
         `;
@@ -157,7 +155,12 @@ export class Card extends ViewObject {
         super.opComponent.clickEvent('card-header-use',(e) => {
             let value = $(e.target).is(':checked');
             super.opComponent.changeOptionValue($el, options, 'useCardHeader', value);
-            $el.find(".card-header").css('display',((value)?'block':'none'));
+            if(value) {
+                $el.find(".card-header").removeClass('d-none');
+            }
+            else {
+                $el.find(".card-header").addClass('d-none');
+            }
         });
     }
 }

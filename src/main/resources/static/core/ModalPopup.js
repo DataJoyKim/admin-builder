@@ -8,7 +8,7 @@ class ModalPopup {
         title: options.title || '',
         size: options.size || 'modal-xl',
         height: options.height || '80vh',
-        messageId: "POPUP_REQUEST"
+        messageId: options.messageId || "POPUP_REQUEST"
       };
 
       let $popup = $('#'+this.POPUP_ID);

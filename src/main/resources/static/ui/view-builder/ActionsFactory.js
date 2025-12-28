@@ -7,6 +7,9 @@ export class ActionsFactory {
             case 'WORKFLOW':
                 return new Workflow();
 
+            case 'SCRIPT':
+                return new Script();
+
             default:
                 return null;
         }
