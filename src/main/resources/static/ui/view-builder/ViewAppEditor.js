@@ -6,27 +6,34 @@ import { ViewDataLoader } from '/ui/view-builder/ViewDataLoader.js';
 export class ViewAppEditor {
 
     constructor() {
+        this.canvasId = 'canvas';
         this.dropComponent = new DropComponent();
         this.viewDataLoader = new ViewDataLoader('layout');
     }
 
     init() {
         $(".component-item").draggable({ helper: "clone" });
-        this.dropComponent.dropLayout('canvas');
+        this.dropComponent.dropLayout(this.canvasId);
     }
 
     preview() {
         const render = new Render();
-        render.init('canvas', this.getViewData());
+        render.init(this.canvasId, this.getViewData());
     }
 
     loadEditor(data) {
         const render = new RenderEditor();
         if (data?.length) {
-            render.init('canvas', data);
-        } else {
-            this.dropComponent.dropLayout('canvas');
+            render.init(this.canvasId, data);
         }
+        else {
+            this.initCanvas();
+        }
+    }
+
+    initCanvas() {
+        $("#"+this.canvasId).html('');
+        this.dropComponent.dropLayout(this.canvasId);
     }
 
     getViewData() {

@@ -46,7 +46,7 @@ export class Layout extends ViewObject {
     }
 
     dropComponent($el, componentFactory) {
-        let allowedTypes = ["row"];
+        let allowedTypes = ["row","custom-html"];
 
         super.drop($el, allowedTypes, componentFactory);
 

@@ -69,7 +69,7 @@ export class Row extends ViewObject {
     }
 
     dropComponent($el, componentFactory) {
-        let allowedTypes = ["card","form","grid","input","button"];
+        let allowedTypes = ["card","form","grid","input","button","custom-html"];
 
         super.drop($el, allowedTypes, componentFactory);
 

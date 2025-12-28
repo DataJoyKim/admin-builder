@@ -133,12 +133,18 @@
                             Button
                         </div>
                     </div>
-                </div>
-                <div class="component-row">
                     <div class="component-item" data-type="component-input">
                         <img src="/dist/img/com-input.png" width="70" height="60" >
                         <div>
                             Input
+                        </div>
+                    </div>
+                </div>
+                <div class="component-row">
+                    <div class="component-item" data-type="component-custom-html">
+                        <img src="/dist/img/com-html.png" width="70" height="60" >
+                        <div>
+                            Html
                         </div>
                     </div>
                 </div>
@@ -237,12 +243,10 @@
         App.httpClient.get(`/console/api/object-content`,{objectCode:objectCode},
             function(response){
                 if(response[0]) {
-                    const content = response[0].content;
-                    console.log('content',content);
-                    loadEditor(JSON.parse(content));
+                    loadEditor(JSON.parse(response[0].content));
                 }
                 else {
-                    alert('오브젝트가 존재하지않아 생성해야합니다.');
+                    alert('오브젝트가 존재하지않아 빈화면으로 셋팅됩니다.\n오브젝트를 생성 후 작업을 진행해주세요.');
                     loadEditor([]);
                 }
             },

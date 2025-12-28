@@ -10,7 +10,7 @@ export class Card extends ViewObject {
  * ======================================= */
     renderRuntime(data, children) {
         let carHeaderHtml = ``;
-        if(options.useCardHeader) {
+        if(data.useCardHeader) {
             carHeaderHtml = `
                <div class="card-header">
                     <h3 class="card-title">${data.title}</h3>
@@ -110,7 +110,7 @@ export class Card extends ViewObject {
     }
 
     dropComponent($el, componentFactory) {
-        let allowedTypes = ["button"];
+        let allowedTypes = ["button","custom-html"];
 
         super.drop($el, allowedTypes, componentFactory);
 

@@ -81,9 +81,9 @@ export class Input extends ViewObject {
     }
 
     optionPanelScript($el, options) {
-        $('#input-size').val(options.id);
+        $('#input-id').val(options.id);
         $('#input-size').val(options.size);
-        $('#input-size').val(options.label);
+        $('#input-label').val(options.label);
     }
 
     optionPanelEvent($el, options, componentFactory) {

@@ -42,7 +42,7 @@ export class CardBody extends ViewObject {
                 padding: 5px;
                 min-height: 100px;
                 height: auto;
-                margin: 2px 5px 2px 5px;
+                margin: 5px;
                 border: 1px dashed #bbb;
             }
         `;
@@ -69,7 +69,7 @@ export class CardBody extends ViewObject {
     }
 
     dropComponent($el, componentFactory) {
-        let allowedTypes = ["form","grid","input","button"];
+        let allowedTypes = ["form","grid","input","button","custom-html"];
 
         super.drop($el, allowedTypes, componentFactory);
 

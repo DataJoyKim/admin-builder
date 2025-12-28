@@ -48,6 +48,7 @@ export class ViewObject {
     }
 
     addComponent($el, componentFactory) {}
+    createComponent(id, options, componentFactory) {}
     dropComponent($el, componentFactory) {}
 
     addComponentByType(componentFactory, type, $el) {
