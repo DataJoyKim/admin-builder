@@ -55,13 +55,12 @@ export class Render {
         const frag = $(document.createDocumentFragment());
 
         for (let data of viewData) {
+        console.log(data.type);
             const componentEl = ComponentFactory.instance(data.type);
 
             let children = null;
             if(data.children) {
-                children = this.component(data.children);
-
-                children = this.expendChildren(children, data);
+                children = this.getChildren(children, data);
             }
 
             if(componentEl != null) {
@@ -73,7 +72,7 @@ export class Render {
         return frag;
     }
 
-    expendChildren(children, data) {
+    getChildren(children, data) {
         if(data.type == 'card') {
             const header = [];
             const body = [];
@@ -89,7 +88,7 @@ export class Render {
               }
         }
         else {
-            return children;
+            return this.component(data.children);
         }
     }
 }

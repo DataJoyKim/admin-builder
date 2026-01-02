@@ -43,9 +43,7 @@ export class RenderEditor {
 
             let children = null;
             if(data.children) {
-                children = this.component(data.children);
-
-                children = this.expendChildren(children, data);
+                children = this.getChildren(children, data);
             }
 
             if(componentEl != null) {
@@ -66,7 +64,7 @@ export class RenderEditor {
         return frag;
     }
 
-    expendChildren(children, data) {
+    getChildren(children, data) {
         if(data.type == 'card') {
             const header = [];
             const body = [];
@@ -82,7 +80,7 @@ export class RenderEditor {
               }
         }
         else {
-            return children;
+            return this.component(data.children);
         }
     }
 }

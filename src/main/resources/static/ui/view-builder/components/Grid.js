@@ -100,9 +100,9 @@ export class Grid extends ViewObject {
         $panel.append($row1);
 
         let $row2 = super.opComponent.row();
-        $row2.append(super.opComponent.toggle('grid-control',{label:'Control 사용', size:'col-12'}));
-        $row2.append(super.opComponent.toggle('grid-inserting',{label:'생성 사용', size:'col-6'}));
-        $row2.append(super.opComponent.toggle('grid-editing',{label:'변경 사용', size:'col-6'}));
+        $row2.append(super.opComponent.toggle('grid-control',{label:'Control 사용', size:'col-4'}));
+        $row2.append(super.opComponent.toggle('grid-inserting',{label:'생성 사용', size:'col-4'}));
+        $row2.append(super.opComponent.toggle('grid-editing',{label:'변경 사용', size:'col-4'}));
         $panel.append($row2);
 
         let $row3 = super.opComponent.row();
