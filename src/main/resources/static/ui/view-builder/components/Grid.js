@@ -71,7 +71,7 @@ export class Grid extends ViewObject {
             id:'grid' + super.getComponentIdNumber('grid'),
             width: "100%",
             height: "400px",
-            control::false,
+            control:false,
             inserting:false,
             editing:false,
             columns:[]
