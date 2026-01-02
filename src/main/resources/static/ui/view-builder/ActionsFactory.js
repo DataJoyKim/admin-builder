@@ -1,4 +1,5 @@
 import { Workflow } from './actions/Workflow.js';
+import { Script } from './actions/Script.js';
 
 export class ActionsFactory {
 

@@ -19,12 +19,15 @@ export class Grid extends ViewObject {
     scriptRuntime(el, initQueue, data) {
         initQueue.push(() => {
             let columns = data.columns;
-            columns.push({ type: "control", editButton: true, width: 30, modeSwitchButton: false });
+            if(data.control) {
+                columns.push({ type: "control", editButton: true, width: 30, modeSwitchButton: false });
+            }
+
             let rowClickEvent = function(args) {}
 
             let options = {};
-            options.inserting = false;
-            options.editing = false;
+            options.inserting = data.inserting;
+            options.editing = data.editing;
 
             this.grid.init(data.id, data.width,data.height,columns,rowClickEvent,options);
         });
@@ -68,6 +71,9 @@ export class Grid extends ViewObject {
             id:'grid' + super.getComponentIdNumber('grid'),
             width: "100%",
             height: "400px",
+            control::false,
+            inserting:false,
+            editing:false,
             columns:[]
         }
 
@@ -94,9 +100,15 @@ export class Grid extends ViewObject {
         $panel.append($row1);
 
         let $row2 = super.opComponent.row();
-        $row2.append(super.opComponent.input('grid-width',{label:'넓이', size:'col-6'}));
-        $row2.append(super.opComponent.input('grid-height',{label:'높이', size:'col-6'}));
+        $row2.append(super.opComponent.toggle('grid-control',{label:'Control 사용', size:'col-12'}));
+        $row2.append(super.opComponent.toggle('grid-inserting',{label:'생성 사용', size:'col-6'}));
+        $row2.append(super.opComponent.toggle('grid-editing',{label:'변경 사용', size:'col-6'}));
         $panel.append($row2);
+
+        let $row3 = super.opComponent.row();
+        $row3.append(super.opComponent.input('grid-width',{label:'넓이', size:'col-6'}));
+        $row3.append(super.opComponent.input('grid-height',{label:'높이', size:'col-6'}));
+        $panel.append($row3);
 
         $panel.append($(`
             <div class="form-group col-12">
@@ -109,6 +121,9 @@ export class Grid extends ViewObject {
 
     optionPanelScript($el, options) {
         $('#grid-id').val(options.id);
+        $('#grid-control').prop('checked',options.control);
+        $('#grid-inserting').prop('checked',options.inserting);
+        $('#grid-editing').prop('checked',options.editing);
         $('#grid-width').val(options.width);
         $('#grid-height').val(options.height);
 
@@ -181,6 +196,18 @@ export class Grid extends ViewObject {
             });
 
             super.opComponent.changeOptionValue($el, options, 'columns', this.grid.getData('grid-columns'));
+        });
+
+        super.opComponent.clickEvent('grid-control',(e) => {
+            super.opComponent.changeOptionValue($el, options, 'control', $(e.target).is(':checked'));
+        });
+
+        super.opComponent.clickEvent('grid-inserting',(e) => {
+            super.opComponent.changeOptionValue($el, options, 'inserting', $(e.target).is(':checked'));
+        });
+
+        super.opComponent.clickEvent('grid-editing',(e) => {
+            super.opComponent.changeOptionValue($el, options, 'editing', $(e.target).is(':checked'));
         });
     }
 }
