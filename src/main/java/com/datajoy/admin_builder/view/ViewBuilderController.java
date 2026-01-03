@@ -65,7 +65,7 @@ public class ViewBuilderController {
                     viewObjectService.validateAuthorization(user, viewObject);
                 }
                 catch (BusinessException e) {
-                    return "/error/error401";
+                    return "/error/error403";
                 }
             }
         }

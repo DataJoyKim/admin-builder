@@ -13,7 +13,6 @@ export class Script extends Actions {
             return;
         }
 
-        // 함수 생성
-        window[name] = new Function(script);
+        super.registerAction(name,script);
     }
 }

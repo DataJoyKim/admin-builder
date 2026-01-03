@@ -1,6 +1,7 @@
 import { ComponentFactory } from './ComponentFactory.js';
 import { ActionsFactory } from './ActionsFactory.js';
 import { GlobalVariable } from './GlobalVariable.js';
+import { ActionExecutor } from './ActionExecutor.js';
 
 export class Render {
     constructor() {
@@ -11,6 +12,8 @@ export class Render {
         this.initQueue = [];
 
         this.registerGlobalVariable();
+
+        ActionExecutor.init();
 
         this.registerActions(actionsData);
 

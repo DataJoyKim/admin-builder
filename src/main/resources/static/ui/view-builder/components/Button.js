@@ -10,7 +10,7 @@ export class Button extends ViewObject {
  * ======================================= */
     renderRuntime(data, children) {
         let el =  $(`
-            <button id="${data.id}" type="button" class="btn btn-default btn-sm" onclick="${data.action}()">
+            <button id="${data.id}" type="button" class="btn btn-default btn-sm" onclick="doAction('${data.action}')">
                 <i class="${data.icon}"></i>
                 ${data.label}
             </button>

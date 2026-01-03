@@ -54,7 +54,6 @@ export class Workflow extends Actions {
             );
         `;
 
-        // 함수 생성
-        window[name] = new Function(code);
+        super.registerAction(name,code);
     }
 }

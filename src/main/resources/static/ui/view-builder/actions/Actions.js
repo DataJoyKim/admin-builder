@@ -6,4 +6,10 @@ export class Actions {
     variableMessage() {
         return GlobalVariable.variable.message
     }
+
+    registerAction(actionName, code) {
+        window.vb = window.vb || {};
+        window.vb.actions = window.vb.actions || {};
+        window.vb.actions[actionName] = new Function(code);
+    }
 }

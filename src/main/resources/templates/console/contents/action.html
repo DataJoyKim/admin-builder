@@ -99,6 +99,7 @@
         function selectedContent(item) {
             httpClient.get(`/console/api/action/${item.id}`, {},
                 function(response){
+                    setActionGrid(response.type);
                     setContent(response);
                 },
                 function(error){
@@ -164,12 +165,14 @@
             $("#workflowResponseGridId").val(params.workflowResponseGridId);
             $("#workflowResponseMessageId").val(params.workflowResponseMessageId);
 
-            scriptEditor.setValue(params.script);
-
-            setActionGrid(params.type);
+            if(params.script) {
+                scriptEditor.setValue(params.script);
+            }
           }
 
           function newContent(){
+            setActionGrid('WORKFLOW');
+
             setContent({
                 id:'',
                 objectCode:P_OBJECT_CODE,
@@ -182,8 +185,6 @@
                 workflowResponseGridId:'',
                 workflowResponseMessageId:''
               });
-
-            setActionGrid('WORKFLOW');
           }
 
           function openPopupWorkflow() {

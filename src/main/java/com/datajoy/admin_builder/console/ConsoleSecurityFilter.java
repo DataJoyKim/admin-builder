@@ -28,7 +28,7 @@ public class ConsoleSecurityFilter implements Filter {
 
         if(!GrantedAuthority.hasAuthority(user.getGrantedAuthorities(), securityProperties.getConsoleAccessPermitAuthorityCode())) {
             HttpServletResponse httpResponse = (HttpServletResponse) response;
-            httpResponse.sendRedirect("/error/error401");
+            httpResponse.sendRedirect("/error/error403");
             //TODO 접근불가 페이지 넘어가기
             return;
         }
