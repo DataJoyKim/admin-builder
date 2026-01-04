@@ -23,6 +23,8 @@ public class ViewAction {
     @Enumerated(EnumType.STRING)
     @Column(length = 100)
     private ActionType type;
+    @Column(length = 200)
+    private String argsName;
 
     @Column(length = 100)
     private String workflowCode;
@@ -41,6 +43,7 @@ public class ViewAction {
             String actionName,
             String displayName,
             ActionType type,
+            String argsName,
             String workflowCode,
             String workflowRequestMessageId,
             String workflowResponseMessageId,
@@ -50,6 +53,7 @@ public class ViewAction {
         this.objectCode = objectCode;
         this.actionName = actionName;
         this.displayName = displayName;
+        this.argsName =argsName;
         this.type = type;
         this.workflowCode = workflowCode;
         this.workflowRequestMessageId = workflowRequestMessageId;

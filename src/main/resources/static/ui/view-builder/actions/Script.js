@@ -8,11 +8,12 @@ export class Script extends Actions {
     register(data) {
         const name = data.actionName;
         const script = data.script;
+        const argsName = data.argsName;
 
         if (!name) {
             return;
         }
 
-        super.registerAction(name,script);
+        super.registerAction(name,argsName,script);
     }
 }

@@ -146,6 +146,7 @@
                 actionName: resolveEmpty($("#actionName").val()),
                 displayName: resolveEmpty($("#displayName").val()),
                 type: resolveEmpty($("#type").val()),
+                argsName: resolveEmpty($("#argsName").val()),
                 workflowCode: resolveEmpty($("#workflowCode").val()),
                 workflowRequestMessageId: resolveEmpty($("#workflowRequestMessageId").val()),
                 workflowResponseGridId: resolveEmpty($("#workflowResponseGridId").val()),
@@ -160,6 +161,7 @@
             $("#actionName").val(params.actionName);
             $("#displayName").val(params.displayName);
             $("#type").val(params.type);
+            $("#argsName").val(params.argsName);
             $("#workflowCode").val(params.workflowCode);
             $("#workflowRequestMessageId").val(params.workflowRequestMessageId);
             $("#workflowResponseGridId").val(params.workflowResponseGridId);
@@ -179,6 +181,7 @@
                 actionName:'',
                 displayName:'',
                 type:'WORKFLOW',
+                argsName:'',
                 script:'',
                 workflowCode:'',
                 workflowRequestMessageId:'',
@@ -242,6 +245,9 @@
                         <div class="row">
                             <div class="col-md-5">
                                 <mf-select id="type" label="유형" enable="true" useFirstItem="true" firstItemLabel="" firstItemValue=""></mf-select>
+                            </div>
+                            <div class="col-md-5">
+                                <mf-text-input id="argsName" label="argument" enable="true" ></mf-text-input>
                             </div>
                         </div>
                     </div>

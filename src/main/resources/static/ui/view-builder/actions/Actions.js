@@ -7,9 +7,16 @@ export class Actions {
         return GlobalVariable.variable.message
     }
 
-    registerAction(actionName, code) {
+    registerAction(actionName, argsParams, code) {
         window.vb = window.vb || {};
         window.vb.actions = window.vb.actions || {};
-        window.vb.actions[actionName] = new Function(code);
+
+        if(argsParams) {
+            const args = argsParams.split(",");
+            window.vb.actions[actionName] = new Function(...args, code);
+        }
+        else {
+            window.vb.actions[actionName] = new Function(code);
+        }
     }
 }

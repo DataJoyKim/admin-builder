@@ -23,7 +23,11 @@ export class Grid extends ViewObject {
                 columns.push({ type: "control", editButton: true, width: 30, modeSwitchButton: false });
             }
 
-            let rowClickEvent = function(args) {}
+            let rowClickEvent = function(args) {
+                if(data.rowSelectAction) {
+                    doAction(data.rowSelectAction, args);
+                }
+            }
 
             let options = {};
             options.inserting = data.inserting;
@@ -74,6 +78,10 @@ export class Grid extends ViewObject {
             control:false,
             inserting:false,
             editing:false,
+            rowSelectAction:'',
+            insertAction:'',
+            updateAction:'',
+            deleteAction:'',
             columns:[]
         }
 
@@ -95,20 +103,30 @@ export class Grid extends ViewObject {
  * Option Panel Setting
  * ======================================= */
     optionPanelView($panel, options) {
-        let $row1 = super.opComponent.row();
-        $row1.append(super.opComponent.input('grid-id',{label:'ID', size:'col-3'}));
-        $panel.append($row1);
+        let $rowId = super.opComponent.row();
+        $rowId.append(super.opComponent.input('grid-id',{label:'ID', size:'col-3'}));
+        $panel.append($rowId);
 
-        let $row2 = super.opComponent.row();
-        $row2.append(super.opComponent.toggle('grid-control',{label:'Control 사용', size:'col-4'}));
-        $row2.append(super.opComponent.toggle('grid-inserting',{label:'생성버튼 사용', size:'col-4'}));
-        $row2.append(super.opComponent.toggle('grid-editing',{label:'변경버튼 사용', size:'col-4'}));
-        $panel.append($row2);
+        let $rowToggle = super.opComponent.row();
+        $rowToggle.append(super.opComponent.toggle('grid-control',{label:'Control 사용', size:'col-4'}));
+        $rowToggle.append(super.opComponent.toggle('grid-inserting',{label:'생성버튼 사용', size:'col-4'}));
+        $rowToggle.append(super.opComponent.toggle('grid-editing',{label:'변경버튼 사용', size:'col-4'}));
+        $panel.append($rowToggle);
 
-        let $row3 = super.opComponent.row();
-        $row3.append(super.opComponent.input('grid-width',{label:'넓이', size:'col-6'}));
-        $row3.append(super.opComponent.input('grid-height',{label:'높이', size:'col-6'}));
-        $panel.append($row3);
+        let $rowAction = super.opComponent.row();
+        $rowAction.append(super.opComponent.input('grid-row-select-action',{label:'row 선택 action', size:'col-4'}));
+        $panel.append($rowAction);
+
+        let $rowAction2 = super.opComponent.row();
+        $rowAction2.append(super.opComponent.input('grid-insert-action',{label:'생성 action', size:'col-4'}));
+        $rowAction2.append(super.opComponent.input('grid-update-action',{label:'변경 action', size:'col-4'}));
+        $rowAction2.append(super.opComponent.input('grid-delete-action',{label:'삭제 action', size:'col-4'}));
+        $panel.append($rowAction2);
+
+        let $rowGrid = super.opComponent.row();
+        $rowGrid.append(super.opComponent.input('grid-width',{label:'넓이', size:'col-6'}));
+        $rowGrid.append(super.opComponent.input('grid-height',{label:'높이', size:'col-6'}));
+        $panel.append($rowGrid);
 
         $panel.append($(`
             <div class="form-group col-12">
@@ -124,6 +142,10 @@ export class Grid extends ViewObject {
         $('#grid-control').prop('checked',options.control);
         $('#grid-inserting').prop('checked',options.inserting);
         $('#grid-editing').prop('checked',options.editing);
+        $('#grid-row-select-action').val(options.rowSelectAction);
+        $('#grid-insert-action').val(options.insertAction);
+        $('#grid-update-action').val(options.updateAction);
+        $('#grid-delete-action').val(options.deleteAction);
         $('#grid-width').val(options.width);
         $('#grid-height').val(options.height);
 
@@ -208,6 +230,22 @@ export class Grid extends ViewObject {
 
         super.opComponent.clickEvent('grid-editing',(e) => {
             super.opComponent.changeOptionValue($el, options, 'editing', $(e.target).is(':checked'));
+        });
+
+        super.opComponent.inputEvent('grid-row-select-action',(e) => {
+            super.opComponent.changeOptionValue($el, options, 'rowSelectAction', $(e.target).val());
+        });
+
+        super.opComponent.inputEvent('grid-insert-action',(e) => {
+            super.opComponent.changeOptionValue($el, options, 'insertAction', $(e.target).val());
+        });
+
+        super.opComponent.inputEvent('grid-update-action',(e) => {
+            super.opComponent.changeOptionValue($el, options, 'updateAction', $(e.target).val());
+        });
+
+        super.opComponent.inputEvent('grid-delete-action',(e) => {
+            super.opComponent.changeOptionValue($el, options, 'deleteAction', $(e.target).val());
         });
     }
 }

@@ -11,6 +11,7 @@ export class Workflow extends Actions {
         const requestMessageId = data.workflowRequestMessageId;
         const responseMessageId = data.workflowResponseMessageId;
         const gridId = data.workflowResponseGridId;
+        const argsName = data.argsName;
 
         if (!name || !workflowCode) {
             return;
@@ -54,6 +55,6 @@ export class Workflow extends Actions {
             );
         `;
 
-        super.registerAction(name,code);
+        super.registerAction(name,argsName,code);
     }
 }

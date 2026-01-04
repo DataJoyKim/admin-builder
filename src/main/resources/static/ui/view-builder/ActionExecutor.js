@@ -5,9 +5,9 @@ export class ActionExecutor {
 
     static createDoAction() {
         const code = `
-            window.vb.actions[actionName]();
+            window.vb.actions[actionName](...args);
         `;
 
-        return new Function("actionName", code);
+        return new Function("actionName", "...args", code);
     }
 }

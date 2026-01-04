@@ -45,6 +45,7 @@ public class ViewActionRestController {
                     (String) params.get("actionName"),
                     (String) params.get("displayName"),
                     ActionType.valueOf((String) params.get("type")),
+                    (String) params.get("argsName"),
                     (String) params.get("workflowCode"),
                     (String) params.get("workflowRequestMessageId"),
                     (String) params.get("workflowResponseMessageId"),
@@ -58,6 +59,7 @@ public class ViewActionRestController {
                     .actionName((String) params.get("actionName"))
                     .displayName((String) params.get("displayName"))
                     .type(ActionType.valueOf((String) params.get("type")))
+                    .argsName((String) params.get("argsName"))
                     .workflowCode((String) params.get("workflowCode"))
                     .workflowRequestMessageId((String) params.get("workflowRequestMessageId"))
                     .workflowResponseMessageId((String) params.get("workflowResponseMessageId"))
