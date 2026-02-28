@@ -5,10 +5,20 @@ export class Layout extends ViewObject {
         super();
     }
 
+    componentId() {
+        return 'layout';
+    }
+
+    componentOptions() {
+        return {
+           id:'layout' + super.getComponentIdNumber()
+       };
+    }
+
 /* =======================================
  * Runtime Component Setting
  * ======================================= */
-    renderRuntime(data, children) {
+    renderRuntime(options, children) {
         let el = $(`
            <div class="layout" id="layout" style="min-height: 993px;" >
            </div>
@@ -17,14 +27,14 @@ export class Layout extends ViewObject {
         return el;
     }
 
-    scriptRuntime(el, initQueue, data) {}
+    scriptRuntime(el, initQueue, options) {}
 
 /* =======================================
  * Builder Component Setting
  * ======================================= */
     renderBuilder(id, options) {
         let el = `
-           <div class="layout wrapper vb-item" id="${id}" style="min-height: 993px;" data-type="layout">
+           <div class="layout wrapper vb-item" id="${id}" style="min-height: 993px;" data-type="${this.componentId()}">
            </div>
         `;
 
@@ -33,26 +43,22 @@ export class Layout extends ViewObject {
 
     styleBuilder() {
         return `
-            .vb-item[data-type="layout"] {
+            .vb-item[data-type="${this.componentId()}"] {
                 cursor: pointer;
             }
         `;
     }
 
-    addComponent($el, componentFactory) {
+    componentDropConfig($componentEl) {
+        return [{
+            element: $componentEl,
+            allowedComponentIds: ["row","custom-html"],
+            sortable: true
+        }]
     }
 
-    createComponent(id, options, componentFactory) {
-    }
-
-    dropComponent($el, componentFactory) {
-        let allowedTypes = ["row","custom-html"];
-
-        super.drop($el, allowedTypes, componentFactory);
-
-        super.sortable($el, super.getSortableType(allowedTypes));
-
-        super.addComponentByType(componentFactory, "row", $el);
+    afterAddComponent(componentFactory, $el, $componentEl) {
+        super.addComponentByType(componentFactory, 'row', $componentEl);
     }
 
 /* =======================================

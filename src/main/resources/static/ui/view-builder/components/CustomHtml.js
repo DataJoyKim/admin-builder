@@ -6,27 +6,39 @@ export class CustomHtml extends ViewObject {
         this.contentEditor;
     }
 
+    componentId() {
+        return 'custom-html';
+    }
+
+    componentOptions() {
+        return {
+           id:'custom-html' + super.getComponentIdNumber(),
+           className:'',
+           htmlContent:'Html 내용 입력'
+       };
+    }
+
 /* =======================================
  * Runtime Component Setting
  * ======================================= */
-    renderRuntime(data, children) {
+    renderRuntime(options, children) {
         let el =  $(`
-            <div id="${data.id}" class="${data.className}">
-                ${data.htmlContent}
+            <div id="${options.id}" class="${options.className}">
+                ${options.htmlContent}
             </div>
         `);
 
         return el;
     }
 
-    scriptRuntime(el, initQueue, data) {}
+    scriptRuntime(el, initQueue, options) {}
 
 /* =======================================
  * Builder Component Setting
  * ======================================= */
     renderBuilder(id, options) {
         let el = `
-            <div id="${id}" class="component vb-item ${options.className}" data-type="custom-html">
+            <div id="${id}" class="component vb-item ${options.className}" data-type="${this.componentId()}">
                 ${super.componentDeleteBtn()}
                 ${options.htmlContent}
             </div>
@@ -37,36 +49,13 @@ export class CustomHtml extends ViewObject {
 
     styleBuilder() {
         return `
-            .vb-item[data-type="custom-html"] {
+            .vb-item[data-type="${this.componentId()}"] {
                 padding: 5px;
                 min-height: 30px;
                 height: auto;
                 margin: 0 !important;
             }
         `;
-    }
-
-    addComponent($el, componentFactory) {
-        super.plusComponentIdNumber('custom-html');
-
-        let options = {
-            id:'custom-html' + super.getComponentIdNumber('custom-html'),
-            className:'',
-            htmlContent:'Html 내용 입력'
-        }
-
-        $el.append(this.createComponent(options.id, options, componentFactory));
-    }
-
-    createComponent(id, options, componentFactory) {
-        let $componentEl = this.component(id, options);
-
-        super.opComponent.setOptions($componentEl, options);
-
-        return $componentEl;
-    }
-
-    dropComponent($el, componentFactory) {
     }
 
 /* =======================================

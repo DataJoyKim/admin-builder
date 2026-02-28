@@ -5,28 +5,41 @@ export class Button extends ViewObject {
         super();
     }
 
+    componentId() {
+        return 'button';
+    }
+
+    componentOptions() {
+        return {
+            id:'button' + super.getComponentIdNumber(),
+            label:'Button',
+            icon:'fas fa-search',
+            action:''
+       };
+    }
+
 /* =======================================
  * Runtime Component Setting
  * ======================================= */
-    renderRuntime(data, children) {
+    renderRuntime(options, children) {
         let el =  $(`
-            <button id="${data.id}" type="button" class="btn btn-default btn-sm" onclick="doAction('${data.action}')">
-                <i class="${data.icon}"></i>
-                ${data.label}
+            <button id="${options.id}" type="button" class="btn btn-default btn-sm" onclick="doAction('${options.action}')">
+                <i class="${options.icon}"></i>
+                ${options.label}
             </button>
         `);
 
         return el;
     }
 
-    scriptRuntime(el, initQueue, data) {}
+    scriptRuntime(el, initQueue, options) {}
 
 /* =======================================
  * Builder Component Setting
  * ======================================= */
     renderBuilder(id, options) {
         let el = `
-            <div id="${id}" class="component vb-item btn btn-default btn-sm" data-type="button">
+            <div id="${id}" class="component vb-item btn btn-default btn-sm" data-type="${this.componentId()}">
                 ${super.componentDeleteBtn()}
                 <i class="${options.icon}"></i>
                 <span class="button-label">${options.label}</span>
@@ -38,38 +51,9 @@ export class Button extends ViewObject {
 
     styleBuilder() {
         return `
-            .vb-item[data-type="row"] {
-                padding: 5px;
-                min-height: 80px;
-                height: auto;
-                margin: 0 !important;
-                border: 1px dashed #bbb;
+            .vb-item[data-type="${this.componentId()}"] {
             }
         `;
-    }
-
-    addComponent($el, componentFactory) {
-        super.plusComponentIdNumber('button');
-
-        let options = {
-            id:'button' + super.getComponentIdNumber('button'),
-            label:'Button',
-            icon:'fas fa-search',
-            action:''
-        }
-
-        $el.append(this.createComponent(options.id, options, componentFactory));
-    }
-
-    createComponent(id, options, componentFactory) {
-        let $componentEl = this.component(id, options);
-
-        super.opComponent.setOptions($componentEl, options);
-
-        return $componentEl;
-    }
-
-    dropComponent($el, componentFactory) {
     }
 
 /* =======================================

@@ -5,10 +5,20 @@ export class CardBody extends ViewObject {
         super();
     }
 
+    componentId() {
+        return 'card-body';
+    }
+
+    componentOptions() {
+        return {
+           id:'cardBody' + super.getComponentIdNumber()
+       };
+    }
+
 /* =======================================
  * Runtime Component Setting
  * ======================================= */
-    renderRuntime(data, children) {
+    renderRuntime(options, children) {
         let el = $(`
              <div class="card-body">
              </div>
@@ -21,15 +31,18 @@ export class CardBody extends ViewObject {
         return el;
     }
 
-    scriptRuntime(el, initQueue, data) {}
+    scriptRuntime(el, initQueue, options) {}
 
 /* =======================================
  * Builder Component Setting
  * ======================================= */
     renderBuilder(id, options) {
         let el = `
-             <div id="${id}" class="component card-body vb-item" data-type="card-body">
+             <div id="${id}" class="component card-body vb-item" data-type="${this.componentId()}">
                 ${super.componentDeleteBtn()}
+                <div class="drop-area-label">
+                    + 여기에 컴포넌트를 추가해주세요.
+                </div>
              </div>
         `;
 
@@ -38,9 +51,9 @@ export class CardBody extends ViewObject {
 
     styleBuilder() {
         return `
-            .vb-item[data-type="card-body"] {
+            .vb-item[data-type="${this.componentId()}"] {
                 padding: 5px;
-                min-height: 100px;
+                min-height: 70px;
                 height: auto;
                 margin: 5px;
                 border: 1px dashed #bbb;
@@ -48,32 +61,12 @@ export class CardBody extends ViewObject {
         `;
     }
 
-    addComponent($el, componentFactory) {
-        super.plusComponentIdNumber('card-body');
-
-        let options = {
-            id:'cardBody' + super.getComponentIdNumber('card-body')
-        }
-
-        $el.append(this.createComponent(options.id, options, componentFactory));
-    }
-
-    createComponent(id, options, componentFactory) {
-
-        let $componentEl = this.component(id, options);
-        this.dropComponent($componentEl, componentFactory);
-
-        super.opComponent.setOptions($componentEl, options);
-
-        return $componentEl;
-    }
-
-    dropComponent($el, componentFactory) {
-        let allowedTypes = ["form","grid","input","button","custom-html"];
-
-        super.drop($el, allowedTypes, componentFactory);
-
-        super.sortable($el, super.getSortableType(allowedTypes));
+    componentDropConfig($componentEl) {
+        return [{
+            element: $componentEl,
+            allowedComponentIds: ["form","grid","input","button","custom-html"],
+            sortable: true
+        }]
     }
 
 /* =======================================

@@ -5,12 +5,22 @@ export class Form extends ViewObject {
         super();
     }
 
+    componentId() {
+        return 'form';
+    }
+
+    componentOptions() {
+        return {
+           id:'form' + super.getComponentIdNumber()
+       };
+    }
+
 /* =======================================
  * Runtime Component Setting
  * ======================================= */
-    renderRuntime(data, children) {
+    renderRuntime(options, children) {
         let el = $(`
-            <form id="${data.id}" class="form">
+            <form id="${options.id}" class="form">
             </form>
         `);
 
@@ -21,14 +31,14 @@ export class Form extends ViewObject {
         return el;
     }
 
-    scriptRuntime(el, initQueue, data) {}
+    scriptRuntime(el, initQueue, options) {}
 
 /* =======================================
  * Builder Component Setting
  * ======================================= */
     renderBuilder(id, options) {
         let el = `
-            <form id="${id}" class="component form vb-item" data-type="form">
+            <form id="${id}" class="component form vb-item" data-type="${this.componentId()}">
                 ${super.componentDeleteBtn()}
                 <div style="text-align: center;width:100%;">Form</div>
             </form>
@@ -39,43 +49,27 @@ export class Form extends ViewObject {
 
     styleBuilder() {
         return `
-            .vb-item[data-type="form"] {
+            .vb-item[data-type="${this.componentId()}"] {
                 padding: 10px;
                 min-height: 80px;
                 height: auto;
                 border: 1px solid #ddd;
+                background-color: #ffffff;
                 border-radius: 8px;
             }
         `;
     }
 
-    addComponent($el, componentFactory) {
-        super.plusComponentIdNumber('form');
+    componentDropConfig($componentEl) {
+        return [{
+            element: $componentEl,
+            allowedComponentIds: ["row","custom-html"],
+            sortable: true
+        }]
+    }
 
-        let options = {
-            id:'form' + super.getComponentIdNumber('form')
-        }
-
-        let $componentEl = this.createComponent(options.id, options, componentFactory);
-        $el.append($componentEl);
-
+    afterAddComponent(componentFactory, $el, $componentEl) {
         super.addComponentByType(componentFactory, 'row', $componentEl);
-    }
-
-    createComponent(id, options, componentFactory) {
-        let $componentEl = this.component(id, options);
-
-        this.dropComponent($componentEl, componentFactory);
-
-        super.opComponent.setOptions($componentEl, options);
-
-        return $componentEl;
-    }
-
-    dropComponent($el, componentFactory) {
-        let allowedTypes = ["row","custom-html"];
-
-        super.drop($el, allowedTypes, componentFactory);
     }
 
 /* =======================================

@@ -1,19 +1,27 @@
 import { OptionPanel } from '../OptionPanel.js';
 
 export class ViewObject {
+    constructor() {
+        this._componentId = this.componentId();
+    }
+
+    componentId() {}
+
+    componentOptions() {}
+
 /* =======================================
  * Runtime Component Setting
  * ======================================= */
-    render(initQueue, data, children) {
-        let el = this.renderRuntime(data, children);
+    render(initQueue, options, children) {
+        let el = this.renderRuntime(options, children);
 
-        this.scriptRuntime(el, initQueue, data);
+        this.scriptRuntime(el, initQueue, options);
 
         return el;
     }
 
-    renderRuntime(data, children) {}
-    scriptRuntime(el, initQueue, data) {}
+    renderRuntime(options, children) {}
+    scriptRuntime(el, initQueue, options) {}
 
 /* =======================================
  * Builder Component Setting
@@ -47,9 +55,44 @@ export class ViewObject {
         return `<button class="component-delete-btn">×</button>`;
     }
 
-    addComponent($el, componentFactory) {}
-    createComponent(id, options, componentFactory) {}
-    dropComponent($el, componentFactory) {}
+    addComponent($el, componentFactory) {
+        this.plusComponentIdNumber();
+
+        let options = this.componentOptions();
+
+        let $componentEl = this.createComponent(options.id, options, componentFactory);
+        $el.append($componentEl);
+
+        this.afterAddComponent(componentFactory, $el, $componentEl);
+    }
+
+    afterAddComponent(componentFactory, $el, $componentEl) {}
+
+    createComponent(id, options, componentFactory) {
+        let $componentEl = this.component(id, options);
+
+        this.opComponent.setOptions($componentEl, options);
+
+        const dropConfig = this.componentDropConfig($componentEl);
+        for(const config of dropConfig) {
+            this.drop(config.element, config.allowedComponentIds, componentFactory);
+
+            if(config.sortable) {
+                this.sortable(config.element, this.createSortableIds(config.allowedComponentIds));
+            }
+        }
+
+        const sortableConfig = this.componentSortableConfig($componentEl);
+        for(const config of sortableConfig) {
+            this.sortable(config.element, this.createSortableIds(config.sortableComponentIds));
+        }
+
+        return $componentEl;
+    }
+
+    componentDropConfig($componentEl) { return []; }
+
+    componentSortableConfig($componentEl) { return []; }
 
     addComponentByType(componentFactory, type, $el) {
         componentFactory[type].addComponent($el, componentFactory);
@@ -78,10 +121,19 @@ export class ViewObject {
     }
 
     sortable($el, items) {
+        const dataType = $el.data('type');
+        let connectWith;
+        if(dataType == 'col' || dataType == 'row') {// col 과 row 간에 컴포넌트 이동가능
+            connectWith = ".vb-item[data-type='col'], .vb-item[data-type='row']";
+        }
+        else { // 자신의 컴포넌트 유형만 허용
+            connectWith = ".vb-item[data-type='"+dataType+"']";
+        }
+
         $el.sortable({
             items: items,
             helper: "clone",
-            //containment: "parent",
+            connectWith: connectWith,
             tolerance: "pointer",
             placeholder: "sortable-placeholder",
             start: function(event, ui){
@@ -94,18 +146,18 @@ export class ViewObject {
         });
     }
 
-    plusComponentIdNumber(id) {
-        let numberId = window.componentIdMap[id];
-        window.componentIdMap[id] = numberId+1;
+    plusComponentIdNumber() {
+        let numberId = window.componentIdMap[this._componentId];
+        window.componentIdMap[this._componentId] = numberId+1;
     }
 
-    getComponentIdNumber(id) {
-        return window.componentIdMap[id];
+    getComponentIdNumber() {
+        return window.componentIdMap[this._componentId];
     }
 
-    getSortableType(allowedTypes) {
-        return allowedTypes
-                .map(type => `.vb-item[data-type="${type}"]`)
+    createSortableIds(allowedComponentIds) {
+        return allowedComponentIds
+                .map(componentId => `.vb-item[data-type="${componentId}"]`)
                 .join(",");
     }
 

@@ -5,15 +5,28 @@ export class Card extends ViewObject {
         super();
     }
 
+    componentId() {
+        return 'card';
+    }
+
+    componentOptions() {
+        return {
+           id:'card' + super.getComponentIdNumber(),
+           size:"col-6",
+           title:"Title",
+           useCardHeader:true
+       };
+    }
+
 /* =======================================
  * Runtime Component Setting
  * ======================================= */
-    renderRuntime(data, children) {
+    renderRuntime(options, children) {
         let carHeaderHtml = ``;
-        if(data.useCardHeader) {
+        if(options.useCardHeader) {
             carHeaderHtml = `
                <div class="card-header">
-                    <h3 class="card-title">${data.title}</h3>
+                    <h3 class="card-title">${options.title}</h3>
                     <div class="card-tools">
                     </div>
                </div>
@@ -21,8 +34,8 @@ export class Card extends ViewObject {
         }
 
         let el = $(`
-            <div class="${data.size}">
-                 <div id="${data.id}" class="card">
+            <div class="${options.size}">
+                 <div id="${options.id}" class="card">
                      ${carHeaderHtml}
                  </div>
             </div>
@@ -39,7 +52,7 @@ export class Card extends ViewObject {
         return el;
     }
 
-    scriptRuntime(el, initQueue, data) {}
+    scriptRuntime(el, initQueue, options) {}
 
 /* =======================================
  * Builder Component Setting
@@ -51,7 +64,7 @@ export class Card extends ViewObject {
         }
 
         let el = `
-            <div id="${id}" class="component ${options.size} vb-item" data-type="card">
+            <div id="${id}" class="component ${options.size} vb-item" data-type="${this.componentId()}">
                 ${super.componentDeleteBtn()}
                  <div class="card">
                     <div class="card-header ${cardHeaderClass}">
@@ -68,7 +81,7 @@ export class Card extends ViewObject {
 
     styleBuilder() {
         return `
-            .vb-item[data-type="card"] .card-tools {
+            .vb-item[data-type="${this.componentId()}"] .card-tools {
                 padding-left: 30px;
                 min-width: 60px;
                 width: auto;
@@ -79,40 +92,23 @@ export class Card extends ViewObject {
         `;
     }
 
-    addComponent($el, componentFactory) {
-        super.plusComponentIdNumber('card');
+    componentDropConfig($componentEl) {
+        return [{
+            element: $componentEl.find(".card-tools"),
+            allowedComponentIds: ["button","custom-html"],
+            sortable: true
+        }]
+    }
 
-        let options = {
-            id:'card' + super.getComponentIdNumber('card'),
-            size:"col-6",
-            title:"Title",
-            useCardHeader:true
-        }
+    componentSortableConfig($componentEl) {
+        return [{
+            element: $componentEl,
+            sortableComponentIds: ["card-body"]
+        }]
+    }
 
-        let $componentEl = this.createComponent(options.id, options, componentFactory);
-        $el.append($componentEl);
-
+    afterAddComponent(componentFactory, $el, $componentEl) {
         super.addComponentByType(componentFactory, 'card-body', $componentEl.find(".card"));
-    }
-
-    createComponent(id, options, componentFactory) {
-        let $componentEl = this.component(id, options);
-
-        this.dropComponent($componentEl.find(".card-tools"), componentFactory);
-
-        super.sortable($componentEl, ".card-body");
-
-        super.opComponent.setOptions($componentEl, options);
-
-        return $componentEl;
-    }
-
-    dropComponent($el, componentFactory) {
-        let allowedTypes = ["button","custom-html"];
-
-        super.drop($el, allowedTypes, componentFactory);
-
-        super.sortable($el, super.getSortableType(allowedTypes));
     }
 
 /* =======================================

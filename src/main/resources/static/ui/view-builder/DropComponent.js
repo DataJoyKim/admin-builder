@@ -11,11 +11,11 @@ export class DropComponent {
     dropLayout(canvasId) {
         const layout = this.componentFactory[this.layoutId];
 
-        let $el = layout.component(this.layoutId, {});
+        let componentEl = layout.createComponent(this.layoutId, {}, this.componentFactory);
 
-        $("#"+canvasId).append($el);
+        $("#"+canvasId).append(componentEl);
 
-        layout.dropComponent($el, this.componentFactory);
+        layout.addComponentByType(this.componentFactory,'row', componentEl);
     }
 
     getComponentFactory() {

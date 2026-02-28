@@ -25,9 +25,10 @@ export class OptionPanel {
     }
 
     static optionSize() {
-        let html = ``;
+        let html = `<option value="col-auto">col-auto</option>`;
+
         for(let i=12; i>=1; i--) {
-            html += `<option value="col-${i}">${i}</option>`;
+            html += `<option value="col-${i}">col-${i}</option>`;
         }
 
         return html;

@@ -6,34 +6,72 @@ export class Grid extends ViewObject {
         this.grid = grid;
     }
 
+    componentId() {
+        return 'grid';
+    }
+
+    componentOptions() {
+        return {
+           id:'grid' + super.getComponentIdNumber(),
+           width: "100%",
+           height: "400px",
+           control:false,
+           inserting:false,
+           editing:false,
+           rowSelectAction:'',
+           insertAction:'',
+           updateAction:'',
+           deleteAction:'',
+           columns:[]
+       };
+    }
+
 /* =======================================
  * Runtime Component Setting
  * ======================================= */
-    renderRuntime(data, children) {
+    renderRuntime(options, children) {
         return $(`
-            <div id="${data.id}">
+            <div id="${options.id}">
             </div>
         `);
     }
 
-    scriptRuntime(el, initQueue, data) {
+    scriptRuntime(el, initQueue, options) {
         initQueue.push(() => {
-            let columns = data.columns;
-            if(data.control) {
+            let columns = options.columns;
+            if(options.control) {
                 columns.push({ type: "control", editButton: true, width: 30, modeSwitchButton: false });
             }
 
             let rowClickEvent = function(args) {
-                if(data.rowSelectAction) {
-                    doAction(data.rowSelectAction, args);
+                if(options.rowSelectAction) {
+                    doAction(options.rowSelectAction, args);
                 }
             }
 
             let options = {};
-            options.inserting = data.inserting;
-            options.editing = data.editing;
+            options.inserting = options.inserting;
+            options.editing = options.editing;
 
-            this.grid.init(data.id, data.width,data.height,columns,rowClickEvent,options);
+            if(options.insertAction) {
+                options.onItemInserting = function(args) {
+                    doAction(options.insertAction, args);
+                }
+            }
+
+            if(options.updateAction) {
+                options.onItemUpdated = function(args) {
+                    doAction(options.updateAction, args);
+                }
+            }
+
+            if(options.deleteAction) {
+                options.onItemDeleting = function(args) {
+                    doAction(options.deleteAction, args);
+                }
+            }
+
+            this.grid.init(options.id, options.width,options.height,columns,rowClickEvent,options);
         });
     }
 
@@ -42,7 +80,7 @@ export class Grid extends ViewObject {
  * ======================================= */
     renderBuilder(id, options) {
         let el = `
-            <div id="${id}" class="component vb-item" data-type="grid">
+            <div id="${id}" class="component vb-item" data-type="${this.componentId()}">
                 ${super.componentDeleteBtn()}
                 Grid
             </div>
@@ -53,8 +91,8 @@ export class Grid extends ViewObject {
 
     styleBuilder() {
         return `
-            .vb-item[data-type="grid"] {
-                background-color: #ffffff;
+            .vb-item[data-type="${this.componentId()}"] {
+                background-color: #fff;
                 height: 400px;
                 width: 100%;
                 display: flex;
@@ -66,37 +104,6 @@ export class Grid extends ViewObject {
                 box-shadow: 0 2px 3px rgba(0,0,0,0.2);
             }
         `;
-    }
-
-    addComponent($el, componentFactory) {
-        super.plusComponentIdNumber('grid');
-
-        let options = {
-            id:'grid' + super.getComponentIdNumber('grid'),
-            width: "100%",
-            height: "400px",
-            control:false,
-            inserting:false,
-            editing:false,
-            rowSelectAction:'',
-            insertAction:'',
-            updateAction:'',
-            deleteAction:'',
-            columns:[]
-        }
-
-
-        $el.append(this.createComponent(options.id, options, componentFactory));
-    }
-
-    createComponent(id, options, componentFactory) {
-        let $componentEl = this.component(id, options);
-        super.opComponent.setOptions($componentEl, options);
-
-        return $componentEl;
-    }
-
-    dropComponent($el, componentFactory) {
     }
 
 /* =======================================
