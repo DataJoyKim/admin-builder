@@ -1,4 +1,4 @@
-export class ViewDataLoader {
+class ViewDataLoader {
     constructor(layoutId) {
         this.layoutId = layoutId;
     }

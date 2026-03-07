@@ -1,6 +1,4 @@
-import { ViewObject } from './ViewObject.js';
-
-export class Input extends ViewObject {
+class Input extends ViewObject {
     constructor() {
         super();
     }

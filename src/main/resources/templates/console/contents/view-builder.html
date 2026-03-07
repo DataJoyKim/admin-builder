@@ -89,7 +89,7 @@
         color: #cfcdcc;
     }
 </style>
-<mf-view th:fragment="view">
+<div th:fragment="view">
     <div id="app-container" style="margin:0; display:flex; height:100vh; font-family:Arial, sans-serif;">
         <div id="left-panel">
             <h4>오브젝트 설정</h4>
@@ -177,8 +177,8 @@
         </div>
     </div>
 
-    <script type="module" src="/ui/view-builder/app-editor.js"></script>
-</mf-view>
+    <script type="module" src="/ui/view-builder/builder/app.js"></script>
+</div>
 <script th:fragment="script">
     $( document ).ready(function() {
         App.modalPopup.receiveParam('OBJECT_RESULT',function(data){

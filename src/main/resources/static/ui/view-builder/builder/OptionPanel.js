@@ -1,4 +1,4 @@
-export class OptionPanel {
+class OptionPanel {
 
     static setOptions($target, options) {
         $target.data('options', options);

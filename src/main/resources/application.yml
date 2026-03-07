@@ -9,9 +9,17 @@ spring:
       enabled: true
 
   thymeleaf:
-    prefix: classpath:templates/
+    prefix: file:src/main/resources/templates/
     suffix: .html
     cache: false
+
+  web:
+    resources:
+      static-locations: file:src/main/resources/static/
+      cache:
+        period: 0
+      chain:
+        cache: false
 
   datasource:
     driver-class-name: org.h2.Driver

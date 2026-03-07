@@ -1,6 +1,4 @@
-import { OptionPanel } from '../OptionPanel.js';
-
-export class ViewObject {
+class ViewObject {
     constructor() {
         this._componentId = this.componentId();
     }

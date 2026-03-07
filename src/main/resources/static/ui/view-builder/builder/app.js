@@ -1,10 +1,34 @@
-import { ComponentFactory } from '/ui/view-builder/ComponentFactory.js';
-import { ViewAppEditor } from '/ui/view-builder/ViewAppEditor.js';
-
 // 컴포넌트 랜더링
 $(function () {
-    window.App.vb = new ViewAppEditor();
-    window.App.vb.init();
+    window.App.version = '1.0.0';
+    console.log(`version ${App.version}`);
+
+    window.App.configs = {
+        paths:{
+            module:'/ui/view-builder',
+            actions:'/actions',
+            builder:'/builder',
+            components:'/components',
+            css:'/css',
+            data:'/data',
+            img:'/img',
+            runtime:'/runtime'
+        }
+    };
+
+    $.when(
+        $.getScript(`${App.configs.paths.module}/ModuleLoader.js`)
+    )
+    .done(function() {
+        window.App.module = new ModuleLoader(true);
+
+        App.module.load(function(){
+            ViewManager.init();
+
+            window.App.vb = new ViewBuilder();
+            window.App.vb.init();
+        });
+    });
 });
 
 // 옵션패널

@@ -1,4 +1,4 @@
-export class GlobalVariable {
+class GlobalVariable {
     static variable = {
         message : '_message'
     }

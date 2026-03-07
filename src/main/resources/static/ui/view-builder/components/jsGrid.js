@@ -1,9 +1,7 @@
-import { ViewObject } from './ViewObject.js';
-
-export class Grid extends ViewObject {
-    constructor(grid) {
+class jsGrid extends ViewObject {
+    constructor() {
         super();
-        this.grid = grid;
+        this.grid = App.grid;
     }
 
     componentId() {
@@ -92,7 +90,7 @@ export class Grid extends ViewObject {
     styleBuilder() {
         return `
             .vb-item[data-type="${this.componentId()}"] {
-                background-color: #fff;
+                background-color: #ffffff;
                 height: 400px;
                 width: 100%;
                 display: flex;

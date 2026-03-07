@@ -1,6 +1,4 @@
-import { ViewObject } from './ViewObject.js';
-
-export class Row extends ViewObject {
+class Row extends ViewObject {
     constructor() {
         super();
     }

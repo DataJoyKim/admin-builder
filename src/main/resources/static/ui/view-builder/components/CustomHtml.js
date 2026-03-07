@@ -1,6 +1,4 @@
-import { ViewObject } from './ViewObject.js';
-
-export class CustomHtml extends ViewObject {
+class CustomHtml extends ViewObject {
     constructor() {
         super();
         this.contentEditor;

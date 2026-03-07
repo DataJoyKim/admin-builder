@@ -1,11 +1,11 @@
-export class ActionExecutor {
+class ActionExecutor {
     static init() {
-        window['doAction'] = this.createDoAction();
+        window.App.doAction = this.createDoAction();
     }
 
     static createDoAction() {
         const code = `
-            window.vb.actions[actionName](...args);
+            window.App.actions[actionName](...args);
         `;
 
         return new Function("actionName", "...args", code);

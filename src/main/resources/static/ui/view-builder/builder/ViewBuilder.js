@@ -1,9 +1,4 @@
-import { Render } from '/ui/view-builder/Render.js';
-import { RenderEditor } from '/ui/view-builder/RenderEditor.js';
-import { DropComponent } from '/ui/view-builder/DropComponent.js';
-import { ViewDataLoader } from '/ui/view-builder/ViewDataLoader.js';
-
-export class ViewAppEditor {
+class ViewBuilder {
 
     constructor() {
         this.canvasId = 'canvas';
@@ -22,7 +17,7 @@ export class ViewAppEditor {
     }
 
     loadEditor(data) {
-        const render = new RenderEditor();
+        const render = new RenderBuilder();
         if (data?.length) {
             render.init(this.canvasId, data);
         }

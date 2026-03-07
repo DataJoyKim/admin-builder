@@ -1,6 +1,4 @@
-import { Actions } from './Actions.js';
-
-export class Workflow extends Actions {
+class Workflow extends Actions {
     constructor() {
         super();
     }
@@ -41,7 +39,6 @@ export class Workflow extends Actions {
         if(gridId) {
             code += `   App.grid.setData('${gridId}', ${message}['${responseMessageId}']);`;
         }
-        //code += `   App.form.setData('${formId}', ${message}['${responseMessageId}'][0]);`;
         code += `},`;
 
         // 실패 코드 생성

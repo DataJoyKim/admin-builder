@@ -1,11 +1,9 @@
-import { ComponentFactory } from './ComponentFactory.js';
-
-export class DropComponent {
+class DropComponent {
     constructor() {
         this.layoutId = 'layout';
-        this.componentFactory = ComponentFactory.instanceMap();
+        this.componentFactory = App.ComponentFactory.instanceMap();
 
-        window.componentIdMap = ComponentFactory.getComponentIdMap();
+        window.componentIdMap = App.ComponentFactory.getComponentIdMap();
     }
 
     dropLayout(canvasId) {

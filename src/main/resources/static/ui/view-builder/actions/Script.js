@@ -1,6 +1,4 @@
-import { Actions } from './Actions.js';
-
-export class Script extends Actions {
+class Script extends Actions {
     constructor() {
         super();
     }

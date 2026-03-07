@@ -1,6 +1,4 @@
-import { ViewObject } from './ViewObject.js';
-
-export class CardBody extends ViewObject {
+class CardBody extends ViewObject {
     constructor() {
         super();
     }

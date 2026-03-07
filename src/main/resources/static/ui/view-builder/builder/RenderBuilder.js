@@ -1,42 +1,15 @@
-import { ComponentFactory } from './ComponentFactory.js';
-import { ActionsFactory } from './ActionsFactory.js';
-import { GlobalVariable } from './GlobalVariable.js';
-import { ActionExecutor } from './ActionExecutor.js';
-
-export class Render {
+class RenderBuilder {
     constructor() {
         this.initQueue = [];
     }
 
-    init(id, viewData, actionsData) {
+    init(id, data) {
         this.initQueue = [];
 
-        this.registerGlobalVariable();
-
-        ActionExecutor.init();
-
-        this.registerActions(actionsData);
-
-        this.render(id, viewData);
+        this.render(id, data);
 
         for (let initQ of this.initQueue) {
             initQ();
-        }
-    }
-
-    registerGlobalVariable() {
-        GlobalVariable.init();
-    }
-
-    registerActions(data) {
-        if(!data) {
-            return;
-        }
-
-        for(const actionData of data) {
-            const action = ActionsFactory.instance(actionData.type);
-
-            action.register(actionData);
         }
     }
 
@@ -45,7 +18,11 @@ export class Render {
             .addClass('wrapper')
             .attr('id', id);
 
-        contentWrapper.append(this.component(data));
+        const layout = App.ComponentFactory.instance('layout');
+        const layoutEl = layout.component('layout', {});
+
+        layoutEl.append(this.component(data));
+        contentWrapper.append(layoutEl);
 
         $("#"+id).replaceWith(contentWrapper);
     }
@@ -58,8 +35,9 @@ export class Render {
         const frag = $(document.createDocumentFragment());
 
         for (let data of viewData) {
-        console.log(data.type);
-            const componentEl = ComponentFactory.instance(data.type);
+            const comp = ComponentFactory.instance(data.type);
+
+            const componentEl = comp.createComponent(data.id, data, ComponentFactory.instanceMap());
 
             let children = null;
             if(data.children) {
@@ -67,8 +45,17 @@ export class Render {
             }
 
             if(componentEl != null) {
-                const viewObject = componentEl.render(this.initQueue, data, children);
-                frag.append(viewObject);
+                if(children) {
+                    if(data.type == 'card') {
+                        componentEl.find(".card-tools").append(children.cardHeader);
+                        componentEl.find(".card").append(children.cardChildren);
+                    }
+                    else {
+                        componentEl.append(children);
+                    }
+                }
+
+                frag.append(componentEl);
             }
         }
 
