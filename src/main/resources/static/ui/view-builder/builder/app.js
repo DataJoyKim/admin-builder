@@ -1,9 +1,10 @@
 // 컴포넌트 랜더링
 $(function () {
-    window.App.version = '1.0.0';
-    console.log(`version ${App.version}`);
+    window.VB = window.VB || {};
+    window.VB.version = '1.0.0';
+    console.log(`version ${VB.version}`);
 
-    window.App.configs = {
+    window.VB.configs = {
         paths:{
             module:'/ui/view-builder',
             actions:'/actions',
@@ -17,16 +18,16 @@ $(function () {
     };
 
     $.when(
-        $.getScript(`${App.configs.paths.module}/ModuleLoader.js`)
+        $.getScript(`${VB.configs.paths.module}/ModuleLoader.js`)
     )
     .done(function() {
-        window.App.module = new ModuleLoader(true);
+        window.VB.module = new ModuleLoader(true);
 
-        App.module.load(function(){
+        VB.module.load(function(){
             ViewManager.init();
 
-            window.App.vb = new ViewBuilder();
-            window.App.vb.init();
+            window.VB.builder = new ViewBuilder();
+            window.VB.builder.init();
         });
     });
 });
@@ -38,9 +39,9 @@ $(document).on("click", ".vb-item", function(e) {
     const $el = $(this);
     const type = $el.data("type");
 
-    const componentEl = ComponentFactory.instance(type);
+    const componentEl = VB.ComponentFactory.instance(type);
 
-    componentEl.optionPanel($el, "options", App.vb.dropComponent.getComponentFactory());
+    componentEl.optionPanel($el, "options", VB.dropComponent.getComponentFactory());
 });
 
 // 컴포넌트 삭제

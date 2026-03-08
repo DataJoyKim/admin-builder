@@ -3,7 +3,7 @@ class ComponentFactory {
         return {
                 "button": new Button(),
                 "form": new Form(),
-                "grid": new jsGrid(),
+                "grid": new VbGrid(),
                 "row": new Row(),
                 "card": new Card(),
                 "card-body": new CardBody(),

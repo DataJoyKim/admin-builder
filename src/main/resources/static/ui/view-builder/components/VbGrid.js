@@ -1,7 +1,7 @@
-class jsGrid extends ViewObject {
+class VbGrid extends ViewObject {
     constructor() {
         super();
-        this.grid = App.grid;
+        this.grid = VB.utils.grid;
     }
 
     componentId() {
@@ -43,7 +43,7 @@ class jsGrid extends ViewObject {
 
             let rowClickEvent = function(args) {
                 if(options.rowSelectAction) {
-                    doAction(options.rowSelectAction, args);
+                    VB.doAction(options.rowSelectAction, args);
                 }
             }
 
@@ -53,19 +53,19 @@ class jsGrid extends ViewObject {
 
             if(options.insertAction) {
                 options.onItemInserting = function(args) {
-                    doAction(options.insertAction, args);
+                    VB.doAction(options.insertAction, args);
                 }
             }
 
             if(options.updateAction) {
                 options.onItemUpdated = function(args) {
-                    doAction(options.updateAction, args);
+                    VB.doAction(options.updateAction, args);
                 }
             }
 
             if(options.deleteAction) {
                 options.onItemDeleting = function(args) {
-                    doAction(options.deleteAction, args);
+                    VB.doAction(options.deleteAction, args);
                 }
             }
 

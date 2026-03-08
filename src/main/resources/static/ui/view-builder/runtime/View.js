@@ -3,7 +3,7 @@ class View {
     }
 
     init() {
-        App.httpClient.get(`/pages/${App.objectCode}/definition`,{},
+        VB.utils.httpClient.get(`/pages/${VB.objectCode}/definition`,{},
             function(response){
                 let view;
                 try {
@@ -15,8 +15,8 @@ class View {
                     return;
                 }
 
-                App.GlobalVariable.init();
-                App.ActionExecutor.init();
+                VB.GlobalVariable.init();
+                VB.ActionExecutor.init();
 
                 const render = new Render();
                 render.init('canvas', view, response.viewActions);

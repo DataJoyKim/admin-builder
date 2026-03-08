@@ -21,7 +21,7 @@ class Render {
         }
 
         for(const actionData of data) {
-            const action = App.ActionsFactory.instance(actionData.type);
+            const action = VB.ActionsFactory.instance(actionData.type);
 
             action.register(actionData);
         }
@@ -45,8 +45,7 @@ class Render {
         const frag = $(document.createDocumentFragment());
 
         for (let data of viewData) {
-        console.log(data.type);
-            const componentEl = App.ComponentFactory.instance(data.type);
+            const componentEl = VB.ComponentFactory.instance(data.type);
 
             let children = null;
             if(data.children) {

@@ -30,14 +30,14 @@ class Workflow extends Actions {
 
         // workflow 실행 코드 생성
         code += `
-            App.workflowClient.execute('${workflowCode}',requestMessage,
+            VB.utils.workflowClient.execute('${workflowCode}',requestMessage,
         `;
 
         // 결과 코드 생성
         code += `function(response){`
         code += `   ${message}['${responseMessageId}'] = response['${responseMessageId}'];`;
         if(gridId) {
-            code += `   App.grid.setData('${gridId}', ${message}['${responseMessageId}']);`;
+            code += `   VB.utils.grid.setData('${gridId}', ${message}['${responseMessageId}']);`;
         }
         code += `},`;
 

@@ -1,9 +1,17 @@
 class ViewManager {
     static init() {
-        window.App = window.App || {};
-        window.App.ActionExecutor = ActionExecutor;
-        window.App.GlobalVariable = GlobalVariable;
-        window.App.ActionsFactory = ActionsFactory;
-        window.App.ComponentFactory = ComponentFactory;
+        window.VB = window.VB || {};
+        window.VB.utils = {
+            grid: App.grid,
+            modalPopup: App.modalPopup,
+            popup: App.popup,
+            httpClient: App.httpClient
+        };
+        window.VB.objectCode = App.objectCode;
+        window.VB.ActionExecutor = ActionExecutor;
+        window.VB.GlobalVariable = GlobalVariable;
+        window.VB.ActionsFactory = ActionsFactory;
+        window.VB.ComponentFactory = ComponentFactory;
+        window.VB.dropComponent = new DropComponent();
     }
 }

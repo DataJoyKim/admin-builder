@@ -7,41 +7,41 @@ class ModuleLoader {
         ];
 
         this.beforeModules = [
-            `${App.configs.paths.actions}/Actions.js`,
-            `${App.configs.paths.components}/ViewObject.js`,
-            `${App.configs.paths.data}/ViewDataLoader.js`
+            `${VB.configs.paths.actions}/Actions.js`,
+            `${VB.configs.paths.components}/ViewObject.js`,
+            `${VB.configs.paths.data}/ViewDataLoader.js`
         ];
 
         this.actionsModules = [
-            `${App.configs.paths.actions}/Script.js`,
-            `${App.configs.paths.actions}/Workflow.js`
+            `${VB.configs.paths.actions}/Script.js`,
+            `${VB.configs.paths.actions}/Workflow.js`
         ];
 
         this.componentsModules = [
-             `${App.configs.paths.components}/Button.js`,
-             `${App.configs.paths.components}/Card.js`,
-             `${App.configs.paths.components}/CardBody.js`,
-             `${App.configs.paths.components}/CustomHtml.js`,
-             `${App.configs.paths.components}/Form.js`,
-             `${App.configs.paths.components}/jsGrid.js`,
-             `${App.configs.paths.components}/Input.js`,
-             `${App.configs.paths.components}/Layout.js`,
-             `${App.configs.paths.components}/Row.js`
+             `${VB.configs.paths.components}/Button.js`,
+             `${VB.configs.paths.components}/Card.js`,
+             `${VB.configs.paths.components}/CardBody.js`,
+             `${VB.configs.paths.components}/CustomHtml.js`,
+             `${VB.configs.paths.components}/Form.js`,
+             `${VB.configs.paths.components}/VbGrid.js`,
+             `${VB.configs.paths.components}/Input.js`,
+             `${VB.configs.paths.components}/Layout.js`,
+             `${VB.configs.paths.components}/Row.js`
         ];
 
         this.afterModules = [
-            `${App.configs.paths.actions}/ActionsFactory.js`,
-            `${App.configs.paths.components}/ComponentFactory.js`,
-            `${App.configs.paths.runtime}/Render.js`,
-            `${App.configs.paths.runtime}/View.js`
+            `${VB.configs.paths.actions}/ActionsFactory.js`,
+            `${VB.configs.paths.components}/ComponentFactory.js`,
+            `${VB.configs.paths.runtime}/Render.js`,
+            `${VB.configs.paths.runtime}/View.js`
         ];
 
         if(edit) {
             const builderModule = [
-                `${App.configs.paths.builder}/DropComponent.js`,
-                `${App.configs.paths.builder}/OptionPanel.js`,
-                `${App.configs.paths.builder}/RenderBuilder.js`,
-                `${App.configs.paths.builder}/ViewBuilder.js`
+                `${VB.configs.paths.builder}/DropComponent.js`,
+                `${VB.configs.paths.builder}/OptionPanel.js`,
+                `${VB.configs.paths.builder}/RenderBuilder.js`,
+                `${VB.configs.paths.builder}/ViewBuilder.js`
             ];
 
             this.afterModules.push(...builderModule);
@@ -61,7 +61,7 @@ class ModuleLoader {
         let modules = new Array();
 
         for(let module of modulePath) {
-            modules.push(`${App.configs.paths.module}${module}?v=${App.version}`);
+            modules.push(`${VB.configs.paths.module}${module}?v=${VB.version}`);
         }
 
         return modules;

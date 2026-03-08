@@ -18,7 +18,7 @@ class RenderBuilder {
             .addClass('wrapper')
             .attr('id', id);
 
-        const layout = App.ComponentFactory.instance('layout');
+        const layout = VB.ComponentFactory.instance('layout');
         const layoutEl = layout.component('layout', {});
 
         layoutEl.append(this.component(data));

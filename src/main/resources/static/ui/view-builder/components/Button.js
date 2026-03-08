@@ -1,6 +1,7 @@
 class Button extends ViewObject {
     constructor() {
         super();
+        this.utils = VB.utils;
     }
 
     componentId() {
@@ -21,7 +22,7 @@ class Button extends ViewObject {
  * ======================================= */
     renderRuntime(options, children) {
         let el =  $(`
-            <button id="${options.id}" type="button" class="btn btn-default btn-sm" onclick="doAction('${options.action}')">
+            <button id="${options.id}" type="button" class="btn btn-default btn-sm" onclick="VB.doAction('${options.action}')">
                 <i class="${options.icon}"></i>
                 ${options.label}
             </button>
@@ -101,8 +102,8 @@ class Button extends ViewObject {
                 return;
             }
 
-            App.modalPopup.open('/console/action',{title:'Action 팝업',messageId:'ACTION_REQUEST'},{objectCode:objectCode});
-            App.modalPopup.receiveParam('ACTION_RESULT', function(data){
+            this.utils.modalPopup.open('/console/action',{title:'Action 팝업',messageId:'ACTION_REQUEST'},{objectCode:objectCode});
+            this.utils.modalPopup.receiveParam('ACTION_RESULT', function(data){
                 if(data.actionName) {
                     $("#button-action").val(data.actionName);
                 }

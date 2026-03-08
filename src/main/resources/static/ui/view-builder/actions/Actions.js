@@ -2,18 +2,18 @@ class Actions {
     register(data) {}
 
     variableMessage() {
-        return App.GlobalVariable.variable.message
+        return VB.GlobalVariable.variable.message
     }
 
     registerAction(actionName, argsParams, code) {
-        window.App.actions = window.App.actions || {};
+        window.VB.actions = window.VB.actions || {};
 
         if(argsParams) {
             const args = argsParams.split(",");
-            window.App.actions[actionName] = new Function(...args, code);
+            window.VB.actions[actionName] = new Function(...args, code);
         }
         else {
-            window.App.actions[actionName] = new Function(code);
+            window.VB.actions[actionName] = new Function(code);
         }
     }
 }

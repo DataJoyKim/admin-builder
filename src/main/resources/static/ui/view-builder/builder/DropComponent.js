@@ -1,9 +1,9 @@
 class DropComponent {
     constructor() {
         this.layoutId = 'layout';
-        this.componentFactory = App.ComponentFactory.instanceMap();
+        this.componentFactory = VB.ComponentFactory.instanceMap();
 
-        window.componentIdMap = App.ComponentFactory.getComponentIdMap();
+        window.componentIdMap = VB.ComponentFactory.getComponentIdMap();
     }
 
     dropLayout(canvasId) {
