@@ -1,6 +1,8 @@
 class Render {
-    constructor() {
+    constructor(actionsFactory, componentFactory) {
         this.initQueue = [];
+        this.actionsFactory = actionsFactory;
+        this.componentFactory = componentFactory;
     }
 
     init(id, viewData, actionsData) {
@@ -21,7 +23,7 @@ class Render {
         }
 
         for(const actionData of data) {
-            const action = VB.ActionsFactory.instance(actionData.type);
+            const action = this.actionsFactory.instance(actionData.type);
 
             action.register(actionData);
         }
@@ -45,7 +47,7 @@ class Render {
         const frag = $(document.createDocumentFragment());
 
         for (let data of viewData) {
-            const componentEl = VB.ComponentFactory.instance(data.type);
+            const componentEl = this.componentFactory.instance(data.type);
 
             let children = null;
             if(data.children) {

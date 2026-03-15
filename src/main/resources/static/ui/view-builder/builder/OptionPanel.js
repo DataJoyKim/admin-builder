@@ -1,30 +1,30 @@
 class OptionPanel {
 
-    static setOptions($target, options) {
+    setOptions($target, options) {
         $target.data('options', options);
     }
 
-    static getOptions($target) {
+    getOptions($target) {
         return $target.data('options');
     }
 
-    static changeOptionValue($component, options, key, value) {
+    changeOptionValue($component, options, key, value) {
         options[key] = value;
-        OptionPanel.setOptions($component, options);
+        this.setOptions($component, options);
     }
 
-    static changeSize($target, newSize) {
+    changeSize($target, newSize) {
         $target.removeClass(function(i, cls) {
             return (cls.match(/col-\d+/g) || []).join(' ');
         });
         $target.addClass(newSize);
     }
 
-    static getSize($target) {
+    getSize($target) {
         return $target.attr("class").split(/\s+/).find(cls => cls.startsWith("col-"));
     }
 
-    static optionSize() {
+    optionSize() {
         let html = `<option value="col-auto">col-auto</option>`;
 
         for(let i=12; i>=1; i--) {
@@ -34,7 +34,7 @@ class OptionPanel {
         return html;
     }
 
-    static select(id, option) {
+    select(id, option) {
         return $(`
             <div class="form-group ${option.size}">
                <label for="${id}">${option.label}</label>
@@ -45,7 +45,7 @@ class OptionPanel {
         `);
     }
 
-    static button(id, option) {
+    button(id, option) {
         let html = ``;
         html += `<div class="form-group ${option.size}">`;
         if(option.label) {
@@ -64,7 +64,7 @@ class OptionPanel {
         return $(html);
     }
 
-    static input(id, option) {
+    input(id, option) {
         return $(`
             <div class="form-group ${option.size}">
                 <label for="${id}">${option.label}</label>
@@ -73,7 +73,7 @@ class OptionPanel {
         `);
     }
 
-    static toggle(id, option) {
+    toggle(id, option) {
         return $(`
             <div class="form-group ${option.size}">
                 <label for="${id}">${option.label}</label>
@@ -85,19 +85,19 @@ class OptionPanel {
         `);
     }
 
-    static row() {
+    row() {
         return $(`<div class="row"></div>`);
     }
 
-    static clickEvent(id, _handler) {
+    clickEvent(id, _handler) {
         $(document).off("click", "#"+id).on("click", "#"+id, _handler);
     }
 
-    static inputEvent(id, _handler) {
+    inputEvent(id, _handler) {
         $("#"+id).off("input").on("input",_handler);
     }
 
-    static changeEvent(id, _handler) {
+    changeEvent(id, _handler) {
         $("#"+id).off("change").on("change",_handler);
     }
 }

@@ -1,6 +1,7 @@
 class CustomHtml extends ViewObject {
-    constructor() {
-        super();
+    constructor(optionPanel) {
+        super(optionPanel);
+        this.optionPanel = optionPanel;
         this.contentEditor;
     }
 
@@ -29,7 +30,7 @@ class CustomHtml extends ViewObject {
         return el;
     }
 
-    scriptRuntime(el, initQueue, options) {}
+    scriptRuntime(el, options) {}
 
 /* =======================================
  * Builder Component Setting
@@ -60,8 +61,8 @@ class CustomHtml extends ViewObject {
  * Option Panel Setting
  * ======================================= */
     optionPanelView($panel, options) {
-        $panel.append(super.opComponent.input('custom-html-id',{label:'ID', size:'col-5'}));
-        $panel.append(super.opComponent.input('custom-html-class',{label:'class 명', size:'col-6'}));
+        $panel.append(this.optionPanel.input('custom-html-id',{label:'ID', size:'col-5'}));
+        $panel.append(this.optionPanel.input('custom-html-class',{label:'class 명', size:'col-6'}));
         $panel.append($(`
             <div class="form-group col-12">
                <label for="custom-html-content">Html 내용</label>
@@ -86,19 +87,19 @@ class CustomHtml extends ViewObject {
     }
 
     optionPanelEvent($el, options, componentFactory) {
-        super.opComponent.inputEvent('custom-html-id',(e) => {
-            super.opComponent.changeOptionValue($el, options, 'id', $(e.target).val());
+        this.optionPanel.inputEvent('custom-html-id',(e) => {
+            this.optionPanel.changeOptionValue($el, options, 'id', $(e.target).val());
         });
 
-        super.opComponent.inputEvent('custom-html-class',(e) => {
-            super.opComponent.changeOptionValue($el, options, 'className', $(e.target).val());
+        this.optionPanel.inputEvent('custom-html-class',(e) => {
+            this.optionPanel.changeOptionValue($el, options, 'className', $(e.target).val());
         });
 
-        const opComponent = super.opComponent;
+        const optionPanel = this.optionPanel;
         const componentDeleteBtn = super.componentDeleteBtn();
         this.contentEditor.on("change", function(instance, changeObj) {
             const value = instance.getValue();
-            opComponent.changeOptionValue($el, options, 'htmlContent', value);
+            optionPanel.changeOptionValue($el, options, 'htmlContent', value);
             $el.html(componentDeleteBtn + value);
         });
     }

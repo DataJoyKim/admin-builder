@@ -21,12 +21,12 @@ $(function () {
         $.getScript(`${VB.configs.paths.module}/ModuleLoader.js`)
     )
     .done(function() {
-        window.VB.module = new ModuleLoader(true);
+        window.VB.module = new ModuleLoader(VB.version, VB.configs, true);
 
         VB.module.load(function(){
-            ViewManager.init();
+            ViewManager.init('layout');
 
-            window.VB.builder = new ViewBuilder();
+            window.VB.builder = new ViewBuilder('canvas', VB.actionsFactory, VB.componentFactory, VB.dropComponent, VB.viewDataLoader);
             window.VB.builder.init();
         });
     });
@@ -39,9 +39,9 @@ $(document).on("click", ".vb-item", function(e) {
     const $el = $(this);
     const type = $el.data("type");
 
-    const componentEl = VB.ComponentFactory.instance(type);
+    const componentEl = VB.componentFactory.instance(type);
 
-    componentEl.optionPanel($el, "options", VB.dropComponent.getComponentFactory());
+    componentEl.initOptionPanel($el, "options", VB.componentFactory.instanceMap());
 });
 
 // 컴포넌트 삭제

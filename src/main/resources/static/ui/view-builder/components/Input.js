@@ -1,6 +1,7 @@
 class Input extends ViewObject {
-    constructor() {
-        super();
+    constructor(optionPanel) {
+        super(optionPanel);
+        this.optionPanel = optionPanel;
     }
 
     componentId() {
@@ -39,7 +40,7 @@ class Input extends ViewObject {
         return el;
     }
 
-    scriptRuntime(el, initQueue, options) {}
+    scriptRuntime(el, options) {}
 
 /* =======================================
  * Builder Component Setting
@@ -82,10 +83,10 @@ class Input extends ViewObject {
  * Option Panel Setting
  * ======================================= */
     optionPanelView($panel, options) {
-        $panel.append(super.opComponent.input('input-id',{label:'ID', size:'col-6'}));
-        $panel.append(super.opComponent.select('input-size',{label:'크기', size:'col-6', options:super.opComponent.optionSize()}));
-        $panel.append(super.opComponent.input('input-width',{label:'width', size:'col-6'}));
-        $panel.append(super.opComponent.input('input-label',{label:'라벨', size:'col-6'}));
+        $panel.append(this.optionPanel.input('input-id',{label:'ID', size:'col-6'}));
+        $panel.append(this.optionPanel.select('input-size',{label:'크기', size:'col-6', options:this.optionPanel.optionSize()}));
+        $panel.append(this.optionPanel.input('input-width',{label:'width', size:'col-6'}));
+        $panel.append(this.optionPanel.input('input-label',{label:'라벨', size:'col-6'}));
     }
 
     optionPanelScript($el, options) {
@@ -96,22 +97,22 @@ class Input extends ViewObject {
     }
 
     optionPanelEvent($el, options, componentFactory) {
-        super.opComponent.inputEvent('input-id',(e) => {
-            super.opComponent.changeOptionValue($el, options, 'id', $(e.target).val());
+        this.optionPanel.inputEvent('input-id',(e) => {
+            this.optionPanel.changeOptionValue($el, options, 'id', $(e.target).val());
         });
 
-        super.opComponent.changeEvent('input-size',(e) => {
-            super.opComponent.changeOptionValue($el, options, 'size', $(e.target).val());
-            super.opComponent.changeSize($el, options.size);
+        this.optionPanel.changeEvent('input-size',(e) => {
+            this.optionPanel.changeOptionValue($el, options, 'size', $(e.target).val());
+            this.optionPanel.changeSize($el, options.size);
         });
 
-        super.opComponent.inputEvent('input-width',(e) => {
-            super.opComponent.changeOptionValue($el, options, 'width', $(e.target).val());
+        this.optionPanel.inputEvent('input-width',(e) => {
+            this.optionPanel.changeOptionValue($el, options, 'width', $(e.target).val());
             $el.css('width',options.width);
         });
 
-        super.opComponent.inputEvent('input-label',(e) => {
-            super.opComponent.changeOptionValue($el, options, 'label', $(e.target).val());
+        this.optionPanel.inputEvent('input-label',(e) => {
+            this.optionPanel.changeOptionValue($el, options, 'label', $(e.target).val());
             $el.find("label").text(options.label);
             $el.find("label").prop('hidden', (options.label) ? false : true);
         });

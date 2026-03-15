@@ -1,6 +1,7 @@
 class Workflow extends Actions {
-    constructor() {
-        super();
+    constructor(globalVariable) {
+        super(globalVariable);
+        this.globalVariable = globalVariable;
     }
 
     register(data) {
@@ -15,7 +16,7 @@ class Workflow extends Actions {
             return;
         }
 
-        let message = `global.${super.variableMessage()}`;
+        let message = `global.${this.globalVariable.variable.message}`;
 
         // 함수 코드 생성
         let code = ``;

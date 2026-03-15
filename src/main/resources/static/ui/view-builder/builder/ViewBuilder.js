@@ -1,9 +1,11 @@
 class ViewBuilder {
 
-    constructor() {
-        this.canvasId = 'canvas';
-        this.dropComponent = new DropComponent();
-        this.viewDataLoader = new ViewDataLoader('layout');
+    constructor(canvasId, actionsFactory, componentFactory, dropComponent, viewDataLoader) {
+        this.canvasId = canvasId;
+        this.actionsFactory = actionsFactory;
+        this.componentFactory = componentFactory;
+        this.dropComponent = dropComponent;
+        this.viewDataLoader = viewDataLoader;
     }
 
     init() {
@@ -12,12 +14,12 @@ class ViewBuilder {
     }
 
     preview() {
-        const render = new Render();
+        const render = new Render(this.actionsFactory, this.componentFactory);
         render.init(this.canvasId, this.getViewData());
     }
 
     loadEditor(data) {
-        const render = new RenderBuilder();
+        const render = new RenderBuilder(this.componentFactory);
         if (data?.length) {
             render.init(this.canvasId, data);
         }

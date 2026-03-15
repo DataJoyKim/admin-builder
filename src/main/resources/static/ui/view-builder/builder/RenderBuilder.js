@@ -1,6 +1,7 @@
 class RenderBuilder {
-    constructor() {
+    constructor(componentFactory) {
         this.initQueue = [];
+        this.componentFactory = componentFactory;
     }
 
     init(id, data) {
@@ -18,7 +19,7 @@ class RenderBuilder {
             .addClass('wrapper')
             .attr('id', id);
 
-        const layout = VB.ComponentFactory.instance('layout');
+        const layout = this.componentFactory.instance('layout');
         const layoutEl = layout.component('layout', {});
 
         layoutEl.append(this.component(data));
@@ -35,9 +36,9 @@ class RenderBuilder {
         const frag = $(document.createDocumentFragment());
 
         for (let data of viewData) {
-            const comp = ComponentFactory.instance(data.type);
+            const comp = this.componentFactory.instance(data.type);
 
-            const componentEl = comp.createComponent(data.id, data, ComponentFactory.instanceMap());
+            const componentEl = comp.createComponent(data.id, data, this.componentFactory.instanceMap());
 
             let children = null;
             if(data.children) {

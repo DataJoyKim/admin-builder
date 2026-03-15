@@ -41,9 +41,6 @@
   cursor: grab;
 }
 .drop-area {
-  width: 100%;
-  height: 100%;
-  border: 2px dashed #bbb;
   position: relative;
 }
 .selected {

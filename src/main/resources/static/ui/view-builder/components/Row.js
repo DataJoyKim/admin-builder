@@ -1,6 +1,7 @@
 class Row extends ViewObject {
-    constructor() {
-        super();
+    constructor(optionPanel) {
+        super(optionPanel);
+        this.optionPanel = optionPanel;
     }
 
     componentId() {
@@ -29,7 +30,7 @@ class Row extends ViewObject {
         return el;
     }
 
-    scriptRuntime(el, initQueue, options) {}
+    scriptRuntime(el, options) {}
 
 /* =======================================
  * Builder Component Setting

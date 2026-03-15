@@ -1,6 +1,7 @@
 class Layout extends ViewObject {
-    constructor() {
-        super();
+    constructor(optionPanel) {
+        super(optionPanel);
+        this.optionPanel = optionPanel;
     }
 
     componentId() {
@@ -25,7 +26,7 @@ class Layout extends ViewObject {
         return el;
     }
 
-    scriptRuntime(el, initQueue, options) {}
+    scriptRuntime(el, options) {}
 
 /* =======================================
  * Builder Component Setting
@@ -43,6 +44,10 @@ class Layout extends ViewObject {
         return `
             .vb-item[data-type="${this.componentId()}"] {
                 cursor: pointer;
+                width: 100%;
+                min-height: 90%;
+                border: 2px dashed #bbb;
+                padding-bottom: 50px;
             }
         `;
     }
@@ -63,13 +68,13 @@ class Layout extends ViewObject {
  * Option Panel Setting
  * ======================================= */
     optionPanelView($panel, options) {
-        $panel.append(super.opComponent.button('layout-row-add',{label:'Layout 내용', size:'col-12', btnLabel:'행 추가',icon:'fas fa-plus'}));
+        $panel.append(this.optionPanel.button('layout-row-add',{label:'Layout 내용', size:'col-12', btnLabel:'행 추가',icon:'fas fa-plus'}));
     }
 
     optionPanelScript($el, options) {}
 
     optionPanelEvent($el, options, componentFactory) {
-        super.opComponent.clickEvent('layout-row-add',(e) => {
+        this.optionPanel.clickEvent('layout-row-add',(e) => {
           super.addComponentByType(componentFactory, 'row', $el);
         });
     }

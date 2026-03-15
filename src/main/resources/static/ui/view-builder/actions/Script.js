@@ -1,6 +1,7 @@
 class Script extends Actions {
-    constructor() {
-        super();
+    constructor(globalVariable) {
+        super(globalVariable);
+        this.globalVariable = globalVariable;
     }
 
     register(data) {

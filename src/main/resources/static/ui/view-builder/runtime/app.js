@@ -20,12 +20,12 @@ $(function () {
         $.getScript(`${VB.configs.paths.module}/ModuleLoader.js`)
     )
     .done(function() {
-        window.VB.module = new ModuleLoader(false);
+        window.VB.module = new ModuleLoader(VB.version, VB.configs, false);
 
         VB.module.load(function(){
-            ViewManager.init();
+            ViewManager.init('layout');
 
-            const view = new View();
+            const view = new View('canvas', VB.objectCode, VB.globalVariable, VB.actionExecutor, VB.actionsFactory, VB.componentFactory, VB.utils);
             view.init();
         });
     });

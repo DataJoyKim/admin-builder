@@ -1,21 +1,23 @@
 class GlobalVariable {
-    static variable = {
-        message : '_message'
-    }
-
-    static init() {
-        window.global = {};
-
-        for(const key in GlobalVariable.variable) {
-            GlobalVariable.resister(GlobalVariable.variable[key], {});
+    constructor() {
+        this.variable = {
+            message : '_message'
         }
     }
 
-    static resister(k, v) {
+    init() {
+        window.global = {};
+
+        for(const key in this.variable) {
+            this.resister(this.variable[key], {});
+        }
+    }
+
+    resister(k, v) {
         window.global[k] = v;
     }
 
-    static get(k) {
+    get(k) {
         return window.global[k];
     }
 }

@@ -1,9 +1,9 @@
 class ActionExecutor {
-    static init() {
+    init() {
         window.VB.doAction = this.createDoAction();
     }
 
-    static createDoAction() {
+    createDoAction() {
         const code = `
             window.VB.actions[actionName](...args);
         `;

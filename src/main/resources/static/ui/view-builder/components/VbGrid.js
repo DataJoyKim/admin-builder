@@ -1,7 +1,8 @@
 class VbGrid extends ViewObject {
-    constructor() {
-        super();
-        this.grid = VB.utils.grid;
+    constructor(optionPanel, grid) {
+        super(optionPanel);
+        this.optionPanel = optionPanel;
+        this.grid = grid;
     }
 
     componentId() {
@@ -34,43 +35,47 @@ class VbGrid extends ViewObject {
         `);
     }
 
-    scriptRuntime(el, initQueue, options) {
-        initQueue.push(() => {
-            let columns = options.columns;
-            if(options.control) {
-                columns.push({ type: "control", editButton: true, width: 30, modeSwitchButton: false });
+    scriptRuntime(el, options) {
+        let columns = options.columns;
+        if(options.control) {
+            columns.push({ type: "control", editButton: true, width: 30, modeSwitchButton: false });
+        }
+
+        let rowClickEvent = function(args) {
+            if(options.rowSelectAction) {
+                VB.doAction(options.rowSelectAction, args);
             }
+        }
 
-            let rowClickEvent = function(args) {
-                if(options.rowSelectAction) {
-                    VB.doAction(options.rowSelectAction, args);
-                }
+        let gridOptions = {};
+        gridOptions.inserting = options.inserting;
+        gridOptions.editing = options.editing;
+
+        if(gridOptions.insertAction) {
+            gridOptions.onItemInserting = function(args) {
+                VB.doAction(options.insertAction, args);
             }
+        }
 
-            let options = {};
-            options.inserting = options.inserting;
-            options.editing = options.editing;
-
-            if(options.insertAction) {
-                options.onItemInserting = function(args) {
-                    VB.doAction(options.insertAction, args);
-                }
+        if(gridOptions.updateAction) {
+            gridOptions.onItemUpdated = function(args) {
+                VB.doAction(options.updateAction, args);
             }
+        }
 
-            if(options.updateAction) {
-                options.onItemUpdated = function(args) {
-                    VB.doAction(options.updateAction, args);
-                }
+        if(gridOptions.deleteAction) {
+            gridOptions.onItemDeleting = function(args) {
+                VB.doAction(options.deleteAction, args);
             }
+        }
 
-            if(options.deleteAction) {
-                options.onItemDeleting = function(args) {
-                    VB.doAction(options.deleteAction, args);
-                }
-            }
-
-            this.grid.init(options.id, options.width,options.height,columns,rowClickEvent,options);
-        });
+        this.grid.init(
+            options.id,
+            options.width,
+            options.height,
+            columns,rowClickEvent,
+            gridOptions
+            );
     }
 
 /* =======================================
@@ -108,29 +113,29 @@ class VbGrid extends ViewObject {
  * Option Panel Setting
  * ======================================= */
     optionPanelView($panel, options) {
-        let $rowId = super.opComponent.row();
-        $rowId.append(super.opComponent.input('grid-id',{label:'ID', size:'col-3'}));
+        let $rowId = this.optionPanel.row();
+        $rowId.append(this.optionPanel.input('grid-id',{label:'ID', size:'col-3'}));
         $panel.append($rowId);
 
-        let $rowToggle = super.opComponent.row();
-        $rowToggle.append(super.opComponent.toggle('grid-control',{label:'Control 사용', size:'col-4'}));
-        $rowToggle.append(super.opComponent.toggle('grid-inserting',{label:'생성버튼 사용', size:'col-4'}));
-        $rowToggle.append(super.opComponent.toggle('grid-editing',{label:'변경버튼 사용', size:'col-4'}));
+        let $rowToggle = this.optionPanel.row();
+        $rowToggle.append(this.optionPanel.toggle('grid-control',{label:'Control 사용', size:'col-4'}));
+        $rowToggle.append(this.optionPanel.toggle('grid-inserting',{label:'생성버튼 사용', size:'col-4'}));
+        $rowToggle.append(this.optionPanel.toggle('grid-editing',{label:'변경버튼 사용', size:'col-4'}));
         $panel.append($rowToggle);
 
-        let $rowAction = super.opComponent.row();
-        $rowAction.append(super.opComponent.input('grid-row-select-action',{label:'row 선택 action', size:'col-4'}));
+        let $rowAction = this.optionPanel.row();
+        $rowAction.append(this.optionPanel.input('grid-row-select-action',{label:'row 선택 action', size:'col-4'}));
         $panel.append($rowAction);
 
-        let $rowAction2 = super.opComponent.row();
-        $rowAction2.append(super.opComponent.input('grid-insert-action',{label:'생성 action', size:'col-4'}));
-        $rowAction2.append(super.opComponent.input('grid-update-action',{label:'변경 action', size:'col-4'}));
-        $rowAction2.append(super.opComponent.input('grid-delete-action',{label:'삭제 action', size:'col-4'}));
+        let $rowAction2 = this.optionPanel.row();
+        $rowAction2.append(this.optionPanel.input('grid-insert-action',{label:'생성 action', size:'col-4'}));
+        $rowAction2.append(this.optionPanel.input('grid-update-action',{label:'변경 action', size:'col-4'}));
+        $rowAction2.append(this.optionPanel.input('grid-delete-action',{label:'삭제 action', size:'col-4'}));
         $panel.append($rowAction2);
 
-        let $rowGrid = super.opComponent.row();
-        $rowGrid.append(super.opComponent.input('grid-width',{label:'넓이', size:'col-6'}));
-        $rowGrid.append(super.opComponent.input('grid-height',{label:'높이', size:'col-6'}));
+        let $rowGrid = this.optionPanel.row();
+        $rowGrid.append(this.optionPanel.input('grid-width',{label:'넓이', size:'col-6'}));
+        $rowGrid.append(this.optionPanel.input('grid-height',{label:'높이', size:'col-6'}));
         $panel.append($rowGrid);
 
         $panel.append($(`
@@ -175,21 +180,21 @@ class VbGrid extends ViewObject {
                     this.grid.enableRowDrag('grid-columns', {
                         updateEvent: () => {
                             options.columns = this.grid.getData('grid-columns');
-                            super.opComponent.setOptions($el, options);
+                            this.optionPanel.setOptions($el, options);
                         }
                     });
                 },
                 onItemUpdated:(args) => {
                     options.columns = this.grid.getData('grid-columns');
-                    super.opComponent.setOptions($el, options);
+                    this.optionPanel.setOptions($el, options);
                 },
                 onItemInserting:(args) => {
                     options.columns = this.grid.getData('grid-columns');
-                    super.opComponent.setOptions($el, options);
+                    this.optionPanel.setOptions($el, options);
                 },
                 onItemDeleting:(args) => {
                     options.columns = this.grid.getData('grid-columns');
-                    super.opComponent.setOptions($el, options);
+                    this.optionPanel.setOptions($el, options);
                 }
             }
         );
@@ -198,23 +203,23 @@ class VbGrid extends ViewObject {
     }
 
     optionPanelEvent($el, options, componentFactory) {
-        super.opComponent.inputEvent('grid-id',(e) => {
-            super.opComponent.changeOptionValue($el, options, 'id', $(e.target).val());
+        this.optionPanel.inputEvent('grid-id',(e) => {
+            this.optionPanel.changeOptionValue($el, options, 'id', $(e.target).val());
         });
 
-        super.opComponent.inputEvent('grid-width',(e) => {
+        this.optionPanel.inputEvent('grid-width',(e) => {
             let value = $(e.target).val();
-            super.opComponent.changeOptionValue($el, options, 'width', value);
+            this.optionPanel.changeOptionValue($el, options, 'width', value);
             $el.css('width', value);
         });
 
-        super.opComponent.inputEvent('grid-height',(e) => {
+        this.optionPanel.inputEvent('grid-height',(e) => {
             let value = $(e.target).val();
-            super.opComponent.changeOptionValue($el, options, 'height', value);
+            this.optionPanel.changeOptionValue($el, options, 'height', value);
             $el.css('height', value);
         });
 
-        super.opComponent.clickEvent('grid-create-column',(e) => {
+        this.optionPanel.clickEvent('grid-create-column',(e) => {
             this.grid.insertItem("grid-columns", {
                 name: "Field",
                 title: "Label",
@@ -222,35 +227,35 @@ class VbGrid extends ViewObject {
                 type: "text"
             });
 
-            super.opComponent.changeOptionValue($el, options, 'columns', this.grid.getData('grid-columns'));
+            this.optionPanel.changeOptionValue($el, options, 'columns', this.grid.getData('grid-columns'));
         });
 
-        super.opComponent.clickEvent('grid-control',(e) => {
-            super.opComponent.changeOptionValue($el, options, 'control', $(e.target).is(':checked'));
+        this.optionPanel.clickEvent('grid-control',(e) => {
+            this.optionPanel.changeOptionValue($el, options, 'control', $(e.target).is(':checked'));
         });
 
-        super.opComponent.clickEvent('grid-inserting',(e) => {
-            super.opComponent.changeOptionValue($el, options, 'inserting', $(e.target).is(':checked'));
+        this.optionPanel.clickEvent('grid-inserting',(e) => {
+            this.optionPanel.changeOptionValue($el, options, 'inserting', $(e.target).is(':checked'));
         });
 
-        super.opComponent.clickEvent('grid-editing',(e) => {
-            super.opComponent.changeOptionValue($el, options, 'editing', $(e.target).is(':checked'));
+        this.optionPanel.clickEvent('grid-editing',(e) => {
+            this.optionPanel.changeOptionValue($el, options, 'editing', $(e.target).is(':checked'));
         });
 
-        super.opComponent.inputEvent('grid-row-select-action',(e) => {
-            super.opComponent.changeOptionValue($el, options, 'rowSelectAction', $(e.target).val());
+        this.optionPanel.inputEvent('grid-row-select-action',(e) => {
+            this.optionPanel.changeOptionValue($el, options, 'rowSelectAction', $(e.target).val());
         });
 
-        super.opComponent.inputEvent('grid-insert-action',(e) => {
-            super.opComponent.changeOptionValue($el, options, 'insertAction', $(e.target).val());
+        this.optionPanel.inputEvent('grid-insert-action',(e) => {
+            this.optionPanel.changeOptionValue($el, options, 'insertAction', $(e.target).val());
         });
 
-        super.opComponent.inputEvent('grid-update-action',(e) => {
-            super.opComponent.changeOptionValue($el, options, 'updateAction', $(e.target).val());
+        this.optionPanel.inputEvent('grid-update-action',(e) => {
+            this.optionPanel.changeOptionValue($el, options, 'updateAction', $(e.target).val());
         });
 
-        super.opComponent.inputEvent('grid-delete-action',(e) => {
-            super.opComponent.changeOptionValue($el, options, 'deleteAction', $(e.target).val());
+        this.optionPanel.inputEvent('grid-delete-action',(e) => {
+            this.optionPanel.changeOptionValue($el, options, 'deleteAction', $(e.target).val());
         });
     }
 }

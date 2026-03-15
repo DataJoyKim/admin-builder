@@ -1,7 +1,8 @@
 class Button extends ViewObject {
-    constructor() {
-        super();
-        this.utils = VB.utils;
+    constructor(optionPanel, utils) {
+        super(optionPanel);
+        this.optionPanel = optionPanel;
+        this.utils = utils;
     }
 
     componentId() {
@@ -31,7 +32,7 @@ class Button extends ViewObject {
         return el;
     }
 
-    scriptRuntime(el, initQueue, options) {}
+    scriptRuntime(el, options) {}
 
 /* =======================================
  * Builder Component Setting
@@ -59,11 +60,11 @@ class Button extends ViewObject {
  * Option Panel Setting
  * ======================================= */
     optionPanelView($panel, options) {
-        $panel.append(super.opComponent.input('button-id',{label:'ID', size:'col-3'}));
-        $panel.append(super.opComponent.input('button-icon',{label:'아이콘', size:'col-12'}));
-        $panel.append(super.opComponent.input('button-text',{label:'라벨', size:'col-12'}));
-        $panel.append(super.opComponent.input('button-action',{label:'Action', size:'col-8'}));
-        $panel.append(super.opComponent.button('button-action-popup',{size:'col-4', icon:'fas fa-search', btnLabel:'Action 검색'}));
+        $panel.append(this.optionPanel.input('button-id',{label:'ID', size:'col-3'}));
+        $panel.append(this.optionPanel.input('button-icon',{label:'아이콘', size:'col-12'}));
+        $panel.append(this.optionPanel.input('button-text',{label:'라벨', size:'col-12'}));
+        $panel.append(this.optionPanel.input('button-action',{label:'Action', size:'col-8'}));
+        $panel.append(this.optionPanel.button('button-action-popup',{size:'col-4', icon:'fas fa-search', btnLabel:'Action 검색'}));
     }
 
     optionPanelScript($el, options) {
@@ -74,28 +75,28 @@ class Button extends ViewObject {
     }
 
     optionPanelEvent($el, options, componentFactory) {
-        super.opComponent.inputEvent('button-id',(e) => {
-            super.opComponent.changeOptionValue($el, options, 'id', $(e.target).val());
+        this.optionPanel.inputEvent('button-id',(e) => {
+            this.optionPanel.changeOptionValue($el, options, 'id', $(e.target).val());
         });
 
-        super.opComponent.inputEvent('button-text',(e) => {
-            super.opComponent.changeOptionValue($el, options, 'label', $(e.target).val());
+        this.optionPanel.inputEvent('button-text',(e) => {
+            this.optionPanel.changeOptionValue($el, options, 'label', $(e.target).val());
             $el.find(".button-label").text(options.label);
         });
 
-        super.opComponent.inputEvent('button-icon',(e) => {
+        this.optionPanel.inputEvent('button-icon',(e) => {
             $el.find("i").removeClass(options.icon);
 
-            super.opComponent.changeOptionValue($el, options, 'icon', $(e.target).val());
+            this.optionPanel.changeOptionValue($el, options, 'icon', $(e.target).val());
 
             $el.find("i").addClass(options.icon);
         });
 
-        super.opComponent.inputEvent('button-action',(e) => {
-            super.opComponent.changeOptionValue($el, options, 'action', $(e.target).val());
+        this.optionPanel.inputEvent('button-action',(e) => {
+            this.optionPanel.changeOptionValue($el, options, 'action', $(e.target).val());
         });
 
-        super.opComponent.clickEvent('button-action-popup',(e) => {
+        this.optionPanel.clickEvent('button-action-popup',(e) => {
             let objectCode = $("#objectCode").val();
             if(!objectCode) {
                 alert('오브젝트를 입력해주세요');

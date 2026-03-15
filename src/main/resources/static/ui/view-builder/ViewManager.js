@@ -1,5 +1,5 @@
 class ViewManager {
-    static init() {
+    static init(layoutId) {
         window.VB = window.VB || {};
         window.VB.utils = {
             grid: App.grid,
@@ -8,10 +8,11 @@ class ViewManager {
             httpClient: App.httpClient
         };
         window.VB.objectCode = App.objectCode;
-        window.VB.ActionExecutor = ActionExecutor;
-        window.VB.GlobalVariable = GlobalVariable;
-        window.VB.ActionsFactory = ActionsFactory;
-        window.VB.ComponentFactory = ComponentFactory;
-        window.VB.dropComponent = new DropComponent();
+        window.VB.actionExecutor = new ActionExecutor();
+        window.VB.globalVariable = new GlobalVariable();
+        window.VB.actionsFactory = new ActionsFactory(VB.globalVariable);
+        window.VB.componentFactory = new ComponentFactory(new OptionPanel(), VB.utils);
+        window.VB.viewDataLoader = new ViewDataLoader(layoutId)
+        window.VB.dropComponent = new DropComponent(layoutId, VB.componentFactory);
     }
 }

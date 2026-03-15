@@ -1,5 +1,6 @@
 class ViewObject {
-    constructor() {
+    constructor(optionPanel) {
+        this.optionPanel = optionPanel;
         this._componentId = this.componentId();
     }
 
@@ -13,13 +14,14 @@ class ViewObject {
     render(initQueue, options, children) {
         let el = this.renderRuntime(options, children);
 
-        this.scriptRuntime(el, initQueue, options);
+        const init = () => this.scriptRuntime(el, options);
+        initQueue.push(init);
 
         return el;
     }
 
     renderRuntime(options, children) {}
-    scriptRuntime(el, initQueue, options) {}
+    scriptRuntime(el, options) {}
 
 /* =======================================
  * Builder Component Setting
@@ -69,7 +71,7 @@ class ViewObject {
     createComponent(id, options, componentFactory) {
         let $componentEl = this.component(id, options);
 
-        this.opComponent.setOptions($componentEl, options);
+        this.optionPanel.setOptions($componentEl, options);
 
         const dropConfig = this.componentDropConfig($componentEl);
         for(const config of dropConfig) {
@@ -162,8 +164,8 @@ class ViewObject {
 /* =======================================
  * Option Panel Setting
  * ======================================= */
-    optionPanel($el, id, componentFactory) {
-        let options = this.opComponent.getOptions($el);
+    initOptionPanel($el, id, componentFactory) {
+        let options = this.optionPanel.getOptions($el);
 
         let $panel = $("#"+id);
 
@@ -179,8 +181,4 @@ class ViewObject {
     optionPanelView($panel, options) {}
     optionPanelScript($el, options) {}
     optionPanelEvent($el, options, componentFactory) {}
-
-    get opComponent() {
-        return OptionPanel;
-    }
 }

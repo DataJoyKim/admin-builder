@@ -1,15 +1,13 @@
 class ActionsFactory {
+    constructor(globalVariable) {
+        this.globalVariable = globalVariable;
+    }
 
-    static instance(type) {
+    instance(type) {
         switch (type) {
-            case 'WORKFLOW':
-                return new Workflow();
-
-            case 'SCRIPT':
-                return new Script();
-
-            default:
-                return null;
+            case 'WORKFLOW': return new Workflow(this.globalVariable);
+            case 'SCRIPT': return new Script(this.globalVariable);
+            default: return null;
         }
     }
 }

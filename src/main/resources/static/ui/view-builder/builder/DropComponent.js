@@ -1,22 +1,18 @@
 class DropComponent {
-    constructor() {
-        this.layoutId = 'layout';
-        this.componentFactory = VB.ComponentFactory.instanceMap();
+    constructor(layoutId, componentFactory) {
+        this.layoutId = layoutId;
+        this.componentFactoryMap = componentFactory.instanceMap();
 
-        window.componentIdMap = VB.ComponentFactory.getComponentIdMap();
+        window.componentIdMap = componentFactory.getComponentIdMap();
     }
 
     dropLayout(canvasId) {
-        const layout = this.componentFactory[this.layoutId];
+        const layout = this.componentFactoryMap[this.layoutId];
 
-        let componentEl = layout.createComponent(this.layoutId, {}, this.componentFactory);
+        let componentEl = layout.createComponent(this.layoutId, {}, this.componentFactoryMap);
 
         $("#"+canvasId).append(componentEl);
 
-        layout.addComponentByType(this.componentFactory,'row', componentEl);
-    }
-
-    getComponentFactory() {
-        return this.componentFactory;
+        layout.addComponentByType(this.componentFactoryMap,'row', componentEl);
     }
 }

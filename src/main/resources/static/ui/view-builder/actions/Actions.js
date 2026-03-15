@@ -1,9 +1,9 @@
 class Actions {
-    register(data) {}
-
-    variableMessage() {
-        return VB.GlobalVariable.variable.message
+    constructor(globalVariable) {
+        this.globalVariable = globalVariable;
     }
+
+    register(data) {}
 
     registerAction(actionName, argsParams, code) {
         window.VB.actions = window.VB.actions || {};
