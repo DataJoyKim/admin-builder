@@ -11,7 +11,7 @@ class CustomHtml extends ViewObject {
 
     componentOptions() {
         return {
-           id:'custom-html' + super.getComponentIdNumber(),
+           id:this.componentId() + super.getComponentIdNumber(),
            className:'',
            htmlContent:'Html 내용 입력'
        };
@@ -61,8 +61,9 @@ class CustomHtml extends ViewObject {
  * Option Panel Setting
  * ======================================= */
     optionPanelView($panel, options) {
-        $panel.append(this.optionPanel.input('custom-html-id',{label:'ID', size:'col-5'}));
-        $panel.append(this.optionPanel.input('custom-html-class',{label:'class 명', size:'col-6'}));
+        $panel.append(this.optionPanel.input('component-id',{label:'컴포넌트명', size:'col-6', enabled:false}));
+        $panel.append(this.optionPanel.input('id',{label:'ID', size:'col-5'}));
+        $panel.append(this.optionPanel.input('class',{label:'class 명', size:'col-6'}));
         $panel.append($(`
             <div class="form-group col-12">
                <label for="custom-html-content">Html 내용</label>
@@ -72,8 +73,9 @@ class CustomHtml extends ViewObject {
     }
 
     optionPanelScript($el, options) {
-        $('#custom-html-id').val(options.id);
-        $('#custom-html-class').val(options.className);
+        this.optionPanel.setValue('component-id',this.componentId());
+        this.optionPanel.setValue('id',options.id);
+        this.optionPanel.setValue('class',options.className);
 
         let textarea = document.getElementById('custom-html-content');
         this.contentEditor = CodeMirror.fromTextArea(textarea, {
@@ -87,11 +89,11 @@ class CustomHtml extends ViewObject {
     }
 
     optionPanelEvent($el, options, componentFactory) {
-        this.optionPanel.inputEvent('custom-html-id',(e) => {
+        this.optionPanel.inputEvent('id',(e) => {
             this.optionPanel.changeOptionValue($el, options, 'id', $(e.target).val());
         });
 
-        this.optionPanel.inputEvent('custom-html-class',(e) => {
+        this.optionPanel.inputEvent('class',(e) => {
             this.optionPanel.changeOptionValue($el, options, 'className', $(e.target).val());
         });
 

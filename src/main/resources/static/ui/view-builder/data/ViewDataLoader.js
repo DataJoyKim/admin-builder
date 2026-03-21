@@ -42,6 +42,9 @@ class ViewDataLoader {
         return result;
     }
 
+    /**
+    * 컴포넌트 Html > Json 스키마 변환
+    */
     getData() {
         const root = $("#"+this.layoutId);
         const json = [];

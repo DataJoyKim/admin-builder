@@ -10,7 +10,7 @@ class Row extends ViewObject {
 
     componentOptions() {
         return {
-           id:'row' + super.getComponentIdNumber()
+           id:this.componentId() + super.getComponentIdNumber()
        };
     }
 
@@ -63,7 +63,6 @@ class Row extends ViewObject {
     componentDropConfig($componentEl) {
         return [{
             element: $componentEl,
-            allowedComponentIds: ["row","card","form","grid","input","button","custom-html"],
             sortable: true
         }]
     }
@@ -72,10 +71,12 @@ class Row extends ViewObject {
  * Option Panel Setting
  * ======================================= */
     optionPanelView($panel, options) {
-        $panel.append('');
+        $panel.append(this.optionPanel.input('component-id',{label:'컴포넌트명', size:'col-6', enabled:false}));
     }
 
-    optionPanelScript($el, options) {}
+    optionPanelScript($el, options) {
+        this.optionPanel.setValue('component-id',this.componentId());
+    }
 
     optionPanelEvent($el, options, componentFactory) {}
 }

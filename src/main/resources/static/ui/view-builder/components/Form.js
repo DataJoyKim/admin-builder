@@ -10,7 +10,7 @@ class Form extends ViewObject {
 
     componentOptions() {
         return {
-           id:'form' + super.getComponentIdNumber()
+           id:this.componentId() + super.getComponentIdNumber()
        };
     }
 
@@ -75,20 +75,22 @@ class Form extends ViewObject {
  * Option Panel Setting
  * ======================================= */
     optionPanelView($panel, options) {
-        $panel.append(this.optionPanel.input('form-id',{label:'ID', size:'col-3'}));
-        $panel.append(this.optionPanel.button('form-row-add',{label:'Form 내용', size:'col-12', btnLabel:'행 추가',icon:'fas fa-plus'}));
+        $panel.append(this.optionPanel.input('component-id',{label:'컴포넌트명', size:'col-6', enabled:false}));
+        $panel.append(this.optionPanel.input('id',{label:'ID', size:'col-3'}));
+        $panel.append(this.optionPanel.button('row-add',{label:'Form 내용', size:'col-12', btnLabel:'행 추가',icon:'fas fa-plus'}));
     }
 
     optionPanelScript($el, options) {
-        $('#form-id').val(options.id);
+        this.optionPanel.setValue('component-id',this.componentId());
+        this.optionPanel.setValue('id',options.id);
     }
 
     optionPanelEvent($el, options, componentFactory) {
-        this.optionPanel.inputEvent('form-id',(e) => {
+        this.optionPanel.inputEvent('id',(e) => {
             this.optionPanel.changeOptionValue($el, options, 'id', $(e.target).val());
         });
 
-        this.optionPanel.clickEvent('form-row-add',(e) => {
+        this.optionPanel.clickEvent('row-add',(e) => {
             super.addComponentByType(componentFactory, 'row', $el);
         });
     }

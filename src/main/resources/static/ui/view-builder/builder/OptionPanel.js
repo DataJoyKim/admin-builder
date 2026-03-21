@@ -1,5 +1,13 @@
 class OptionPanel {
 
+    init(panelId) {
+        this.panelId = panelId;
+    }
+
+    elementId(id) {
+        return this.panelId + '-' + id;
+    }
+
     setOptions($target, options) {
         $target.data('options', options);
     }
@@ -37,8 +45,8 @@ class OptionPanel {
     select(id, option) {
         return $(`
             <div class="form-group ${option.size}">
-               <label for="${id}">${option.label}</label>
-               <select type="text" class="form-control rounded-0" id="${id}">
+               <label for="${this.elementId(id)}">${option.label}</label>
+               <select type="text" class="form-control rounded-0" id="${this.elementId(id)}">
                    ${option.options}
                </select>
             </div>
@@ -49,9 +57,9 @@ class OptionPanel {
         let html = ``;
         html += `<div class="form-group ${option.size}">`;
         if(option.label) {
-            html += `<label for="${id}">${option.label}</label>`;
+            html += `<label for="${this.elementId(id)}">${option.label}</label>`;
         }
-        html += `<button id="${id}" type="button" class="btn btn-default btn-sm form-control">`;
+        html += `<button id="${this.elementId(id)}" type="button" class="btn btn-default btn-sm form-control">`;
         if(option.icon) {
             html += `<i class="${option.icon}"></i>`;
         }
@@ -65,10 +73,18 @@ class OptionPanel {
     }
 
     input(id, option) {
+        let disabled;
+        if(option.enabled == undefined || option.enabled == null || option.enabled) {
+            disabled = '';
+        }
+        else {
+            disabled = 'readOnly';
+        }
+
         return $(`
             <div class="form-group ${option.size}">
-                <label for="${id}">${option.label}</label>
-                <input type="text" class="form-control rounded-0" id="${id}" spellcheck="false" autocomplete="off" value="${option.value}">
+                <label for="${this.elementId(id)}">${option.label}</label>
+                <input type="text" class="form-control rounded-0" id="${this.elementId(id)}" spellcheck="false" autocomplete="off" value="${option.value}" ${disabled}>
             </div>
         `);
     }
@@ -76,10 +92,10 @@ class OptionPanel {
     toggle(id, option) {
         return $(`
             <div class="form-group ${option.size}">
-                <label for="${id}">${option.label}</label>
+                <label for="${this.elementId(id)}">${option.label}</label>
                 <div class="custom-control custom-switch" style="transform: scale(1.5); transform-origin: left center;">
-                    <input type="checkbox" class="custom-control-input" id="${id}">
-                    <label for="${id}" class="custom-control-label" style="cursor: pointer;"></label>
+                    <input type="checkbox" class="custom-control-input" id="${this.elementId(id)}">
+                    <label for="${this.elementId(id)}" class="custom-control-label" style="cursor: pointer;"></label>
                 </div>
             </div>
         `);
@@ -90,14 +106,22 @@ class OptionPanel {
     }
 
     clickEvent(id, _handler) {
-        $(document).off("click", "#"+id).on("click", "#"+id, _handler);
+        $(document).off("click", "#"+this.elementId(id)).on("click", "#"+this.elementId(id), _handler);
     }
 
     inputEvent(id, _handler) {
-        $("#"+id).off("input").on("input",_handler);
+        $("#"+this.elementId(id)).off("input").on("input",_handler);
     }
 
     changeEvent(id, _handler) {
-        $("#"+id).off("change").on("change",_handler);
+        $("#"+this.elementId(id)).off("change").on("change",_handler);
+    }
+
+    setValue(id,value) {
+        $('#'+this.elementId(id)).val(value);
+    }
+
+    check(id,value) {
+        $('#'+this.elementId(id)).prop('checked',value);
     }
 }

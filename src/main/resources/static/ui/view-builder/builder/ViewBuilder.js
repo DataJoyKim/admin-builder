@@ -6,6 +6,7 @@ class ViewBuilder {
         this.componentFactory = componentFactory;
         this.dropComponent = dropComponent;
         this.viewDataLoader = viewDataLoader;
+        this.initPreviewState();
     }
 
     init() {
@@ -14,11 +15,23 @@ class ViewBuilder {
     }
 
     preview() {
+        this.previewState.preview = true;
+        this.previewState.data = this.getViewData();
+
         const render = new Render(this.actionsFactory, this.componentFactory);
-        render.init(this.canvasId, this.getViewData());
+        render.init(this.canvasId, this.previewState.data);
+    }
+
+    cancelPreview() {
+        const render = new RenderBuilder(this.componentFactory);
+        render.init(this.canvasId, this.previewState.data);
+
+        this.initPreviewState();
     }
 
     loadEditor(data) {
+        this.initPreviewState();
+
         const render = new RenderBuilder(this.componentFactory);
         if (data?.length) {
             render.init(this.canvasId, data);
@@ -26,6 +39,12 @@ class ViewBuilder {
         else {
             this.initCanvas();
         }
+    }
+
+    initPreviewState() {
+        this.previewState = {};
+        this.previewState.preview = false;
+        this.previewState.data = null;
     }
 
     initCanvas() {

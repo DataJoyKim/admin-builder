@@ -2,6 +2,8 @@ class ViewObject {
     constructor(optionPanel) {
         this.optionPanel = optionPanel;
         this._componentId = this.componentId();
+
+        this.COMPONENT_PANEL_ID_PREFIX = 'component-';
     }
 
     componentId() {}
@@ -78,13 +80,13 @@ class ViewObject {
             this.drop(config.element, config.allowedComponentIds, componentFactory);
 
             if(config.sortable) {
-                this.sortable(config.element, this.createSortableIds(config.allowedComponentIds));
+                this.sortable(config.element);
             }
         }
 
         const sortableConfig = this.componentSortableConfig($componentEl);
         for(const config of sortableConfig) {
-            this.sortable(config.element, this.createSortableIds(config.sortableComponentIds));
+            this.sortable(config.element);
         }
 
         return $componentEl;
@@ -106,13 +108,17 @@ class ViewObject {
             hoverClass: "drop-hover",
             drop: function (event, ui) {
                 const type = ui.draggable.data("type");
-                if(!type.includes('component-')) { // 좌측 패널의 컴포넌트만 Drop 허용
+
+                // 좌측 패널의 컴포넌트만 Drop 허용
+                if(!type.includes(this.COMPONENT_PANEL_ID_PREFIX)) {
                     return;
                 }
 
-                const componentType = type.replace('component-','');
-                if (!allowedTypes.includes(componentType)) {
-                    return;
+                if(allowedTypes) {
+                    const componentType = type.replace(this.COMPONENT_PANEL_ID_PREFIX,'');
+                    if (!allowedTypes.includes(componentType)) {
+                        return;
+                    }
                 }
 
                 self.addComponentByType(componentFactory, componentType, $el);
@@ -121,19 +127,10 @@ class ViewObject {
     }
 
     sortable($el, items) {
-        const dataType = $el.data('type');
-        let connectWith;
-        if(dataType == 'col' || dataType == 'row') {// col 과 row 간에 컴포넌트 이동가능
-            connectWith = ".vb-item[data-type='col'], .vb-item[data-type='row']";
-        }
-        else { // 자신의 컴포넌트 유형만 허용
-            connectWith = ".vb-item[data-type='"+dataType+"']";
-        }
-
         $el.sortable({
-            items: items,
+            items: ".vb-item",
             helper: "clone",
-            connectWith: connectWith,
+            connectWith: ".vb-item",
             tolerance: "pointer",
             placeholder: "sortable-placeholder",
             start: function(event, ui){
@@ -170,6 +167,8 @@ class ViewObject {
         let $panel = $("#"+id);
 
         $panel.empty();
+
+        this.optionPanel.init(this._componentId);
 
         this.optionPanelView($panel, options);
 

@@ -10,7 +10,7 @@ class CardBody extends ViewObject {
 
     componentOptions() {
         return {
-           id:'cardBody' + super.getComponentIdNumber()
+           id:this.componentId() + super.getComponentIdNumber()
        };
     }
 
@@ -63,7 +63,6 @@ class CardBody extends ViewObject {
     componentDropConfig($componentEl) {
         return [{
             element: $componentEl,
-            allowedComponentIds: ["form","grid","input","button","custom-html"],
             sortable: true
         }]
     }
@@ -72,10 +71,12 @@ class CardBody extends ViewObject {
  * Option Panel Setting
  * ======================================= */
     optionPanelView($panel, options) {
-        $panel.append('');
+        $panel.append(this.optionPanel.input('component-id',{label:'컴포넌트명', size:'col-6', enabled:false}));
     }
 
-    optionPanelScript($el, options) {}
+    optionPanelScript($el, options) {
+        this.optionPanel.setValue('component-id',this.componentId());
+    }
 
     optionPanelEvent($el, options, componentFactory) {}
 }

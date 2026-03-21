@@ -10,7 +10,7 @@ class Card extends ViewObject {
 
     componentOptions() {
         return {
-           id:'card' + super.getComponentIdNumber(),
+           id:this.componentId() + super.getComponentIdNumber(),
            size:"col-6",
            title:"Title",
            useCardHeader:true
@@ -114,40 +114,42 @@ class Card extends ViewObject {
  * Option Panel Setting
  * ======================================= */
     optionPanelView($panel, options) {
-        $panel.append(this.optionPanel.input('card-id',{label:'ID', size:'col-3'}));
-        $panel.append(this.optionPanel.select('card-size',{label:'크기', size:'col-12', options:this.optionPanel.optionSize()}));
-        $panel.append(this.optionPanel.toggle('card-header-use',{label:'Card Header 사용', size:'col-12'}));
-        $panel.append(this.optionPanel.input('card-title-input',{label:'Card Header 제목', size:'col-12'}));
-        $panel.append(this.optionPanel.button('card-body-add',{label:'Card 내용', size:'col-12', btnLabel:'컨텐츠 영역 추가',icon:'fas fa-plus'}));
+        $panel.append(this.optionPanel.input('component-id',{label:'컴포넌트명', size:'col-6', enabled:false}));
+        $panel.append(this.optionPanel.input('id',{label:'ID', size:'col-3'}));
+        $panel.append(this.optionPanel.select('size',{label:'크기', size:'col-12', options:this.optionPanel.optionSize()}));
+        $panel.append(this.optionPanel.toggle('header-use',{label:'Card Header 사용', size:'col-12'}));
+        $panel.append(this.optionPanel.input('title-input',{label:'Card Header 제목', size:'col-12'}));
+        $panel.append(this.optionPanel.button('body-add',{label:'Card 내용', size:'col-12', btnLabel:'컨텐츠 영역 추가',icon:'fas fa-plus'}));
     }
 
     optionPanelScript($el, options) {
-        $('#card-id').val(options.id);
-        $('#card-header-use').prop('checked',options.useCardHeader);
-        $('#card-title-input').val(options.title);
-        $('#card-size').val(options.size);
+        this.optionPanel.setValue('component-id',this.componentId());
+        this.optionPanel.setValue('id',options.id);
+        this.optionPanel.setValue('title-input',options.title);
+        this.optionPanel.setValue('size',options.size);
+        this.optionPanel.check('header-use',options.useCardHeader);
     }
 
     optionPanelEvent($el, options, componentFactory) {
-        this.optionPanel.inputEvent('card-id',(e) => {
+        this.optionPanel.inputEvent('id',(e) => {
             this.optionPanel.changeOptionValue($el, options, 'id', $(e.target).val());
         });
 
-        this.optionPanel.changeEvent('card-size',(e) => {
+        this.optionPanel.changeEvent('size',(e) => {
             this.optionPanel.changeOptionValue($el, options, 'size', $(e.target).val());
             this.optionPanel.changeSize($el, options.size);
         });
 
-        this.optionPanel.inputEvent('card-title-input',(e) => {
+        this.optionPanel.inputEvent('title-input',(e) => {
             this.optionPanel.changeOptionValue($el, options, 'title', $(e.target).val());
             $el.find(".card-title").text(options.title);
         });
 
-        this.optionPanel.clickEvent('card-body-add',(e) => {
+        this.optionPanel.clickEvent('body-add',(e) => {
             super.addComponentByType(componentFactory, 'card-body', $el.find(".card"));
         });
 
-        this.optionPanel.clickEvent('card-header-use',(e) => {
+        this.optionPanel.clickEvent('header-use',(e) => {
             let value = $(e.target).is(':checked');
             this.optionPanel.changeOptionValue($el, options, 'useCardHeader', value);
             if(value) {

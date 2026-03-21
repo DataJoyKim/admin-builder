@@ -10,7 +10,7 @@ class Layout extends ViewObject {
 
     componentOptions() {
         return {
-           id:'layout' + super.getComponentIdNumber()
+           id:this.componentId() + super.getComponentIdNumber()
        };
     }
 
@@ -55,7 +55,6 @@ class Layout extends ViewObject {
     componentDropConfig($componentEl) {
         return [{
             element: $componentEl,
-            allowedComponentIds: ["row","custom-html"],
             sortable: true
         }]
     }
@@ -68,13 +67,16 @@ class Layout extends ViewObject {
  * Option Panel Setting
  * ======================================= */
     optionPanelView($panel, options) {
-        $panel.append(this.optionPanel.button('layout-row-add',{label:'Layout 내용', size:'col-12', btnLabel:'행 추가',icon:'fas fa-plus'}));
+        $panel.append(this.optionPanel.input('component-id',{label:'컴포넌트명', size:'col-6', enabled:false}));
+        $panel.append(this.optionPanel.button('row-add',{label:'Layout 내용', size:'col-12', btnLabel:'행 추가',icon:'fas fa-plus'}));
     }
 
-    optionPanelScript($el, options) {}
+    optionPanelScript($el, options) {
+        this.optionPanel.setValue('component-id',this.componentId());
+    }
 
     optionPanelEvent($el, options, componentFactory) {
-        this.optionPanel.clickEvent('layout-row-add',(e) => {
+        this.optionPanel.clickEvent('row-add',(e) => {
           super.addComponentByType(componentFactory, 'row', $el);
         });
     }
