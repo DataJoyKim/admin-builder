@@ -33,7 +33,7 @@ class Layout extends ViewObject {
  * ======================================= */
     renderBuilder(id, options) {
         let el = `
-           <div class="layout wrapper vb-item" id="${id}" style="min-height: 993px;" data-type="${this.componentId()}">
+           <div class="layout wrapper vb-item vb-container" id="${id}" style="min-height: 993px;" data-type="${this.componentId()}">
            </div>
         `;
 

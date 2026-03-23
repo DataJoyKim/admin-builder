@@ -40,12 +40,14 @@ class Card extends ViewObject {
             </div>
         `);
 
+        const cardEl = el.children(".card");
+
         if (children && children.cardHeader) {
-            el.find(".card-tools").append(children.cardHeader);
+            cardEl.children(".card-header").children(".card-tools").append(children.cardHeader);
         }
 
         if (children && children.cardChildren) {
-            el.find(".card").append(children.cardChildren);
+            cardEl.append(children.cardChildren);
         }
 
         return el;
@@ -68,7 +70,7 @@ class Card extends ViewObject {
                  <div class="card">
                     <div class="card-header ${cardHeaderClass}">
                         <h3 class="card-title">${options.title}</h3>
-                        <div class="card-tools">
+                        <div class="card-tools vb-container">
                         </div>
                     </div>
                  </div>
@@ -93,7 +95,7 @@ class Card extends ViewObject {
 
     componentDropConfig($componentEl) {
         return [{
-            element: $componentEl.find(".card-tools"),
+            element: this.element($componentEl).cardToolsEl,
             allowedComponentIds: ["button","custom-html"],
             sortable: true
         }]
@@ -107,7 +109,19 @@ class Card extends ViewObject {
     }
 
     afterAddComponent(componentFactory, $el, $componentEl) {
-        super.addComponentByType(componentFactory, 'card-body', $componentEl.find(".card"));
+        super.addComponentByType(componentFactory, 'card-body', this.element($componentEl).cardEl);
+    }
+
+    element($el) {
+        const cardEl = $el.children(".card");
+        const cardHeaderEl = cardEl.children(".card-header");
+
+        return {
+            cardEl:cardEl,
+            cardHeaderEl:cardHeaderEl,
+            cardTitleEl:cardHeaderEl.children(".card-title"),
+            cardToolsEl:cardHeaderEl.children(".card-tools")
+        }
     }
 
 /* =======================================
@@ -131,6 +145,8 @@ class Card extends ViewObject {
     }
 
     optionPanelEvent($el, options, componentFactory) {
+        const {cardEl, cardHeaderEl, cardTitleEl, cardToolsEl} = this.element($el);
+
         this.optionPanel.inputEvent('id',(e) => {
             this.optionPanel.changeOptionValue($el, options, 'id', $(e.target).val());
         });
@@ -142,21 +158,22 @@ class Card extends ViewObject {
 
         this.optionPanel.inputEvent('title-input',(e) => {
             this.optionPanel.changeOptionValue($el, options, 'title', $(e.target).val());
-            $el.find(".card-title").text(options.title);
+            cardTitleEl.text(options.title);
         });
 
         this.optionPanel.clickEvent('body-add',(e) => {
-            super.addComponentByType(componentFactory, 'card-body', $el.find(".card"));
+            super.addComponentByType(componentFactory, 'card-body', cardEl);
         });
 
         this.optionPanel.clickEvent('header-use',(e) => {
             let value = $(e.target).is(':checked');
             this.optionPanel.changeOptionValue($el, options, 'useCardHeader', value);
+
             if(value) {
-                $el.find(".card-header").removeClass('d-none');
+                cardHeaderEl.removeClass('d-none');
             }
             else {
-                $el.find(".card-header").addClass('d-none');
+                cardHeaderEl.addClass('d-none');
             }
         });
     }

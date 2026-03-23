@@ -37,7 +37,7 @@ class Form extends ViewObject {
  * ======================================= */
     renderBuilder(id, options) {
         let el = `
-            <form id="${id}" class="component form vb-item" data-type="${this.componentId()}">
+            <form id="${id}" class="component form vb-item vb-container" data-type="${this.componentId()}">
                 ${super.componentDeleteBtn()}
                 <div style="text-align: center;width:100%;">Form</div>
             </form>
@@ -62,7 +62,6 @@ class Form extends ViewObject {
     componentDropConfig($componentEl) {
         return [{
             element: $componentEl,
-            allowedComponentIds: ["row","custom-html"],
             sortable: true
         }]
     }

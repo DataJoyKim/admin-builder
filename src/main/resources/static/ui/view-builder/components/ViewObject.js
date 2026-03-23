@@ -2,8 +2,6 @@ class ViewObject {
     constructor(optionPanel) {
         this.optionPanel = optionPanel;
         this._componentId = this.componentId();
-
-        this.COMPONENT_PANEL_ID_PREFIX = 'component-';
     }
 
     componentId() {}
@@ -101,6 +99,8 @@ class ViewObject {
     }
 
     drop($el, allowedTypes, componentFactory) {
+        const COMPONENT_PANEL_ID_PREFIX = 'component-';
+
         let self = this;
 
         $el.droppable({
@@ -110,15 +110,13 @@ class ViewObject {
                 const type = ui.draggable.data("type");
 
                 // 좌측 패널의 컴포넌트만 Drop 허용
-                if(!type.includes(this.COMPONENT_PANEL_ID_PREFIX)) {
+                if(!type.includes(COMPONENT_PANEL_ID_PREFIX)) {
                     return;
                 }
 
-                if(allowedTypes) {
-                    const componentType = type.replace(this.COMPONENT_PANEL_ID_PREFIX,'');
-                    if (!allowedTypes.includes(componentType)) {
-                        return;
-                    }
+                const componentType = type.replace(COMPONENT_PANEL_ID_PREFIX,'');
+                if(allowedTypes && !allowedTypes.includes(componentType)) {
+                    return;
                 }
 
                 self.addComponentByType(componentFactory, componentType, $el);
@@ -126,11 +124,11 @@ class ViewObject {
         });
     }
 
-    sortable($el, items) {
+    sortable($el) {
         $el.sortable({
             items: ".vb-item",
             helper: "clone",
-            connectWith: ".vb-item",
+            connectWith: ".vb-container",
             tolerance: "pointer",
             placeholder: "sortable-placeholder",
             start: function(event, ui){

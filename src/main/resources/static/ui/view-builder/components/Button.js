@@ -56,6 +56,13 @@ class Button extends ViewObject {
         `;
     }
 
+    element($el) {
+        return {
+            iconEl:$el.children("i"),
+            labelEl:$el.children(".button-label")
+        }
+    }
+
 /* =======================================
  * Option Panel Setting
  * ======================================= */
@@ -77,21 +84,23 @@ class Button extends ViewObject {
     }
 
     optionPanelEvent($el, options, componentFactory) {
+        const {iconEl,labelEl} = this.element($el);
+
         this.optionPanel.inputEvent('id',(e) => {
             this.optionPanel.changeOptionValue($el, options, 'id', $(e.target).val());
         });
 
         this.optionPanel.inputEvent('text',(e) => {
             this.optionPanel.changeOptionValue($el, options, 'label', $(e.target).val());
-            $el.find("label").text(options.label);
+            labelEl.text(options.label);
         });
 
         this.optionPanel.inputEvent('icon',(e) => {
-            $el.find("i").removeClass(options.icon);
+            iconEl.removeClass(options.icon);
 
             this.optionPanel.changeOptionValue($el, options, 'icon', $(e.target).val());
 
-            $el.find("i").addClass(options.icon);
+            iconEl.addClass(options.icon);
         });
 
         this.optionPanel.inputEvent('action',(e) => {

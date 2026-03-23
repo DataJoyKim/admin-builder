@@ -79,6 +79,12 @@ class Input extends ViewObject {
         `;
     }
 
+    element($el) {
+        return {
+            labelEl:$el.children("label")
+        }
+    }
+
 /* =======================================
  * Option Panel Setting
  * ======================================= */
@@ -99,6 +105,8 @@ class Input extends ViewObject {
     }
 
     optionPanelEvent($el, options, componentFactory) {
+        const {labelEl} = this.element($el);
+
         this.optionPanel.inputEvent('id',(e) => {
             this.optionPanel.changeOptionValue($el, options, 'id', $(e.target).val());
         });
@@ -115,8 +123,8 @@ class Input extends ViewObject {
 
         this.optionPanel.inputEvent('label',(e) => {
             this.optionPanel.changeOptionValue($el, options, 'label', $(e.target).val());
-            $el.find("label").text(options.label);
-            $el.find("label").prop('hidden', (options.label) ? false : true);
+            labelEl.text(options.label);
+            labelEl.prop('hidden', (options.label) ? false : true);
         });
     }
 }
