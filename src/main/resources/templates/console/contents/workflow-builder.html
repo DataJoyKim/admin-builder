@@ -3,14 +3,14 @@
     .step-item {
         position: relative;
         background-color: #ffffff;
-        width: 350px;
+        width: 250px;
         height: 180px;
-        border-radius: 8px;
+        border-radius: 13px;
         display: flex;
         flex-direction: column;
-        font-size: 18px;
-        border: 2px solid #ddd;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        font-size: 14px;
+        border: 4px solid #898989;
+        //box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         margin-bottom:15px;
     }
 
@@ -33,7 +33,7 @@
 
     .step-message-id {
        font-weight: 500;
-       font-size: 15px;
+       font-size: 12px;
     }
 
     .step-function {
@@ -173,6 +173,38 @@
 
         getWorkflowList();
         setWorkflowGrid();
+
+        setAuthorityGrid();
+    }
+
+    function setAuthorityGrid() {
+        httpClient.get(`/console/api/authority`, {},
+            function(response){
+                sheet.initSheet('workflowAuthorityGrid', "100%","800px",
+                [
+                    {name: "id", title:"ID", type: "number", width: 20, visible: false},
+                    {name: "authorityCode", title:"권한", type: "select", width: 50, items: response, valueField: "code", textField: "name" },
+                    { type: "control", editButton: true, width: 30, modeSwitchButton: false }
+                ],
+                function(args) {},
+                {
+                    inserting: true,
+                    editing: true,
+                    onItemInserting: function(args) {
+                        insertWorkflowAuthority($("#workflowId").val(), args.item);
+                    },
+                    onItemUpdated: function(args) {
+                        updateWorkflowAuthority($("#workflowId").val(),args.item);
+                    },
+                    onItemDeleting: function(args) {
+                        deleteWorkflowAuthority($("#workflowId").val(), args.item);
+                    }
+                });
+            },
+            function(error){
+                alert('error');
+            }
+        );
     }
 
     function initCodeEditor(id,mode) {
@@ -626,7 +658,7 @@
                     </span>
                     <span class="step-message-id"   style="color: #065f9e;">
                         <i class="display-element" ${hiddenDisplayElement}>${data.requestMessageId}</i>
-                        <input class="input-element" type="text" name="requestMessageId" value="${data.requestMessageId}" placeholder="요청메시지ID 입력" style="width:150px;" autocomplete="off" ${hiddenInputElement}></input>
+                        <input class="input-element" type="text" name="requestMessageId" value="${data.requestMessageId}" placeholder="요청메시지ID 입력" style="width:100px;" autocomplete="off" ${hiddenInputElement}></input>
                     </span>
                 </div>
 
@@ -645,7 +677,7 @@
                         <font class="display-element"  style="color: #1f2937; font-weight: 300;font-size: 14px;" ${hiddenDisplayElement}>
                             ${data.functionName}
                         </font>
-                        <input class="input-element" type="text" name="functionName" value="${data.functionName}" placeholder="기능코드 입력" style="width:180px;" autocomplete="off" ${hiddenInputElement}></input>
+                        <input class="input-element" type="text" name="functionName" value="${data.functionName}" placeholder="기능코드 입력" style="width:150px;" autocomplete="off" ${hiddenInputElement}></input>
                     </span>
                 </div>
 
@@ -656,7 +688,7 @@
                     </span>
                     <span class="step-message-id"   style="color: #065f46;">
                         <i class="display-element" ${hiddenDisplayElement}>${data.responseMessageId}</i>
-                        <input class="input-element" type="text" name="responseMessageId" value="${data.responseMessageId}" placeholder="응답메시지ID 입력" style="width:150px;" autocomplete="off" ${hiddenInputElement}></input>
+                        <input class="input-element" type="text" name="responseMessageId" value="${data.responseMessageId}" placeholder="응답메시지ID 입력" style="width:100px;" autocomplete="off" ${hiddenInputElement}></input>
                     </span>
                 </div>
 
@@ -1681,18 +1713,6 @@
             });
         </mf-action>
 
-        <mf-action name="insertWorkflowAuthorityEvent" args="args">
-            insertWorkflowAuthority($("#workflowId").val(), args.item);
-        </mf-action>
-
-        <mf-action name="updateWorkflowAuthorityEvent" args="args">
-            updateWorkflowAuthority($("#workflowId").val(),args.item);
-        </mf-action>
-
-        <mf-action name="deleteWorkflowAuthorityEvent" args="args">
-            deleteWorkflowAuthority($("#workflowId").val(), args.item);
-        </mf-action>
-
         <mf-action name="security" args="args">
             initFunctionGrid();
 
@@ -1798,15 +1818,7 @@
                     <mf-card-header title="접근제어">
                     </mf-card-header>
                     <mf-card-body>
-                        <mf-grid id="workflowAuthorityGrid" width="100%" height="800px"
-                                 control="true" editing="true" inserting="true"
-                                 insertActionName="insertWorkflowAuthorityEvent"
-                                 updateActionName="updateWorkflowAuthorityEvent"
-                                 deleteActionName="deleteWorkflowAuthorityEvent"
-                        >
-                            <mf-grid-column  type="number" id="id"             label="ID"       width="20px"  hidden="true" ></mf-grid-column>
-                            <mf-grid-column  type="text"   id="authorityCode"  label="권한코드"   width="150px" ></mf-grid-column>
-                        </mf-grid>
+                        <div id="workflowAuthorityGrid"></div>
                     </mf-card-body>
                 </mf-card>
 

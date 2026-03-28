@@ -83,8 +83,8 @@ class Card extends ViewObject {
     styleBuilder() {
         return `
             .vb-item[data-type="${this.componentId()}"] .card-tools {
-                padding-left: 30px;
-                min-width: 60px;
+                padding-left: 80px;
+                min-width: 150px;
                 width: auto;
                 min-height: 30px;
                 height: auto;
