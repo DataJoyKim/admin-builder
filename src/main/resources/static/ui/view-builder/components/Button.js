@@ -23,7 +23,7 @@ class Button extends ViewObject {
  * ======================================= */
     renderRuntime(options, children) {
         let el =  $(`
-            <button id="${options.id}" type="button" class="btn btn-default btn-sm" onclick="VB.doAction('${options.action}')">
+            <button id="${options.id}" type="button" class="btn btn-default btn-sm" onclick="VB.doAction('${options.action}')" style="margin-left:2px;">
                 <i class="${options.icon}"></i>
                 ${options.label}
             </button>
@@ -39,7 +39,7 @@ class Button extends ViewObject {
  * ======================================= */
     renderBuilder(id, options) {
         let el = `
-            <div id="${id}" class="component vb-item btn btn-default btn-sm" data-type="${this.componentId()}">
+            <div id="${id}" class="component vb-item btn btn-default btn-sm" data-type="${this.componentId()}" style="margin-left:2px;">
                 ${super.componentDeleteBtn()}
                 <i class="${options.icon}"></i>
                 <span class="button-label">${options.label}</span>
