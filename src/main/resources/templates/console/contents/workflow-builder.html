@@ -25,7 +25,7 @@
     }
 
     .step-message-type {
-        font-size: 12px;
+        font-size: 10px;
         font-weight: bold;
         padding: 2px 8px;
         border-radius: 12px;
@@ -658,12 +658,14 @@
 
                 <!-- IN 영역 -->
                 <div class="step-message" >
-                    <span class="step-message-type" style="background-color: #bae6ff;color: #0369a1;">
+                    <span class="step-message-type" style="background-color: #bae6ff;color: #0369a1;" ${hiddenDisplayElement}>
                         IN
                     </span>
-                    <span class="step-message-id"   style="color: #065f9e;">
-                        <span class="display-element" ${hiddenDisplayElement}>${data.requestMessageId}</span>
-                        <input class="input-element" type="text" name="requestMessageId" value="${data.requestMessageId}" placeholder="요청메시지ID 입력" style="width:100px;" autocomplete="off" ${hiddenInputElement}></input>
+                    <span class="step-message-id"   style="color: #065f9e;" ${hiddenDisplayElement}>
+                        <span class="display-element" >${data.requestMessageId}</span>
+                    </span>
+                    <span class="step-message-id" ${hiddenInputElement}>
+                        <input class="input-element" type="text" name="requestMessageId" value="${data.requestMessageId}" placeholder="요청메시지ID 입력" style="width:150px;" autocomplete="off" ></input>
                     </span>
                 </div>
 
@@ -690,12 +692,14 @@
 
                 <!-- OUT 영역 -->
                 <div class="step-message" >
-                    <span class="step-message-type" style="background-color: #a8f0a0;color: #047857;">
+                    <span class="step-message-type" style="background-color: #a8f0a0;color: #047857;" ${hiddenDisplayElement}>
                         OUT
                     </span>
-                    <span class="step-message-id"   style="color: #065f46;">
-                        <span class="display-element" ${hiddenDisplayElement}>${data.responseMessageId}</span>
-                        <input class="input-element" type="text" name="responseMessageId" value="${data.responseMessageId}" placeholder="응답메시지ID 입력" style="width:100px;" autocomplete="off" ${hiddenInputElement}></input>
+                    <span class="step-message-id"   style="color: #065f46;" ${hiddenDisplayElement}>
+                        <span class="display-element" >${data.responseMessageId}</span>
+                    </span>
+                    <span class="step-message-id"   ${hiddenInputElement}>
+                        <input class="input-element" type="text" name="responseMessageId" value="${data.responseMessageId}" placeholder="응답메시지ID 입력" style="width:150px;" autocomplete="off" ></input>
                     </span>
                 </div>
 
