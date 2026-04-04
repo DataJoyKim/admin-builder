@@ -12,6 +12,8 @@
         border: 3px solid #898989;
         //box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         margin-bottom:15px;
+        word-break: break-word;
+        overflow-wrap: break-word;
     }
 
     .step-message {
@@ -51,7 +53,7 @@
 
     .step-tools {
         position: absolute;
-        top: 5px;
+        top: -25px;
         right: 5px;
     }
 
@@ -708,7 +710,7 @@
                     <i class="fas fa-play" name="btnExecute" style="cursor: pointer;" onclick="executeFunction('${data.functionType}','${data.functionName}','${data.requestMessageId}')"  ${hiddenDisplayElement}></i>
                     <i class="fas fa-undo" name="btnCancel" style="cursor: pointer;" onclick="cancelEditFunction(event)" ${hiddenUndoBtn}></i>
                     <i class="fas fa-pen" name="btnEdit" style="cursor: pointer;" onclick="editFunction(event)" ${hiddenEditBtn}></i>
-                    <i class="fas fa-times" name="btnDelete"  style="cursor: pointer;" onclick="deleteFunction(event)" ${hiddenDeleteBtn}></i>
+                    <i class="fas fa-trash" name="btnDelete"  style="cursor: pointer;" onclick="deleteFunction(event)" ></i>
                 </span>
             </div>
         `;

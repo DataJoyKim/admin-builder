@@ -30,13 +30,13 @@
                 inserting: true,
                 editing: true,
                 onItemInserting: function(args) {
-                    //insertCommonCode($("#code").val(), args.item);
+                    insertItem(args.item);
                 },
                 onItemUpdated: function(args) {
-                    //updateCommonCode($("#code").val(),args.item);
+                    updateItem(args.item);
                 },
                 onItemDeleting: function(args) {
-                    //deleteCommonCode($("#code").val(), args.item);
+                    deleteItem(args.item);
                 }
             });
 
@@ -46,8 +46,67 @@
                 }
 
                 P_OBJECT_CODE = data.objectCode;
-                //getList();
+                getList();
             });
+        }
+
+        function getList() {
+            httpClient.get(`/console/api/object/code`, {objectCode:P_OBJECT_CODE},
+                function(response){
+                    sheet.setSheetData('jsGrid1', response);
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function insertItem(item) {
+            httpClient.post(`/console/api/object/code`,{},
+                {
+                   objectCode:P_OBJECT_CODE,
+                   name:item.name,
+                   target:item.target,
+                   type:item.type
+                },
+                function(response){
+                    alert("생성 완료되었습니다.");
+                    getList();
+                },
+                function(error){
+                    alert('error');
+                }
+            );
+        }
+
+        function updateItem(item) {
+          httpClient.put(`/console/api/object/code/${item.id}`, {},
+              {
+                   objectCode:P_OBJECT_CODE,
+                   name:item.name,
+                   target:item.target,
+                   type:item.type
+              },
+              function(response){
+                  alert("변경 완료되었습니다.");
+                  getList();
+              },
+              function(error){
+                  alert('error');
+              }
+          );
+        }
+
+        function deleteItem(item) {
+          httpClient.delete(`/console/api/object/code/${item.id}`, {},
+              function(response){
+                  alert("삭제 완료되었습니다.");
+                  getList();
+              },
+              function(error){
+                  alert('error');
+              }
+          );
         }
     </script>
 <div th:fragment="view">

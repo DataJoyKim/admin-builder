@@ -40,7 +40,7 @@ class CardBody extends ViewObject {
              <div id="${id}" class="component card-body vb-item vb-container" data-type="${this.componentId()}">
                 ${super.componentDeleteBtn()}
                 <div class="drop-area-label">
-                    + Drag & Drop here
+                    + Drag & Drop
                 </div>
              </div>
         `;

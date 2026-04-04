@@ -40,7 +40,7 @@ class Row extends ViewObject {
             <div id="${id}" class="component row vb-item vb-container" data-type="${this.componentId()}">
                 ${super.componentDeleteBtn()}
                 <div class="drop-area-label">
-                    + Drag & Drop here
+                    + Drag & Drop
                 </div>
             </div>
         `;
