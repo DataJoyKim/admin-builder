@@ -35,9 +35,9 @@ class Form extends ViewObject {
 /* =======================================
  * Builder Component Setting
  * ======================================= */
-    renderBuilder(id, options) {
+    renderBuilder(options) {
         let el = `
-            <form id="${id}" class="component form vb-item vb-container" data-type="${this.componentId()}">
+            <form id="${options.id}" class="component form vb-item vb-container" data-type="${this.componentId()}">
                 ${super.componentDeleteBtn()}
                 <div style="text-align: center;width:100%;">Form</div>
             </form>

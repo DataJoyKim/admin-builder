@@ -5,7 +5,8 @@ class ViewManager {
             grid: App.grid,
             modalPopup: App.modalPopup,
             popup: App.popup,
-            httpClient: App.httpClient
+            httpClient: App.httpClient,
+            workflowClient: App.workflowClient
         };
         window.VB.objectCode = App.objectCode;
         window.VB.actionExecutor = new ActionExecutor();

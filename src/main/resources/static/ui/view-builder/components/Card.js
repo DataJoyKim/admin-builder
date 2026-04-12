@@ -58,14 +58,14 @@ class Card extends ViewObject {
 /* =======================================
  * Builder Component Setting
  * ======================================= */
-    renderBuilder(id, options) {
+    renderBuilder(options) {
         let cardHeaderClass = ``;
         if(!options.useCardHeader) {
             cardHeaderClass = `d-none`;
         }
 
         let el = `
-            <div id="${id}" class="component ${options.size} vb-item" data-type="${this.componentId()}">
+            <div id="${options.id}" class="component ${options.size} vb-item" data-type="${this.componentId()}">
                 ${super.componentDeleteBtn()}
                  <div class="card">
                     <div class="card-header ${cardHeaderClass}">
@@ -95,7 +95,7 @@ class Card extends ViewObject {
 
     componentDropConfig($componentEl) {
         return [{
-            element: this.element($componentEl).cardToolsEl,
+            element: this.getElement($componentEl).cardToolsEl,
             allowedComponentIds: ["button","custom-html"],
             sortable: true
         }]
@@ -109,10 +109,10 @@ class Card extends ViewObject {
     }
 
     afterAddComponent(componentFactory, $el, $componentEl) {
-        super.addComponentByType(componentFactory, 'card-body', this.element($componentEl).cardEl);
+        super.addComponentByType(componentFactory, 'card-body', this.getElement($componentEl).cardEl);
     }
 
-    element($el) {
+    getElement($el) {
         const cardEl = $el.children(".card");
         const cardHeaderEl = cardEl.children(".card-header");
 
@@ -133,7 +133,8 @@ class Card extends ViewObject {
         $panel.append(this.optionPanel.select('size',{label:'크기', size:'col-12', options:this.optionPanel.optionSize()}));
         $panel.append(this.optionPanel.toggle('header-use',{label:'Card Header 사용', size:'col-12'}));
         $panel.append(this.optionPanel.input('title-input',{label:'Card Header 제목', size:'col-12'}));
-        $panel.append(this.optionPanel.button('body-add',{label:'Card 내용', size:'col-12', btnLabel:'컨텐츠 영역 추가',icon:'fas fa-plus'}));
+        $panel.append(this.optionPanel.button('button-add',{label:'Card 헤더 버튼 추가', size:'col-12', btnLabel:'추가',icon:'fas fa-plus'}));
+        $panel.append(this.optionPanel.button('body-add',{label:'Card 컨텐츠 영역 추가', size:'col-12', btnLabel:'추가',icon:'fas fa-plus'}));
     }
 
     optionPanelScript($el, options) {
@@ -145,7 +146,7 @@ class Card extends ViewObject {
     }
 
     optionPanelEvent($el, options, componentFactory) {
-        const {cardEl, cardHeaderEl, cardTitleEl, cardToolsEl} = this.element($el);
+        const {cardEl, cardHeaderEl, cardTitleEl, cardToolsEl} = this.getElement($el);
 
         this.optionPanel.inputEvent('id',(e) => {
             this.optionPanel.changeOptionValue($el, options, 'id', $(e.target).val());
@@ -161,18 +162,21 @@ class Card extends ViewObject {
             cardTitleEl.text(options.title);
         });
 
+        this.optionPanel.clickEvent('button-add',(e) => {
+            super.addComponentByType(componentFactory, 'button', cardToolsEl);
+        });
+
         this.optionPanel.clickEvent('body-add',(e) => {
             super.addComponentByType(componentFactory, 'card-body', cardEl);
         });
 
         this.optionPanel.clickEvent('header-use',(e) => {
+            cardHeaderEl.removeClass('d-none');
+
             let value = $(e.target).is(':checked');
             this.optionPanel.changeOptionValue($el, options, 'useCardHeader', value);
 
-            if(value) {
-                cardHeaderEl.removeClass('d-none');
-            }
-            else {
+            if(!value) {
                 cardHeaderEl.addClass('d-none');
             }
         });

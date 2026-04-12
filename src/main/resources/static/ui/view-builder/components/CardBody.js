@@ -35,9 +35,9 @@ class CardBody extends ViewObject {
 /* =======================================
  * Builder Component Setting
  * ======================================= */
-    renderBuilder(id, options) {
+    renderBuilder(options) {
         let el = `
-             <div id="${id}" class="component card-body vb-item vb-container" data-type="${this.componentId()}">
+             <div id="${options.id}" class="component card-body vb-item vb-container" data-type="${this.componentId()}">
                 ${super.componentDeleteBtn()}
                 <div class="drop-area-label">
                     + Drag & Drop

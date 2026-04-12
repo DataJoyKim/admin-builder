@@ -27,7 +27,7 @@ $(function () {
             ViewManager.init('layout');
 
             window.VB.builder = new ViewBuilder('canvas', VB.actionsFactory, VB.componentFactory, VB.dropComponent, VB.viewDataLoader);
-            window.VB.builder.init();
+            VB.builder.init();
         });
     });
 });

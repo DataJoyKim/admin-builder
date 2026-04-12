@@ -36,13 +36,13 @@ class ModuleLoader {
             `${configs.paths.actions}/ActionsFactory.js`,
             `${configs.paths.components}/ComponentFactory.js`,
             `${configs.paths.runtime}/Render.js`,
-            `${configs.paths.runtime}/View.js`
+            `${configs.paths.runtime}/View.js`,
+            `${configs.paths.builder}/DropComponent.js`,
+            `${configs.paths.builder}/OptionPanel.js`
         ];
 
         if(edit) {
             const builderModule = [
-                `${configs.paths.builder}/DropComponent.js`,
-                `${configs.paths.builder}/OptionPanel.js`,
                 `${configs.paths.builder}/RenderBuilder.js`,
                 `${configs.paths.builder}/ViewBuilder.js`
             ];

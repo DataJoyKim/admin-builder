@@ -12,32 +12,81 @@ class Input extends ViewObject {
         return {
            id:this.componentId() + super.getComponentIdNumber(),
            size:'col-auto',
-           width:'150px',
-           label:''
+           width:'250px',
+           label:'Label',
+           labelWidth:'120px',
+           horizontal:true,
+           editable:true,
+           hidden:false
        };
     }
+
+/* =======================================
+ * Element Define
+ * ======================================= */
+    element(options, isBuilder) {
+        let $el = $(`<div class="form-group ${options.size}"></div>`);
+        if(isBuilder) {
+            $el.addClass('component');
+            $el.addClass('vb-item');
+            $el.attr('data-type', this.componentId());
+            $el.append(super.componentDeleteBtn());
+        }
+
+        if(options.width) {
+            $el.css('width', options.width);
+        }
+
+        if(options.horizontal) {
+            $el.addClass('d-flex');
+        }
+
+        if(options.hidden) {
+            if(!isBuilder) {
+                $el.removeClass('d-flex');
+                $el.addClass('d-none');
+            }
+        }
+
+        let $labelEL = $(`<label for="${options.id}">${options.label}</label>`);
+        $labelEL.css('margin-right','20px');
+
+        if(options.labelWidth) {
+            $labelEL.css('width', options.labelWidth);
+        }
+
+        if(options.label) {
+            $el.append($labelEL);
+        }
+        else {
+            if(isBuilder) {
+                $labelEL.prop('hidden',true);
+                $el.append($labelEL);
+            }
+        }
+
+        let $inputEl = $(`<input type="text" class="form-control form-control-sm rounded-1" id="${options.id}" >`);
+        $inputEl.attr('placeholder'  , '');
+        $inputEl.attr('autocomplete' , 'off');
+        $inputEl.attr('data-watch'   , 'true');
+        $inputEl.prop('spellcheck'   , false);
+
+        if(!options.editable) {
+            $inputEl.prop('readOnly', true);
+        }
+
+        $el.append($inputEl);
+
+        return $el;
+    }
+
+    scriptRuntime(el, options) {}
 
 /* =======================================
  * Runtime Component Setting
  * ======================================= */
     renderRuntime(options, children) {
-        let style = ``;
-
-        if(options.width) {
-            style += `width:${options.width};`;
-        }
-
-        let el = $(`<div class="form-group ${options.size}" style="${style}"></div>`);
-
-        if(options.label) {
-            const labelEL = $(`<label for="${options.id}">${options.label}</label>`);
-            el.append(labelEL);
-        }
-
-        const inputEl = $(`<input type="text" class="form-control rounded-0" id="${options.id}" placeholder="" spellcheck="false" autocomplete="off" data-watch="true" >`);
-        el.append(inputEl);
-
-        return el;
+        return this.element(options, false);
     }
 
     scriptRuntime(el, options) {}
@@ -45,28 +94,8 @@ class Input extends ViewObject {
 /* =======================================
  * Builder Component Setting
  * ======================================= */
-    renderBuilder(id, options) {
-        let style = ``;
-
-        if(options.width) {
-            style += `width:${options.width};`;
-        }
-
-        let el = $(`
-            <div id="${id}" class="component form-group ${options.size} vb-item vb-input" style="${style}" data-type="${this.componentId()}">
-            ${super.componentDeleteBtn()}
-            </div>
-        `);
-
-        const hiddenLabel = (options.label) ? '' : 'hidden';
-
-        const labelEL = $(`<label for="${id}-el" ${hiddenLabel}>${options.label}</label>`);
-        el.append(labelEL);
-
-        const inputEl = $(`<input type="text" class="form-control rounded-0" id="${id}-el" placeholder="" spellcheck="false" autocomplete="off" data-watch="true" >`);
-        el.append(inputEl);
-
-        return el;
+    renderBuilder(options) {
+        return this.element(options, true);
     }
 
     styleBuilder() {
@@ -79,8 +108,9 @@ class Input extends ViewObject {
         `;
     }
 
-    element($el) {
+    getElement($el) {
         return {
+            inputEl:$el.children("input"),
             labelEl:$el.children("label")
         }
     }
@@ -94,6 +124,10 @@ class Input extends ViewObject {
         $panel.append(this.optionPanel.select('size',{label:'크기', size:'col-6', options:this.optionPanel.optionSize()}));
         $panel.append(this.optionPanel.input('width',{label:'width', size:'col-6'}));
         $panel.append(this.optionPanel.input('label',{label:'라벨', size:'col-6'}));
+        $panel.append(this.optionPanel.input('labelWidth',{label:'라벨 width', size:'col-6'}));
+        $panel.append(this.optionPanel.toggle('horizontal',{label:'수평배치', size:'col-12'}));
+        $panel.append(this.optionPanel.toggle('editable',{label:'editable', size:'col-12'}));
+        $panel.append(this.optionPanel.toggle('hidden',{label:'hidden', size:'col-12'}));
     }
 
     optionPanelScript($el, options) {
@@ -101,11 +135,15 @@ class Input extends ViewObject {
         this.optionPanel.setValue('id',options.id);
         this.optionPanel.setValue('size',options.size);
         this.optionPanel.setValue('width',options.width);
+        this.optionPanel.setValue('labelWidth',options.labelWidth);
         this.optionPanel.setValue('label',options.label);
+        this.optionPanel.check('horizontal',options.horizontal);
+        this.optionPanel.check('editable',options.editable);
+        this.optionPanel.check('hidden',options.hidden);
     }
 
     optionPanelEvent($el, options, componentFactory) {
-        const {labelEl} = this.element($el);
+        const {inputEl, labelEl} = this.getElement($el);
 
         this.optionPanel.inputEvent('id',(e) => {
             this.optionPanel.changeOptionValue($el, options, 'id', $(e.target).val());
@@ -125,6 +163,35 @@ class Input extends ViewObject {
             this.optionPanel.changeOptionValue($el, options, 'label', $(e.target).val());
             labelEl.text(options.label);
             labelEl.prop('hidden', (options.label) ? false : true);
+        });
+
+        this.optionPanel.inputEvent('labelWidth',(e) => {
+            this.optionPanel.changeOptionValue($el, options, 'labelWidth', $(e.target).val());
+            labelEl.css('width',options.labelWidth);
+        });
+
+        this.optionPanel.changeEvent('horizontal',(e) => {
+            $el.removeClass('d-flex');
+            let value = $(e.target).is(':checked');
+
+            this.optionPanel.changeOptionValue($el, options, 'horizontal', value);
+            if(value) {
+                $el.addClass('d-flex');
+            }
+        });
+
+        this.optionPanel.changeEvent('hidden',(e) => {
+            let value = $(e.target).is(':checked');
+
+            this.optionPanel.changeOptionValue($el, options, 'hidden', value);
+            $el.prop('hidden', value);
+        });
+
+        this.optionPanel.changeEvent('editable',(e) => {
+            let value = $(e.target).is(':checked');
+
+            this.optionPanel.changeOptionValue($el, options, 'editable', value);
+            inputEl.prop('readOnly', !value);
         });
     }
 }

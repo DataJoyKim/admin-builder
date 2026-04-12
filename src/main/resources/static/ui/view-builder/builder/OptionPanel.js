@@ -1,4 +1,5 @@
 class OptionPanel {
+    constructor() {}
 
     init(panelId) {
         this.panelId = panelId;

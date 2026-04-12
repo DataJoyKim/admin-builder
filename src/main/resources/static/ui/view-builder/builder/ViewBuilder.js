@@ -1,6 +1,12 @@
 class ViewBuilder {
 
-    constructor(canvasId, actionsFactory, componentFactory, dropComponent, viewDataLoader) {
+    constructor(
+        canvasId,
+        actionsFactory,
+        componentFactory,
+        dropComponent,
+        viewDataLoader,
+        ) {
         this.canvasId = canvasId;
         this.actionsFactory = actionsFactory;
         this.componentFactory = componentFactory;
@@ -14,12 +20,12 @@ class ViewBuilder {
         this.dropComponent.dropLayout(this.canvasId);
     }
 
-    preview() {
+    preview(objectCode) {
         this.previewState.preview = true;
         this.previewState.data = this.getViewData();
 
-        const render = new Render(this.actionsFactory, this.componentFactory);
-        render.init(this.canvasId, this.previewState.data);
+        const view = new View('canvas', VB.globalVariable, VB.actionExecutor, this.actionsFactory, this.componentFactory, VB.utils);
+        view.init(objectCode, this.previewState.data);
     }
 
     cancelPreview() {

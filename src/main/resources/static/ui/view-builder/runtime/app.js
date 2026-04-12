@@ -25,8 +25,8 @@ $(function () {
         VB.module.load(function(){
             ViewManager.init('layout');
 
-            const view = new View('canvas', VB.objectCode, VB.globalVariable, VB.actionExecutor, VB.actionsFactory, VB.componentFactory, VB.utils);
-            view.init();
+            const view = new View('canvas', VB.globalVariable, VB.actionExecutor, VB.actionsFactory, VB.componentFactory, VB.utils);
+            view.init(VB.objectCode);
         });
     });
 });

@@ -201,8 +201,14 @@
     }
 
     function preview() {
+        const objectCode = $("#objectCode").val();
+        if(!objectCode) {
+            alert('오브젝트를 입력해주세요');
+            return;
+        }
+
         togglePreviewBtn(false);
-        VB.builder.preview();
+        VB.builder.preview(objectCode);
     }
 
     function cancelPreview() {

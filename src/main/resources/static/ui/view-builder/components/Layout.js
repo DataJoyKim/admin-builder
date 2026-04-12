@@ -31,9 +31,9 @@ class Layout extends ViewObject {
 /* =======================================
  * Builder Component Setting
  * ======================================= */
-    renderBuilder(id, options) {
+    renderBuilder(options) {
         let el = `
-           <div class="layout wrapper vb-item vb-container" id="${id}" style="min-height: 993px;" data-type="${this.componentId()}">
+           <div class="layout wrapper vb-item vb-container" id="${options.id}" style="min-height: 993px;" data-type="${this.componentId()}">
            </div>
         `;
 

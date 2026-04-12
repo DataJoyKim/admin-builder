@@ -26,15 +26,15 @@ class ViewObject {
 /* =======================================
  * Builder Component Setting
  * ======================================= */
-    component(id, options) {
+    component(options) {
         this.mountComponentStyle();
 
-        let el = this.renderBuilder(id, options);
+        let el = this.renderBuilder(options);
 
         return el;
     }
 
-    renderBuilder(id, options) {}
+    renderBuilder(options) {}
     styleBuilder() {}
 
     mountComponentStyle() {
@@ -60,7 +60,7 @@ class ViewObject {
 
         let options = this.componentOptions();
 
-        let $componentEl = this.createComponent(options.id, options, componentFactory);
+        let $componentEl = this.createComponent(options, componentFactory);
         $el.append($componentEl);
 
         this.afterAddComponent(componentFactory, $el, $componentEl);
@@ -68,8 +68,8 @@ class ViewObject {
 
     afterAddComponent(componentFactory, $el, $componentEl) {}
 
-    createComponent(id, options, componentFactory) {
-        let $componentEl = this.component(id, options);
+    createComponent(options, componentFactory) {
+        let $componentEl = this.component(options);
 
         this.optionPanel.setOptions($componentEl, options);
 

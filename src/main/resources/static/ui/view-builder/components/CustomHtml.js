@@ -35,9 +35,9 @@ class CustomHtml extends ViewObject {
 /* =======================================
  * Builder Component Setting
  * ======================================= */
-    renderBuilder(id, options) {
+    renderBuilder(options) {
         let el = `
-            <div id="${id}" class="component vb-item ${options.className}" data-type="${this.componentId()}">
+            <div id="${options.id}" class="component vb-item ${options.className}" data-type="${this.componentId()}">
                 ${super.componentDeleteBtn()}
                 ${options.htmlContent}
             </div>

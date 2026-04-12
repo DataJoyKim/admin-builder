@@ -9,7 +9,7 @@ class DropComponent {
     dropLayout(canvasId) {
         const layout = this.componentFactoryMap[this.layoutId];
 
-        let componentEl = layout.createComponent(this.layoutId, {}, this.componentFactoryMap);
+        let componentEl = layout.createComponent({id:this.layoutId}, this.componentFactoryMap);
 
         $("#"+canvasId).append(componentEl);
 

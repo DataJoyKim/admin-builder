@@ -19,17 +19,38 @@ class Button extends ViewObject {
     }
 
 /* =======================================
+ * Element Define
+ * ======================================= */
+    element(options, isBuilder) {
+        let $el;
+        if(isBuilder) {
+            $el = $(`<div id="${options.id}" type="button" class="btn btn-default btn-sm" ></div>`);
+            $el.addClass('component');
+            $el.addClass('vb-item');
+            $el.attr('data-type', this.componentId());
+            $el.append(super.componentDeleteBtn());
+        }
+        else {
+            $el = $(`<button id="${options.id}" type="button" class="btn btn-default btn-sm" onclick="VB.doAction('${options.action}')"></button>`);
+        }
+
+        $el.css('margin-left', '2px');
+
+        let $iconEl = $(`<i class="btn-icon"></i>`);
+        $iconEl.addClass(options.icon);
+        $el.append($iconEl);
+
+        let $labelEl = $(`<span class="btn-label">${options.label}</span>`);
+        $el.append($labelEl);
+
+        return $el;
+    }
+
+/* =======================================
  * Runtime Component Setting
  * ======================================= */
     renderRuntime(options, children) {
-        let el =  $(`
-            <button id="${options.id}" type="button" class="btn btn-default btn-sm" onclick="VB.doAction('${options.action}')" style="margin-left:2px;">
-                <i class="${options.icon}"></i>
-                ${options.label}
-            </button>
-        `);
-
-        return el;
+        return this.element(options, false);
     }
 
     scriptRuntime(el, options) {}
@@ -37,16 +58,8 @@ class Button extends ViewObject {
 /* =======================================
  * Builder Component Setting
  * ======================================= */
-    renderBuilder(id, options) {
-        let el = `
-            <div id="${id}" class="component vb-item btn btn-default btn-sm" data-type="${this.componentId()}" style="margin-left:2px;">
-                ${super.componentDeleteBtn()}
-                <i class="${options.icon}"></i>
-                <span class="button-label">${options.label}</span>
-            </div>
-        `;
-
-        return $(el);
+    renderBuilder(options) {
+        return this.element(options, true);
     }
 
     styleBuilder() {
@@ -56,10 +69,10 @@ class Button extends ViewObject {
         `;
     }
 
-    element($el) {
+    getElement($el) {
         return {
             iconEl:$el.children("i"),
-            labelEl:$el.children(".button-label")
+            labelEl:$el.children(".btn-label")
         }
     }
 
@@ -84,7 +97,7 @@ class Button extends ViewObject {
     }
 
     optionPanelEvent($el, options, componentFactory) {
-        const {iconEl,labelEl} = this.element($el);
+        const {iconEl,labelEl} = this.getElement($el);
 
         this.optionPanel.inputEvent('id',(e) => {
             this.optionPanel.changeOptionValue($el, options, 'id', $(e.target).val());

@@ -20,7 +20,7 @@ class RenderBuilder {
             .attr('id', id);
 
         const layout = this.componentFactory.instance('layout');
-        const layoutEl = layout.component('layout', {});
+        const layoutEl = layout.component({id:'layout'});
 
         layoutEl.append(this.component(data));
         contentWrapper.append(layoutEl);
@@ -38,7 +38,7 @@ class RenderBuilder {
         for (let data of viewData) {
             const comp = this.componentFactory.instance(data.type);
 
-            const componentEl = comp.createComponent(data.id, data, this.componentFactory.instanceMap());
+            const componentEl = comp.createComponent(data, this.componentFactory.instanceMap());
 
             let children = null;
             if(data.children) {

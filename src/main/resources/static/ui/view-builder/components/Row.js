@@ -35,9 +35,9 @@ class Row extends ViewObject {
 /* =======================================
  * Builder Component Setting
  * ======================================= */
-    renderBuilder(id, options) {
+    renderBuilder(options) {
         let el = `
-            <div id="${id}" class="component row vb-item vb-container" data-type="${this.componentId()}">
+            <div id="${options.id}" class="component row vb-item vb-container" data-type="${this.componentId()}">
                 ${super.componentDeleteBtn()}
                 <div class="drop-area-label">
                     + Drag & Drop
@@ -52,7 +52,7 @@ class Row extends ViewObject {
         return `
             .vb-item[data-type="${this.componentId()}"] {
                 padding: 5px;
-                min-height: 70px;
+                min-height: 45px;
                 height: auto;
                 margin: 0 !important;
                 border: 1px dashed #bbb;

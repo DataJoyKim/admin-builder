@@ -82,9 +82,9 @@ class VbGrid extends ViewObject {
 /* =======================================
  * Builder Component Setting
  * ======================================= */
-    renderBuilder(id, options) {
+    renderBuilder(options) {
         let el = `
-            <div id="${id}" class="component vb-item" data-type="${this.componentId()}">
+            <div id="${options.id}" class="component vb-item" data-type="${this.componentId()}">
                 ${super.componentDeleteBtn()}
                 Grid
             </div>
