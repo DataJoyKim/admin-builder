@@ -11,6 +11,7 @@
         font-size: 14px;
         border: 3px solid #898989;
         //box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        margin-top:10px;
         margin-bottom:15px;
         word-break: break-word;
         overflow-wrap: break-word;
@@ -684,11 +685,11 @@
                             ${data.functionName}
                         </font>
                     </span>
-                    <span class="step-editor" ${hiddenInputElement}>
-                        <select class="input-element" name="functionType" style="width:100%;" ${hiddenInputElement}>
+                    <span class="step-editor col-12" ${hiddenInputElement}>
+                        <select class="input-element form-control form-control-sm rounded-1" name="functionType" ${hiddenInputElement}>
                             ${htmlOptionFunctionType}
                         </select>
-                        <input class="input-element" type="text" name="functionName" value="${data.functionName}" placeholder="기능코드 입력" style="width:100%;" autocomplete="off" ${hiddenInputElement}></input>
+                        <input class="input-element form-control form-control-sm rounded-1" type="text" name="functionName" value="${data.functionName}" placeholder="기능코드 입력" autocomplete="off" ${hiddenInputElement}></input>
                     </span>
                 </div>
 

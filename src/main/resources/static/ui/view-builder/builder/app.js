@@ -24,6 +24,9 @@ $(function () {
         window.VB.module = new ModuleLoader(VB.version, VB.configs, true);
 
         VB.module.load(function(){
+            const componentPanel = new ComponentPanel();
+            componentPanel.init('component-panel');
+
             ViewManager.init('layout');
 
             window.VB.builder = new ViewBuilder('canvas', VB.actionsFactory, VB.componentFactory, VB.dropComponent, VB.viewDataLoader);

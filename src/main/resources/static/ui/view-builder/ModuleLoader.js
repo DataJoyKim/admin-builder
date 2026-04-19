@@ -38,17 +38,16 @@ class ModuleLoader {
             `${configs.paths.runtime}/Render.js`,
             `${configs.paths.runtime}/View.js`,
             `${configs.paths.builder}/DropComponent.js`,
-            `${configs.paths.builder}/OptionPanel.js`
+            `${configs.paths.builder}/OptionPanel.js`,
+            `${configs.paths.builder}/ComponentPanel.js`
         ];
 
-        if(edit) {
-            const builderModule = [
-                `${configs.paths.builder}/RenderBuilder.js`,
-                `${configs.paths.builder}/ViewBuilder.js`
-            ];
+        const builderModule = [
+            `${configs.paths.builder}/RenderBuilder.js`,
+            `${configs.paths.builder}/ViewBuilder.js`
+        ];
 
-            this.afterModules.push(...builderModule);
-        }
+        this.afterModules.push(...builderModule);
     }
 
     load(_callback) {
