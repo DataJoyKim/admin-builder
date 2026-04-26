@@ -49,6 +49,7 @@ class Grid {
               paging: false,
               editing: false,
               inserting: false,
+              deleteConfirm:'삭제하시겠습니까?',
               fields: _fields,
               data: [],
               rowClick: function(args) {

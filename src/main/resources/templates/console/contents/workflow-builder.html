@@ -83,7 +83,7 @@
             {code:"ENTITY",name:"Entity"},
             {code:"SQL",name:"SQL"},
             {code:"REST_CLIENT",name:"Rest Client"},
-            {code:"CODE",name:"Code"}
+            {code:"CODE",name:"메시지처리"}
         ],
         "YN_CD":[
             {code:"true",name:"Y"},
@@ -183,15 +183,22 @@
         setWorkflowGrid();
 
         setAuthorityGrid();
+        showGrid('workflow-authority-card',true);
     }
 
     function setAuthorityGrid() {
         httpClient.get(`/console/api/authority`, {},
             function(response){
+                let codes = [
+                    {code:'',name:'선택'}
+                ];
+
+                codes = codes.concat(response);
+
                 sheet.initSheet('workflowAuthorityGrid', "100%","800px",
                 [
                     {name: "id", title:"ID", type: "number", width: 20, visible: false},
-                    {name: "authorityCode", title:"권한", type: "select", width: 50, items: response, valueField: "code", textField: "name" },
+                    {name: "authorityCode", title:"권한", type: "select", width: 100, items: codes, valueField: "code", textField: "name" },
                     { type: "control", editButton: true, width: 30, modeSwitchButton: false }
                 ],
                 function(args) {},
@@ -213,18 +220,6 @@
                 alert('error');
             }
         );
-    }
-
-    function initCodeEditor(id,mode) {
-        let textarea = document.getElementById(id);
-
-        return CodeMirror.fromTextArea(textarea, {
-            lineNumbers: true,
-            lineWrapping: true,
-            theme: "darcula",
-            mode: mode,
-            val: textarea.value
-        });
     }
 
     function setDatSourceAsDatabase() {
@@ -356,7 +351,7 @@
             });
 
         drawWorkflow('workflowGrid',[]);
-        initFunctionGrid();
+        //initFunctionGrid();
       }
 
     function getWorkflowFunction(workflowId) {
@@ -661,23 +656,23 @@
 
                 <!-- IN 영역 -->
                 <div class="step-message" >
-                    <span class="step-message-type" style="background-color: #bae6ff;color: #0369a1;" ${hiddenDisplayElement}>
+                    <span class="step-message-type display-element" style="background-color: #bae6ff;color: #0369a1;" ${hiddenDisplayElement}>
                         IN
                     </span>
-                    <span class="step-message-id"   style="color: #065f9e;" ${hiddenDisplayElement}>
+                    <span class="step-message-id display-element"   style="color: #065f9e;" ${hiddenDisplayElement}>
                         <span class="display-element" >${data.requestMessageId}</span>
                     </span>
-                    <span class="step-message-id" ${hiddenInputElement}>
+                    <span class="step-message-id input-element" ${hiddenInputElement}>
                         <input class="input-element" type="text" name="requestMessageId" value="${data.requestMessageId}" placeholder="요청메시지ID 입력" style="width:150px;" autocomplete="off" ></input>
                     </span>
                 </div>
 
                 <!-- 기능 영역 -->
-                <div class="step-function" onclick="clickStepItem('${data.functionType}','${data.functionName}')" >
-                    <span class="step-function-img" ${hiddenDisplayElement}>
+                <div class="step-function" >
+                    <span class="step-function-img display-element" ${hiddenDisplayElement}>
                         <img class="display-element" src="${iconPath}" width="60" height="60" style="display:block;" ${hiddenDisplayElement}>
                     </span>
-                    <span class="step-function-name" ${hiddenDisplayElement}>
+                    <span class="step-function-name display-element" ${hiddenDisplayElement}>
                         <font class="display-element"  style="color: #1f2937; font-weight: 500;font-size: 18px;" ${hiddenDisplayElement}>
                             ${data.displayName}
                         </font>
@@ -685,7 +680,7 @@
                             ${data.functionName}
                         </font>
                     </span>
-                    <span class="step-editor col-12" ${hiddenInputElement}>
+                    <span class="step-editor input-element col-12" ${hiddenInputElement}>
                         <select class="input-element form-control form-control-sm rounded-1" name="functionType" ${hiddenInputElement}>
                             ${htmlOptionFunctionType}
                         </select>
@@ -695,19 +690,20 @@
 
                 <!-- OUT 영역 -->
                 <div class="step-message" >
-                    <span class="step-message-type" style="background-color: #a8f0a0;color: #047857;" ${hiddenDisplayElement}>
+                    <span class="step-message-type display-element" style="background-color: #a8f0a0;color: #047857;" ${hiddenDisplayElement}>
                         OUT
                     </span>
-                    <span class="step-message-id"   style="color: #065f46;" ${hiddenDisplayElement}>
+                    <span class="step-message-id display-element"   style="color: #065f46;" ${hiddenDisplayElement}>
                         <span class="display-element" >${data.responseMessageId}</span>
                     </span>
-                    <span class="step-message-id"   ${hiddenInputElement}>
+                    <span class="step-message-id input-element"   ${hiddenInputElement}>
                         <input class="input-element" type="text" name="responseMessageId" value="${data.responseMessageId}" placeholder="응답메시지ID 입력" style="width:150px;" autocomplete="off" ></input>
                     </span>
                 </div>
 
                 <!-- 드래그 핸들 -->
                 <span class="step-tools" style="color: #065f9e;">
+                    <i class="fas fa-wrench" name="btnFunctionSetting" style="cursor: pointer;" onclick="openPopupFunctionSetting('${data.functionType}','${data.functionName}')"  ${hiddenDisplayElement}></i>
                     <i class="fas fa-play" name="btnExecute" style="cursor: pointer;" onclick="executeFunction('${data.functionType}','${data.functionName}','${data.requestMessageId}')"  ${hiddenDisplayElement}></i>
                     <i class="fas fa-undo" name="btnCancel" style="cursor: pointer;" onclick="cancelEditFunction(event)" ${hiddenUndoBtn}></i>
                     <i class="fas fa-pen" name="btnEdit" style="cursor: pointer;" onclick="editFunction(event)" ${hiddenEditBtn}></i>
@@ -728,32 +724,8 @@
         $(this).addClass("selected");
     });
 
-    function clickStepItem(functionType, functionName) {
-        initFunctionGrid();
-
-        if(functionType == "SQL") {
-            showGrid('sql-card',true);
-            sqlEditor = initCodeEditor('query','text/x-sql');
-            getQuery(functionName);
-        }
-        else if(functionType == "ENTITY") {
-            showGrid('entity-card',true);
-            getEntity(functionName);
-        }
-        else if(functionType == "REST_CLIENT") {
-            showGrid('rest-client-card',true);
-            getRestClient(functionName);
-        }
-        else if(functionType == "CODE") {
-            showGrid('code-card',true);
-            codeEditor = initCodeEditor('script','text/x-groovy');
-            codeEditor.setSize("100%", "800px");
-            getCode(functionName);
-        }
-    }
-
     function executeFunction(functionType, functionName, requestMessageId) {
-        initFunctionGrid();
+        //initFunctionGrid();
 
         $("#executeTarget").val(functionName);
         $("#executeType").val(functionType);
@@ -775,7 +747,7 @@
         }, true));
 
         drawConnectors();
-        initFunctionGrid();
+        //initFunctionGrid();
     }
 
     function saveFunction() {
@@ -940,11 +912,6 @@
         showGrid('rest-client-card',false);
         showGrid('code-card',false);
 
-        if (sqlEditor) {
-          sqlEditor.toTextArea();
-          sqlEditor = null;
-        }
-
         if (codeEditor) {
           codeEditor.toTextArea();
           codeEditor = null;
@@ -958,269 +925,6 @@
         else {
             $("#"+id).addClass('d-none');
         }
-    }
-
-/******************************************************************
-* SQL
-*******************************************************************/
-
-    function getQuery(functionName) {
-        httpClient.get(`/console/api/query`, {queryName:`${functionName}`},
-            function(response){
-                let data = response[0];
-                if(data) {
-                    setQueryContent(data);
-                    getQueryParam(data.id);
-                }
-                else {
-                    setQueryContent({
-                        id:'',
-                        queryName:functionName,
-                        displayName:'',
-                        dataSourceName:'',
-                        query:'',
-                    });
-                }
-            },
-            function(error){
-                alert('error');
-            }
-        );
-    }
-
-    function getQueryParam(queryId) {
-        httpClient.get(`/console/api/query-param/${queryId}`, {},
-            function(response){
-                sheet.setSheetData('queryParameterGrid', response);
-            },
-            function(error){
-                alert('error');
-            }
-        );
-    }
-
-    function setQueryContent(response) {
-        setQueryContent({
-            id:response.id,
-            queryName:response.queryName,
-            displayName:response.displayName,
-            dataSourceName:response.dataSourceName,
-            query:response.query
-          });
-    }
-
-    function getQueryContent() {
-        return {
-            id: $("#query-id").val(),
-            queryName: $("#query-queryName").val(),
-            displayName: $("#query-displayName").val(),
-            dataSourceName: $("#query-dataSourceName").val(),
-            query: sqlEditor.getValue()
-        }
-    }
-
-    function setQueryContent(params) {
-        $("#query-id").val(params.id);
-        $("#query-queryName").val(params.queryName);
-        $("#query-displayName").val(params.displayName);
-        $("#query-dataSourceName").val(params.dataSourceName);
-        sqlEditor.setValue(params.query);
-    }
-
-    function saveQuery() {
-        let id = $("#query-id").val();
-
-        if(id) updateQuery(id);
-        else insertQuery();
-    }
-
-    function insertQuery() {
-        httpClient.post(`/console/api/query`,{},getQueryContent(),
-            function(response){
-                alert("저장완료되었습니다.");
-                getQuery($("#query-queryName").val());
-            },
-            function(error){
-                alert('error');
-            }
-        );
-    }
-
-    function updateQuery(id) {
-      httpClient.put(`/console/api/query/${id}`, {}, getQueryContent(),
-          function(response){
-              alert("저장완료되었습니다.");
-              getQuery($("#query-queryName").val());
-          },
-          function(error){
-              alert('error');
-          }
-      );
-    }
-
-    function deleteQuery() {
-      let id = $("#query-id").val();
-
-      httpClient.delete(`/console/api/query/${id}`, {},
-          function(response){
-              alert("삭제 되었습니다.");
-              getQuery($("#query-queryName").val());
-          },
-          function(error){
-              alert('error');
-          }
-      );
-    }
-/******************************************************************
-* Entity
-*******************************************************************/
-
-    function getEntity(entityName) {
-        httpClient.get(`/console/api/entity`, {entityName:entityName},
-            function(response){
-                if(response[0]) {
-                    setEntityContent(response[0]);
-                    getEntityColumn(response[0].id);
-                }
-                else {
-                    newEntityContent(entityName);
-                }
-            },
-            function(error){
-                alert('error');
-            }
-        );
-    }
-
-    function getEntityColumn(entityId) {
-        httpClient.get(`/console/api/entity-column/${entityId}`, {},
-            function(response){
-                sheet.setSheetData('entityColumnGrid', response);
-                sheet.setSheetData('entityColumnSelectGrid', response);
-                sheet.setSheetData('entityColumnInsertGrid', response);
-                sheet.setSheetData('entityColumnUpdateGrid', response);
-                sheet.setSheetData('entityColumnDeleteGrid', response);
-            },
-            function(error){
-                alert('error');
-            }
-        );
-    }
-
-    function getEntityContent() {
-        return {
-            id: $("#entity-id").val(),
-            entityName: $("#entity-entityName").val(),
-            displayName: $("#entity-displayName").val(),
-            dataSourceName: $("#entity-dataSourceName").val(),
-            tableName: $("#entity-tableName").val()
-        }
-    }
-
-    function setEntityContent(params) {
-        $("#entity-id").val(params.id);
-        $("#entity-entityName").val(params.entityName);
-        $("#entity-displayName").val(params.displayName);
-        $("#entity-dataSourceName").val(params.dataSourceName);
-        $("#entity-tableName").val(params.tableName);
-      }
-
-      function newEntityContent(entityName){
-        setEntityContent({
-            id:'',
-            entityName:entityName,
-            displayName:'',
-            dataSourceName:'',
-            tableName:''
-            });
-      }
-
-    function saveEntity() {
-      let id = $("#entity-id").val();
-
-        if(id) updateEntityContent(id);
-        else insertEntityContent();
-    }
-
-    function insertEntityContent() {
-        httpClient.post(`/console/api/entity`,{},getEntityContent(),
-            function(response){
-                alert("저장완료되었습니다.");
-                getEntity($("#entity-entityName").val());
-            },
-            function(error){
-                alert('error');
-            }
-        );
-    }
-
-    function updateEntityContent(id) {
-      httpClient.put(`/console/api/entity/${id}`, {}, getEntityContent(),
-          function(response){
-              alert("저장완료되었습니다.");
-              getEntity($("#entity-entityName").val());
-          },
-          function(error){
-              alert('error');
-          }
-      );
-    }
-
-    function deleteEntityContent() {
-      let id = $("#entity-id").val();
-
-      httpClient.delete(`/console/api/entity/${id}`, {},
-          function(response){
-              alert("삭제 처리 완료되었습니다.");
-              getEntity($("#entity-entityName").val());
-          },
-          function(error){
-              alert('error');
-          }
-      );
-    }
-
-    function insertEntityColumn(entityId, item) {
-        httpClient.post(`/console/api/entity-column`,{},
-            {
-               entityId:entityId,
-               columnName:item.columnName,
-               displayName:item.displayName,
-               useKey:item.useKey,
-               columnType:item.columnType
-            },
-            function(response){
-                alert("생성 완료되었습니다.");
-                getEntityColumn(entityId);
-            },
-            function(error){
-                alert('error');
-            }
-        );
-    }
-
-    function updateEntityColumn(path, entityId, entityColumnId, params) {
-      httpClient.put(`/console/api/entity-column/${entityColumnId}${path}`, {},params,
-          function(response){
-              alert("변경 완료되었습니다.");
-              getEntityColumn(entityId);
-          },
-          function(error){
-              alert('error');
-          }
-      );
-    }
-
-    function deleteEntityColumn(entityId, item) {
-      httpClient.delete(`/console/api/entity-column/${item.id}`, {},
-          function(response){
-              alert("삭제 완료되었습니다.");
-              getEntityColumn(entityId);
-          },
-          function(error){
-              alert('error');
-          }
-      );
     }
 
 /******************************************************************
@@ -1595,6 +1299,15 @@
         $("#code-displayName").val(params.displayName);
         codeEditor.setValue(params.script);
     }
+
+    function openPopupFunctionSetting(type, functionName) {
+        if(type == 'SQL') {
+            App.modalPopup.open('/console/workflow-sql',{title:'SQL 팝업',size:"modal-xl",messageId:'FUNC_REQUEST'},{functionName:functionName});
+        }
+        else if(type == 'ENTITY') {
+            App.modalPopup.open('/console/workflow-entity',{title:'Entity 팝업',size:"modal-xl",messageId:'FUNC_REQUEST'},{functionName:functionName});
+        }
+    }
 </script>
 <mf-view th:fragment="view">
     <mf-data>
@@ -1608,7 +1321,7 @@
     </mf-data>
     <mf-actions>
         <mf-action name="clickWorkflowList" args="args">
-            initFunctionGrid();
+            //initFunctionGrid();
             selectedContent(args.item);
         </mf-action>
 
@@ -1623,129 +1336,8 @@
             );
         </mf-action>
 
-        <mf-action name="insertQueryParam" args="args">
-            let queryId = $("#query-id").val();
-            let item = args.item;
-
-            httpClient.post(`/console/api/query-param`,{},
-                {
-                   queryId:queryId,
-                   paramName:item.paramName,
-                   paramType:item.paramType,
-                   autoValueType:item.autoValueType,
-                   inOut:item.inOut
-                },
-                function(response){
-                    alert("생성 완료되었습니다.");
-                    getQueryParam(queryId);
-                },
-                function(error){
-                    alert('error');
-                }
-            );
-        </mf-action>
-
-        <mf-action name="updateQueryParam" args="args">
-            let queryId = $("#query-id").val();
-            let item = args.item;
-
-            httpClient.put(`/console/api/query-param/${item.id}`, {},
-              {
-                   queryId:queryId,
-                   paramName:item.paramName,
-                   paramType:item.paramType,
-                   autoValueType:item.autoValueType,
-                   inOut:item.inOut
-              },
-              function(response){
-                  alert("변경 완료되었습니다.");
-                  getQueryParam(queryId);
-              },
-              function(error){
-                  alert('error');
-              }
-            );
-        </mf-action>
-
-        <mf-action name="deleteQueryParam" args="args">
-            let queryId = $("#query-id").val();
-            let item = args.item;
-
-            httpClient.delete(`/console/api/query-param/${item.id}`, {},
-              function(response){
-                  alert("삭제 완료되었습니다.");
-                  getQueryParam(queryId);
-              },
-              function(error){
-                  alert('error');
-              }
-            );
-        </mf-action>
-
-        <mf-action name="insertEntityColumnEvent" args="args">
-            insertEntityColumn($("#entity-id").val(), args.item);
-        </mf-action>
-
-        <mf-action name="updateEntityColumnEvent" args="args">
-            updateEntityColumn("", $("#entity-id").val(),args.item.id,
-            {
-                columnName:args.item.columnName,
-                displayName:args.item.displayName,
-                useKey:args.item.useKey,
-                columnType:args.item.columnType,
-                orderNum:args.item.orderNum
-            });
-        </mf-action>
-
-        <mf-action name="deleteEntityColumnEvent" args="args">
-            deleteEntityColumn($("#entity-id").val(), args.item);
-        </mf-action>
-
-        <mf-action name="updateEntityColumnSelectEvent" args="args">
-            updateEntityColumn("/select", $("#entity-id").val(),args.item.id,
-            {
-                selectWhereType:args.item.selectWhereType,
-                selectWhereCompareOperator:args.item.selectWhereCompareOperator,
-                selectOrderByNum:args.item.selectOrderByNum,
-                selectOrderBySortOrder:args.item.selectOrderBySortOrder
-            });
-        </mf-action>
-
-        <mf-action name="updateEntityColumnInsertEvent" args="args">
-            updateEntityColumn("/insert", $("#entity-id").val(),args.item.id,
-            {
-                selectWhereType:args.item.selectWhereType,
-                selectWhereCompareOperator:args.item.selectWhereCompareOperator,
-                selectOrderByNum:args.item.selectOrderByNum,
-                selectOrderBySortOrder:args.item.selectOrderBySortOrder
-            });
-        </mf-action>
-
-        <mf-action name="updateEntityColumnUpdateEvent" args="args">
-            updateEntityColumn("/update", $("#entity-id").val(),args.item.id,
-            {
-                updateNullResolveType:args.item.updateNullResolveType,
-                updateAutoValueType:args.item.updateAutoValueType,
-                updateAutoValue:args.item.updateAutoValue
-            });
-        </mf-action>
-
-        <mf-action name="updateEntityColumnDeleteEvent" args="args">
-            updateEntityColumn("/delete", $("#entity-id").val(),args.item.id,
-            {
-                deleteAutoValueType:args.item.deleteAutoValueType,
-                deleteAutoValue:args.item.deleteAutoValue
-            });
-        </mf-action>
-
-        <mf-action name="security" args="args">
-            initFunctionGrid();
-
-            showGrid('workflow-authority-card',true);
-        </mf-action>
-
         <mf-action name="executeWorkflow" >
-            initFunctionGrid();
+            //initFunctionGrid();
 
             $("#executeTarget").val($("#workflowCode").val());
             $("#executeType").val('WORKFLOW');
@@ -1808,11 +1400,10 @@
                     </mf-card-body>
                 </mf-card>
             </mf-col>
-            <mf-col size="col-4">
+            <mf-col size="col-6">
                 <mf-card>
                     <mf-card-header title="정의">
-                        <mf-action-button id="security" actionName="security"       icon="fas fa-shield-alt"    label="접근제어"></mf-action-button>
-                        <mf-action-button id="new"      actionName="newContent"     icon="fas fa-plus"          label="신규입력"></mf-action-button>
+                        <mf-action-button id="new"      actionName="newContent"     icon="fas fa-plus"          ></mf-action-button>
                         <mf-action-button id="save"     actionName="save"           icon="fas fa-save"          ></mf-action-button>
                         <mf-action-button id="delete"   actionName="deleteContent"  icon="fas fa-trash"         ></mf-action-button>
                     </mf-card-header>
@@ -1837,7 +1428,7 @@
                     </mf-card-body>
                 </mf-card>
             </mf-col>
-            <mf-col size="col-5">
+            <mf-col size="col-3">
 
                 <mf-card id="workflow-authority-card" hidden>
                     <mf-card-header title="접근제어">
@@ -1874,133 +1465,6 @@
                             </mf-row>
                         </mf-form>
                     </mf-card-body>
-                </mf-card>
-
-                <mf-card id="sql-card" hidden>
-                    <mf-card-header title="기능">
-                        <mf-action-button id="saveQuery"   actionName="saveQuery"   icon="fas fa-save"></mf-action-button>
-                        <mf-action-button id="deleteQuery" actionName="deleteQuery" icon="fas fa-trash"></mf-action-button>
-                    </mf-card-header>
-                    <mf-card-body>
-                        <mf-form id="sqlForm">
-                            <mf-row>
-                                <mf-text-input id="query-id"            label="ID"        enable="false" size="col-1" hidden="true"></mf-text-input>
-                                <mf-text-input id="query-queryName"     label="쿼리명"     enable="false" size="col-3" ></mf-text-input>
-                                <mf-text-input id="query-displayName"   label="화면노출명"  enable="true"  size="col-3" ></mf-text-input>
-                                <mf-select id="query-dataSourceName"    label="데이터소스"  enable="true"  size="col-3"></mf-select>
-                            </mf-row>
-                            <mf-row>
-                                <mf-col class="col-md-12">
-                                    <label>SQL</label>
-                                    <textarea id="query" name="query" rows="50"></textarea>
-                                </mf-col>
-                            </mf-row>
-                            <mf-row>
-                                <mf-col class="col-md-12">
-                                    <mf-grid id="queryParameterGrid" width="100%" height="800px"
-                                             control="true" editing="true" inserting="true"
-                                             insertActionName="insertQueryParam"
-                                             updateActionName="updateQueryParam"
-                                             deleteActionName="deleteQueryParam"
-                                    >
-                                        <mf-grid-column  type="number" id="queryParameterId" label="ID"         width="20px"  hidden="true" ></mf-grid-column>
-                                        <mf-grid-column  type="text"   id="paramName"        label="파라미터명"   width="80px" align="left" ></mf-grid-column>
-                                        <mf-grid-column  type="select" id="paramType"        label="type"       width="50px" dataProvider="PARAM_TYPE"></mf-grid-column>
-                                        <mf-grid-column  type="select" id="autoValueType"    label="자동값유형"   width="50px" dataProvider="AUTO_VALUE_TYPE" ></mf-grid-column>
-                                        <mf-grid-column  type="select" id="inOut"            label="IN/OUT"     width="50px" dataProvider="IN_OUT"></mf-grid-column>
-                                    </mf-grid>
-                                </mf-col>
-                            </mf-row>
-                        </mf-form>
-                    </mf-card-body>
-                </mf-card>
-
-                <mf-card id="entity-card" hidden>
-                    <mf-card-header title="기능">
-                        <mf-action-button id="save" actionName="saveEntity" icon="fas fa-save"></mf-action-button>
-                        <mf-action-button id="delete" actionName="deleteEntityContent" icon="fas fa-trash"></mf-action-button>
-                    </mf-card-header>
-                    <mf-card-body>
-                        <mf-form id="entityForm">
-                            <mf-row>
-                                <mf-text-input id="entity-id"           label="ID"          enable="false" size="col-1" hidden="true"></mf-text-input>
-                                <mf-text-input id="entity-entityName"   label="엔티티명"      enable="false" size="col-3" ></mf-text-input>
-                                <mf-text-input id="entity-displayName"  label="화면노출명"    enable="true"  size="col-3" ></mf-text-input>
-                                <mf-select id="entity-dataSourceName"   label="데이터소스"    enable="true"  size="col-3" ></mf-select>
-                                <mf-text-input id="entity-tableName"    label="테이블명"      enable="true"  size="col-2" ></mf-text-input>
-                            </mf-row>
-                        </mf-form>
-                    </mf-card-body>
-
-                    <mf-tab-group>
-                        <mf-tab id="entityColumn" title="컬럼 설정" active>
-                            <mf-grid id="entityColumnGrid" width="100%" height="500px"
-                                     control="true" editing="true" inserting="true"
-                                     insertActionName="insertEntityColumnEvent"
-                                     updateActionName="updateEntityColumnEvent"
-                                     deleteActionName="deleteEntityColumnEvent"
-                            >
-                                <mf-grid-column  type="number"   id="id"           label="ID"        width="20px"  hidden="true" ></mf-grid-column>
-                                <mf-grid-column  type="text"     id="columnName"   label="컬럼명"     width="100px" align="left" ></mf-grid-column>
-                                <mf-grid-column  type="text"     id="displayName"  label="화면노출명"  width="100px" align="left" ></mf-grid-column>
-                                <mf-grid-column  type="checkbox" id="useKey"       label="key"       width="50px" ></mf-grid-column>
-                                <mf-grid-column  type="select"   id="columnType"   label="type"      width="50px" dataProvider="COLUMN_TYPE"></mf-grid-column>
-                                <mf-grid-column  type="number"   id="orderNum"     label="순서"       width="30px" ></mf-grid-column>
-                            </mf-grid>
-                        </mf-tab>
-
-                        <mf-tab id="entityColumnSelect" title="select 쿼리 설정" >
-                            <mf-grid id="entityColumnSelectGrid" width="100%" height="500px"
-                                     control="true" editing="true"
-                                     updateActionName="updateEntityColumnSelectEvent"
-                            >
-                                <mf-grid-column  type="number"   id="id"                            label="ID"               width="20px"  hidden="true" ></mf-grid-column>
-                                <mf-grid-column  type="text"     id="columnName"                    label="컬럼명"            width="100px" align="left" ></mf-grid-column>
-                                <mf-grid-column  type="select"   id="selectWhereType"               label="where 유형"        width="50px" dataProvider="SELECT_WHERE_TYPE"></mf-grid-column>
-                                <mf-grid-column  type="select"   id="selectWhereCompareOperator"    label="where 비교 연산자"  width="50px" dataProvider="SELECT_WHERE_COMPARE_OPERATOR"></mf-grid-column>
-                                <mf-grid-column  type="number"   id="selectOrderByNum"              label="order by 순서"     width="50px" ></mf-grid-column>
-                                <mf-grid-column  type="select"   id="selectOrderBySortOrder"        label="order by 정렬유형"  width="50px" dataProvider="SORT_ORDER"></mf-grid-column>
-                            </mf-grid>
-                        </mf-tab>
-
-                        <mf-tab id="entityColumnInsert" title="insert 쿼리 설정">
-                            <mf-grid id="entityColumnInsertGrid" width="100%" height="500px"
-                                     control="true" editing="true"
-                                     updateActionName="updateEntityColumnInsertEvent"
-                            >
-                                <mf-grid-column  type="number"   id="id"                      label="ID"           width="20px"  hidden="true" ></mf-grid-column>
-                                <mf-grid-column  type="text"     id="columnName"              label="컬럼명"        width="100px" align="left" ></mf-grid-column>
-                                <mf-grid-column  type="select"   id="insertNullResolveType"   label="null 처리유형"  width="50px" dataProvider="NULL_RESOLVE_TYPE"></mf-grid-column>
-                                <mf-grid-column  type="select"   id="insertAutoValueType"     label="자동값 유형"    width="50px" dataProvider="ENTITY_AUTO_VALUE_TYPE"></mf-grid-column>
-                                <mf-grid-column  type="text"     id="insertAutoValue"         label="자동값"        width="100px" align="left" ></mf-grid-column>
-                            </mf-grid>
-                        </mf-tab>
-
-                        <mf-tab id="entityColumnUpdate" title="update 쿼리 설정">
-                            <mf-grid id="entityColumnUpdateGrid" width="100%" height="500px"
-                                     control="true" editing="true"
-                                     updateActionName="updateEntityColumnUpdateEvent"
-                            >
-                                <mf-grid-column  type="number"   id="id"                     label="ID"           width="20px"  hidden="true" ></mf-grid-column>
-                                <mf-grid-column  type="text"     id="columnName"             label="컬럼명"        width="100px" align="left" ></mf-grid-column>
-                                <mf-grid-column  type="select"   id="updateNullResolveType"  label="null 처리유형"  width="50px" dataProvider="NULL_RESOLVE_TYPE"></mf-grid-column>
-                                <mf-grid-column  type="select"   id="updateAutoValueType"    label="자동값 유형"    width="50px" dataProvider="ENTITY_AUTO_VALUE_TYPE"></mf-grid-column>
-                                <mf-grid-column  type="text"     id="updateAutoValue"        label="자동값"        width="100px" align="left" ></mf-grid-column>
-                            </mf-grid>
-                        </mf-tab>
-
-                        <mf-tab id="entityColumnDelete" title="delete 쿼리 설정">
-                            <mf-grid id="entityColumnDeleteGrid" width="100%" height="500px"
-                                     control="true" editing="true"
-                                     updateActionName="updateEntityColumnDeleteEvent"
-                            >
-                                <mf-grid-column  type="number"   id="id"                     label="ID"          width="20px"  hidden="true" ></mf-grid-column>
-                                <mf-grid-column  type="text"     id="columnName"             label="컬럼명"       width="100px" align="left" ></mf-grid-column>
-                                <mf-grid-column  type="select"   id="deleteAutoValueType"    label="자동값 유형"   width="50px" dataProvider="ENTITY_AUTO_VALUE_TYPE"></mf-grid-column>
-                                <mf-grid-column  type="text"     id="deleteAutoValue"        label="자동값"       width="100px" align="left" ></mf-grid-column>
-                            </mf-grid>
-                        </mf-tab>
-                    </mf-tab-group>
                 </mf-card>
 
                 <mf-card id="rest-client-card" hidden>
@@ -2082,7 +1546,7 @@
                         <mf-form id="codeForm">
                             <mf-row>
                                 <mf-text-input id="code-id"            label="ID"        enable="false" size="col-1" hidden="true"></mf-text-input>
-                                <mf-text-input id="code-codeName"     label="코드명"     enable="false" size="col-3" ></mf-text-input>
+                                <mf-text-input id="code-codeName"     label="처리명"     enable="false" size="col-3" ></mf-text-input>
                                 <mf-text-input id="code-displayName"   label="화면노출명"  enable="true"  size="col-3" ></mf-text-input>
                                 <mf-select id="code-language"   label="언어"     enable="false" size="col-2" dataProvider="CODE_LANGUAGE" useFirstItem="false" firstItemLabel="" firstItemValue=""></mf-select>
                             </mf-row>

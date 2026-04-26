@@ -1,13 +1,17 @@
 <!DOCTYPE html>
-<html>
+<html  xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Error Page</title>
 </head>
 <body>
-    <script>
+    <script th:inline="javascript">
         alert("로그인이 필요합니다.");
-        window.top.location.href="/login?returnUrl=/";
+        let returnUrl = /*[[${param.returnUrl}]]*/ '/';
+        if(!returnUrl) {
+            returnUrl = '/';
+        }
+        window.top.location.href="/login?returnUrl="+returnUrl;
     </script>
 </body>
 </html>

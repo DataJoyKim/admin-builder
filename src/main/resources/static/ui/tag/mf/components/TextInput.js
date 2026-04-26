@@ -33,7 +33,7 @@ export class TextInput extends AbstractComponents {
         // input 생성
         const inputEl = document.createElement('input');
         inputEl.type = elementType;
-        inputEl.className = 'form-control rounded-0';
+        inputEl.className = 'form-control form-control-sm rounded-0';
         if (id) inputEl.id = id;
         inputEl.placeholder = placeholder;
         inputEl.spellcheck = false;

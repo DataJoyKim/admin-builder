@@ -29,7 +29,7 @@ export class Select extends AbstractComponents {
 
         // select 생성
         const selectEl = document.createElement('select');
-        selectEl.className = 'form-control';
+        selectEl.className = 'form-control form-control-sm';
         if (id) selectEl.id = id;
         selectEl.dataset.watch = true;
         if (!enable) selectEl.disabled = true;

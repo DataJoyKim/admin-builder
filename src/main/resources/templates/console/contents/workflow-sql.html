@@ -1,0 +1,369 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<style th:fragment="style">
+</style>
+<script th:fragment="script">
+    App.codes = {
+        "YN_CD":[
+            {code:"true",name:"Y"},
+            {code:"false",name:"N"}
+        ],
+        "PARAM_TYPE":[
+            {code:"STRING",name:"String"},
+            {code:"NUMBER",name:"Number"},
+            {code:"DATE",name:"Date"}
+        ],
+        "IN_OUT":[
+            {code:"IN",name:"IN"},
+            {code:"OUT",name:"OUT"}
+        ],
+        "AUTO_VALUE_TYPE":[
+            {code:"DEFAULT",name:"기본"},
+            {code:"STATIC_VALUE",name:"static 값"},
+            {code:"RESERVED_WORD",name:"예약어"}
+        ],
+        "COLUMN_TYPE":[
+            {code:"STRING",name:"String"},
+            {code:"NUMBER",name:"Number"},
+            {code:"DATE",name:"Date"},
+            {code:"DATETIME",name:"Datetime"}
+        ]
+    };
+
+    let codes;
+    let sqlEditor;
+    let functionName;
+
+    $( document ).ready(function() {
+        init();
+    });
+
+    function init() {
+        setDatSourceAsDatabase();
+
+        sqlEditor = initCodeEditor('query','text/x-sql');
+
+        App.modalPopup.receiveParam('FUNC_REQUEST', function(data){
+            if(!data.functionName) {
+                alert('기능코드가 존재하지않습니다.');
+            }
+
+            functionName = data.functionName;
+            getQuery(functionName);
+        });
+    }
+
+    function initCodeEditor(id,mode) {
+        let textarea = document.getElementById(id);
+
+        return CodeMirror.fromTextArea(textarea, {
+            lineNumbers: true,
+            lineWrapping: true,
+            theme: "darcula",
+            mode: mode,
+            val: textarea.value
+        });
+    }
+
+    function setDatSourceAsDatabase() {
+        httpClient.get(`/console/api/datasource/database`, {},
+            function(response){
+                let codes = new Array();
+                for(let i=0; i<response.length; i++) {
+                    codes.push({code:response[i].dataSourceName,name:response[i].displayName});
+                }
+
+                App.util.setCodeBox("query-dataSourceName", codes);
+                App.util.setCodeBox("entity-dataSourceName", codes);
+            },
+            function(error){
+                alert('error');
+            }
+        );
+    }
+
+    function execute() {
+        let executeType = $("#executeType").val();
+        let executeTarget = $("#executeTarget").val();
+        let requestMessageId = $("#requestMessageId").val();
+
+        let contents = {};
+        let gridData = sheet.getSheetData("executeGrid");
+        console.log('gridData',gridData);
+        for(let i=0; i<gridData.length; i++) {
+            let value = gridData[i]["value"];
+            if(value == "null") {
+                contents[gridData[i]["key"]] = null;
+            }
+            else {
+                contents[gridData[i]["key"]] = value;
+            }
+        }
+
+        httpClient.get(`/console/api/query/${executeTarget}/execute`,contents,
+            function(response){
+                $("#responseData").val(JSON.stringify(response,null,3));
+            },
+            function(error){
+                $("#responseData").val(JSON.stringify(error.responseJSON,null,3));
+            }
+        );
+
+    }
+
+    function getQuery(functionName) {
+        httpClient.get(`/console/api/query`, {queryName:`${functionName}`},
+            function(response){
+                let data = response[0];
+                if(data) {
+                    setQueryContent(data);
+                    getQueryParam(data.id);
+                }
+                else {
+                    setQueryContent({
+                        id:'',
+                        queryName:functionName,
+                        displayName:'',
+                        dataSourceName:'',
+                        query:'',
+                    });
+                }
+            },
+            function(error){
+                alert('error');
+            }
+        );
+    }
+
+    function getQueryParam(queryId) {
+        httpClient.get(`/console/api/query-param/${queryId}`, {},
+            function(response){
+                sheet.setSheetData('queryParameterGrid', response);
+            },
+            function(error){
+                alert('error');
+            }
+        );
+    }
+
+    function setQueryContent(response) {
+        setQueryContent({
+            id:response.id,
+            queryName:response.queryName,
+            displayName:response.displayName,
+            dataSourceName:response.dataSourceName,
+            query:response.query
+          });
+    }
+
+    function getQueryContent() {
+        return {
+            id: $("#query-id").val(),
+            queryName: $("#query-queryName").val(),
+            displayName: $("#query-displayName").val(),
+            dataSourceName: $("#query-dataSourceName").val(),
+            query: sqlEditor.getValue()
+        }
+    }
+
+    function setQueryContent(params) {
+        $("#query-id").val(params.id);
+        $("#query-queryName").val(params.queryName);
+        $("#query-displayName").val(params.displayName);
+        $("#query-dataSourceName").val(params.dataSourceName);
+        sqlEditor.setValue(params.query);
+    }
+
+    function saveQuery() {
+        let id = $("#query-id").val();
+
+        if(id) updateQuery(id);
+        else insertQuery();
+    }
+
+    function insertQuery() {
+        httpClient.post(`/console/api/query`,{},getQueryContent(),
+            function(response){
+                alert("저장완료되었습니다.");
+                getQuery($("#query-queryName").val());
+            },
+            function(error){
+                alert('error');
+            }
+        );
+    }
+
+    function updateQuery(id) {
+      httpClient.put(`/console/api/query/${id}`, {}, getQueryContent(),
+          function(response){
+              alert("저장완료되었습니다.");
+              getQuery($("#query-queryName").val());
+          },
+          function(error){
+              alert('error');
+          }
+      );
+    }
+
+    function deleteQuery() {
+      let id = $("#query-id").val();
+
+      httpClient.delete(`/console/api/query/${id}`, {},
+          function(response){
+              alert("삭제 되었습니다.");
+              getQuery($("#query-queryName").val());
+          },
+          function(error){
+              alert('error');
+          }
+      );
+    }
+</script>
+<mf-view th:fragment="view">
+    <mf-data>
+        <mf-codes>
+        </mf-codes>
+        <mf-messages>
+            <mf-message id="ME_EVAL0001_01"></mf-message>
+            <mf-message id="ME_EVAL0001_02"></mf-message>
+            <mf-message id="ME_EVAL0001_03"></mf-message>
+        </mf-messages>
+    </mf-data>
+    <mf-actions>
+        <mf-action name="insertQueryParam" args="args">
+            let queryId = $("#query-id").val();
+            let item = args.item;
+
+            httpClient.post(`/console/api/query-param`,{},
+            {
+            queryId:queryId,
+            paramName:item.paramName,
+            paramType:item.paramType,
+            autoValueType:item.autoValueType,
+            inOut:item.inOut
+            },
+            function(response){
+            alert("생성 완료되었습니다.");
+            getQueryParam(queryId);
+            },
+            function(error){
+            alert('error');
+            }
+            );
+        </mf-action>
+
+        <mf-action name="updateQueryParam" args="args">
+            let queryId = $("#query-id").val();
+            let item = args.item;
+
+            httpClient.put(`/console/api/query-param/${item.id}`, {},
+            {
+            queryId:queryId,
+            paramName:item.paramName,
+            paramType:item.paramType,
+            autoValueType:item.autoValueType,
+            inOut:item.inOut
+            },
+            function(response){
+            alert("변경 완료되었습니다.");
+            getQueryParam(queryId);
+            },
+            function(error){
+            alert('error');
+            }
+            );
+        </mf-action>
+
+        <mf-action name="deleteQueryParam" args="args">
+            let queryId = $("#query-id").val();
+            let item = args.item;
+
+            httpClient.delete(`/console/api/query-param/${item.id}`, {},
+            function(response){
+            alert("삭제 완료되었습니다.");
+            getQueryParam(queryId);
+            },
+            function(error){
+            alert('error');
+            }
+            );
+        </mf-action>
+    </mf-actions>
+    <mf-layout>
+        <mf-row>
+            <mf-col size="col-12">
+                <mf-card id="func-card" >
+                    <mf-tab-group>
+                        <mf-tab id="func" title="기능" active>
+                            <mf-card-header>
+                                <mf-action-button id="saveQuery"   actionName="saveQuery"   icon="fas fa-save"></mf-action-button>
+                                <mf-action-button id="deleteQuery" actionName="deleteQuery" icon="fas fa-trash"></mf-action-button>
+                            </mf-card-header>
+                            <mf-card-body>
+                                <mf-form id="sqlForm">
+                                    <mf-row>
+                                        <mf-text-input id="query-id"            label="ID"        enable="false" size="col-1" hidden="true"></mf-text-input>
+                                        <mf-text-input id="query-queryName"     label="쿼리명"     enable="false" size="col-3" ></mf-text-input>
+                                        <mf-text-input id="query-displayName"   label="화면노출명"  enable="true"  size="col-3" ></mf-text-input>
+                                        <mf-select id="query-dataSourceName"    label="데이터소스"  enable="true"  size="col-3"></mf-select>
+                                    </mf-row>
+                                    <mf-row>
+                                        <mf-col class="col-md-12">
+                                            <label>SQL</label>
+                                            <textarea id="query" name="query" rows="50" style="display:none;"></textarea>
+                                        </mf-col>
+                                    </mf-row>
+                                    <mf-row>
+                                        <mf-col class="col-md-12">
+                                            <mf-grid id="queryParameterGrid" width="100%" height="300px"
+                                                     control="true" editing="true" inserting="true"
+                                                     insertActionName="insertQueryParam"
+                                                     updateActionName="updateQueryParam"
+                                                     deleteActionName="deleteQueryParam"
+                                            >
+                                                <mf-grid-column  type="number" id="queryParameterId" label="ID"         width="20px"  hidden="true" ></mf-grid-column>
+                                                <mf-grid-column  type="text"   id="paramName"        label="파라미터명"   width="80px" align="left" ></mf-grid-column>
+                                                <mf-grid-column  type="select" id="paramType"        label="type"       width="50px" dataProvider="PARAM_TYPE"></mf-grid-column>
+                                                <mf-grid-column  type="select" id="autoValueType"    label="자동값유형"   width="50px" dataProvider="AUTO_VALUE_TYPE" ></mf-grid-column>
+                                                <mf-grid-column  type="select" id="inOut"            label="IN/OUT"     width="50px" dataProvider="IN_OUT"></mf-grid-column>
+                                            </mf-grid>
+                                        </mf-col>
+                                    </mf-row>
+                                </mf-form>
+                            </mf-card-body>
+                        </mf-tab>
+
+                        <mf-tab id="execute_tab" title="실행" >
+                            <mf-card-header>
+                                <mf-action-button id="execute" actionName="execute" icon="fas fa-play"></mf-action-button>
+                            </mf-card-header>
+                            <mf-card-body>
+                                <mf-form id="executeForm">
+                                    <mf-row>
+                                        <mf-text-input id="executeType" label="실행유형" size="col-1"  enable="false" hidden="true"></mf-text-input>
+                                        <mf-text-input id="executeTarget" label="대상" size="col-3"  enable="false" ></mf-text-input>
+                                        <mf-text-input id="requestMessageId" label="요청메시지ID" size="col-3" enable="true" ></mf-text-input>
+                                    </mf-row>
+                                    <mf-row>
+                                        <mf-grid id="executeGrid" width="100%" height="300px"
+                                                 control="true" editing="true" inserting="true"
+                                        >
+                                            <mf-grid-column  type="text"   id="key"    label="key"     width="100px" align="left" ></mf-grid-column>
+                                            <mf-grid-column  type="text"   id="value"  label="value"   width="100px" align="left" ></mf-grid-column>
+                                        </mf-grid>
+                                    </mf-row>
+                                    <mf-row>
+                                        <div class="form-group col-3">
+                                            <label>실행 결과</label>
+                                            <textarea id="responseData"  rows="20" cols="50"></textarea>
+                                        </div>
+                                    </mf-row>
+                                </mf-form>
+                            </mf-card-body>
+                        </mf-tab>
+                    </mf-tab-group>
+                </mf-card>
+            </mf-col>
+        </mf-row>
+    </mf-layout>
+</mf-view>
+</html>

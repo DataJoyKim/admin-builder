@@ -42,15 +42,14 @@ $(document).on("click", ".vb-item", function(e) {
     const $el = $(this);
     const type = $el.data("type");
 
-    const componentEl = VB.componentFactory.instance(type);
-
-    componentEl.initOptionPanel($el, "options", VB.componentFactory.instanceMap());
+    VB.builder.setOptionPanel($el, type);
 });
 
 // 컴포넌트 삭제
 $(document).on("click", ".component-delete-btn", function(e) {
     e.stopPropagation();
 
+    VB.builder.clearOptionPanel($("#options"))
     $(this).closest(".component").remove();
 });
 

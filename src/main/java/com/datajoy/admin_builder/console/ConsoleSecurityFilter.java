@@ -7,6 +7,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 @RequiredArgsConstructor
 public class ConsoleSecurityFilter implements Filter {
@@ -20,8 +22,9 @@ public class ConsoleSecurityFilter implements Filter {
             user = authService.validateAuthentication(TokenUtil.resolveAccessToken((HttpServletRequest) request));
         }
         catch (SecurityBusinessException e) {
+            String returnUrl = URLEncoder.encode("/console", StandardCharsets.UTF_8);
             HttpServletResponse httpResponse = (HttpServletResponse) response;
-            httpResponse.sendRedirect("/error/error401");
+            httpResponse.sendRedirect("/error/error401?returnUrl="+returnUrl);
             //TODO alert 띄우고 로그인페이지 넘어가기
             return;
         }

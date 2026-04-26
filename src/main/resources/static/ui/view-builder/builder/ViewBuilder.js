@@ -47,6 +47,16 @@ class ViewBuilder {
         }
     }
 
+    setOptionPanel($el, type) {
+        const componentEl = VB.componentFactory.instance(type);
+
+        componentEl.initOptionPanel($el, "options", VB.componentFactory.instanceMap());
+    }
+
+    clearOptionPanel($el) {
+        $el.empty();
+    }
+
     initPreviewState() {
         this.previewState = {};
         this.previewState.preview = false;
