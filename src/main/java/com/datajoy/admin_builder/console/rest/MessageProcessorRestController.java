@@ -1,6 +1,6 @@
 package com.datajoy.admin_builder.console.rest;
 
-import com.datajoy.admin_builder.customcode.*;
+import com.datajoy.admin_builder.message.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,17 +10,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-@RestController("console.CustomCodeRestController")
-@RequestMapping("/console/api/custom-code")
-public class CustomCodeRestController {
+@RestController("console.MessageProcessorRestController")
+@RequestMapping("/console/api/message-processor")
+public class MessageProcessorRestController {
     @Autowired
-    private CustomCodeRepository repository;
+    private MessageProcessorRepository repository;
     @Autowired
-    private CustomCodeService customCodeService;
+    private MessageProcessorService messageProcessorService;
 
     @GetMapping("")
-    public ResponseEntity<?> get(@RequestParam(name = "codeName") String codeName) {
-        Optional<CustomCode> results = repository.findByCodeName(codeName);
+    public ResponseEntity<?> get(@RequestParam(name = "processorName") String processorName) {
+        Optional<MessageProcessor> results = repository.findByProcessorName(processorName);
         if(results.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.OK);
         }
@@ -32,10 +32,10 @@ public class CustomCodeRestController {
     public ResponseEntity<?> save(@RequestBody Map<String,Object> params) {
         Object idObj = params.get("id");
 
-        CustomCode data;
+        MessageProcessor data;
         if(idObj == null) {
-            data = CustomCode.builder()
-                    .codeName((String) params.get("codeName"))
+            data = MessageProcessor.builder()
+                    .processorName((String) params.get("processorName"))
                     .displayName((String) params.get("displayName"))
                     .script((String) params.get("script"))
                     .build();
@@ -49,14 +49,14 @@ public class CustomCodeRestController {
             );
         }
 
-        CustomCode results = repository.save(data);
+        MessageProcessor results = repository.save(data);
 
         return new ResponseEntity<>(results, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable("id") Long id) {
-        CustomCode query = repository.findById(id)
+        MessageProcessor query = repository.findById(id)
                 .orElseThrow();
 
         repository.deleteById(query.getId());
@@ -64,16 +64,16 @@ public class CustomCodeRestController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping("/{codeName}/execute")
+    @PostMapping("/{processorName}/execute")
     public ResponseEntity<?> execute(
-            @PathVariable("codeName") String codeName,
+            @PathVariable("processorName") String processorName,
             @RequestBody List<Map<String, Object>> params
     ) {
-        CustomCodeRequest request = CustomCodeRequest.builder()
+        MessageProcessorRequest request = MessageProcessorRequest.builder()
                 .contents(params)
                 .build();
 
-        CustomCodeResult results = customCodeService.execute(codeName, request);
+        MessageProcessorResult results = messageProcessorService.execute(processorName, request);
 
         return new ResponseEntity<>(results, HttpStatus.OK);
     }

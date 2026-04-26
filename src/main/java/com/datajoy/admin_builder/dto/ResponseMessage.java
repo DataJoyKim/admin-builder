@@ -1,4 +1,4 @@
-package com.datajoy.admin_builder.message;
+package com.datajoy.admin_builder.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

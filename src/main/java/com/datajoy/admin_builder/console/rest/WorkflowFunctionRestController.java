@@ -1,13 +1,12 @@
 package com.datajoy.admin_builder.console.rest;
 
 import com.datajoy.admin_builder.console.dto.WorkflowFunctionResponse;
-import com.datajoy.admin_builder.customcode.CustomCode;
-import com.datajoy.admin_builder.customcode.CustomCodeRepository;
+import com.datajoy.admin_builder.message.MessageProcessor;
+import com.datajoy.admin_builder.message.MessageProcessorRepository;
 import com.datajoy.admin_builder.entity.Entity;
 import com.datajoy.admin_builder.entity.EntityRepository;
 import com.datajoy.admin_builder.function.WorkflowFunction;
 import com.datajoy.admin_builder.function.WorkflowFunctionRepository;
-import com.datajoy.admin_builder.function.code.ErrorResolveType;
 import com.datajoy.admin_builder.function.code.FunctionType;
 import com.datajoy.admin_builder.query.Query;
 import com.datajoy.admin_builder.query.QueryRepository;
@@ -36,7 +35,7 @@ public class WorkflowFunctionRestController {
     @Autowired
     private RestClientRepository restClientRepository;
     @Autowired
-    private CustomCodeRepository customCodeRepository;
+    private MessageProcessorRepository messageProcessorRepository;
 
     @PostMapping("/save")
     public ResponseEntity<?> save(@RequestBody List<Map<String,Object>> params) {
@@ -137,8 +136,8 @@ public class WorkflowFunctionRestController {
                 displayName = func.get().getDisplayName();
             }
         }
-        else if(FunctionType.CODE.equals(w.getFunctionType())) {
-            Optional<CustomCode> func = customCodeRepository.findByCodeName(w.getFunctionName());
+        else if(FunctionType.MESSAGE_PROCESSOR.equals(w.getFunctionType())) {
+            Optional<MessageProcessor> func = messageProcessorRepository.findByProcessorName(w.getFunctionName());
             if(func.isPresent()){
                 displayName = func.get().getDisplayName();
             }

@@ -1,7 +1,7 @@
 package com.datajoy.admin_builder.workflow;
 
-import com.datajoy.admin_builder.message.RequestMessage;
-import com.datajoy.admin_builder.message.ResponseMessage;
+import com.datajoy.admin_builder.dto.RequestMessage;
+import com.datajoy.admin_builder.dto.ResponseMessage;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;

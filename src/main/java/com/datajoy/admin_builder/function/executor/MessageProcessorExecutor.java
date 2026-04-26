@@ -1,9 +1,9 @@
 package com.datajoy.admin_builder.function.executor;
 
-import com.datajoy.admin_builder.customcode.CustomCodeRequest;
-import com.datajoy.admin_builder.customcode.CustomCodeResult;
-import com.datajoy.admin_builder.customcode.CustomCodeService;
-import com.datajoy.admin_builder.customcode.code.CustomCodeResultCode;
+import com.datajoy.admin_builder.message.MessageProcessorRequest;
+import com.datajoy.admin_builder.message.MessageProcessorResult;
+import com.datajoy.admin_builder.message.MessageProcessorService;
+import com.datajoy.admin_builder.message.code.MessageProcessorResultCode;
 import com.datajoy.admin_builder.function.FunctionConfig;
 import com.datajoy.admin_builder.function.FunctionExecutor;
 import com.datajoy.admin_builder.function.FunctionResult;
@@ -18,18 +18,18 @@ import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
-public class CustomCodeExecutor implements FunctionExecutor {
-    private final CustomCodeService customCodeService;
+public class MessageProcessorExecutor implements FunctionExecutor {
+    private final MessageProcessorService messageProcessorService;
     private final FunctionConfig config;
 
     @Override
     public FunctionResult execute(AuthenticatedUser user, String functionName, List<Map<String, Object>> params) {
 
-        CustomCodeRequest request = CustomCodeRequest.builder()
+        MessageProcessorRequest request = MessageProcessorRequest.builder()
                 .contents(params)
                 .build();
 
-        CustomCodeResult result = customCodeService.execute(functionName, request);
+        MessageProcessorResult result = messageProcessorService.execute(functionName, request);
 
         List<Map<String,Object>> results = new ArrayList<>();
         Object resultObj = result.getContent();
@@ -47,7 +47,7 @@ public class CustomCodeExecutor implements FunctionExecutor {
         }
 
         return FunctionResult.builder()
-                .resultType(CustomCodeResultCode.SUCCESS.equals(result.getResultCode()) ? ResultType.SUCCESS : ResultType.FAILURE)
+                .resultType(MessageProcessorResultCode.SUCCESS.equals(result.getResultCode()) ? ResultType.SUCCESS : ResultType.FAILURE)
                 .results(results)
                 .build();
     }

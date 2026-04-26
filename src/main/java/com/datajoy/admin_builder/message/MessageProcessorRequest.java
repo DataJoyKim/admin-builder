@@ -1,4 +1,4 @@
-package com.datajoy.admin_builder.customcode;
+package com.datajoy.admin_builder.message;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,6 +8,6 @@ import java.util.List;
 import java.util.Map;
 
 @Getter @AllArgsConstructor @Builder
-public class CustomCodeRequest {
+public class MessageProcessorRequest {
     private List<Map<String, Object>> contents;
 }

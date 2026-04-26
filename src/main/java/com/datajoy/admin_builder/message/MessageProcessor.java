@@ -1,5 +1,6 @@
-package com.datajoy.admin_builder.customcode;
+package com.datajoy.admin_builder.message;
 
+import com.datajoy.admin_builder.message.code.ProcessorType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -7,18 +8,22 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-@Table(uniqueConstraints = {@UniqueConstraint(name="CUSTOM_CODE_UQ",columnNames={"codeName"})})
+@Table(uniqueConstraints = {@UniqueConstraint(name="MESSAGE_PROCESS_UQ",columnNames={"processorName"})})
 @Entity
-public class CustomCode {
+public class MessageProcessor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, length = 100)
-    private String codeName;
+    private String processorName;
 
     @Column(nullable = false, length = 200)
     private String displayName;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 100)
+    private ProcessorType processorType;
 
     @Lob
     @Basic(fetch = FetchType.LAZY)
