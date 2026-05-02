@@ -83,85 +83,11 @@
             {code:"ENTITY",name:"Entity"},
             {code:"SQL",name:"SQL"},
             {code:"REST_CLIENT",name:"Rest Client"},
-            {code:"CODE",name:"메시지처리"}
+            {code:"MESSAGE_PROCESSOR",name:"메시지처리"}
         ],
         "YN_CD":[
             {code:"true",name:"Y"},
             {code:"false",name:"N"}
-        ],
-        "AUTO_VALUE_TYPE":[
-            {code:"DEFAULT",name:"기본"},
-            {code:"STATIC_VALUE",name:"static 값"},
-            {code:"RESERVED_WORD",name:"예약어"}
-        ],
-        "PARAM_TYPE":[
-            {code:"STRING",name:"String"},
-            {code:"NUMBER",name:"Number"},
-            {code:"DATE",name:"Date"}
-        ],
-        "IN_OUT":[
-            {code:"IN",name:"IN"},
-            {code:"OUT",name:"OUT"}
-        ],
-        "COLUMN_TYPE":[
-            {code:"STRING",name:"String"},
-            {code:"NUMBER",name:"Number"},
-            {code:"DATE",name:"Date"},
-            {code:"DATETIME",name:"Datetime"}
-        ],
-        "SELECT_WHERE_TYPE":[
-            {code:"COMPARE_REQUIRED",name:"필수"},
-            {code:"COMPARE_NOT_REQUIRED",name:"필수아님"}
-        ],
-        "SELECT_WHERE_COMPARE_OPERATOR":[
-            {code:"=",name:"="},
-            {code:"!=",name:"!="},
-            {code:">",name:">"},
-            {code:">=",name:">="},
-            {code:"<",name:"<"},
-            {code:"<=",name:"<="},
-            {code:"like",name:"like"}
-        ],
-        "SORT_ORDER":[
-            {code:"ASC",name:"오름차순"},
-            {code:"DESC",name:"내림차순"}
-        ],
-        "NULL_RESOLVE_TYPE":[
-            {code:"EXCEPTION",name:"예외처리"},
-            {code:"SET_NULL",name:"null 셋팅"},
-            {code:"EXCLUDE_QUERY",name:"제외"}
-        ],
-        "ENTITY_AUTO_VALUE_TYPE":[
-            {code:"STATIC_VALUE",name:"static 값"},
-            {code:"QUERY",name:"쿼리"},
-            {code:"RESERVED_WORD",name:"예약어"}
-        ],
-        "METHOD":[
-            {code:"GET",name:"GET"},
-            {code:"POST",name:"POST"},
-            {code:"PUT",name:"PUT"},
-            {code:"DELETE",name:"DELETE"}
-        ],
-        "CONTENT_TYPE":[
-            {code:"APPLICATION_JSON",name:"application/json"},
-            {code:"APPLICATION_FORM_URLENCODED",name:"application/x-www-form-urlencoded"},
-            {code:"TEXT_PLAIN",name:"text/plain"}
-        ],
-        "BODY_MESSAGE_FORMAT":[
-            {code:"ARRAY",name:"Array"},
-            {code:"OBJECT",name:"Object"}
-        ],
-        "REST_DATA_TYPE":[
-            {code:"STRING",name:"String"},
-            {code:"NUMBER",name:"Number"},
-            {code:"BOOLEAN",name:"Boolean"},
-            {code:"OBJECT",name:"Object"},
-            {code:"ARRAY",name:"Array"}
-        ],
-        "VALUE_TYPE":[
-            {code:"PARAM_VALUE",name:"파라미터값"},
-            {code:"INPUT_VALUE",name:"입력값"},
-            {code:"SESSION_USER_ID",name:"세션 유저 ID"}
         ],
         "CODE_LANGUAGE":[
             {code:"GROOVY",name:"Groovy"}
@@ -486,7 +412,7 @@
                 }
             );
         }
-        else if(executeType == "CODE") {
+        else if(executeType == "MESSAGE_PROCESSOR") {
             httpClient.post(`/console/api/custom-code/${executeTarget}/execute`,{}, [contents],
                 function(response){
                     $("#responseData").val(JSON.stringify(response,null,3));
@@ -703,11 +629,11 @@
 
                 <!-- 드래그 핸들 -->
                 <span class="step-tools" style="color: #065f9e;">
-                    <i class="fas fa-wrench" name="btnFunctionSetting" style="cursor: pointer;" onclick="openPopupFunctionSetting('${data.functionType}','${data.functionName}')"  ${hiddenDisplayElement}></i>
                     <i class="fas fa-play" name="btnExecute" style="cursor: pointer;" onclick="executeFunction('${data.functionType}','${data.functionName}','${data.requestMessageId}')"  ${hiddenDisplayElement}></i>
                     <i class="fas fa-undo" name="btnCancel" style="cursor: pointer;" onclick="cancelEditFunction(event)" ${hiddenUndoBtn}></i>
                     <i class="fas fa-pen" name="btnEdit" style="cursor: pointer;" onclick="editFunction(event)" ${hiddenEditBtn}></i>
                     <i class="fas fa-trash" name="btnDelete"  style="cursor: pointer;" onclick="deleteFunction(event)" ></i>
+                    <i class="fas fa-wrench" name="btnFunctionSetting" style="cursor: pointer;" onclick="openPopupFunctionSetting('${data.functionType}','${data.functionName}')"  ${hiddenDisplayElement}></i>
                 </span>
             </div>
         `;
