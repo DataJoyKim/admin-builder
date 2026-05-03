@@ -30,7 +30,7 @@
     };
 
     let codes;
-    let sqlEditor;
+    let codeEditor;
     let functionName;
 
     $( document ).ready(function() {
@@ -38,9 +38,7 @@
     });
 
     function init() {
-        setDatSourceAsDatabase();
-
-        sqlEditor = initCodeEditor('query','text/x-sql');
+        codeEditor = initCodeEditor('script','text/x-sql');
 
         App.modalPopup.receiveParam('FUNC_REQUEST', function(data){
             if(!data.functionName) {
@@ -48,7 +46,7 @@
             }
 
             functionName = data.functionName;
-            getQuery(functionName);
+            getCode(functionName);
         });
     }
 
@@ -64,31 +62,12 @@
         });
     }
 
-    function setDatSourceAsDatabase() {
-        httpClient.get(`/console/api/datasource/database`, {},
-            function(response){
-                let codes = new Array();
-                for(let i=0; i<response.length; i++) {
-                    codes.push({code:response[i].dataSourceName,name:response[i].displayName});
-                }
-
-                App.util.setCodeBox("query-dataSourceName", codes);
-                App.util.setCodeBox("entity-dataSourceName", codes);
-            },
-            function(error){
-                alert('error');
-            }
-        );
-    }
-
     function execute() {
-        let executeType = $("#executeType").val();
-        let executeTarget = $("#executeTarget").val();
-        let requestMessageId = $("#requestMessageId").val();
+        let executeTarget = functionName;
 
         let contents = {};
         let gridData = sheet.getSheetData("executeGrid");
-        console.log('gridData',gridData);
+
         for(let i=0; i<gridData.length; i++) {
             let value = gridData[i]["value"];
             if(value == "null") {
@@ -99,7 +78,7 @@
             }
         }
 
-        httpClient.get(`/console/api/query/${executeTarget}/execute`,contents,
+        httpClient.post(`/console/api/custom-code/${executeTarget}/execute`,{}, [contents],
             function(response){
                 $("#responseData").val(JSON.stringify(response,null,3));
             },
@@ -109,22 +88,24 @@
         );
 
     }
+    function getCode(functionName) {
+        let defaultScript = "params.each { map ->\n";
+        defaultScript+= "// TODO processing params\n";
+        defaultScript+= "}\n";
+        defaultScript+= "return params";
 
-    function getQuery(functionName) {
-        httpClient.get(`/console/api/query`, {queryName:`${functionName}`},
+        httpClient.get(`/console/api/message-processor`, {processorName:`${functionName}`},
             function(response){
-                let data = response[0];
+                let data = response;
                 if(data) {
-                    setQueryContent(data);
-                    getQueryParam(data.id);
+                    setCodeContent(data);
                 }
                 else {
-                    setQueryContent({
+                    setCodeContent({
                         id:'',
-                        queryName:functionName,
+                        processorName:functionName,
                         displayName:'',
-                        dataSourceName:'',
-                        query:'',
+                        script:defaultScript
                     });
                 }
             },
@@ -134,10 +115,11 @@
         );
     }
 
-    function getQueryParam(queryId) {
-        httpClient.get(`/console/api/query-param/${queryId}`, {},
+    function saveCode() {
+        httpClient.post(`/console/api/message-processor/save`,{},getCodeContent(),
             function(response){
-                sheet.setSheetData('queryParameterGrid', response);
+                alert("저장완료되었습니다.");
+                getCode($("#code-processorName").val());
             },
             function(error){
                 alert('error');
@@ -145,77 +127,46 @@
         );
     }
 
-    function setQueryContent(response) {
-        setQueryContent({
-            id:response.id,
-            queryName:response.queryName,
-            displayName:response.displayName,
-            dataSourceName:response.dataSourceName,
-            query:response.query
-          });
+    function deleteCode() {
+      let id = $("#code-id").val();
+
+      httpClient.delete(`/console/api/message-processor/${id}`, {},
+          function(response){
+              alert("삭제 되었습니다.");
+              getCode($("#code-processorName").val());
+          },
+          function(error){
+              alert('error');
+          }
+      );
     }
 
-    function getQueryContent() {
+    function executeCode() {
+        httpClient.post(`/console/api/message-processor/execute`,{},getCodeContent(),
+            function(response){
+                alert("저장완료되었습니다.");
+            },
+            function(error){
+                alert('error');
+            }
+        );
+    }
+
+    function getCodeContent() {
+        let id = $("#code-id").val();
         return {
-            id: $("#query-id").val(),
-            queryName: $("#query-queryName").val(),
-            displayName: $("#query-displayName").val(),
-            dataSourceName: $("#query-dataSourceName").val(),
-            query: sqlEditor.getValue()
+            id: ((id) ? id : null),
+            processorName: $("#code-processorName").val(),
+            displayName: $("#code-displayName").val(),
+            script: codeEditor.getValue()
         }
     }
 
-    function setQueryContent(params) {
-        $("#query-id").val(params.id);
-        $("#query-queryName").val(params.queryName);
-        $("#query-displayName").val(params.displayName);
-        $("#query-dataSourceName").val(params.dataSourceName);
-        sqlEditor.setValue(params.query);
-    }
-
-    function saveQuery() {
-        let id = $("#query-id").val();
-
-        if(id) updateQuery(id);
-        else insertQuery();
-    }
-
-    function insertQuery() {
-        httpClient.post(`/console/api/query`,{},getQueryContent(),
-            function(response){
-                alert("저장완료되었습니다.");
-                getQuery($("#query-queryName").val());
-            },
-            function(error){
-                alert('error');
-            }
-        );
-    }
-
-    function updateQuery(id) {
-      httpClient.put(`/console/api/query/${id}`, {}, getQueryContent(),
-          function(response){
-              alert("저장완료되었습니다.");
-              getQuery($("#query-queryName").val());
-          },
-          function(error){
-              alert('error');
-          }
-      );
-    }
-
-    function deleteQuery() {
-      let id = $("#query-id").val();
-
-      httpClient.delete(`/console/api/query/${id}`, {},
-          function(response){
-              alert("삭제 되었습니다.");
-              getQuery($("#query-queryName").val());
-          },
-          function(error){
-              alert('error');
-          }
-      );
+    function setCodeContent(params) {
+        $("#code-id").val(params.id);
+        $("#code-processorName").val(params.processorName);
+        $("#code-displayName").val(params.displayName);
+        codeEditor.setValue(params.script);
     }
 </script>
 <mf-view th:fragment="view">
@@ -294,38 +245,22 @@
                 <mf-card id="func-card" >
                     <mf-tab-group>
                         <mf-tab id="func" title="기능" active>
-                            <mf-card-header>
-                                <mf-action-button id="saveQuery"   actionName="saveQuery"   icon="fas fa-save"></mf-action-button>
-                                <mf-action-button id="deleteQuery" actionName="deleteQuery" icon="fas fa-trash"></mf-action-button>
+                            <mf-card-header title="">
+                                <mf-action-button id="saveCode"   actionName="saveCode"   icon="fas fa-save"></mf-action-button>
+                                <mf-action-button id="deleteCode" actionName="deleteCode" icon="fas fa-trash"></mf-action-button>
                             </mf-card-header>
                             <mf-card-body>
-                                <mf-form id="sqlForm">
+                                <mf-form id="codeForm">
                                     <mf-row>
-                                        <mf-text-input id="query-id"            label="ID"        enable="false" size="col-1" hidden="true"></mf-text-input>
-                                        <mf-text-input id="query-queryName"     label="쿼리명"     enable="false" size="col-3" ></mf-text-input>
-                                        <mf-text-input id="query-displayName"   label="화면노출명"  enable="true"  size="col-3" ></mf-text-input>
-                                        <mf-select id="query-dataSourceName"    label="데이터소스"  enable="true"  size="col-3"></mf-select>
+                                        <mf-text-input id="code-id"            label="ID"        enable="false" size="col-1" hidden="true"></mf-text-input>
+                                        <mf-text-input id="code-processorName"     label="처리명"     enable="false" size="col-3" ></mf-text-input>
+                                        <mf-text-input id="code-displayName"   label="화면노출명"  enable="true"  size="col-3" ></mf-text-input>
+                                        <mf-select id="code-language"   label="언어"     enable="false" size="col-2" dataProvider="CODE_LANGUAGE" useFirstItem="false" firstItemLabel="" firstItemValue=""></mf-select>
                                     </mf-row>
                                     <mf-row>
                                         <mf-col class="col-md-12">
-                                            <label>SQL</label>
-                                            <textarea id="query" name="query" rows="50" style="display:none;"></textarea>
-                                        </mf-col>
-                                    </mf-row>
-                                    <mf-row>
-                                        <mf-col class="col-md-12">
-                                            <mf-grid id="queryParameterGrid" width="100%" height="300px"
-                                                     control="true" editing="true" inserting="true"
-                                                     insertActionName="insertQueryParam"
-                                                     updateActionName="updateQueryParam"
-                                                     deleteActionName="deleteQueryParam"
-                                            >
-                                                <mf-grid-column  type="number" id="queryParameterId" label="ID"         width="20px"  hidden="true" ></mf-grid-column>
-                                                <mf-grid-column  type="text"   id="paramName"        label="파라미터명"   width="80px" align="left" ></mf-grid-column>
-                                                <mf-grid-column  type="select" id="paramType"        label="type"       width="50px" dataProvider="PARAM_TYPE"></mf-grid-column>
-                                                <mf-grid-column  type="select" id="autoValueType"    label="자동값유형"   width="50px" dataProvider="AUTO_VALUE_TYPE" ></mf-grid-column>
-                                                <mf-grid-column  type="select" id="inOut"            label="IN/OUT"     width="50px" dataProvider="IN_OUT"></mf-grid-column>
-                                            </mf-grid>
+                                            <label>스크립트</label>
+                                            <textarea id="script" name="script" ></textarea>
                                         </mf-col>
                                     </mf-row>
                                 </mf-form>

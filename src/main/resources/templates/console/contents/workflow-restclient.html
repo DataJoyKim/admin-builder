@@ -74,13 +74,11 @@
     }
 
     function execute() {
-        let executeType = $("#executeType").val();
-        let executeTarget = $("#executeTarget").val();
-        let requestMessageId = $("#requestMessageId").val();
+        let executeTarget = functionName;
 
         let contents = {};
         let gridData = sheet.getSheetData("executeGrid");
-        console.log('gridData',gridData);
+
         for(let i=0; i<gridData.length; i++) {
             let value = gridData[i]["value"];
             if(value == "null") {
@@ -91,7 +89,7 @@
             }
         }
 
-        httpClient.get(`/console/api/query/${executeTarget}/execute`,contents,
+        httpClient.post(`/console/api/rest-client/${executeTarget}/execute`,contents, null,
             function(response){
                 $("#responseData").val(JSON.stringify(response,null,3));
             },

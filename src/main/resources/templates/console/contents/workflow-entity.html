@@ -80,13 +80,14 @@
     }
 
     function execute() {
-        let executeType = $("#executeType").val();
-        let executeTarget = $("#executeTarget").val();
-        let requestMessageId = $("#requestMessageId").val();
+        alert('아직 지원하지않습니다.');
+        return;
+
+        let executeTarget = functionName;
 
         let contents = {};
         let gridData = sheet.getSheetData("executeGrid");
-        console.log('gridData',gridData);
+
         for(let i=0; i<gridData.length; i++) {
             let value = gridData[i]["value"];
             if(value == "null") {
@@ -105,7 +106,6 @@
                 $("#responseData").val(JSON.stringify(error.responseJSON,null,3));
             }
         );
-
     }
 
     function getEntity(entityName) {

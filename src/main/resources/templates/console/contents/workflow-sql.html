@@ -82,13 +82,11 @@
     }
 
     function execute() {
-        let executeType = $("#executeType").val();
-        let executeTarget = $("#executeTarget").val();
-        let requestMessageId = $("#requestMessageId").val();
+        let executeTarget = functionName;
 
         let contents = {};
         let gridData = sheet.getSheetData("executeGrid");
-        console.log('gridData',gridData);
+
         for(let i=0; i<gridData.length; i++) {
             let value = gridData[i]["value"];
             if(value == "null") {
@@ -338,11 +336,6 @@
                             </mf-card-header>
                             <mf-card-body>
                                 <mf-form id="executeForm">
-                                    <mf-row>
-                                        <mf-text-input id="executeType" label="실행유형" size="col-1"  enable="false" hidden="true"></mf-text-input>
-                                        <mf-text-input id="executeTarget" label="대상" size="col-3"  enable="false" ></mf-text-input>
-                                        <mf-text-input id="requestMessageId" label="요청메시지ID" size="col-3" enable="true" ></mf-text-input>
-                                    </mf-row>
                                     <mf-row>
                                         <mf-grid id="executeGrid" width="100%" height="300px"
                                                  control="true" editing="true" inserting="true"

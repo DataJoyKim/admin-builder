@@ -1,0 +1,92 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<style th:fragment="style">
+</style>
+<script th:fragment="script">
+        $( document ).ready(function() {
+            console.log('version.0.0.1');
+            init();
+        });
+
+        function init() {
+            var codes = {
+                "CodeType":[
+                    {code:"",name:""},
+                    {code:"SQL",name:"SQL"},
+                    {code:"COMMON_CODE",name:"공통코드"}
+                ]
+            };
+
+            App.grid.init('jsGrid1', "100%","600px",
+                [
+                    {width: 30, align: "center",
+                        itemTemplate: function () {
+                          return "<span class='drag-handle'>☰</span>";
+                        }
+                    },
+                    {type: "control", editButton: false, width: 30, modeSwitchButton: false },
+                    {name: "name", title:"필드", type: "text", width: 100 },
+                    {name: "title", title:"컬럼명", type: "text", width: 100 },
+                    {name: "width", title:"크기", type: "text", width: 80 },
+                    {name: "type", title:"타입", type: "text", width: 100 }
+                ],
+                function(args) {},
+                {
+                    inserting:false,
+                    editing:true,
+                    onRefreshed: () => {
+                        App.grid.enableRowDrag('jsGrid1', {
+                            updateEvent: () => {}
+                        });
+                    },
+                    onItemUpdated:(args) => {},
+                    onItemInserting:(args) => {},
+                    onItemDeleting:(args) => {}
+                }
+            );
+
+            App.modalPopup.receiveParam('JSGRID_COLUMN_REQUEST', function(data){
+                App.grid.setData('jsGrid1', data.columns);
+            });
+        }
+
+        function createColumn() {
+            App.grid.insertItem("jsGrid1", {
+                name: "Field",
+                title: "Label",
+                width: 100,
+                type: "text"
+            });
+        }
+
+        function apply(){
+            let params = {
+                columns: App.grid.getData('jsGrid1')
+            };
+
+            App.modalPopup.sendParamToParent('JSGRID_COLUMN_RESULT', params);
+            App.modalPopup.close();
+        }
+    </script>
+<div th:fragment="view">
+    <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">컬럼설정</h3>
+                        <div class="card-tools">
+                            <button class="btn btn-default btn-sm" onclick="createColumn()">
+                                <i class="fas fa-plus"></i>생성
+                            </button>
+                            <button class="btn btn-default btn-sm" onclick="apply()">
+                                <i class="fas fa-check"></i>적용
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="jsGrid1"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</html>

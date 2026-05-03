@@ -86,7 +86,7 @@ class VbGrid extends ViewObject {
         let el = `
             <div id="${options.id}" class="component vb-item" data-type="${this.componentId()}">
                 ${super.componentDeleteBtn()}
-                Grid
+                Grid [${options.id}]
             </div>
         `;
 
@@ -139,15 +139,8 @@ class VbGrid extends ViewObject {
         let $rowGrid = this.optionPanel.row();
         $rowGrid.append(this.optionPanel.input('width',{label:'넓이', size:'col-6'}));
         $rowGrid.append(this.optionPanel.input('height',{label:'높이', size:'col-6'}));
+        $rowGrid.append(this.optionPanel.button('column-setting',{label:'컬럼 설정', btnLabel:'설정',size:'col-12', icon:'fas fa-cog'}));
         $panel.append($rowGrid);
-
-        $panel.append($(`
-            <div class="form-group col-12">
-               <label for="grid-columns">컬럼 설정</label>
-               <div style="display: flex;justify-content: flex-end;"><a id="grid-create-column" style="cursor: pointer;">+create column</a></div>
-               <div id="grid-columns"></div>
-            </div>
-        `));
     }
 
     optionPanelScript($el, options) {
@@ -162,48 +155,6 @@ class VbGrid extends ViewObject {
         this.optionPanel.setValue('delete-action',options.deleteAction);
         this.optionPanel.setValue('width',options.width);
         this.optionPanel.setValue('height',options.height);
-
-        this.grid.init('grid-columns', "100%","600px",
-            [
-                {width: 30, align: "center",
-                    itemTemplate: function () {
-                      return "<span class='drag-handle'>☰</span>";
-                    }
-                },
-                {type: "control", editButton: false, width: 30, modeSwitchButton: false },
-                {name: "name", title:"필드", type: "text", width: 100 },
-                {name: "title", title:"컬럼명", type: "text", width: 100 },
-                {name: "width", title:"크기", type: "text", width: 80 },
-                {name: "type", title:"타입", type: "text", width: 100 }
-            ],
-            function(args) {},
-            {
-                inserting:false,
-                editing:true,
-                onRefreshed: () => {
-                    this.grid.enableRowDrag('grid-columns', {
-                        updateEvent: () => {
-                            options.columns = this.grid.getData('grid-columns');
-                            this.optionPanel.setOptions($el, options);
-                        }
-                    });
-                },
-                onItemUpdated:(args) => {
-                    options.columns = this.grid.getData('grid-columns');
-                    this.optionPanel.setOptions($el, options);
-                },
-                onItemInserting:(args) => {
-                    options.columns = this.grid.getData('grid-columns');
-                    this.optionPanel.setOptions($el, options);
-                },
-                onItemDeleting:(args) => {
-                    options.columns = this.grid.getData('grid-columns');
-                    this.optionPanel.setOptions($el, options);
-                }
-            }
-        );
-
-        this.grid.setData('grid-columns', options.columns);
     }
 
     optionPanelEvent($el, options, componentFactory) {
@@ -221,17 +172,6 @@ class VbGrid extends ViewObject {
             let value = $(e.target).val();
             this.optionPanel.changeOptionValue($el, options, 'height', value);
             $el.css('height', value);
-        });
-
-        this.optionPanel.clickEvent('create-column',(e) => {
-            this.grid.insertItem("grid-columns", {
-                name: "Field",
-                title: "Label",
-                width: 100,
-                type: "text"
-            });
-
-            this.optionPanel.changeOptionValue($el, options, 'columns', this.grid.getData('grid-columns'));
         });
 
         this.optionPanel.clickEvent('control',(e) => {
@@ -260,6 +200,16 @@ class VbGrid extends ViewObject {
 
         this.optionPanel.inputEvent('delete-action',(e) => {
             this.optionPanel.changeOptionValue($el, options, 'deleteAction', $(e.target).val());
+        });
+
+        this.optionPanel.clickEvent('column-setting',(e) => {
+            const self = this;
+            App.modalPopup.open('/console/view-jsgrid-column',{title:'컬럼설정 팝업',size:"modal-xl",messageId:'JSGRID_COLUMN_REQUEST'},{columns:options.columns});
+            App.modalPopup.receiveParam('JSGRID_COLUMN_RESULT',function(data){
+                if(data.columns) {
+                    self.optionPanel.changeOptionValue($el, options, 'columns', data.columns);
+                }
+            });
         });
     }
 }

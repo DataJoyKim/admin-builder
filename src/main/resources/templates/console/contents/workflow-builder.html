@@ -16,6 +16,21 @@
         word-break: break-word;
         overflow-wrap: break-word;
     }
+    .add-step-item {
+        position: relative;
+        background-color: #ffffff;
+        width: 100px;
+        height: 100px;
+        border-radius: 13px;
+        display: flex;
+        flex-direction: column;
+        font-size: 14px;
+        border: 3px solid #898989;
+        margin-top:10px;
+        margin-bottom:15px;
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
 
     .step-message {
         display: flex;
@@ -95,15 +110,12 @@
     };
 
     let codes;
-    let sqlEditor, codeEditor;
 
     $( document ).ready(function() {
         init();
     });
 
     function init() {
-        setDatSourceAsDatabase();
-        setDatSourceAsRestServer();
 
         getWorkflowList();
         setWorkflowGrid();
@@ -141,39 +153,6 @@
                         deleteWorkflowAuthority($("#workflowId").val(), args.item);
                     }
                 });
-            },
-            function(error){
-                alert('error');
-            }
-        );
-    }
-
-    function setDatSourceAsDatabase() {
-        httpClient.get(`/console/api/datasource/database`, {},
-            function(response){
-                let codes = new Array();
-                for(let i=0; i<response.length; i++) {
-                    codes.push({code:response[i].dataSourceName,name:response[i].displayName});
-                }
-
-                App.util.setCodeBox("query-dataSourceName", codes);
-                App.util.setCodeBox("entity-dataSourceName", codes);
-            },
-            function(error){
-                alert('error');
-            }
-        );
-    }
-
-    function setDatSourceAsRestServer() {
-        httpClient.get(`/console/api/datasource/rest-server`, {},
-            function(response){
-                let codes = new Array();
-                for(let i=0; i<response.length; i++) {
-                    codes.push({code:response[i].dataSourceName,name:response[i].displayName});
-                }
-
-                 App.util.setCodeBox("rest-client-dataSourceName", codes);
             },
             function(error){
                 alert('error');
@@ -364,7 +343,7 @@
 
         let contents = {};
         let gridData = sheet.getSheetData("executeGrid");
-        console.log('gridData',gridData);
+
         for(let i=0; i<gridData.length; i++) {
             let value = gridData[i]["value"];
             if(value == "null") {
@@ -375,53 +354,18 @@
             }
         }
 
-        if(executeType == "WORKFLOW") {
-            let body = {};
-            body[requestMessageId] = [contents];
-            let header = {workflowCode : executeTarget};
+        let body = {};
+        body[requestMessageId] = [contents];
+        let header = {workflowCode : executeTarget};
 
-            httpClient.post(`/workflow`,{},{body:body,header:header},
-                function(response){
-                    $("#responseData").val(JSON.stringify(response,null,3));
-                },
-                function(error){
-                    $("#responseData").val(JSON.stringify(error.responseJSON,null,3));
-                }
-            );
-        }
-        else if(executeType == "SQL") {
-            httpClient.get(`/console/api/query/${executeTarget}/execute`,contents,
-                function(response){
-                    $("#responseData").val(JSON.stringify(response,null,3));
-                },
-                function(error){
-                    $("#responseData").val(JSON.stringify(error.responseJSON,null,3));
-                }
-            );
-        }
-        else if(executeType == "ENTITY") {
-            alert('아직 지원하지 않습니다.');
-        }
-        else if(executeType == "REST_CLIENT") {
-            httpClient.post(`/console/api/rest-client/${executeTarget}/execute`,contents, null,
-                function(response){
-                    $("#responseData").val(JSON.stringify(response,null,3));
-                },
-                function(error){
-                    $("#responseData").val(JSON.stringify(error.responseJSON,null,3));
-                }
-            );
-        }
-        else if(executeType == "MESSAGE_PROCESSOR") {
-            httpClient.post(`/console/api/custom-code/${executeTarget}/execute`,{}, [contents],
-                function(response){
-                    $("#responseData").val(JSON.stringify(response,null,3));
-                },
-                function(error){
-                    $("#responseData").val(JSON.stringify(error.responseJSON,null,3));
-                }
-            );
-        }
+        httpClient.post(`/workflow`,{},{body:body,header:header},
+            function(response){
+                $("#responseData").val(JSON.stringify(response,null,3));
+            },
+            function(error){
+                $("#responseData").val(JSON.stringify(error.responseJSON,null,3));
+            }
+        );
 
     }
 
@@ -485,7 +429,7 @@
             cursor: "move",
             placeholder: "workflow-item-placeholder",
             tolerance: "pointer",
-            items: ".step-item",
+            items: ".step-item:not(.add-step-item)",
             update: function() {
                 setStepItemsOrderNum();
                 drawConnectors();
@@ -519,6 +463,7 @@
         for(let data of response) {
             html += htmlStepItem(stepItemIdPrefix+data.id, data, false);
         }
+         html += htmlAddStepItem();
         html += htmlConnectLine();
 
         $("#"+id).html(html);
@@ -528,6 +473,18 @@
         for(let data of response) {
             setStepItemData(stepItemIdPrefix+data.id, data);
         }
+    }
+
+    function htmlAddStepItem() {
+        return `
+            <div class="add-step-item connector"
+                 style="justify-content:center; align-items:center; cursor:pointer; border:2px dashed #9ca3af; background:#f9fafb;"
+                 onclick="addStepItem()">
+
+                <i class="fas fa-plus" style="font-size:24px; color:#6b7280;"></i>
+                <div style="margin-top:5px; color:#6b7280;">단계 추가</div>
+            </div>
+        `;
     }
 
     function setStepItemData(id, data) {
@@ -553,7 +510,7 @@
         else if(data.functionType == 'REST_CLIENT'){
             iconPath = '/dist/img/func-restclient.png';
         }
-        else if(data.functionType == 'CODE'){
+        else if(data.functionType == 'MESSAGE_PROCESSOR'){
             iconPath = '/dist/img/func-code.png';
         }
 
@@ -576,7 +533,7 @@
         }
 
         return `
-            <div class="step-item" id="${id}">
+            <div class="step-item connector" id="${id}">
                 <input type="number" name="workflowFunctionId" value="${data.id}" hidden></input>
                 <input type="number" name="orderNum" value="${data.orderNum}" hidden></input>
 
@@ -651,8 +608,6 @@
     });
 
     function executeFunction(functionType, functionName, requestMessageId) {
-        //initFunctionGrid();
-
         $("#executeTarget").val(functionName);
         $("#executeType").val(functionType);
         $("#requestMessageId").val(requestMessageId);
@@ -664,16 +619,17 @@
     function addStepItem() {
         let orderNum = getLastStepOrder()+1;
 
-        $("#workflowGrid").append(htmlStepItem('step-item-C'+orderNum, {
+        const newItem = htmlStepItem('step-item-C'+orderNum, {
             orderNum:Number(orderNum),
             functionType:"",
             functionName:"",
             requestMessageId:"",
             responseMessageId:""
-        }, true));
+        }, true);
+
+        $(".add-step-item").before(newItem);
 
         drawConnectors();
-        //initFunctionGrid();
     }
 
     function saveFunction() {
@@ -793,7 +749,7 @@
     }
 
     function drawConnectors() {
-        const steps = document.querySelectorAll('.step-item');
+        const steps = document.querySelectorAll('.connector');
         const svg = document.getElementById('connectorLayer');
         svg.innerHTML = ''; // 초기화
 
@@ -837,11 +793,6 @@
         showGrid('entity-card',false);
         showGrid('rest-client-card',false);
         showGrid('code-card',false);
-
-        if (codeEditor) {
-          codeEditor.toTextArea();
-          codeEditor = null;
-        }
     }
 
     function showGrid(id, show) {
@@ -853,90 +804,6 @@
         }
     }
 
-/******************************************************************
-* CODE
-*******************************************************************/
-    function getCode(functionName) {
-        let defaultScript = "params.each { map ->\n";
-        defaultScript+= "// TODO processing params\n";
-        defaultScript+= "}\n";
-        defaultScript+= "return params";
-
-        httpClient.get(`/console/api/custom-code`, {processorName:`${functionName}`},
-            function(response){
-                let data = response;
-                if(data) {
-                    setCodeContent(data);
-                }
-                else {
-                    setCodeContent({
-                        id:'',
-                        processorName:functionName,
-                        displayName:'',
-                        script:defaultScript
-                    });
-                }
-            },
-            function(error){
-                alert('error');
-            }
-        );
-    }
-
-    function saveCode() {
-        httpClient.post(`/console/api/custom-code/save`,{},getCodeContent(),
-            function(response){
-                alert("저장완료되었습니다.");
-                getCode($("#code-processorName").val());
-            },
-            function(error){
-                alert('error');
-            }
-        );
-    }
-
-    function deleteCode() {
-      let id = $("#code-id").val();
-
-      httpClient.delete(`/console/api/custom-code/${id}`, {},
-          function(response){
-              alert("삭제 되었습니다.");
-              getCode($("#code-processorName").val());
-          },
-          function(error){
-              alert('error');
-          }
-      );
-    }
-
-    function executeCode() {
-        httpClient.post(`/console/api/custom-code/execute`,{},getCodeContent(),
-            function(response){
-                alert("저장완료되었습니다.");
-            },
-            function(error){
-                alert('error');
-            }
-        );
-    }
-
-    function getCodeContent() {
-        let id = $("#code-id").val();
-        return {
-            id: ((id) ? id : null),
-            processorName: $("#code-processorName").val(),
-            displayName: $("#code-displayName").val(),
-            script: codeEditor.getValue()
-        }
-    }
-
-    function setCodeContent(params) {
-        $("#code-id").val(params.id);
-        $("#code-processorName").val(params.processorName);
-        $("#code-displayName").val(params.displayName);
-        codeEditor.setValue(params.script);
-    }
-
     function openPopupFunctionSetting(type, functionName) {
         if(type == 'SQL') {
             App.modalPopup.open('/console/workflow-sql',{title:'SQL 팝업',size:"modal-xl",messageId:'FUNC_REQUEST'},{functionName:functionName});
@@ -946,6 +813,9 @@
         }
         else if(type == 'REST_CLIENT') {
             App.modalPopup.open('/console/workflow-restclient',{title:'Rest Client 팝업',size:"modal-xl",messageId:'FUNC_REQUEST'},{functionName:functionName});
+        }
+        else if(type == 'MESSAGE_PROCESSOR') {
+            App.modalPopup.open('/console/workflow-message',{title:'메시지 처리 팝업',size:"modal-xl",messageId:'FUNC_REQUEST'},{functionName:functionName});
         }
     }
 </script>
@@ -961,7 +831,6 @@
     </mf-data>
     <mf-actions>
         <mf-action name="clickWorkflowList" args="args">
-            //initFunctionGrid();
             selectedContent(args.item);
         </mf-action>
 
@@ -1023,7 +892,6 @@
                     </mf-card-body>
                     <mf-card-header title="워크플로우">
                         <mf-action-button id="executeWorkflow" actionName="executeWorkflow"       icon="fas fa-play"></mf-action-button>
-                        <mf-action-button id="addStepItem"  actionName="addStepItem"  icon="fas fa-plus" ></mf-action-button>
                         <mf-action-button id="saveFunction" actionName="saveFunction" icon="fas fa-save" ></mf-action-button>
                     </mf-card-header>
                     <mf-card-body>
@@ -1066,29 +934,6 @@
                                     <label>실행 결과</label>
                                     <textarea id="responseData"  rows="20" cols="100"></textarea>
                                 </div>
-                            </mf-row>
-                        </mf-form>
-                    </mf-card-body>
-                </mf-card>
-
-                <mf-card id="code-card" hidden>
-                    <mf-card-header title="기능">
-                        <mf-action-button id="saveCode"   actionName="saveCode"   icon="fas fa-save"></mf-action-button>
-                        <mf-action-button id="deleteCode" actionName="deleteCode" icon="fas fa-trash"></mf-action-button>
-                    </mf-card-header>
-                    <mf-card-body>
-                        <mf-form id="codeForm">
-                            <mf-row>
-                                <mf-text-input id="code-id"            label="ID"        enable="false" size="col-1" hidden="true"></mf-text-input>
-                                <mf-text-input id="code-processorName"     label="처리명"     enable="false" size="col-3" ></mf-text-input>
-                                <mf-text-input id="code-displayName"   label="화면노출명"  enable="true"  size="col-3" ></mf-text-input>
-                                <mf-select id="code-language"   label="언어"     enable="false" size="col-2" dataProvider="CODE_LANGUAGE" useFirstItem="false" firstItemLabel="" firstItemValue=""></mf-select>
-                            </mf-row>
-                            <mf-row>
-                                <mf-col class="col-md-12">
-                                    <label>스크립트</label>
-                                    <textarea id="script" name="script" ></textarea>
-                                </mf-col>
                             </mf-row>
                         </mf-form>
                     </mf-card-body>
