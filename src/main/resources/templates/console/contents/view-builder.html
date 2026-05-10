@@ -74,6 +74,7 @@
         App.modalPopup.receiveParam('OBJECT_RESULT',function(data){
             if(data.objectCode) {
                 $("#objectCode").val(data.objectCode);
+                load();
             }
         });
     });

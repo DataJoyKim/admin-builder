@@ -1,0 +1,150 @@
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<style th:fragment="style">
+</style>
+<script th:fragment="script">
+        $( document ).ready(function() {
+            console.log('version.0.0.1');
+            init();
+        });
+
+        $('#retrieve').on('click', function () {
+        });
+
+        function init() {
+            const commonCode = {
+              WORK_STATUS: [
+                { key: 'READY', value: '준비' },
+                { key: 'WORKING', value: '작업중' },
+                { key: 'DONE', value: '완료' }
+              ]
+            };
+
+            const _statusOptions = [
+                {key:'', value:''},
+                {key:'I', value:'입력'},
+                {key:'U', value:'수정'},
+                {key:'D', value:'삭제'}
+            ]
+
+            const columnDefs = [
+                { headerName: "번호", field: "_seq", width:60, editable: false
+                },
+                {
+                    headerName: "상태", field: "_status", width:60, editable: false,
+                     cellEditor: 'agSelectCellEditor',
+                      cellEditorParams: {
+                        values: _statusOptions.map(item => item.key)
+                      },
+                      valueFormatter: (params) => {
+                        return getCodeLabel(_statusOptions, params.value);
+                      }
+                },
+                {
+                    headerName: "삭제", field: "_delete", width:60, editable: true,
+                    cellRenderer: 'agCheckboxCellRenderer'
+                },
+                { headerName: "이름", field: "name", width:150, editable: true },
+                { headerName: "나이", field: "age", width:150, editable: true, type: 'numericColumn' },
+                {
+                    headerName: "진행상태",
+                    field: "status",
+                    editable: true,
+                    width:150,
+                     cellEditor: 'agSelectCellEditor',
+                      cellEditorParams: {
+                        values: commonCode.WORK_STATUS.map(item => item.key)
+                      },
+                      valueFormatter: (params) => {
+                        return getCodeLabel(commonCode.WORK_STATUS, params.value);
+                      }
+                },
+                {
+                    headerName: "활성",
+                    field: "active",
+                    width:150,
+                    editable: true,
+                    cellRenderer: 'agCheckboxCellRenderer',
+                    flex:1
+                }
+            ];
+
+            const rowData = [
+              { name: "홍길동", age: 30, status: "READY", active: true },
+              { name: "김철수", age: 25, status: "WORKING", active: false }
+            ];
+
+            const originalDataMap = new WeakMap();
+
+            let seq = 1;
+            rowData.forEach(row => {
+                row._seq = seq;
+                row._delete = false;
+                originalDataMap.set(row, structuredClone(row));
+                seq++;
+            });
+
+            const gridOptions = {
+              columnDefs,
+              rowData,
+              onCellValueChanged: (event) => {
+                const current = event.data;
+
+                const original = originalDataMap.get(current);
+
+                const changed = isChanged(current, original);
+
+                if (current._delete) {
+                  current._status = 'D';
+                } else {
+                  current._status = changed ? 'U' : '';
+                }
+
+                event.api.refreshCells({
+                  rowNodes: [event.node],
+                  columns: ['_status']
+                });
+              }
+            };
+
+            const myGridElement = document.querySelector('#myGrid');
+
+            agGrid.createGrid(myGridElement, gridOptions);
+        }
+
+          function isChanged(current, original) {
+
+            const ignoreFields = ['_seq','_status', '_delete'];
+
+            return Object.keys(current).some(key => {
+
+              if (ignoreFields.includes(key)) {
+                return false;
+              }
+
+              return current[key] !== original[key];
+            });
+          }
+
+          function getCodeLabel(code, key) {
+
+          const found = code.find(
+            item => item.key === key
+          );
+
+          return found ? found.value : '';
+        }
+    </script>
+<div th:fragment="view">
+    <script src="https://cdn.jsdelivr.net/npm/ag-grid-community@31.3.2/dist/ag-grid-community.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@31.3.2/styles/ag-grid.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@31.3.2/styles/ag-theme-quartz.css">
+    //TODO 행추가작업 필요
+    <div style="margin-bottom: 10px;">
+        <button id="retrieve">조회</button>
+        <button id="addRow">입력</button>
+        <button id="save">저장</button>
+    </div>
+
+    <div id="myGrid" class="ag-theme-quartz" style="height: 500px; width: 800px;"></div>
+</div>
+</html>
