@@ -62,7 +62,7 @@
                 ]
             };
 
-            sheet.initSheet('jsGrid1', "100%","600px",
+            grid.initSheet('jsGrid1', "100%","600px",
             [
                 {name: "id", title:"ID", type: "number", width: 50 },
                 {name: "entityName", title:"entity", type: "text", width: 150 },
@@ -72,7 +72,7 @@
                 selectedContent(args.item);
             });
 
-            sheet.initSheet('entityColumnGrid', "100%","500px",
+            grid.initSheet('entityColumnGrid', "100%","500px",
             [
                 {name: "id", title:"ID", type: "number", width: 20, editing: false, inserting: false},
                 {name: "columnName", title:"column", type: "text", width: 100},
@@ -104,7 +104,7 @@
                 }
             });
 
-            sheet.initSheet('entityColumnSelectGrid', "100%","500px",
+            grid.initSheet('entityColumnSelectGrid', "100%","500px",
             [
                 {name: "id", title:"ID", type: "number", width: 20, editing: false},
                 {name: "columnName", title:"column", type: "text", width: 100 , editing: false},
@@ -129,7 +129,7 @@
                 }
             });
 
-            sheet.initSheet('entityColumnInsertGrid', "100%","500px",
+            grid.initSheet('entityColumnInsertGrid', "100%","500px",
             [
                 {name: "id", title:"ID", type: "number", width: 20, editing: false},
                 {name: "columnName", title:"column", type: "text", width: 100 , editing: false},
@@ -153,7 +153,7 @@
                 }
             });
 
-            sheet.initSheet('entityColumnUpdateGrid', "100%","500px",
+            grid.initSheet('entityColumnUpdateGrid', "100%","500px",
             [
                 {name: "id", title:"ID", type: "number", width: 20, editing: false},
                 {name: "columnName", title:"column", type: "text", width: 100 , editing: false},
@@ -176,7 +176,7 @@
                 }
             });
 
-            sheet.initSheet('entityColumnDeleteGrid', "100%","500px",
+            grid.initSheet('entityColumnDeleteGrid', "100%","500px",
             [
                 {name: "id", title:"ID", type: "number", width: 20, editing: false},
                 {name: "columnName", title:"column", type: "text", width: 100 , editing: false},
@@ -212,7 +212,7 @@
         function getEntity() {
             httpClient.get(`/console/api/entity`, {},
                 function(response){
-                    sheet.setSheetData('jsGrid1', response);
+                    grid.setSheetData('jsGrid1', response);
                 },
                 function(error){
                     alert('error');
@@ -311,11 +311,11 @@
         function getEntityColumn(entityId) {
             httpClient.get(`/console/api/entity-column/${entityId}`, {},
                 function(response){
-                    sheet.setSheetData('entityColumnGrid', response);
-                    sheet.setSheetData('entityColumnSelectGrid', response);
-                    sheet.setSheetData('entityColumnInsertGrid', response);
-                    sheet.setSheetData('entityColumnUpdateGrid', response);
-                    sheet.setSheetData('entityColumnDeleteGrid', response);
+                    grid.setSheetData('entityColumnGrid', response);
+                    grid.setSheetData('entityColumnSelectGrid', response);
+                    grid.setSheetData('entityColumnInsertGrid', response);
+                    grid.setSheetData('entityColumnUpdateGrid', response);
+                    grid.setSheetData('entityColumnDeleteGrid', response);
                 },
                 function(error){
                     alert('error');

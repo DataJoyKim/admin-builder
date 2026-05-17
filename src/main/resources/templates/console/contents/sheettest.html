@@ -1,29 +1,5 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
 <style th:fragment="style">
-    .ag-center-header .ag-header-cell-label {
-        justify-content: center;
-    }
-    .required-header .ag-header-cell-text::before {
-        content: "*";
-        color: red;
-        margin-right: 4px;
-        font-weight: bold;
-    }
-
-    .align-left .ag-cell-wrapper {
-        width: 100%;
-        justify-content: flex-start;
-    }
-
-    .align-center .ag-cell-wrapper {
-        width: 100%;
-        justify-content: center;
-    }
-
-    .align-right .ag-cell-wrapper {
-        width: 100%;
-        justify-content: flex-end;
-    }
 </style>
 <script th:fragment="script">
         $( document ).ready(function() {
@@ -31,109 +7,31 @@
             init();
 
             $('#retrieve').on('click', function () {
-                retrieve();
+                const response = [
+                  { name: "홍길동", age: 30, status: "READY", active: true },
+                  { name: "김철수", age: 25, status: "WORKING", active: false }
+                ];
+
+                mySheet1.setSheetData(response);
             });
 
             $('#save').on('click', function () {
-                const saveData = getSheetData('mySheet1');
+                const saveData = mySheet1.getSheetData();
                 console.log('saveData',saveData);
             });
 
             $('#newData').on('click', function () {
-                addRowData('mySheet1', {});
+                mySheet1.addRowData({});
             });
         });
-
-        function retrieve() {
-            const response = [
-              { name: "홍길동", age: 30, status: "READY", active: true },
-              { name: "김철수", age: 25, status: "WORKING", active: false }
-            ];
-
-            setSheetData('mySheet1', response);
-        }
-
-        function getSheetData(sheetId) {
-            const rows = [];
-            window.SheetManager[sheetId].sheet.forEachNode(node => {
-                rows.push(node.data);
-            });
-
-            return rows;
-        }
-
-        function setSheetData(sheetId, data) {
-            let seq = 1;
-            data.forEach(row => {
-                row._seq = seq;
-                row._delete = false;
-                row._status = '';
-                window.SheetManager[sheetId].originalDataMap.set(row, structuredClone(row));
-                seq++;
-            });
-
-            window.SheetManager[sheetId].sheet.setGridOption('rowData', data);
-            if (data.length === 0) {
-                window.SheetManager[sheetId].sheet.showNoRowsOverlay();
-            }
-            else {
-                window.SheetManager[sheetId].sheet.hideOverlay();
-            }
-        }
-
-        function initData(sheetId) {
-            const columns = window.SheetManager[sheetId].columns;
-            const data = {};
-            for(const column of columns) {
-                if(column.type == 'check') {
-                    data[column.field] = false;
-                }
-                else {
-                    data[column.field] = null;
-                }
-            }
-
-            return data;
-        }
-
-        function addRowData(sheetId, data) {
-            const selectedNodes = window.SheetManager[sheetId].sheet.getSelectedNodes();
-
-            const newRow = initData(sheetId);
-            newRow._status = 'C';
-            newRow._delete = false;
-            newRow._seq = window.SheetManager[sheetId].sheet.getDisplayedRowCount() + 1;
-
-            for(const key in data) {
-                newRow[key] = data[key];
-            }
-
-            // 기본은 마지막
-            let addIndex = window.SheetManager[sheetId].sheet.getDisplayedRowCount();
-
-            // 선택된 행이 있으면 그 다음 위치
-            if (selectedNodes.length > 0) {
-                addIndex = selectedNodes[0].rowIndex + 1;
-            }
-
-            const result = window.SheetManager[sheetId].sheet.applyTransaction({
-                add: [newRow],
-                addIndex: addIndex
-            });
-
-            // 추가된 row 선택
-            const addedRowNode = result.add[0];
-
-            addedRowNode.setSelected(true);
-        }
 
         function init() {
             const commonCode = {
               WORK_STATUS: [
-                { key: '', value: '' },
-                { key: 'READY', value: '준비' },
-                { key: 'WORKING', value: '작업중' },
-                { key: 'DONE', value: '완료' }
+                { code: '', name: '' },
+                { code: 'READY', name: '준비' },
+                { code: 'WORKING', name: '작업중' },
+                { code: 'DONE', name: '완료' }
               ]
             };
 
@@ -145,196 +43,10 @@
                 {field:'active', label:'활성', type:'check', width:150, editable: true, align:'center', required:true}
             ];
 
-            initSheet('mySheet1', "1500px", "500px",{useSeq:true,useStatus:true,useDelete:true}, columns);
-        }
-
-        function initSheet(sheetId, width, height, options, columnInfo) {
-
-            // element 설정
-            const sheetEl = $("#"+sheetId);
-            sheetEl.addClass('ag-theme-quartz');
-            sheetEl.css('width', width);
-            sheetEl.css('height', height);
-
-            const columns = [];
-
-            // 시트 옵션
-            if(options.useSeq) {
-                columns.push({field:'_seq', label:'번호', type:'text', width:60, editable: false, align:'center', required:false});
-            }
-
-            if(options.useStatus) {
-                columns.push({field:'_status', label:'상태', type:'combo', width:60, editable: false, align:'center', required:false,
-                    comboCodes:[
-                        {key:'', value:''},
-                        {key:'C', value:'입력'},
-                        {key:'U', value:'수정'},
-                        {key:'D', value:'삭제'}
-                    ]});
-            }
-
-            if(options.useDelete) {
-                columns.push({field:'_delete', label:'삭제', type:'check', width:60, editable: true, align:'center', required:false});
-            }
-
-            $.merge(columns, columnInfo);
-
-            // 컬럼 변환
-            const columnDefs = [];
-            columns.forEach((column, index) => {
-                const columnDef = {};
-                if(column.type == 'check') {
-                    columnDef.singleClickEdit = true;
-                    columnDef.cellDataType = 'boolean';
-                }
-                else if(column.type == 'combo') {
-                    columnDef.singleClickEdit = true;
-                    columnDef.cellEditorParams = {
-                        values: column.comboCodes.map(item => item.key)
-                    }
-
-                    columnDef.valueFormatter = (params) => {
-                        return getCodeLabel(column.comboCodes, params.value);
-                    }
-
-                    if(column.editable) {
-                        columnDef.cellEditor = 'agSelectCellEditor'; // 편집 모드 시 콤보박스
-                    }
-                }
-                else {
-                    columnDef.cellDataType = column.type;
-
-                    if(column.type == 'date') {
-                        columnDef.valueFormatter = params => params.value ? moment(params.value).format('YYYY.MM.DD') : ''
-                        columnDef.valueParser = params => {
-                            return moment(params.newValue).format('YYYY.MM.DD');
-                        }
-                    }
-                }
-
-                columnDef.field = column.field;
-                columnDef.headerName = column.label;
-                columnDef.width = column.width;
-                columnDef.editable = column.editable;
-                columnDef.cellStyle = {};
-                columnDef.headerClass = 'ag-center-header';
-
-                if(column.type == 'check') {
-                    columnDef.cellClass = 'align-'+column.align;
-                }
-                else {
-                    columnDef.cellStyle.textAlign = column.align;
-                }
-
-                if(column.required) {
-                    columnDef.headerClass = columnDef.headerClass + ' required-header';
-                }
-
-                const isLast = index === columns.length - 1;
-                if(isLast) {
-                    columnDef.flex = 1; // 마지막 컬럼은 크기 확장
-                }
-
-                columnDefs.push(columnDef);
-            });
-
-            // 시트 옵션 설정
-            const originalDataMap = new WeakMap();
-
-            const gridOptions = {
-              columnDefs: columnDefs,
-              rowData: [],
-              localeText: {
-                noRowsToShow: '조회된 데이터가 없습니다.'
-              },
-              rowSelection: 'single',
-              onCellValueChanged: (event) => {
-                const current = event.data;
-
-                const original = originalDataMap.get(current);
-
-                const changed = isChanged(current, original);
-
-                if (current._delete) {
-                    // 신규 입력 row면 실제 삭제
-                    if (current._status === 'C') {
-                        event.api.applyTransaction({
-                            remove: [current]
-                        });
-
-                        return;
-                    }
-
-                  current._status = 'D';
-                }
-                else {
-                    if (current._status === 'C') {
-                        current._status = 'C';
-                    }
-                    else {
-                        current._status = changed ? 'U' : '';
-                    }
-                }
-
-                event.api.refreshCells({
-                  rowNodes: [event.node],
-                  columns: ['_status']
-                });
-              }
-            };
-
-            // 시트 생성
-           const sheet = agGrid.createGrid(document.querySelector('#'+sheetId), gridOptions);
-
-           sheet.hideOverlay();
-
-           window.SheetManager = window.SheetManager || {};
-           window.SheetManager[sheetId] = {};
-           window.SheetManager[sheetId].originalDataMap = originalDataMap;
-           window.SheetManager[sheetId].columns = columns;
-           window.SheetManager[sheetId].sheet = sheet;
-
-           return sheet;
-        }
-
-          function isChanged(current, original) {
-            // 신규 row는 비교 대상 아님
-            if (current._status === 'C') {
-                return false;
-            }
-
-            // 원본 없으면 변경으로 처리
-            if (!original) {
-                return true;
-            }
-
-            const ignoreFields = ['_seq','_status', '_delete'];
-
-            return Object.keys(current).some(key => {
-
-              if (ignoreFields.includes(key)) {
-                return false;
-              }
-
-              return current[key] !== original[key];
-            });
-          }
-
-          function getCodeLabel(code, key) {
-
-          const found = code.find(
-            item => item.key === key
-          );
-
-          return found ? found.value : '';
+            Sheet.initSheet('mySheet1', "1500px", "500px",{useSeq:true,useStatus:true,useDelete:true}, columns);
         }
     </script>
 <div th:fragment="view">
-    <script src="https://cdn.jsdelivr.net/npm/moment@2.30.1/min/moment.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/ag-grid-community@31.3.2/dist/ag-grid-community.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@31.3.2/styles/ag-grid.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@31.3.2/styles/ag-theme-quartz.css">
-
     <div style="margin-bottom: 10px;">
         <button id="retrieve">조회</button>
         <button id="newData">입력</button>

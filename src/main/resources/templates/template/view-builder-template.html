@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="/plugins/codemirror/codemirror.css">
     <link rel="stylesheet" href="/plugins/codemirror/theme/darcula.css">
     <link rel="stylesheet" href="/plugins/jstree/themes/default/style.min.css" />
+    <link rel="stylesheet" href="/core/css/sheet-theme.css" />
 </head>
 <body>
 
@@ -33,8 +34,9 @@
 <script src="/core/Util.js"></script>
 <script src="/core/LoadingBar.js"></script>
 <script src="/core/HttpClient.js"></script>
-<script src="/core/sheet.js"></script>
+<script src="/core/Sheet.js"></script>
 <script src="/core/Grid.js"></script>
+<script src="/core/GridLegacy.js"></script>
 <script src="/core/Form.js"></script>
 <script src="/core/WorkflowClient.js"></script>
 <script src="/core/Popup.js"></script>
@@ -44,7 +46,7 @@
 <script th:inline="javascript">
     $.widget.bridge('uibutton', $.ui.button); // adminlte 버튼 충돌방지
 
-    const sheet = new Sheet();
+    const grid = new GridLegacy(App.grid);
     App.loadingBar.render();
     App.objectCode = [[${objectCode}]];
 </script>

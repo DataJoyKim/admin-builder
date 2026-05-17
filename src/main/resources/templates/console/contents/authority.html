@@ -9,7 +9,7 @@
 
         function init() {
 
-            sheet.initSheet('jsGrid1', "100%","500px",
+            grid.initSheet('jsGrid1', "100%","500px",
             [
                 {name: "id", title:"ID", type: "number", width: 50, editing: false, inserting: false},
                 {name: "code", title:"코드", type: "text", width: 150 },
@@ -19,7 +19,7 @@
                 selectedContent(args.item);
             });
 
-            sheet.initSheet('menuAuthorityGrid', "100%","500px",
+            grid.initSheet('menuAuthorityGrid', "100%","500px",
             [
                 {name: "id", title:"ID", type: "number", width: 50, editing: false, inserting: false},
                 {name: "menuCd", title:"Root 메뉴", type: "text", width: 200 },
@@ -46,7 +46,7 @@
         function getList() {
             httpClient.get(`/console/api/authority`, {},
                 function(response){
-                    sheet.setSheetData('jsGrid1', response);
+                    grid.setSheetData('jsGrid1', response);
                 },
                 function(error){
                     alert('error');
@@ -159,7 +159,7 @@
                         });
                     };
 
-                    sheet.setSheetData('menuAuthorityGrid', menuData);
+                    grid.setSheetData('menuAuthorityGrid', menuData);
                 },
                 function(error){
                     alert('error');

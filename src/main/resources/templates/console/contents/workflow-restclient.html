@@ -77,7 +77,7 @@
         let executeTarget = functionName;
 
         let contents = {};
-        let gridData = sheet.getSheetData("executeGrid");
+        let gridData = grid.getSheetData("executeGrid");
 
         for(let i=0; i<gridData.length; i++) {
             let value = gridData[i]["value"];
@@ -207,7 +207,7 @@
         function getRestClientQueryParam(clientId) {
             httpClient.get(`/console/api/rest-client/query-param/${clientId}`, {},
                 function(response){
-                    sheet.setSheetData('restClientQueryParamsGrid', response);
+                    grid.setSheetData('restClientQueryParamsGrid', response);
                 },
                 function(error){
                     alert('error');
@@ -266,7 +266,7 @@
         function getRestClientHeader(clientId) {
             httpClient.get(`/console/api/rest-client/header/${clientId}`, {},
                 function(response){
-                    sheet.setSheetData('restClientHeadersGrid', response);
+                    grid.setSheetData('restClientHeadersGrid', response);
                 },
                 function(error){
                     alert('error');
@@ -324,7 +324,7 @@
         function getRestClientBody(clientId) {
             httpClient.get(`/console/api/rest-client/body/${clientId}`, {},
                 function(response){
-                    sheet.setSheetData('restClientBodyGrid', response);
+                    grid.setSheetData('restClientBodyGrid', response);
                 },
                 function(error){
                     alert('error');

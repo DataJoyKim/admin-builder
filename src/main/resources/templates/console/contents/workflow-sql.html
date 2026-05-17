@@ -85,7 +85,7 @@
         let executeTarget = functionName;
 
         let contents = {};
-        let gridData = sheet.getSheetData("executeGrid");
+        let gridData = grid.getSheetData("executeGrid");
 
         for(let i=0; i<gridData.length; i++) {
             let value = gridData[i]["value"];
@@ -135,7 +135,7 @@
     function getQueryParam(queryId) {
         httpClient.get(`/console/api/query-param/${queryId}`, {},
             function(response){
-                sheet.setSheetData('queryParameterGrid', response);
+                grid.setSheetData('queryParameterGrid', response);
             },
             function(error){
                 alert('error');

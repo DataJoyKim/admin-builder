@@ -86,7 +86,7 @@
         let executeTarget = functionName;
 
         let contents = {};
-        let gridData = sheet.getSheetData("executeGrid");
+        let gridData = grid.getSheetData("executeGrid");
 
         for(let i=0; i<gridData.length; i++) {
             let value = gridData[i]["value"];
@@ -128,11 +128,11 @@
     function getEntityColumn(entityId) {
         httpClient.get(`/console/api/entity-column/${entityId}`, {},
             function(response){
-                sheet.setSheetData('entityColumnGrid', response);
-                sheet.setSheetData('entityColumnSelectGrid', response);
-                sheet.setSheetData('entityColumnInsertGrid', response);
-                sheet.setSheetData('entityColumnUpdateGrid', response);
-                sheet.setSheetData('entityColumnDeleteGrid', response);
+                grid.setSheetData('entityColumnGrid', response);
+                grid.setSheetData('entityColumnSelectGrid', response);
+                grid.setSheetData('entityColumnInsertGrid', response);
+                grid.setSheetData('entityColumnUpdateGrid', response);
+                grid.setSheetData('entityColumnDeleteGrid', response);
             },
             function(error){
                 alert('error');

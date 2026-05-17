@@ -9,7 +9,7 @@
 
         function init() {
 
-            sheet.initSheet('jsGrid1', "100%","500px",
+            grid.initSheet('jsGrid1', "100%","500px",
             [
                 {name: "id", title:"ID", type: "number", width: 50, editing: false, inserting: false},
                 {name: "code", title:"코드종류", type: "text", width: 150 },
@@ -20,7 +20,7 @@
             });
 
 
-            sheet.initSheet('commonCodeGrid', "100%","500px",
+            grid.initSheet('commonCodeGrid', "100%","500px",
             [
                 {name: "id", title:"ID", type: "number", width: 20, editing: false, inserting: false},
                 {name: "code", title:"code", type: "text", width: 100},
@@ -49,7 +49,7 @@
         function getList() {
             httpClient.get(`/console/api/common-code-kind`, {},
                 function(response){
-                    sheet.setSheetData('jsGrid1', response);
+                    grid.setSheetData('jsGrid1', response);
                 },
                 function(error){
                     alert('error');
@@ -150,7 +150,7 @@
         function getCommonCode(codeKindCode) {
             httpClient.get(`/console/api/common-code`, {codeKindCode:codeKindCode},
                 function(response){
-                    sheet.setSheetData('commonCodeGrid', response);
+                    grid.setSheetData('commonCodeGrid', response);
                 },
                 function(error){
                     alert('error');

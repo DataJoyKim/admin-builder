@@ -44,7 +44,7 @@
                 ]
             };
 
-            sheet.initSheet('queryGrid', "100%","600px",
+            grid.initSheet('queryGrid', "100%","600px",
             [
                 {name: "id", title:"ID", type: "number", width: 50 },
                 {name: "queryName", title:"query 명", type: "text", width: 150 },
@@ -54,7 +54,7 @@
                 selectedContent(args.item);
             });
 
-            sheet.initSheet('queryParameterGrid', "100%","300px",
+            grid.initSheet('queryParameterGrid', "100%","300px",
             [
                 {name: "id", title:"ID", type: "number", width: 20, editing: false, inserting: false},
                 {name: "paramName", title:"파라미터명", type: "text", width: 80 },
@@ -78,7 +78,7 @@
                 }
             });
 
-            sheet.initSheet('queryExecuteParamGrid', "300px","300px",
+            grid.initSheet('queryExecuteParamGrid', "300px","300px",
             [
                 {name: "key", title:"key", type: "text", width: 100},
                 {name: "value", title:"value", type: "text", width: 100},
@@ -121,7 +121,7 @@
         function getQuery() {
             httpClient.get(`/console/api/query`, {},
                 function(response){
-                    sheet.setSheetData('queryGrid', response);
+                    grid.setSheetData('queryGrid', response);
                 },
                 function(error){
                     alert('error');
@@ -221,7 +221,7 @@
         function getQueryParam(queryId) {
             httpClient.get(`/console/api/query-param/${queryId}`, {},
                 function(response){
-                    sheet.setSheetData('queryParameterGrid', response);
+                    grid.setSheetData('queryParameterGrid', response);
                 },
                 function(error){
                     alert('error');
@@ -283,7 +283,7 @@
             let queryName = $("#validQueryName").val();
 
             let contents = {};
-            let gridData = sheet.getSheetData("queryExecuteParamGrid");
+            let gridData = grid.getSheetData("queryExecuteParamGrid");
 
             for(let i=0; i<gridData.length; i++) {
                 let value = gridData[i]["value"];

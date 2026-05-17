@@ -133,26 +133,12 @@
 
                 codes = codes.concat(response);
 
-                sheet.initSheet('workflowAuthorityGrid', "100%","800px",
-                [
-                    {name: "id", title:"ID", type: "number", width: 20, visible: false},
-                    {name: "authorityCode", title:"권한", type: "select", width: 100, items: codes, valueField: "code", textField: "name" },
-                    { type: "control", editButton: true, width: 30, modeSwitchButton: false }
-                ],
-                function(args) {},
-                {
-                    inserting: true,
-                    editing: true,
-                    onItemInserting: function(args) {
-                        insertWorkflowAuthority($("#workflowId").val(), args.item);
-                    },
-                    onItemUpdated: function(args) {
-                        updateWorkflowAuthority($("#workflowId").val(),args.item);
-                    },
-                    onItemDeleting: function(args) {
-                        deleteWorkflowAuthority($("#workflowId").val(), args.item);
-                    }
-                });
+                const columns = [
+                    {field:'id', label:'ID', type:'text', width:30, hide:true, editable: true, align:'center', required:true},
+                    {field:'authorityCode', label:'권한', type:'combo', width:150, editable: true, align:'center', required:false, comboCodes:codes}
+                ];
+
+                Sheet.initSheet('workflowAuthorityGrid', "100%", "800px",{useSeq:false,useStatus:true,useDelete:true}, columns);
             },
             function(error){
                 alert('error');
@@ -342,7 +328,7 @@
         let requestMessageId = $("#requestMessageId").val();
 
         let contents = {};
-        let gridData = sheet.getSheetData("executeGrid");
+        let gridData = grid.getSheetData("executeGrid");
 
         for(let i=0; i<gridData.length; i++) {
             let value = gridData[i]["value"];
@@ -372,7 +358,7 @@
     function getWorkflowAuthority(workflowId) {
         httpClient.get(`/console/api/workflow-authority`, {workflowId:workflowId},
             function(response){
-                sheet.setSheetData('workflowAuthorityGrid', response);
+                workflowAuthorityGrid.setSheetData(response);
             },
             function(error){
                 alert('error');
@@ -837,7 +823,7 @@
         <mf-action name="getWorkflowList" >
             httpClient.get(`/console/api/workflow`, {},
                 function(response){
-                    sheet.setSheetData('workflowListGrid', response);
+                    grid.setSheetData('workflowListGrid', response);
                 },
                 function(error){
                     alert('조회하는데 실패하였습니다.');
@@ -853,6 +839,15 @@
             $("#requestMessageId").val('');
             $("#responseData").val('');
             showGrid('execute-card',true);
+        </mf-action>
+
+        <mf-action name="newWorkflowAuthority" >
+            workflowAuthorityGrid.addRowData();
+        </mf-action>
+
+        <mf-action name="saveWorkflowAuthority" >
+            const saveData = workflowAuthorityGrid.getSheetData();
+            console.log('saveData',saveData);
         </mf-action>
     </mf-actions>
     <mf-layout>
@@ -904,6 +899,8 @@
 
                 <mf-card id="workflow-authority-card" hidden>
                     <mf-card-header title="접근제어">
+                        <mf-action-button id="newWorkflowAuthority" actionName="newWorkflowAuthority" icon="fas fa-plus"></mf-action-button>
+                        <mf-action-button id="saveWorkflowAuthority" actionName="saveWorkflowAuthority" icon="fas fa-save"></mf-action-button>
                     </mf-card-header>
                     <mf-card-body>
                         <div id="workflowAuthorityGrid"></div>

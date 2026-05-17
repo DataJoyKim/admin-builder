@@ -9,7 +9,7 @@
 
         function init() {
 
-            sheet.initSheet('jsGrid1', "100%","500px",
+            grid.initSheet('jsGrid1', "100%","500px",
             [
                 {name: "id", title:"ID", type: "number", width: 50, editing: false, inserting: false},
                 {name: "code", title:"코드", type: "text", width: 150 },
@@ -19,7 +19,7 @@
                 selectedContent(args.item);
             });
 
-            sheet.initSheet('userGroupUserGrid', "100%","500px",
+            grid.initSheet('userGroupUserGrid', "100%","500px",
             [
                 {name: "id", title:"ID", type: "number", width: 20, editing: false, inserting: false},
                 {name: "userId", title:"사용자ID", type: "text", width: 50},
@@ -41,7 +41,7 @@
                 }
             });
 
-            sheet.initSheet('userGroupAuthorityGrid', "100%","500px",
+            grid.initSheet('userGroupAuthorityGrid', "100%","500px",
             [
                 {name: "id", title:"ID", type: "number", width: 20, editing: false, inserting: false},
                 {name: "authorityId", title:"권한ID", type: "text", width: 50},
@@ -70,7 +70,7 @@
         function getList() {
             httpClient.get(`/console/api/user-group`, {},
                 function(response){
-                    sheet.setSheetData('jsGrid1', response);
+                    grid.setSheetData('jsGrid1', response);
                 },
                 function(error){
                     alert('error');
@@ -181,7 +181,7 @@
                         response[i].userName = response[i].user.userName;
                     }
 
-                    sheet.setSheetData('userGroupUserGrid', response);
+                    grid.setSheetData('userGroupUserGrid', response);
                 },
                 function(error){
                     alert('error');
@@ -243,7 +243,7 @@
                         response[i].authorityName = response[i].authority.name;
                     }
 
-                    sheet.setSheetData('userGroupAuthorityGrid', response);
+                    grid.setSheetData('userGroupAuthorityGrid', response);
                 },
                 function(error){
                     alert('error');

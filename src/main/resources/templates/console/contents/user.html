@@ -9,7 +9,7 @@
 
         function init() {
 
-            sheet.initSheet('jsGrid1', "100%","500px",
+            grid.initSheet('jsGrid1', "100%","500px",
             [
                 {name: "id", title:"사용자ID", type: "number", width: 50, editing: false, inserting: false},
                 {name: "loginId", title:"로그인ID", type: "text", width: 100 },
@@ -25,7 +25,7 @@
         function getList() {
             httpClient.get(`/console/api/user`, {},
                 function(response){
-                    sheet.setSheetData('jsGrid1', response);
+                    grid.setSheetData('jsGrid1', response);
                 },
                 function(error){
                     alert('error');

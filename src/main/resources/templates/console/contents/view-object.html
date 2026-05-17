@@ -21,7 +21,7 @@
 
             setCodes(codes);
 
-            sheet.initSheet('jsGrid1', "100%","500px",
+            grid.initSheet('jsGrid1', "100%","500px",
             [
                 {name: "id", title:"ID", type: "number", width: 50, editing: false, inserting: false},
                 {name: "objectCode", title:"코드", type: "text", width: 150 },
@@ -43,7 +43,7 @@
         function getList() {
             httpClient.get(`/console/api/object`, {},
                 function(response){
-                    sheet.setSheetData('jsGrid1', response);
+                    grid.setSheetData('jsGrid1', response);
                 },
                 function(error){
                     alert('error');

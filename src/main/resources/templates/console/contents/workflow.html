@@ -22,7 +22,7 @@
 
             setCodes(codes);
 
-            sheet.initSheet('jsGrid1', "100%","600px",
+            grid.initSheet('jsGrid1', "100%","600px",
             [
                 {name: "id", title:"ID", type: "number", width: 50 },
                 {name: "workflowCode", title:"workflow 명", type: "text", width: 150 },
@@ -31,10 +31,10 @@
             function(args) {
                 selectedContent(args.item);
                 $("#validWorkflowCode").val(args.item.workflowCode);
-                sheet.setSheetData('workflowExecute', [{"key":"_seq","value":"1"},{"key":"_status","value":"R"}]);
+                grid.setSheetData('workflowExecute', [{"key":"_seq","value":"1"},{"key":"_status","value":"R"}]);
             });
 
-            sheet.initSheet('workflowFunctionGrid', "100%","500px",
+            grid.initSheet('workflowFunctionGrid', "100%","500px",
             [
                 {name: "id", title:"ID", type: "number", width: 20, editing: false, inserting: false},
                 {name: "functionType", title:"type", type: "select", width: 50, items: codes["FunctionType"], valueField: "code", textField: "name" },
@@ -60,7 +60,7 @@
                 }
             });
 
-            sheet.initSheet('workflowExecute', "300px","300px",
+            grid.initSheet('workflowExecute', "300px","300px",
             [
                 {name: "key", title:"key", type: "text", width: 100},
                 {name: "value", title:"value", type: "text", width: 100},
@@ -78,7 +78,7 @@
                 }
             });
 
-            sheet.initSheet('workflowAuthorityGrid', "100%","500px",
+            grid.initSheet('workflowAuthorityGrid', "100%","500px",
             [
                 {name: "id", title:"ID", type: "number", width: 20, editing: false, inserting: false},
                 {name: "authorityCode", title:"권한코드", type: "text", width: 150},
@@ -118,7 +118,7 @@
         function getWorkflow() {
             httpClient.get(`/console/api/workflow`, {},
                 function(response){
-                    sheet.setSheetData('jsGrid1', response);
+                    grid.setSheetData('jsGrid1', response);
                 },
                 function(error){
                     alert('error');
@@ -218,7 +218,7 @@
         function getWorkflowFunction(workflowId) {
             httpClient.get(`/console/api/workflow-function`, {workflowId:workflowId},
                 function(response){
-                    sheet.setSheetData('workflowFunctionGrid', response);
+                    grid.setSheetData('workflowFunctionGrid', response);
                 },
                 function(error){
                     alert('error');
@@ -285,7 +285,7 @@
             let requestMessageId = $("#requestMessageId").val();
 
             let contents = {};
-            let gridData = sheet.getSheetData("workflowExecute");
+            let gridData = grid.getSheetData("workflowExecute");
             console.log('gridData',gridData);
             for(let i=0; i<gridData.length; i++) {
                 let value = gridData[i]["value"];
@@ -317,7 +317,7 @@
         function getWorkflowAuthority(workflowId) {
             httpClient.get(`/console/api/workflow-authority`, {workflowId:workflowId},
                 function(response){
-                    sheet.setSheetData('workflowAuthorityGrid', response);
+                    grid.setSheetData('workflowAuthorityGrid', response);
                 },
                 function(error){
                     alert('error');
