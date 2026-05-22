@@ -242,7 +242,7 @@
             });
 
         drawWorkflow('workflowGrid',[]);
-        //initFunctionGrid();
+        initFunctionGrid();
       }
 
     function getWorkflowFunction(workflowId) {
@@ -774,11 +774,6 @@
     function initFunctionGrid() {
         showGrid('workflow-authority-card',false);
         showGrid('execute-card',false);
-
-        showGrid('sql-card',false);
-        showGrid('entity-card',false);
-        showGrid('rest-client-card',false);
-        showGrid('code-card',false);
     }
 
     function showGrid(id, show) {
@@ -832,7 +827,7 @@
         </mf-action>
 
         <mf-action name="executeWorkflow" >
-            //initFunctionGrid();
+            initFunctionGrid();
 
             $("#executeTarget").val($("#workflowCode").val());
             $("#executeType").val('WORKFLOW');
