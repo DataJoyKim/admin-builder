@@ -35,6 +35,10 @@ class Sheet {
         const columns = [];
 
         // 시트 옵션
+        if(setting.useDnd != undefined) {
+            columns.push({field:'_dnd', label:'', type:'text', width:50, hide:!setting.useDnd, editable: false, align:'center', required:false, rowDrag: true});
+        }
+
         if(setting.useSeq != undefined) {
             columns.push({field:'_seq', label:'번호', type:'text', width:60, hide:!setting.useSeq, editable: false, align:'center', required:false});
         }
@@ -102,9 +106,13 @@ class Sheet {
                 }
             }
 
+            if(column.rowDrag != undefined) {
+                columnDef.rowDrag = column.rowDrag;
+            }
+
             const isLast = index === columns.length - 1;
             if(isLast) {
-                columnDef.flex = 1; // 마지막 컬럼은 크기 확장
+                //columnDef.flex = 1; // 마지막 컬럼은 크기 확장
             }
 
             columnDefs.push(columnDef);
@@ -120,7 +128,7 @@ class Sheet {
             noRowsToShow: '조회된 데이터가 없습니다.'
           },
           rowSelection: 'single',
-          suppressRowClickSelection: true,
+          //suppressRowClickSelection: true,
           onCellValueChanged: (event) => {
             const current = event.data;
 
@@ -156,6 +164,12 @@ class Sheet {
           }
         };
 
+        // 드래그 앤 드랍 사용
+        if(setting.useDnd != undefined) {
+            gridOptions.animateRows = true;
+            gridOptions.rowDragManaged = true;
+        }
+
         // 시트 생성
        const sheet = this.agGrid.createGrid(document.querySelector('#'+sheetId), gridOptions);
 
@@ -188,8 +202,8 @@ class Sheet {
             }
 
             newRow._seq = seq;
-            newRow._delete = false;
-            newRow._status = '';
+            newRow._delete = (row._delete) ? row._delete : false;
+            newRow._status = (row._status) ? row._status : '';
 
             newRowData.push(newRow);
 
@@ -246,6 +260,10 @@ class Sheet {
         return [];
     }
 
+    getSelectedRowData() {
+        return this.getSheetObj().getSelectedRows()[0];
+    }
+
     initData() {
         const columns = this.getSheetColumns();
         const data = {};
@@ -278,6 +296,16 @@ class Sheet {
         window.SheetManager[sheetId].originalDataMap =  data.originalDataMap;
         window.SheetManager[sheetId].columns =  data.columns;
         window.SheetManager[sheetId].sheet = data.sheet;
+    }
+
+    setComboItem(field, values) {
+        const colDef = this.getSheetObj().getColumnDef(field);
+
+        colDef.cellEditorParams = {
+            values
+        };
+
+        this.getSheetObj().refreshCells();
     }
 
 

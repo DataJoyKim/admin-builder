@@ -29,7 +29,8 @@ class ModuleLoader {
              `${configs.paths.components}/VbGrid.js`,
              `${configs.paths.components}/Input.js`,
              `${configs.paths.components}/Layout.js`,
-             `${configs.paths.components}/Row.js`
+             `${configs.paths.components}/Row.js`,
+             `${configs.paths.components}/VbSheet.js`
         ];
 
         this.afterModules = [

@@ -20,4 +20,12 @@ class GlobalVariable {
     get(k) {
         return window.global[k];
     }
+
+    getMessage() {
+        return window.global[this.variable.message];
+    }
+
+    setMessage(id, data) {
+        window.global[this.variable.message][id] = data;
+    }
 }

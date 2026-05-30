@@ -1,0 +1,102 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<style th:fragment="style">
+</style>
+<script th:fragment="script">
+        $( document ).ready(function() {
+            console.log('version.0.0.1');
+            init();
+        });
+
+        function init() {
+            const codes = {
+                TYPE:[
+                    {code:"",name:"선택"},
+                    {code:"text",name:"Text Box"},
+                    {code:"combo",name:"Combo Box"}
+                ],
+                ALIGN:[
+                    {code:"",name:"선택"},
+                    {code:"center",name:"Center"},
+                    {code:"left",name:"Left"},
+                    {code:"right",name:"Right"},
+                ]
+            };
+
+            const columns = [
+                {field:'field', label:'필드명', type:'text', width:150, hide:false, editable: true, align:'center', required:false},
+                {field:'label', label:'라벨', type:'text', width:150, hide:false, editable: true, align:'center', required:false},
+                {field:'type', label:'타입', type:'combo', width:120, editable: true, align:'center', required:false, comboCodes:codes.TYPE},
+                {field:'align', label:'정렬', type:'combo', width:100, editable: true, align:'center', required:false, comboCodes:codes.ALIGN},
+                {field:'hide', label:'숨김설정', type:'check', width:100, hide:false, editable: true, align:'center', required:false},
+                {field:'editable', label:'수정설정', type:'check', width:100, hide:false, editable: true, align:'center', required:false},
+                {field:'required', label:'필수값설정', type:'check', width:100, hide:false, editable: true, align:'center', required:false},
+                {field:'comboCodes', label:'Combo 코드명', type:'text', width:150, hide:false, editable: true, align:'left', required:false},
+            ];
+
+            Sheet.initSheet('mySheet1', "100%", "400px",
+                {
+                    useSeq:false,
+                    useStatus:false,
+                    useDelete:true,
+                    useDnd:true
+                }, columns);
+
+            App.modalPopup.receiveParam('SHEET_COLUMN_REQUEST', function(data){
+                for(let col of data.columns) {
+                    col._status = 'C';
+                }
+
+                mySheet1.setSheetData(data.columns);
+            });
+        }
+
+        function createColumn() {
+            mySheet1.addRowData({
+                field:'Field',
+                label:'Label',
+                type:'text',
+                width:100,
+                hide:false,
+                editable:true,
+                required:false,
+                align:'center'
+            });
+        }
+
+        function apply(){
+            let columns = mySheet1.getSheetData();
+
+            const paramsCols = columns.map(({ _status, _delete, _seq, _dnd, ...rest }) => rest);
+
+            let params = {
+                columns:paramsCols
+            };
+
+            App.modalPopup.sendParamToParent('SHEET_COLUMN_RESULT', params);
+            App.modalPopup.close();
+        }
+
+    </script>
+<div th:fragment="view">
+    <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">컬럼설정</h3>
+                        <div class="card-tools">
+                            <button class="btn btn-default btn-sm" onclick="createColumn()">
+                                <i class="fas fa-plus"></i>생성
+                            </button>
+                            <button class="btn btn-default btn-sm" onclick="apply()">
+                                <i class="fas fa-check"></i>적용
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="mySheet1"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</html>

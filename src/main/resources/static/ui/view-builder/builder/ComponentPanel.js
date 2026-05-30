@@ -13,8 +13,9 @@ class ComponentPanel {
         this.item($containerEl, 'form', 'Form', 'com-form.png');
         $panel.append($containerEl);
 
-        let $sheetEl = this.details('시트 및 그리드',true);
-        this.item($sheetEl, 'grid', 'jsGrid', 'com-grid.png');
+        let $sheetEl = this.details('데이터 그리드',true);
+        this.item($sheetEl, 'sheet', 'Sheet', 'com-grid.png');
+        //this.item($sheetEl, 'grid', 'jsGrid', 'com-grid.png');
         $panel.append($sheetEl);
 
         let $buttonEl = this.details('버튼',false);
