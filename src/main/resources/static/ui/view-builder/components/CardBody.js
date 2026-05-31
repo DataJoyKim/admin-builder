@@ -52,7 +52,7 @@ class CardBody extends ViewObject {
         return `
             .vb-item[data-type="${this.componentId()}"] {
                 padding: 5px;
-                min-height: 70px;
+                min-height: 50px;
                 height: auto;
                 margin: 5px;
                 border: 1px dashed #bbb;

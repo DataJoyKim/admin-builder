@@ -52,7 +52,7 @@ class Row extends ViewObject {
         return `
             .vb-item[data-type="${this.componentId()}"] {
                 padding: 5px;
-                min-height: 45px;
+                min-height: 50px;
                 height: auto;
                 margin: 0 !important;
                 border: 1px dashed #bbb;

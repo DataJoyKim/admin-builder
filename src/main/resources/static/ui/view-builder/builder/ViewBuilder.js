@@ -16,8 +16,19 @@ class ViewBuilder {
     }
 
     init() {
-        $(".component-item").draggable({ helper: "clone" });
+        this.setComponentItemDrag();
         this.dropComponent.dropLayout(this.canvasId);
+    }
+
+    setComponentItemDrag() {
+        $(".component-item").draggable({
+            helper: "clone",
+            start: function(event, ui) {
+                ui.helper.css({
+                    width: "180px"
+                });
+            }
+        });
     }
 
     preview(objectCode) {

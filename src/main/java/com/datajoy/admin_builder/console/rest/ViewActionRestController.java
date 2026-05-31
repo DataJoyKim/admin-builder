@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController("console.ViewActionRestController")
 @RequestMapping("/console/api/action")
@@ -46,10 +45,7 @@ public class ViewActionRestController {
                     (String) params.get("displayName"),
                     ActionType.valueOf((String) params.get("type")),
                     (String) params.get("argsName"),
-                    (String) params.get("workflowCode"),
-                    (String) params.get("workflowRequestMessageId"),
-                    (String) params.get("workflowResponseMessageId"),
-                    (String) params.get("workflowResponseGridId"),
+                    (String) params.get("contents"),
                     (String) params.get("script")
             );
         }
@@ -60,10 +56,7 @@ public class ViewActionRestController {
                     .displayName((String) params.get("displayName"))
                     .type(ActionType.valueOf((String) params.get("type")))
                     .argsName((String) params.get("argsName"))
-                    .workflowCode((String) params.get("workflowCode"))
-                    .workflowRequestMessageId((String) params.get("workflowRequestMessageId"))
-                    .workflowResponseMessageId((String) params.get("workflowResponseMessageId"))
-                    .workflowResponseGridId((String) params.get("workflowResponseGridId"))
+                    .contents((String) params.get("contents"))
                     .script((String) params.get("script"))
                     .build();
         }

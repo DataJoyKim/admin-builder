@@ -1,13 +1,14 @@
 package com.datajoy.admin_builder.view;
 
+import com.datajoy.admin_builder.code.CodeRequest;
+import com.datajoy.admin_builder.code.CodeResponse;
+import com.datajoy.admin_builder.code.CodeService;
+import com.datajoy.admin_builder.code.CodeType;
 import com.datajoy.admin_builder.security.AuthService;
 import com.datajoy.admin_builder.security.AuthenticatedUser;
 import com.datajoy.admin_builder.security.SecurityBusinessException;
 import com.datajoy.admin_builder.security.TokenUtil;
-import com.datajoy.admin_builder.view.domain.Layout;
-import com.datajoy.admin_builder.view.domain.ViewAction;
-import com.datajoy.admin_builder.view.domain.ViewObject;
-import com.datajoy.admin_builder.view.domain.ViewObjectContent;
+import com.datajoy.admin_builder.view.domain.*;
 import com.datajoy.admin_builder.view.dto.MenuDto;
 import com.datajoy.admin_builder.view.dto.ProfileDto;
 import com.datajoy.admin_builder.view.dto.ViewDto;
@@ -18,7 +19,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping
@@ -31,6 +35,8 @@ public class ViewBuilderRestController {
     AuthService authService;
     @Autowired
     ViewObjectService viewObjectService;
+    @Autowired
+    CodeService codeService;
 
     @GetMapping("/api/menu/tree")
     public ResponseEntity<?> getMenu(@RequestParam("parentMenuCd") String parentMenuCd) {
@@ -105,10 +111,23 @@ public class ViewBuilderRestController {
 
         List<ViewAction> viewActions = viewObjectService.getViewActions(objectCode);
 
+        List<ViewCode> viewCodes = viewObjectService.getViewCodes(objectCode);
+
+        List<CodeRequest> params = new ArrayList<>();
+        for(ViewCode viewCode : viewCodes) {
+            CodeRequest codeRequest = new CodeRequest();
+            codeRequest.setName(viewCode.getTarget());
+            codeRequest.setType(CodeType.valueOf(viewCode.getType()));
+            params.add(codeRequest);
+        }
+
+        Map<String, List<CodeResponse>> codeMap = (params.isEmpty()) ? new HashMap<>() : codeService.getCode(params);
+
         return new ResponseEntity<>(ViewDto.builder()
                 .viewObject(viewObject)
                 .viewObjectContent(viewObjectContent)
                 .viewActions(viewActions)
+                .codeMap(codeMap)
                 .build(), HttpStatus.OK);
     }
 }

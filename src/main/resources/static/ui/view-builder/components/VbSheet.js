@@ -49,6 +49,20 @@ class VbSheet extends ViewObject {
 
         const sheet = window[options.id];
 
+        const columns = options.columns;
+        for(const col of columns) {
+            if(col.type == 'combo') {
+                if(col.comboCodeName) {
+                    let codes = VB.globalVariable.getCode()[col.comboCodeName];
+                    if(!codes) {
+                        codes = [];
+                    }
+
+                    sheet.setComboItem(col.field, codes);
+                }
+            }
+        }
+
         // 시트 이벤트 생성
         $("#"+options.id).attr('dataProvider',options.dataProvider)
             .on('clearData', function(){

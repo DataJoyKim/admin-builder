@@ -25,18 +25,12 @@ public class ViewAction {
     private ActionType type;
     @Column(length = 200)
     private String argsName;
-
-    @Column(length = 100)
-    private String workflowCode;
-    @Column(length = 100)
-    private String workflowRequestMessageId;
-    @Column(length = 100)
-    private String workflowResponseMessageId;
-    @Column(length = 100)
-    private String workflowResponseGridId;
     @Lob
     @Column
     private String script;
+    @Lob
+    @Column
+    private String contents;
 
     public void update(
             String objectCode,
@@ -44,10 +38,7 @@ public class ViewAction {
             String displayName,
             ActionType type,
             String argsName,
-            String workflowCode,
-            String workflowRequestMessageId,
-            String workflowResponseMessageId,
-            String workflowResponseGridId,
+            String contents,
             String script
     ) {
         this.objectCode = objectCode;
@@ -55,10 +46,7 @@ public class ViewAction {
         this.displayName = displayName;
         this.argsName =argsName;
         this.type = type;
-        this.workflowCode = workflowCode;
-        this.workflowRequestMessageId = workflowRequestMessageId;
-        this.workflowResponseMessageId = workflowResponseMessageId;
-        this.workflowResponseGridId = workflowResponseGridId;
+        this.contents = contents;
         this.script = script;
     }
 }

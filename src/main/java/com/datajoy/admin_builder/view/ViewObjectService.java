@@ -2,10 +2,7 @@ package com.datajoy.admin_builder.view;
 
 import com.datajoy.admin_builder.security.AuthenticatedUser;
 import com.datajoy.admin_builder.security.GrantedAuthority;
-import com.datajoy.admin_builder.view.domain.Menu;
-import com.datajoy.admin_builder.view.domain.ViewAction;
-import com.datajoy.admin_builder.view.domain.ViewObject;
-import com.datajoy.admin_builder.view.domain.ViewObjectContent;
+import com.datajoy.admin_builder.view.domain.*;
 import com.datajoy.core.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,6 +17,7 @@ public class ViewObjectService {
     private final MenuAuthorityRepository menuAuthorityRepository;
     private final ViewObjectContentRepository viewObjectContentRepository;
     private final ViewActionRepository viewActionRepository;
+    private final ViewCodeRepository viewCodeRepository;
 
     public ViewObject getViewObject(String objectCode) {
         Optional<ViewObject> optionalViewObject = viewObjectRepository.findByObjectCode(objectCode);
@@ -84,5 +82,9 @@ public class ViewObjectService {
 
     public List<ViewAction> getViewActions(String objectCode) {
         return viewActionRepository.findByObjectCode(objectCode);
+    }
+
+    public List<ViewCode> getViewCodes(String objectCode) {
+        return viewCodeRepository.findByObjectCode(objectCode);
     }
 }

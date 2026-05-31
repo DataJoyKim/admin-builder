@@ -4,8 +4,8 @@ class ComponentPanel {
     init(panelId) {
         let $panel = $("#"+panelId);
 
-        let $layoutEl = this.details('레이아웃',false);
-
+        let $layoutEl = this.details('레이아웃',true);
+        this.item($layoutEl, 'row', 'Row', 'com-html.png');
         $panel.append($layoutEl);
 
         let $containerEl = this.details('컨테이너',true);
@@ -18,15 +18,15 @@ class ComponentPanel {
         //this.item($sheetEl, 'grid', 'jsGrid', 'com-grid.png');
         $panel.append($sheetEl);
 
-        let $buttonEl = this.details('버튼',false);
+        let $buttonEl = this.details('버튼',true);
         this.item($buttonEl, 'button', 'Button', 'com-button.png');
         $panel.append($buttonEl);
 
-        let $inputEl = this.details('폼 입력 요소',false);
+        let $inputEl = this.details('폼 입력 요소',true);
         this.item($inputEl, 'input', 'Input', 'com-input.png');
         $panel.append($inputEl);
 
-        let $etcEl = this.details('기타',false);
+        let $etcEl = this.details('기타',true);
         this.item($etcEl, 'html', 'Html', 'com-html.png');
         $panel.append($etcEl);
     }
@@ -50,7 +50,7 @@ class ComponentPanel {
     component(componentId, label, imgFileNm) {
         return $(`
             <div class="component-item" data-type="component-${componentId}" >
-                <img src="/dist/img/${imgFileNm}" width="40" height="30" >
+                <img src="/dist/img/${imgFileNm}" width="40" height="35" >
                 <label style="margin-left:10px">${label}</label>
             </div>
         `);

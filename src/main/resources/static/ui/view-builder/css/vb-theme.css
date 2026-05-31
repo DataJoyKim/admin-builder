@@ -22,6 +22,9 @@
   border-left: 1px solid #ccc;
   padding: 10px;
 }
+.details-content{
+  padding: 5px;
+}
 .component-row {
     display: flex;
 }
@@ -38,6 +41,10 @@
   background: #eef5ff;
   cursor: grab;
 }
+.component-item img,.component-item label:hover {
+  cursor: grab;
+}
+
 .drop-area {
   position: relative;
 }
@@ -74,6 +81,7 @@
 .drop-area-label {
     z-index: 0;
     position: absolute;
+    font-size: 14px;
     width: 100%;
     height: 100%;
     display: flex;

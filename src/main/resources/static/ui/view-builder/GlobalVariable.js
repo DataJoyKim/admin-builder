@@ -1,7 +1,8 @@
 class GlobalVariable {
     constructor() {
         this.variable = {
-            message : '_message'
+            message : '_message',
+            code : '_code'
         }
     }
 
@@ -19,6 +20,14 @@ class GlobalVariable {
 
     get(k) {
         return window.global[k];
+    }
+
+    getCode() {
+        return window.global[this.variable.code];
+    }
+
+    setCode(codes) {
+        return window.global[this.variable.code] = codes;
     }
 
     getMessage() {

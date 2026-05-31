@@ -38,6 +38,8 @@ class View {
                 self.globalVariable.init();
                 self.actionExecutor.init();
 
+                self.globalVariable.setCode(response.codeMap);
+
                 const render = new Render(self.actionsFactory, self.componentFactory);
                 render.init(self.canvasId, view, response.viewActions);
             },

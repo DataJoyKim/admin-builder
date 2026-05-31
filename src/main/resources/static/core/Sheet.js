@@ -61,13 +61,15 @@ class Sheet {
                 columnDef.cellDataType = 'boolean';
             }
             else if(column.type == 'combo') {
+                const comboCodes = (column.comboCodes) ? column.comboCodes : [];
+
                 columnDef.singleClickEdit = true;
                 columnDef.cellEditorParams = {
-                    values: column.comboCodes.map(item => item.code)
+                    values: comboCodes.map(item => item.code)
                 }
 
                 columnDef.valueFormatter = (params) => {
-                    return this.getCodeLabel(column.comboCodes, params.value);
+                    return this.getCodeLabel(comboCodes, params.value);
                 }
 
                 if(column.editable) {
@@ -302,7 +304,7 @@ class Sheet {
         const colDef = this.getSheetObj().getColumnDef(field);
 
         colDef.cellEditorParams = {
-            values
+            values:values
         };
 
         this.getSheetObj().refreshCells();
