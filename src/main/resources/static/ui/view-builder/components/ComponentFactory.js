@@ -2,6 +2,7 @@ class ComponentFactory {
     constructor(optionPanel, utils) {
         this.optionPanel = optionPanel;
         this.utils = utils;
+        this._instanceMap = this.instanceMap();
     }
 
     instanceMap() {
@@ -20,15 +21,13 @@ class ComponentFactory {
     }
 
     instance(type) {
-        const instanceMap = this.instanceMap();
-        return instanceMap[type];
+        return this._instanceMap[type];
     }
 
     getComponentIdMap() {
         let componentIdMap = {};
 
-        const instanceMap = this.instanceMap();
-        for(let key in instanceMap) {
+        for(let key in this._instanceMap) {
             componentIdMap[key] = 0;
         }
 

@@ -11,8 +11,9 @@ class ViewManager {
         window.VB.objectCode = App.objectCode;
         window.VB.actionExecutor = new ActionExecutor();
         window.VB.globalVariable = new GlobalVariable();
-        window.VB.actionsFactory = new ActionsFactory(VB.globalVariable);
-        window.VB.componentFactory = new ComponentFactory(new OptionPanel(), VB.utils);
+        const optionPanel = new OptionPanel();
+        window.VB.actionsFactory = new ActionsFactory(optionPanel, VB.globalVariable);
+        window.VB.componentFactory = new ComponentFactory(optionPanel, VB.utils);
         window.VB.viewDataLoader = new ViewDataLoader(layoutId)
         window.VB.dropComponent = new DropComponent(layoutId, VB.componentFactory);
     }

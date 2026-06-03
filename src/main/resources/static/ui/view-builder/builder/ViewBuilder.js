@@ -13,6 +13,21 @@ class ViewBuilder {
         this.dropComponent = dropComponent;
         this.viewDataLoader = viewDataLoader;
         this.initPreviewState();
+
+        this.actionPanel = {
+            setOptionPanel: function($el, type) {
+                const actions = actionsFactory.instance(type);
+                actions.initOptionPanel($el, type);
+            },
+            setOptions: function(type, options) {
+                const actions = actionsFactory.instance(type);
+                actions.setOptions(options);
+            },
+            getOptions: function(type) {
+                const actions = actionsFactory.instance(type);
+                return actions.getOptions();
+            }
+        }
     }
 
     init() {

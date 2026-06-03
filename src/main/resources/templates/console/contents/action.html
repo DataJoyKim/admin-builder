@@ -3,7 +3,6 @@
 </style>
 <script th:fragment="script">
         let P_OBJECT_CODE;
-        let scriptEditor;
         $( document ).ready(function() {
             console.log('version.0.0.1');
             init();
@@ -14,25 +13,7 @@
         });
 
         function setActionGrid(type) {
-            showGrid('workflowGrid', false);
-            showGrid('scriptGrid', false);
-
-            if(type == 'WORKFLOW') {
-                showGrid('workflowGrid', true);
-            }
-            else if(type == 'SCRIPT') {
-                showGrid('scriptGrid', true);
-            }
-        }
-
-        function showGrid(id, show) {
-            if(show) {
-                $("#"+id).removeClass('d-none');
-            }
-            else {
-                $("#"+id).addClass('d-none');
-            }
-
+            VB.builder.actionPanel.setOptionPanel($("#actionContentGrid"), type);
         }
 
         function init() {
@@ -56,9 +37,6 @@
                 selectedContent(args.item);
             });
 
-            scriptEditor = initCodeEditor('script','javascript');
-            scriptEditor.setSize("100%", "500px");
-
             App.modalPopup.receiveParam('ACTION_REQUEST', function(data){
                 if(!data.objectCode) {
                     alert('오브젝트코드가 존재하지않습니다.');
@@ -71,18 +49,6 @@
 
         function setCodes(codes) {
             App.util.setCodeBox("type", codes["ActionType"]);
-        }
-
-        function initCodeEditor(id,mode) {
-            let textarea = document.getElementById(id);
-
-            return CodeMirror.fromTextArea(textarea, {
-                lineNumbers: true,
-                lineWrapping: true,
-                theme: "darcula",
-                mode: mode,
-                val: textarea.value
-            });
         }
 
         function getList() {
@@ -140,19 +106,26 @@
         }
 
         function getContent() {
-            return {
+            const type = $("#type").val();
+
+            let data = {
                 id: resolveEmpty($("#id").val()),
                 objectCode: resolveEmpty(P_OBJECT_CODE),
                 actionName: resolveEmpty($("#actionName").val()),
                 displayName: resolveEmpty($("#displayName").val()),
-                type: resolveEmpty($("#type").val()),
-                argsName: resolveEmpty($("#argsName").val()),
-                workflowCode: resolveEmpty($("#workflowCode").val()),
-                workflowRequestMessageId: resolveEmpty($("#workflowRequestMessageId").val()),
-                workflowResponseGridId: resolveEmpty($("#workflowResponseGridId").val()),
-                workflowResponseMessageId: resolveEmpty($("#workflowResponseMessageId").val()),
-                script:scriptEditor.getValue()
+                type: resolveEmpty(type),
+                argsName: resolveEmpty($("#argsName").val())
             }
+
+            if(type == 'SCRIPT') {
+                const scriptData = VB.builder.actionPanel.getOptions(type);
+                data.script = (scriptData) ? scriptData.script : '';
+            }
+            else {
+                data.contents = JSON.stringify(VB.builder.actionPanel.getOptions(type));
+            }
+
+            return data;
         }
 
         function setContent(params) {
@@ -162,17 +135,16 @@
             $("#displayName").val(params.displayName);
             $("#type").val(params.type);
             $("#argsName").val(params.argsName);
-            $("#workflowCode").val(params.workflowCode);
-            $("#workflowRequestMessageId").val(params.workflowRequestMessageId);
-            $("#workflowResponseGridId").val(params.workflowResponseGridId);
-            $("#workflowResponseMessageId").val(params.workflowResponseMessageId);
 
-            if(params.script) {
-                scriptEditor.setValue(params.script);
+            if(params.type == 'SCRIPT') {
+                VB.builder.actionPanel.setOptions(params.type, {script:params.script});
             }
-          }
+            else {
+                VB.builder.actionPanel.setOptions(params.type, (params.contents) ? JSON.parse(params.contents) : {});
+            }
+        }
 
-          function newContent(){
+        function newContent(){
             setActionGrid('WORKFLOW');
 
             setContent({
@@ -183,29 +155,26 @@
                 type:'WORKFLOW',
                 argsName:'',
                 script:'',
-                workflowCode:'',
-                workflowRequestMessageId:'',
-                workflowResponseGridId:'',
-                workflowResponseMessageId:''
-              });
-          }
+                content:{}
+            });
+        }
 
-          function openPopupWorkflow() {
+        function openPopupWorkflow() {
             App.popup.open('/console/workflow-builder',{title:'워크플로우 팝업'});
-          }
+        }
 
-          function apply() {
+        function apply() {
             let params = {
                 actionName: $("#actionName").val()
             };
 
             App.modalPopup.sendParamToParent(params);
             App.modalPopup.close();
-          }
+        }
     </script>
-<div th:fragment="view">
-    <div class="row">
-            <div class="col-lg-6">
+    <div th:fragment="view">
+        <div class="row">
+            <div class="col-lg-5">
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Action</h3>
@@ -219,7 +188,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-6">
+            <div class="col-lg-7">
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">상세 내용</h3>
@@ -252,43 +221,16 @@
                         </div>
                     </div>
 
-                    <div class="card-body d-none" id="workflowGrid">
-                        <div class="card-header">
-                            <h3 class="card-title">워크플로우</h3>
-                            <div class="card-tools">
-                                <mf-action-button id="openPopupWorkflow" actionName="openPopupWorkflow()" icon="fas fa-external-link-alt"></mf-action-button>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-4">
-                                <mf-text-input id="workflowCode" label="워크플로우코드" enable="true"></mf-text-input>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-4">
-                                <mf-text-input id="workflowRequestMessageId" label="요청메시지ID" enable="true" ></mf-text-input>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-4">
-                                <mf-text-input id="workflowResponseMessageId" label="응답메시지ID" enable="true" ></mf-text-input>
-                            </div>
-                            <div class="col-md-4">
-                                <mf-text-input id="workflowResponseGridId" label="데이터바인딩 grid" enable="true" ></mf-text-input>
-                            </div>
-                        </div>
+                    <div class="card-header">
+                        <h3 class="card-title">옵션 패널</h3>
                     </div>
 
-                    <div class="card-body d-none" id="scriptGrid">
-                        <div class="card-header">
-                            <h3 class="card-title">Script</h3>
-                            <div class="card-tools">
-                            </div>
-                        </div>
-                        <textarea id="script"></textarea>
+                    <div id="actionContentGrid">
                     </div>
                 </div>
             </div>
         </div>
+
+        <script type="module" src="/ui/view-builder/builder/app-tool.js"></script>
     </div>
 </html>

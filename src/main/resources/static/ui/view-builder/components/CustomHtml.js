@@ -90,18 +90,18 @@ class CustomHtml extends ViewObject {
 
     optionPanelEvent($el, options, componentFactory) {
         this.optionPanel.inputEvent('id',(e) => {
-            this.optionPanel.changeOptionValue($el, options, 'id', $(e.target).val());
+            super.changeOptionValue($el, options, 'id', $(e.target).val());
         });
 
         this.optionPanel.inputEvent('class',(e) => {
-            this.optionPanel.changeOptionValue($el, options, 'className', $(e.target).val());
+            super.changeOptionValue($el, options, 'className', $(e.target).val());
         });
 
-        const optionPanel = this.optionPanel;
+        const changeOptionValue = super.changeOptionValue;
         const componentDeleteBtn = super.componentDeleteBtn();
         this.contentEditor.on("change", function(instance, changeObj) {
             const value = instance.getValue();
-            optionPanel.changeOptionValue($el, options, 'htmlContent', value);
+            changeOptionValue($el, options, 'htmlContent', value);
             $el.html(componentDeleteBtn + value);
         });
     }

@@ -149,16 +149,16 @@ class Card extends ViewObject {
         const {cardEl, cardHeaderEl, cardTitleEl, cardToolsEl} = this.getElement($el);
 
         this.optionPanel.inputEvent('id',(e) => {
-            this.optionPanel.changeOptionValue($el, options, 'id', $(e.target).val());
+            super.changeOptionValue($el, options, 'id', $(e.target).val());
         });
 
         this.optionPanel.changeEvent('size',(e) => {
-            this.optionPanel.changeOptionValue($el, options, 'size', $(e.target).val());
-            this.optionPanel.changeSize($el, options.size);
+            super.changeOptionValue($el, options, 'size', $(e.target).val());
+            super.changeSize($el, options.size);
         });
 
         this.optionPanel.inputEvent('title-input',(e) => {
-            this.optionPanel.changeOptionValue($el, options, 'title', $(e.target).val());
+            super.changeOptionValue($el, options, 'title', $(e.target).val());
             cardTitleEl.text(options.title);
         });
 
@@ -174,7 +174,7 @@ class Card extends ViewObject {
             cardHeaderEl.removeClass('d-none');
 
             let value = $(e.target).is(':checked');
-            this.optionPanel.changeOptionValue($el, options, 'useCardHeader', value);
+            super.changeOptionValue($el, options, 'useCardHeader', value);
 
             if(!value) {
                 cardHeaderEl.addClass('d-none');

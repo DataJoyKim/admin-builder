@@ -159,55 +159,55 @@ class VbGrid extends ViewObject {
 
     optionPanelEvent($el, options, componentFactory) {
         this.optionPanel.inputEvent('id',(e) => {
-            this.optionPanel.changeOptionValue($el, options, 'id', $(e.target).val());
+            super.changeOptionValue($el, options, 'id', $(e.target).val());
         });
 
         this.optionPanel.inputEvent('width',(e) => {
             let value = $(e.target).val();
-            this.optionPanel.changeOptionValue($el, options, 'width', value);
+            super.changeOptionValue($el, options, 'width', value);
             $el.css('width', value);
         });
 
         this.optionPanel.inputEvent('height',(e) => {
             let value = $(e.target).val();
-            this.optionPanel.changeOptionValue($el, options, 'height', value);
+            super.changeOptionValue($el, options, 'height', value);
             $el.css('height', value);
         });
 
         this.optionPanel.clickEvent('control',(e) => {
-            this.optionPanel.changeOptionValue($el, options, 'control', $(e.target).is(':checked'));
+            super.changeOptionValue($el, options, 'control', $(e.target).is(':checked'));
         });
 
         this.optionPanel.clickEvent('inserting',(e) => {
-            this.optionPanel.changeOptionValue($el, options, 'inserting', $(e.target).is(':checked'));
+            super.changeOptionValue($el, options, 'inserting', $(e.target).is(':checked'));
         });
 
         this.optionPanel.clickEvent('editing',(e) => {
-            this.optionPanel.changeOptionValue($el, options, 'editing', $(e.target).is(':checked'));
+            super.changeOptionValue($el, options, 'editing', $(e.target).is(':checked'));
         });
 
         this.optionPanel.inputEvent('row-select-action',(e) => {
-            this.optionPanel.changeOptionValue($el, options, 'rowSelectAction', $(e.target).val());
+            super.changeOptionValue($el, options, 'rowSelectAction', $(e.target).val());
         });
 
         this.optionPanel.inputEvent('insert-action',(e) => {
-            this.optionPanel.changeOptionValue($el, options, 'insertAction', $(e.target).val());
+            super.changeOptionValue($el, options, 'insertAction', $(e.target).val());
         });
 
         this.optionPanel.inputEvent('update-action',(e) => {
-            this.optionPanel.changeOptionValue($el, options, 'updateAction', $(e.target).val());
+            super.changeOptionValue($el, options, 'updateAction', $(e.target).val());
         });
 
         this.optionPanel.inputEvent('delete-action',(e) => {
-            this.optionPanel.changeOptionValue($el, options, 'deleteAction', $(e.target).val());
+            super.changeOptionValue($el, options, 'deleteAction', $(e.target).val());
         });
 
         this.optionPanel.clickEvent('column-setting',(e) => {
-            const self = this;
+            const changeOptionValue = super.changeOptionValue;
             App.modalPopup.open('/console/view-jsgrid-column',{title:'컬럼설정 팝업',size:"modal-xl",messageId:'JSGRID_COLUMN_REQUEST'},{columns:options.columns});
             App.modalPopup.receiveParam('JSGRID_COLUMN_RESULT',function(data){
                 if(data.columns) {
-                    self.optionPanel.changeOptionValue($el, options, 'columns', data.columns);
+                    changeOptionValue($el, options, 'columns', data.columns);
                 }
             });
         });

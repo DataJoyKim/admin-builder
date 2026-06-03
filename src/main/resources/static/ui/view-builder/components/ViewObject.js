@@ -70,8 +70,7 @@ class ViewObject {
 
     createComponent(options, componentFactory) {
         let $componentEl = this.component(options);
-
-        this.optionPanel.setOptions($componentEl, options);
+        this.setOptions($componentEl, options);
 
         const dropConfig = this.componentDropConfig($componentEl);
         for(const config of dropConfig) {
@@ -156,17 +155,37 @@ class ViewObject {
                 .join(",");
     }
 
+    setOptions($target, options) {
+        $target.data('options', options);
+    }
+
+    getOptions($target) {
+        return $target.data('options');
+    }
+
+    changeOptionValue($component, options, key, value) {
+        options[key] = value;
+        this.setOptions($component, options);
+    }
+
+    changeSize($target, newSize) {
+        $target.removeClass(function(i, cls) {
+            return (cls.match(/col-\d+/g) || []).join(' ');
+        });
+        $target.addClass(newSize);
+    }
+
 /* =======================================
  * Option Panel Setting
  * ======================================= */
     initOptionPanel($el, id, componentFactory) {
-        let options = this.optionPanel.getOptions($el);
+        let options = this.getOptions($el);
 
         let $panel = $("#"+id);
 
         $panel.empty();
 
-        this.optionPanel.init(this._componentId);
+        this.optionPanel.init(this._componentId, []);
 
         this.optionPanelView($panel, options);
 

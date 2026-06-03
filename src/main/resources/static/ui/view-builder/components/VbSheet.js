@@ -160,47 +160,47 @@ class VbSheet extends ViewObject {
 
     optionPanelEvent($el, options, componentFactory) {
         this.optionPanel.inputEvent('id',(e) => {
-            this.optionPanel.changeOptionValue($el, options, 'id', $(e.target).val());
+            super.changeOptionValue($el, options, 'id', $(e.target).val());
         });
 
         this.optionPanel.inputEvent('dataProvider',(e) => {
-            this.optionPanel.changeOptionValue($el, options, 'dataProvider', $(e.target).val());
+            super.changeOptionValue($el, options, 'dataProvider', $(e.target).val());
         });
 
         this.optionPanel.inputEvent('width',(e) => {
             let value = $(e.target).val();
-            this.optionPanel.changeOptionValue($el, options, 'width', value);
+            super.changeOptionValue($el, options, 'width', value);
             $el.css('width', value);
         });
 
         this.optionPanel.inputEvent('height',(e) => {
             let value = $(e.target).val();
-            this.optionPanel.changeOptionValue($el, options, 'height', value);
+            super.changeOptionValue($el, options, 'height', value);
             $el.css('height', value);
         });
 
         this.optionPanel.clickEvent('useSeq',(e) => {
-            this.optionPanel.changeOptionValue($el, options, 'useSeq', $(e.target).is(':checked'));
+            super.changeOptionValue($el, options, 'useSeq', $(e.target).is(':checked'));
         });
 
         this.optionPanel.clickEvent('useStatus',(e) => {
-            this.optionPanel.changeOptionValue($el, options, 'useStatus', $(e.target).is(':checked'));
+            super.changeOptionValue($el, options, 'useStatus', $(e.target).is(':checked'));
         });
 
         this.optionPanel.clickEvent('useDelete',(e) => {
-            this.optionPanel.changeOptionValue($el, options, 'useDelete', $(e.target).is(':checked'));
+            super.changeOptionValue($el, options, 'useDelete', $(e.target).is(':checked'));
         });
 
         this.optionPanel.clickEvent('useDnd',(e) => {
-            this.optionPanel.changeOptionValue($el, options, 'useDnd', $(e.target).is(':checked'));
+            super.changeOptionValue($el, options, 'useDnd', $(e.target).is(':checked'));
         });
 
         this.optionPanel.clickEvent('column-setting',(e) => {
-            const self = this;
+            const changeOptionValue = super.changeOptionValue;
             App.modalPopup.open('/console/view-sheet-column',{title:'컬럼설정 팝업',size:"modal-xl",messageId:'SHEET_COLUMN_REQUEST'},{columns:options.columns});
             App.modalPopup.receiveParam('SHEET_COLUMN_RESULT',function(data){
                 if(data.columns) {
-                    self.optionPanel.changeOptionValue($el, options, 'columns', data.columns);
+                    changeOptionValue($el, options, 'columns', data.columns);
                 }
             });
         });

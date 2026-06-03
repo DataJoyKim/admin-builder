@@ -146,27 +146,27 @@ class Input extends ViewObject {
         const {inputEl, labelEl} = this.getElement($el);
 
         this.optionPanel.inputEvent('id',(e) => {
-            this.optionPanel.changeOptionValue($el, options, 'id', $(e.target).val());
+            super.changeOptionValue($el, options, 'id', $(e.target).val());
         });
 
         this.optionPanel.changeEvent('size',(e) => {
-            this.optionPanel.changeOptionValue($el, options, 'size', $(e.target).val());
-            this.optionPanel.changeSize($el, options.size);
+            super.changeOptionValue($el, options, 'size', $(e.target).val());
+            super.changeSize($el, options.size);
         });
 
         this.optionPanel.inputEvent('width',(e) => {
-            this.optionPanel.changeOptionValue($el, options, 'width', $(e.target).val());
+            super.changeOptionValue($el, options, 'width', $(e.target).val());
             $el.css('width',options.width);
         });
 
         this.optionPanel.inputEvent('label',(e) => {
-            this.optionPanel.changeOptionValue($el, options, 'label', $(e.target).val());
+            super.changeOptionValue($el, options, 'label', $(e.target).val());
             labelEl.text(options.label);
             labelEl.prop('hidden', (options.label) ? false : true);
         });
 
         this.optionPanel.inputEvent('labelWidth',(e) => {
-            this.optionPanel.changeOptionValue($el, options, 'labelWidth', $(e.target).val());
+            super.changeOptionValue($el, options, 'labelWidth', $(e.target).val());
             labelEl.css('width',options.labelWidth);
         });
 
@@ -174,7 +174,7 @@ class Input extends ViewObject {
             $el.removeClass('d-flex');
             let value = $(e.target).is(':checked');
 
-            this.optionPanel.changeOptionValue($el, options, 'horizontal', value);
+            super.changeOptionValue($el, options, 'horizontal', value);
             if(value) {
                 $el.addClass('d-flex');
             }
@@ -183,14 +183,14 @@ class Input extends ViewObject {
         this.optionPanel.changeEvent('hidden',(e) => {
             let value = $(e.target).is(':checked');
 
-            this.optionPanel.changeOptionValue($el, options, 'hidden', value);
+            super.changeOptionValue($el, options, 'hidden', value);
             $el.prop('hidden', value);
         });
 
         this.optionPanel.changeEvent('editable',(e) => {
             let value = $(e.target).is(':checked');
 
-            this.optionPanel.changeOptionValue($el, options, 'editable', value);
+            super.changeOptionValue($el, options, 'editable', value);
             inputEl.prop('readOnly', !value);
         });
     }

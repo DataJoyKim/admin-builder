@@ -86,7 +86,7 @@ class Form extends ViewObject {
 
     optionPanelEvent($el, options, componentFactory) {
         this.optionPanel.inputEvent('id',(e) => {
-            this.optionPanel.changeOptionValue($el, options, 'id', $(e.target).val());
+            super.changeOptionValue($el, options, 'id', $(e.target).val());
         });
 
         this.optionPanel.clickEvent('row-add',(e) => {

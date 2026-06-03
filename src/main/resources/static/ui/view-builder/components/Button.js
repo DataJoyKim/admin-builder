@@ -100,24 +100,24 @@ class Button extends ViewObject {
         const {iconEl,labelEl} = this.getElement($el);
 
         this.optionPanel.inputEvent('id',(e) => {
-            this.optionPanel.changeOptionValue($el, options, 'id', $(e.target).val());
+            super.changeOptionValue($el, options, 'id', $(e.target).val());
         });
 
         this.optionPanel.inputEvent('text',(e) => {
-            this.optionPanel.changeOptionValue($el, options, 'label', $(e.target).val());
+            super.changeOptionValue($el, options, 'label', $(e.target).val());
             labelEl.text(options.label);
         });
 
         this.optionPanel.inputEvent('icon',(e) => {
             iconEl.removeClass(options.icon);
 
-            this.optionPanel.changeOptionValue($el, options, 'icon', $(e.target).val());
+            super.changeOptionValue($el, options, 'icon', $(e.target).val());
 
             iconEl.addClass(options.icon);
         });
 
         this.optionPanel.inputEvent('action',(e) => {
-            this.optionPanel.changeOptionValue($el, options, 'action', $(e.target).val());
+            super.changeOptionValue($el, options, 'action', $(e.target).val());
         });
 
         const optionPanel = this.optionPanel;

@@ -1,13 +1,18 @@
 class ActionsFactory {
-    constructor(globalVariable) {
+    constructor(optionPanel, globalVariable) {
+        this.optionPanel = optionPanel;
         this.globalVariable = globalVariable;
+        this._instanceMap = this.instanceMap();
+    }
+
+    instanceMap() {
+        return {
+            'WORKFLOW': new Workflow(this.optionPanel, this.globalVariable),
+            'SCRIPT': new Script(this.optionPanel, this.globalVariable)
+        };
     }
 
     instance(type) {
-        switch (type) {
-            case 'WORKFLOW': return new Workflow(this.globalVariable);
-            case 'SCRIPT': return new Script(this.globalVariable);
-            default: return null;
-        }
+        return this._instanceMap[type];
     }
 }

@@ -135,7 +135,7 @@
 
                 const columns = [
                     {field:'id', label:'ID', type:'text', width:30, hide:true, editable: true, align:'center', required:true},
-                    {field:'authorityCode', label:'권한', type:'combo', width:150, editable: true, align:'center', required:false, comboCodes:codes}
+                    {field:'authorityCode', label:'권한', type:'combo', width:350, editable: true, align:'center', required:false, comboCodes:codes}
                 ];
 
                 Sheet.initSheet('workflowAuthorityGrid', "100%", "800px",{useSeq:false,useStatus:true,useDelete:true}, columns);

@@ -1,32 +1,58 @@
 class OptionPanel {
     constructor() {}
 
-    init(panelId) {
+    init(panelId, optionInfo) {
         this.panelId = panelId;
+
+        let metadata = {};
+        for(const info of optionInfo) {
+            metadata[info.id] = info;
+        }
+
+        this.metadata = metadata;
+    }
+
+    getHtml(id) {
+        const info = this.metadata[id];
+        if(info.type == 'text') {
+            return this.input(info.id, {label:info.label, size:info.size});
+        }
+        else if(info.type == 'code') {
+            return this.codeEditor(info.id, {label:info.label, size:info.size});
+        }
+    }
+
+    setOptionValue(options) {
+        for(const id in this.metadata) {
+            const info = this.metadata[id];
+
+            if(info.type == 'text') {
+                this.setValue(id, options[id]);
+            }
+            else if(info.type == 'code') {
+                this.setCodeEditorValue(id, options[id]);
+            }
+        }
+    }
+
+    getOptionValue() {
+        let optionValue = {};
+        for(const id in this.metadata) {
+            const info = this.metadata[id];
+
+            if(info.type == 'text') {
+                optionValue[id] = this.getValue(id);
+            }
+            else if(info.type == 'code') {
+                optionValue[id] = this.getCodeEditorValue(id);
+            }
+        }
+
+        return optionValue;
     }
 
     elementId(id) {
         return this.panelId + '-' + id;
-    }
-
-    setOptions($target, options) {
-        $target.data('options', options);
-    }
-
-    getOptions($target) {
-        return $target.data('options');
-    }
-
-    changeOptionValue($component, options, key, value) {
-        options[key] = value;
-        this.setOptions($component, options);
-    }
-
-    changeSize($target, newSize) {
-        $target.removeClass(function(i, cls) {
-            return (cls.match(/col-\d+/g) || []).join(' ');
-        });
-        $target.addClass(newSize);
     }
 
     getSize($target) {
@@ -74,32 +100,75 @@ class OptionPanel {
     }
 
     input(id, option) {
-        let disabled;
-        if(option.enabled == undefined || option.enabled == null || option.enabled) {
-            disabled = '';
-        }
-        else {
-            disabled = 'readOnly';
+        const formGroupEl = this.formGroup(option);
+
+        formGroupEl.append(this.label(id, option));
+
+        const inputEl = $(`<input type="text" class="form-control form-control-sm rounded-0" id="${this.elementId(id)}">`);
+        inputEl.attr('spellcheck',false);
+        inputEl.attr('autocomplete','off');
+        inputEl.prop('readonly', !(option.enabled ?? true));
+
+        if(option.value != undefined) {
+            inputEl.val(option.value);
         }
 
-        return $(`
-            <div class="form-group ${option.size}">
-                <label for="${this.elementId(id)}">${option.label}</label>
-                <input type="text" class="form-control rounded-0" id="${this.elementId(id)}" spellcheck="false" autocomplete="off" value="${option.value}" ${disabled}>
-            </div>
-        `);
+        formGroupEl.append(inputEl);
+
+        return formGroupEl;
+    }
+
+    codeEditor(id, option) {
+        const formGroupEl = this.formGroup(option);
+
+        formGroupEl.append(this.label(id, option));
+
+        const textareaEl = $(`<textarea id="${id}"  ></textarea>`);
+
+        formGroupEl.append(textareaEl);
+
+        return formGroupEl;
+    }
+
+    codeEditorScript(id, width, height) {
+        let textarea = document.getElementById(id);
+
+        let codeEditor = CodeMirror.fromTextArea(textarea, {
+            lineNumbers: true,
+            lineWrapping: true,
+            theme: "darcula",
+            mode: "text/javascript",
+            val: textarea.value
+        });
+
+        codeEditor.setSize(width, height);
+
+        window['_codeEditor_'+id] = codeEditor;
     }
 
     toggle(id, option) {
-        return $(`
-            <div class="form-group ${option.size}">
-                <label for="${this.elementId(id)}">${option.label}</label>
+        const formGroupEl = this.formGroup(option);
+
+        formGroupEl.append(this.label(id, option));
+
+        const toggleEl = $(`
                 <div class="custom-control custom-switch" style="transform: scale(1.5); transform-origin: left center;">
                     <input type="checkbox" class="custom-control-input" id="${this.elementId(id)}">
                     <label for="${this.elementId(id)}" class="custom-control-label" style="cursor: pointer;"></label>
                 </div>
-            </div>
-        `);
+            `)
+
+        formGroupEl.append(toggleEl);
+
+        return formGroupEl;
+    }
+
+    formGroup(option) {
+        return $(`<div class="form-group ${option.size}"></div>`);
+    }
+
+    label(id, option) {
+        return $(`<label for="${this.elementId(id)}">${option.label}</label>`);
     }
 
     row() {
@@ -120,6 +189,18 @@ class OptionPanel {
 
     setValue(id,value) {
         $('#'+this.elementId(id)).val(value);
+    }
+
+    getValue(id) {
+        return $('#'+this.elementId(id)).val();
+    }
+
+    getCodeEditorValue(id) {
+        return window['_codeEditor_'+id].getValue();
+    }
+
+    setCodeEditorValue(id,value) {
+        window['_codeEditor_'+id].setValue(value);
     }
 
     check(id,value) {
