@@ -20,6 +20,9 @@ class OptionPanel {
         else if(info.type == 'code') {
             return this.codeEditor(info.id, {label:info.label, size:info.size});
         }
+        else if(info.type == 'sheet') {
+            return this.sheet(info.id, {label:info.label, size:info.size});
+        }
     }
 
     setOptionValue(options) {
@@ -31,6 +34,9 @@ class OptionPanel {
             }
             else if(info.type == 'code') {
                 this.setCodeEditorValue(id, options[id]);
+            }
+            else if(info.type == 'sheet') {
+                this.setSheetValue(id, options[id]);
             }
         }
     }
@@ -45,6 +51,9 @@ class OptionPanel {
             }
             else if(info.type == 'code') {
                 optionValue[id] = this.getCodeEditorValue(id);
+            }
+            else if(info.type == 'sheet') {
+                optionValue[id] = this.getSheetValue(id);
             }
         }
 
@@ -146,6 +155,24 @@ class OptionPanel {
         window['_codeEditor_'+id] = codeEditor;
     }
 
+    sheet(id, option) {
+        const formGroupEl = this.formGroup(option);
+
+        formGroupEl.append(this.label(id, option));
+        formGroupEl.append($(`<button type="button" class="btn btn-default btn-sm" onclick="_sheet_${id}.addRowData({})"><i class="fas fa-plus"></i><span>입력</span></button>`));
+
+        const divEl = $(`<div id="${id}"  ></div>`);
+
+        formGroupEl.append(divEl);
+
+        return formGroupEl;
+    }
+
+    sheetScript(id, width, height, columns) {
+        const sheet = new Sheet(id, width, height,{useSeq:false,useStatus:false,useDelete:true}, columns);
+        window['_sheet_'+id] = sheet;
+    }
+
     toggle(id, option) {
         const formGroupEl = this.formGroup(option);
 
@@ -201,6 +228,25 @@ class OptionPanel {
 
     setCodeEditorValue(id,value) {
         window['_codeEditor_'+id].setValue(value);
+    }
+
+    getSheetValue(id) {
+         let columns = window['_sheet_'+id].getSheetData();
+
+         return columns.map(({ _status, _delete, _seq, _dnd, ...rest }) => rest);
+    }
+
+    setSheetValue(id,value) {
+        if(value) {
+            for(let v of value) {
+                v._status = "C";
+            }
+        }
+        else {
+            value = [];
+        }
+
+        window['_sheet_'+id].setSheetData(value);
     }
 
     check(id,value) {

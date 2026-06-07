@@ -20,9 +20,8 @@ public class ViewAction {
     private String actionName;
     @Column(length = 200)
     private String displayName;
-    @Enumerated(EnumType.STRING)
     @Column(length = 100)
-    private ActionType type;
+    private String type;
     @Column(length = 200)
     private String argsName;
     @Lob
@@ -36,7 +35,7 @@ public class ViewAction {
             String objectCode,
             String actionName,
             String displayName,
-            ActionType type,
+            String type,
             String argsName,
             String contents,
             String script

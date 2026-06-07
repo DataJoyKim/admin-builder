@@ -46,6 +46,7 @@ class Workflow extends Actions {
         // 결과 코드 생성
         code += `function(response){`
         code += `   ${message}['${responseMessageId}'] = response['${responseMessageId}'];`;
+        code += `   $('div[dataProvider="${responseMessageId}"]').trigger('bindData',[response['${responseMessageId}']]); `;
         code += `},`;
 
         // 실패 코드 생성

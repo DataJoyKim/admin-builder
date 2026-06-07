@@ -126,6 +126,7 @@ class Sheet {
         const gridOptions = {
           columnDefs: columnDefs,
           rowData: [],
+          stopEditingWhenCellsLoseFocus: true,
           localeText: {
             noRowsToShow: '조회된 데이터가 없습니다.'
           },
@@ -299,17 +300,6 @@ class Sheet {
         window.SheetManager[sheetId].columns =  data.columns;
         window.SheetManager[sheetId].sheet = data.sheet;
     }
-
-    setComboItem(field, values) {
-        const colDef = this.getSheetObj().getColumnDef(field);
-
-        colDef.cellEditorParams = {
-            values:values
-        };
-
-        this.getSheetObj().refreshCells();
-    }
-
 
 // *****************************************
 // Utils

@@ -7,6 +7,7 @@ class ActionsFactory {
 
     instanceMap() {
         return {
+            'NEW_DATA': new NewData(this.optionPanel, this.globalVariable),
             'WORKFLOW': new Workflow(this.optionPanel, this.globalVariable),
             'SCRIPT': new Script(this.optionPanel, this.globalVariable)
         };

@@ -43,7 +43,7 @@ public class ViewActionRestController {
                     (String) params.get("objectCode"),
                     (String) params.get("actionName"),
                     (String) params.get("displayName"),
-                    ActionType.valueOf((String) params.get("type")),
+                    (String) params.get("type"),
                     (String) params.get("argsName"),
                     (String) params.get("contents"),
                     (String) params.get("script")
@@ -54,7 +54,7 @@ public class ViewActionRestController {
                     .objectCode((String) params.get("objectCode"))
                     .actionName((String) params.get("actionName"))
                     .displayName((String) params.get("displayName"))
-                    .type(ActionType.valueOf((String) params.get("type")))
+                    .type((String) params.get("type"))
                     .argsName((String) params.get("argsName"))
                     .contents((String) params.get("contents"))
                     .script((String) params.get("script"))

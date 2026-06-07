@@ -33,6 +33,20 @@ class VbSheet extends ViewObject {
     }
 
     scriptRuntime(el, options) {
+
+        const columns = options.columns;
+        for(const col of columns) {
+            if(col.type == 'combo') {
+                if(col.comboCodeName) {
+                    let codes = VB.globalVariable.getCode()[col.comboCodeName];
+                    if(!codes) {
+                        codes = [];
+                    }
+                    col.comboCodes = codes;
+                }
+            }
+        }
+
         // 시트 생성
         Sheet.initSheet(
             options.id,
@@ -49,20 +63,6 @@ class VbSheet extends ViewObject {
 
         const sheet = window[options.id];
 
-        const columns = options.columns;
-        for(const col of columns) {
-            if(col.type == 'combo') {
-                if(col.comboCodeName) {
-                    let codes = VB.globalVariable.getCode()[col.comboCodeName];
-                    if(!codes) {
-                        codes = [];
-                    }
-
-                    sheet.setComboItem(col.field, codes);
-                }
-            }
-        }
-
         // 시트 이벤트 생성
         $("#"+options.id).attr('dataProvider',options.dataProvider)
             .on('clearData', function(){
@@ -75,7 +75,7 @@ class VbSheet extends ViewObject {
                 VB.globalVariable.setMessage(options.dataProvider, data);
             })
             .on('newData', function(e, data){
-                sheet.addRowData({});
+                sheet.addRowData(data);
             })
             .on('bindData', function(e, data){
                 VB.globalVariable.setMessage(options.dataProvider, data);
