@@ -1,11 +1,10 @@
-package com.datajoy.admin_builder.security;
+package com.datajoy.admin_builder.security.domain;
 
 import com.datajoy.admin_builder.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 

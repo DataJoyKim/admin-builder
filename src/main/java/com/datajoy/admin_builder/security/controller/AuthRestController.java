@@ -1,9 +1,9 @@
-package com.datajoy.admin_builder.security.rest;
+package com.datajoy.admin_builder.security.controller;
 
-import com.datajoy.admin_builder.security.AuthService;
-import com.datajoy.admin_builder.security.AuthTokenResponse;
-import com.datajoy.admin_builder.security.SecurityBusinessException;
-import com.datajoy.admin_builder.security.TokenUtil;
+import com.datajoy.admin_builder.security.service.AuthService;
+import com.datajoy.admin_builder.security.token.AuthTokenResponse;
+import com.datajoy.admin_builder.security.exception.SecurityBusinessException;
+import com.datajoy.admin_builder.security.token.TokenCookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +24,10 @@ public class AuthRestController {
             HttpServletRequest httpRequest,
             HttpServletResponse httpResponse
     ) throws SecurityBusinessException {
-        AuthTokenResponse token = authService.refreshAccessToken(TokenUtil.resolveRefreshToken(httpRequest));
+        AuthTokenResponse token = authService.refreshToken(TokenCookie.resolveRefreshToken(httpRequest));
 
-        TokenUtil.setAuthToken(httpResponse, token.getAccessToken(), token.getRefreshToken());
+        TokenCookie.setAccessToken(httpResponse, token.getAccessToken());
+        TokenCookie.setRefreshToken(httpResponse, token.getRefreshToken());
 
         return new ResponseEntity<>(token, HttpStatus.OK);
     }

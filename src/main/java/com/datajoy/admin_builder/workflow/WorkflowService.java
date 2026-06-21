@@ -7,7 +7,11 @@ import com.datajoy.admin_builder.function.WorkflowFunction;
 import com.datajoy.admin_builder.function.code.ResultType;
 import com.datajoy.admin_builder.dto.RequestMessage;
 import com.datajoy.admin_builder.dto.ResponseMessage;
-import com.datajoy.admin_builder.security.*;
+import com.datajoy.admin_builder.security.domain.AuthenticatedUser;
+import com.datajoy.admin_builder.security.domain.GrantedAuthority;
+import com.datajoy.admin_builder.security.exception.SecurityBusinessException;
+import com.datajoy.admin_builder.security.service.AuthService;
+import com.datajoy.admin_builder.security.token.TokenCookie;
 import com.datajoy.core.exception.BusinessException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -40,7 +44,7 @@ public class WorkflowService {
             AuthenticatedUser user = null;
 
             if(workflow.getUseAuthValidation()) {
-                user = authService.validateAuthentication(TokenUtil.resolveAccessToken(request));
+                user = authService.authentication(TokenCookie.resolveAccessToken(request));
             }
 
             if(user != null) {

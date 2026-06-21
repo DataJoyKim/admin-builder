@@ -1,7 +1,6 @@
-package com.datajoy.admin_builder;
+package com.datajoy.admin_builder.security.config;
 
-import com.datajoy.admin_builder.security.JwtProvider;
-import com.datajoy.admin_builder.security.SecurityProperties;
+import com.datajoy.admin_builder.security.token.JwtProvider;
 import com.datajoy.core.crypto.BCryptPasswordEncoder;
 import com.datajoy.core.crypto.PasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;

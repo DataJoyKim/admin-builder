@@ -1,6 +1,10 @@
-package com.datajoy.admin_builder.security.rest;
+package com.datajoy.admin_builder.security.controller;
 
-import com.datajoy.admin_builder.security.*;
+import com.datajoy.admin_builder.security.domain.Client;
+import com.datajoy.admin_builder.security.exception.SecurityBusinessException;
+import com.datajoy.admin_builder.security.service.LoginService;
+import com.datajoy.admin_builder.security.token.AuthTokenResponse;
+import com.datajoy.admin_builder.security.token.TokenCookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +31,8 @@ public class LoginRestController {
 
         AuthTokenResponse token = loginService.login(loginRequest, client);
 
-        TokenUtil.setAuthToken(httpResponse, token.getAccessToken(), token.getRefreshToken());
+        TokenCookie.setAccessToken(httpResponse, token.getAccessToken());
+        TokenCookie.setRefreshToken(httpResponse, token.getRefreshToken());
 
         return new ResponseEntity<>(token, HttpStatus.OK);
     }

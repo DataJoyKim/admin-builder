@@ -1,4 +1,4 @@
-package com.datajoy.admin_builder.security;
+package com.datajoy.admin_builder.security.domain;
 
 import jakarta.persistence.*;
 import lombok.*;

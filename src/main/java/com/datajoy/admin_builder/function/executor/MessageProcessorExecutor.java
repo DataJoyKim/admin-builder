@@ -8,7 +8,7 @@ import com.datajoy.admin_builder.function.FunctionConfig;
 import com.datajoy.admin_builder.function.FunctionExecutor;
 import com.datajoy.admin_builder.function.FunctionResult;
 import com.datajoy.admin_builder.function.code.ResultType;
-import com.datajoy.admin_builder.security.AuthenticatedUser;
+import com.datajoy.admin_builder.security.domain.AuthenticatedUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

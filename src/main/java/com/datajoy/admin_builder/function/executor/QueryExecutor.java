@@ -7,7 +7,7 @@ import com.datajoy.admin_builder.function.code.ResultType;
 import com.datajoy.admin_builder.query.QueryRequest;
 import com.datajoy.admin_builder.query.QueryResult;
 import com.datajoy.admin_builder.query.QueryService;
-import com.datajoy.admin_builder.security.AuthenticatedUser;
+import com.datajoy.admin_builder.security.domain.AuthenticatedUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

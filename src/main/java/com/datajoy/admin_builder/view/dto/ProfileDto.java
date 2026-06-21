@@ -1,6 +1,6 @@
 package com.datajoy.admin_builder.view.dto;
 
-import com.datajoy.admin_builder.security.AuthenticatedUser;
+import com.datajoy.admin_builder.security.domain.AuthenticatedUser;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

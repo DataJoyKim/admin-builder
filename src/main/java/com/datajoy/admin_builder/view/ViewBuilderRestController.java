@@ -4,10 +4,10 @@ import com.datajoy.admin_builder.code.CodeRequest;
 import com.datajoy.admin_builder.code.CodeResponse;
 import com.datajoy.admin_builder.code.CodeService;
 import com.datajoy.admin_builder.code.CodeType;
-import com.datajoy.admin_builder.security.AuthService;
-import com.datajoy.admin_builder.security.AuthenticatedUser;
-import com.datajoy.admin_builder.security.SecurityBusinessException;
-import com.datajoy.admin_builder.security.TokenUtil;
+import com.datajoy.admin_builder.security.service.AuthService;
+import com.datajoy.admin_builder.security.domain.AuthenticatedUser;
+import com.datajoy.admin_builder.security.exception.SecurityBusinessException;
+import com.datajoy.admin_builder.security.token.TokenCookie;
 import com.datajoy.admin_builder.view.domain.*;
 import com.datajoy.admin_builder.view.dto.MenuDto;
 import com.datajoy.admin_builder.view.dto.ProfileDto;
@@ -48,7 +48,7 @@ public class ViewBuilderRestController {
     public ResponseEntity<?> getMenuRoot(HttpServletRequest request) {
         AuthenticatedUser user;
         try {
-            user = authService.validateAuthentication(TokenUtil.resolveAccessToken(request));
+            user = authService.authentication(TokenCookie.resolveAccessToken(request));
         }
         catch (SecurityBusinessException e) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
@@ -71,7 +71,7 @@ public class ViewBuilderRestController {
     public ResponseEntity<?> getProfile(HttpServletRequest request) {
         AuthenticatedUser user;
         try {
-            user = authService.validateAuthentication(TokenUtil.resolveAccessToken(request));
+            user = authService.authentication(TokenCookie.resolveAccessToken(request));
         }
         catch (SecurityBusinessException e) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
@@ -92,7 +92,7 @@ public class ViewBuilderRestController {
         if(Boolean.TRUE.equals(viewObject.getUseAuthValidation())) {
             AuthenticatedUser user;
             try {
-                user = authService.validateAuthentication(TokenUtil.resolveAccessToken(request));
+                user = authService.authentication(TokenCookie.resolveAccessToken(request));
             } catch (SecurityBusinessException e) {
                 return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
             }

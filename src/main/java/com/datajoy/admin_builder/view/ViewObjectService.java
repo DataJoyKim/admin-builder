@@ -1,7 +1,7 @@
 package com.datajoy.admin_builder.view;
 
-import com.datajoy.admin_builder.security.AuthenticatedUser;
-import com.datajoy.admin_builder.security.GrantedAuthority;
+import com.datajoy.admin_builder.security.domain.AuthenticatedUser;
+import com.datajoy.admin_builder.security.domain.GrantedAuthority;
 import com.datajoy.admin_builder.view.domain.*;
 import com.datajoy.core.exception.BusinessException;
 import lombok.RequiredArgsConstructor;

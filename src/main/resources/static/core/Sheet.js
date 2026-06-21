@@ -127,6 +127,7 @@ class Sheet {
           columnDefs: columnDefs,
           rowData: [],
           stopEditingWhenCellsLoseFocus: true,
+          headerHeight: 35,
           localeText: {
             noRowsToShow: '조회된 데이터가 없습니다.'
           },

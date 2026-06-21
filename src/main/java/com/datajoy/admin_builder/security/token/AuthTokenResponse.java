@@ -1,4 +1,4 @@
-package com.datajoy.admin_builder.security;
+package com.datajoy.admin_builder.security.token;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

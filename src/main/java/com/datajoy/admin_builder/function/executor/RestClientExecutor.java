@@ -7,7 +7,7 @@ import com.datajoy.admin_builder.function.code.ResultType;
 import com.datajoy.admin_builder.restclient.RestClientRequest;
 import com.datajoy.admin_builder.restclient.RestClientResult;
 import com.datajoy.admin_builder.restclient.RestClientService;
-import com.datajoy.admin_builder.security.AuthenticatedUser;
+import com.datajoy.admin_builder.security.domain.AuthenticatedUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

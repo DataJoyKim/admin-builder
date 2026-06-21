@@ -1,4 +1,4 @@
-package com.datajoy.admin_builder.security;
+package com.datajoy.admin_builder.security.domain;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

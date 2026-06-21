@@ -1,6 +1,10 @@
 package com.datajoy.admin_builder.view;
 
-import com.datajoy.admin_builder.security.*;
+import com.datajoy.admin_builder.security.config.SecurityProperties;
+import com.datajoy.admin_builder.security.domain.AuthenticatedUser;
+import com.datajoy.admin_builder.security.exception.SecurityBusinessException;
+import com.datajoy.admin_builder.security.service.AuthService;
+import com.datajoy.admin_builder.security.token.TokenCookie;
 import com.datajoy.admin_builder.view.code.ObjectType;
 import com.datajoy.admin_builder.view.domain.Layout;
 import com.datajoy.admin_builder.view.domain.ViewObject;
@@ -35,7 +39,7 @@ public class ViewBuilderController {
         if(Boolean.TRUE.equals(layout.getUseAuthValidation())) {
             AuthenticatedUser user = null;
             try {
-                user = authService.validateAuthentication(TokenUtil.resolveAccessToken(request));
+                user = authService.authentication(TokenCookie.resolveAccessToken(request));
             }
             catch (SecurityBusinessException e) {
                 return "/error/error401";
@@ -55,7 +59,7 @@ public class ViewBuilderController {
         if(Boolean.TRUE.equals(viewObject.getUseAuthValidation())) {
             AuthenticatedUser user;
             try {
-                user = authService.validateAuthentication(TokenUtil.resolveAccessToken(request));
+                user = authService.authentication(TokenCookie.resolveAccessToken(request));
             } catch (SecurityBusinessException e) {
                 return "/error/error401";
             }

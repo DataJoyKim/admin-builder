@@ -1,8 +1,8 @@
 package com.datajoy.admin_builder;
 
-import com.datajoy.admin_builder.console.ConsoleSecurityFilter;
-import com.datajoy.admin_builder.security.AuthService;
-import com.datajoy.admin_builder.security.SecurityProperties;
+import com.datajoy.admin_builder.security.filter.ConsoleSecurityFilter;
+import com.datajoy.admin_builder.security.service.AuthService;
+import com.datajoy.admin_builder.security.config.SecurityProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;

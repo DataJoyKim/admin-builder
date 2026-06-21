@@ -1,6 +1,6 @@
 package com.datajoy.admin_builder.function;
 
-import com.datajoy.admin_builder.security.AuthenticatedUser;
+import com.datajoy.admin_builder.security.domain.AuthenticatedUser;
 
 import java.util.List;
 import java.util.Map;

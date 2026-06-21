@@ -1,5 +1,9 @@
-package com.datajoy.admin_builder.security;
+package com.datajoy.admin_builder.security.token;
 
+import com.datajoy.admin_builder.security.domain.AuthenticatedUser;
+import com.datajoy.admin_builder.security.domain.Client;
+import com.datajoy.admin_builder.security.exception.SecurityBusinessException;
+import com.datajoy.admin_builder.security.exception.SecurityErrorMessage;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -24,7 +28,6 @@ public class JwtProvider {
     public String generateAccessToken(AuthenticatedUser user) {
         Claims claims = Jwts.claims();
         claims.put("userId", user.getUserId());
-        claims.put("userName", user.getUserName());
 
         ZonedDateTime now = ZonedDateTime.now();
         ZonedDateTime tokenValidity = now.plusSeconds(accessTokenExpireTime);
@@ -42,7 +45,6 @@ public class JwtProvider {
 
         return AuthenticatedUser.builder()
                 .userId(Long.valueOf(String.valueOf(claims.get("userId"))))
-                .userName(String.valueOf(claims.get("userName")))
                 .build();
     }
 

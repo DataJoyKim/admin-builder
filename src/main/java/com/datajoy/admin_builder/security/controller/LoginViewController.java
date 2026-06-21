@@ -1,4 +1,4 @@
-package com.datajoy.admin_builder.security.view;
+package com.datajoy.admin_builder.security.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

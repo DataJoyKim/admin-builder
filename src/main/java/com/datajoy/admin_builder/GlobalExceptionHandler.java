@@ -1,7 +1,7 @@
 package com.datajoy.admin_builder;
 
 import com.datajoy.admin_builder.dto.ResponseMessage;
-import com.datajoy.admin_builder.security.SecurityBusinessException;
+import com.datajoy.admin_builder.security.exception.SecurityBusinessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

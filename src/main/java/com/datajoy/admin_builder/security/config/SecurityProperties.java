@@ -1,4 +1,4 @@
-package com.datajoy.admin_builder.security;
+package com.datajoy.admin_builder.security.config;
 
 import lombok.Getter;
 import org.springframework.stereotype.Component;

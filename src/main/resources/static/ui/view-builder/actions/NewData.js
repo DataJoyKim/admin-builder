@@ -6,7 +6,8 @@ class NewData extends Actions {
 
     actionOptions() {
         return [
-            {id:'requestMessage', label:'요청메시지', type:'sheet', size:'col-12', defaultValue:''}
+            {id:'messageId', label:'메시지ID', type:'text', size:'col-6', defaultValue:''},
+            {id:'messageColumns', label:'메시지컬럼 설정', type:'sheet', size:'col-12', defaultValue:''}
         ]
     }
 
@@ -19,42 +20,31 @@ class NewData extends Actions {
             return;
         }
 
-        const requestMessage = options.requestMessage;
+        const messageId = options.messageId;
+        const messageColumns = options.messageColumns;
 
         let code = ``;
 
-        const messages = requestMessage.reduce((acc, item) => {
-            if (!acc[item.messageId]) {
-                acc[item.messageId] = [];
+        let params = {};
+        if(messageColumns) {
+            for(const col of messageColumns) {
+                params[col.columnName] = col.value;
             }
-
-            acc[item.messageId].push(item);
-
-            return acc;
-        }, {});
-
-        for(const messageId in messages) {
-            const msgObj = messages[messageId];
-
-            let params = {};
-            for(const msg of msgObj) {
-                params[msg.columnName] = msg.value;
-            }
-
-            params = JSON.stringify(params);
-
-            code += `$('div[dataProvider="${messageId}"]').trigger('newData',[${params}]);`;
         }
+
+        params = JSON.stringify(params);
+
+        code += `$('div[dataProvider="${messageId}"]').trigger('newData',[${params}]);`;
 
         super.registerAction(name,argsName,code);
     }
 
     optionPanelView($panel, optionPanel) {
-        $panel.append(optionPanel.getHtml('requestMessage'));
+        $panel.append(optionPanel.getHtml('messageId'));
+        $panel.append(optionPanel.getHtml('messageColumns'));
 
-        optionPanel.sheetScript('requestMessage', "90%", "400px",
+        optionPanel.sheetScript('messageColumns', "90%", "400px",lTSl
             [
-               {field:'messageId', label:'메시지ID', type:'text', width:150, hide:false, editable: true, align:'left', required:false},
                {field:'columnName', label:'컬럼', type:'text', width:150, hide:false, editable: true, align:'left', required:false},
                {field:'value', label:'값', type:'text', width:200, hide:false, editable: true, align:'left', required:false}
            ]);
