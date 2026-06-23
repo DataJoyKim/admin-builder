@@ -1,9 +1,9 @@
 package com.datajoy.admin_builder.console.rest;
 
 import com.datajoy.admin_builder.security.domain.Authority;
-import com.datajoy.admin_builder.security.domain.AuthorityRepository;
+import com.datajoy.admin_builder.security.repository.AuthorityRepository;
 import com.datajoy.admin_builder.security.domain.UserGroupAuthority;
-import com.datajoy.admin_builder.security.domain.UserGroupAuthorityRepository;
+import com.datajoy.admin_builder.security.repository.UserGroupAuthorityRepository;
 import com.datajoy.admin_builder.user.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

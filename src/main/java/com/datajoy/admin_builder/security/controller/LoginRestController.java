@@ -1,6 +1,7 @@
 package com.datajoy.admin_builder.security.controller;
 
 import com.datajoy.admin_builder.security.domain.Client;
+import com.datajoy.admin_builder.security.dto.LoginRequest;
 import com.datajoy.admin_builder.security.exception.SecurityBusinessException;
 import com.datajoy.admin_builder.security.service.LoginService;
 import com.datajoy.admin_builder.security.token.AuthTokenResponse;

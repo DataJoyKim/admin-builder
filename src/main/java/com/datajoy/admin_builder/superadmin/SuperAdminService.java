@@ -1,9 +1,9 @@
 package com.datajoy.admin_builder.superadmin;
 
 import com.datajoy.admin_builder.security.domain.Authority;
-import com.datajoy.admin_builder.security.domain.AuthorityRepository;
+import com.datajoy.admin_builder.security.repository.AuthorityRepository;
 import com.datajoy.admin_builder.security.domain.UserGroupAuthority;
-import com.datajoy.admin_builder.security.domain.UserGroupAuthorityRepository;
+import com.datajoy.admin_builder.security.repository.UserGroupAuthorityRepository;
 import com.datajoy.admin_builder.user.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

@@ -1,4 +1,4 @@
-package com.datajoy.admin_builder.security.controller;
+package com.datajoy.admin_builder.security.dto;
 
 import lombok.Getter;
 

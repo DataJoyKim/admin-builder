@@ -25,9 +25,9 @@ public class JwtProvider {
         this.refreshTokenExpireTime = refreshTokenExpireTime;
     }
 
-    public String generateAccessToken(AuthenticatedUser user) {
+    public String generateAccessToken(Long userId) {
         Claims claims = Jwts.claims();
-        claims.put("userId", user.getUserId());
+        claims.put("userId", userId);
 
         ZonedDateTime now = ZonedDateTime.now();
         ZonedDateTime tokenValidity = now.plusSeconds(accessTokenExpireTime);
@@ -40,12 +40,10 @@ public class JwtProvider {
                 .compact();
     }
 
-    public AuthenticatedUser parseAccessToken(String token) {
+    public Long parseAccessToken(String token) {
         Claims claims = parseClaims(token);
 
-        return AuthenticatedUser.builder()
-                .userId(Long.valueOf(String.valueOf(claims.get("userId"))))
-                .build();
+        return Long.valueOf(String.valueOf(claims.get("userId")));
     }
 
     public void validateToken(String token) throws SecurityBusinessException {
@@ -74,9 +72,9 @@ public class JwtProvider {
         }
     }
 
-    public String generateRefreshToken(AuthenticatedUser user, Client client) {
+    public String generateRefreshToken(Long userId, Client client) {
         Claims claims = Jwts.claims();
-        claims.put("userId", user.getUserId());
+        claims.put("userId", userId);
         claims.put("clientIp", client.getClientIp());
         claims.put("device", client.getDevice());
 

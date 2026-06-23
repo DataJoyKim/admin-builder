@@ -1,8 +1,12 @@
 package com.datajoy.admin_builder.security.service;
 
-import com.datajoy.admin_builder.security.domain.*;
+import com.datajoy.admin_builder.security.domain.AuthenticatedUser;
+import com.datajoy.admin_builder.security.domain.RefreshTokenStore;
+import com.datajoy.admin_builder.security.domain.UserGroupAuthority;
 import com.datajoy.admin_builder.security.exception.SecurityBusinessException;
 import com.datajoy.admin_builder.security.exception.SecurityErrorMessage;
+import com.datajoy.admin_builder.security.repository.RefreshTokenStoreRepository;
+import com.datajoy.admin_builder.security.repository.UserGroupAuthorityRepository;
 import com.datajoy.admin_builder.security.token.AuthTokenResponse;
 import com.datajoy.admin_builder.security.token.JwtProvider;
 import com.datajoy.admin_builder.user.User;
@@ -29,8 +33,17 @@ public class AuthService {
         // 토큰 유효성검사
         jwtProvider.validateToken(accessToken);
 
+        // 토큰 파싱
+        Long userId = jwtProvider.parseAccessToken(accessToken);
+
         // 사용자 정보 조회
-        AuthenticatedUser authenticatedUser = jwtProvider.parseAccessToken(accessToken);
+        User user = userService.getUserByUserId(userId);
+        if(user == null) {
+            throw new SecurityBusinessException(SecurityErrorMessage.NOT_FOUND_USER);
+        }
+
+        // 인증된 유저 생성
+        AuthenticatedUser authenticatedUser = AuthenticatedUser.createAuthenticatedUser(user);
         
         // 사용자 권한 부여
         List<UserGroupUser> userGroupUsers = userService.getUserGroupUser(authenticatedUser.getUserId());
@@ -65,7 +78,7 @@ public class AuthService {
 
         AuthenticatedUser authenticatedUser = AuthenticatedUser.createAuthenticatedUser(user);
 
-        String newAccessToken = jwtProvider.generateAccessToken(authenticatedUser);
+        String newAccessToken = jwtProvider.generateAccessToken(authenticatedUser.getUserId());
 
         return AuthTokenResponse.builder()
                 .accessToken(newAccessToken)

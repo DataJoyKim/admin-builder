@@ -1,5 +1,6 @@
-package com.datajoy.admin_builder.security.domain;
+package com.datajoy.admin_builder.security.repository;
 
+import com.datajoy.admin_builder.security.domain.RefreshTokenStore;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

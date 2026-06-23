@@ -1,12 +1,12 @@
 package com.datajoy.admin_builder.security.service;
 
-import com.datajoy.admin_builder.security.controller.LoginRequest;
 import com.datajoy.admin_builder.security.domain.AuthenticatedUser;
 import com.datajoy.admin_builder.security.domain.Client;
 import com.datajoy.admin_builder.security.domain.RefreshTokenStore;
-import com.datajoy.admin_builder.security.domain.RefreshTokenStoreRepository;
+import com.datajoy.admin_builder.security.dto.LoginRequest;
 import com.datajoy.admin_builder.security.exception.SecurityBusinessException;
 import com.datajoy.admin_builder.security.exception.SecurityErrorMessage;
+import com.datajoy.admin_builder.security.repository.RefreshTokenStoreRepository;
 import com.datajoy.admin_builder.security.token.AuthTokenResponse;
 import com.datajoy.admin_builder.security.token.JwtProvider;
 import com.datajoy.admin_builder.user.User;
@@ -38,9 +38,9 @@ public class LoginService {
 
         AuthenticatedUser authenticatedUser = AuthenticatedUser.createAuthenticatedUser(user);
 
-        String accessToken = jwtProvider.generateAccessToken(authenticatedUser);
+        String accessToken = jwtProvider.generateAccessToken(authenticatedUser.getUserId());
 
-        String refreshToken = jwtProvider.generateRefreshToken(authenticatedUser, client);
+        String refreshToken = jwtProvider.generateRefreshToken(authenticatedUser.getUserId(), client);
 
         Optional<RefreshTokenStore> savedRefreshTokenStore = refreshTokenStoreRepository.findByUserId(user.getId());
         RefreshTokenStore store;
