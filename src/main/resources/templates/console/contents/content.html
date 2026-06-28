@@ -22,6 +22,47 @@
         mf-action {
             display: none;
         }
+
+        /* js Grid */
+        .jsgrid {
+            border: none;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+        .jsgrid-header-row > .jsgrid-header-cell {
+            background: #f8fafc;           /* 아주 연한 회색 */
+            color: #334155;                /* 다크 슬레이트 */
+            font-size: 14px;
+            font-weight: 500;              /* 적당한 강조 */
+            padding: 8px 10px;
+            border: none;
+            border-bottom: 1px solid #e2e8f0;
+            height: 32px;
+            line-height: 22px;
+            text-align: left;
+            letter-spacing: 0.2px;
+            transition: background 0.15s ease;
+        }
+        /* hover 효과 */
+        .jsgrid-header-row > .jsgrid-header-cell:hover {
+            background: #eef2f7;
+        }
+        /* 정렬 가능한 컬럼 */
+        .jsgrid-header-sortable {
+            cursor: pointer;
+        }
+        /* 정렬 아이콘 위치 여백 */
+        .jsgrid-header-cell .jsgrid-header-sort {
+            margin-left: 6px;
+            opacity: 0.5;
+        }
+        /* 테이블 전체 라인 최소화 */
+        .jsgrid-grid-header, .jsgrid-grid-body {
+            border: none;
+        }
+
+        .ag-row:hover {
+          cursor: pointer;
+        }
     </style>
 </head>
 <body>

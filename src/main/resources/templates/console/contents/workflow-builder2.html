@@ -116,41 +116,12 @@
     });
 
     function init() {
-        Sheet.initSheet('workflowListGrid', "100%", "800px",
-            {
-                useSeq:true,
-                useStatus:false,
-                useDelete:false,
-                useExpendLastColumn:true,
-                offCellFocus:true
-            },
-            [
-                {field:'id', label:'ID', type:'text', width:30, hide:true, editable: true, align:'center', required:true},
-                {field:'workflowCode', label:'code', type:'text', width:190, editable: false, align:'left', required:false},
-                {field:'displayName', label:'name', type:'text', width:200, editable: false, align:'left', required:false}
-            ],
-            {
-                onSelectionChanged:function(row) {
-                    console.log('row',row);
-                }
-            });
 
         getWorkflowList();
         setWorkflowGrid();
 
         setAuthorityGrid();
         showGrid('workflow-authority-card',true);
-    }
-
-    function getWorkflowList() {
-        httpClient.get(`/console/api/workflow`, {},
-            function(response){
-                workflowListGrid.setSheetData(response);
-            },
-            function(error){
-                alert('조회하는데 실패하였습니다.');
-            }
-        );
     }
 
     function setAuthorityGrid() {
@@ -828,38 +799,138 @@
         }
     }
 </script>
-<div th:fragment="view">
-    <div class="row">
-        <div class="col-sm-3">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">list</h3>
-                    <div class="card-tools">
-                        <button type="button" class="btn btn-default btn-sm" onclick="getWorkflowList()">
-                            <i class="btn-icon fas fa-search"></i>
-                            <span class="btn-label"></span>
-                        </button>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div id="workflowListGrid"></div>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-9">
-            <div class="card-header">
-                <div class="card-tools">
-                    <button type="button" class="btn btn-default btn-sm" >
-                        <i class="btn-icon fas fa-plus"></i>
-                        <span class="btn-label">Create</span>
-                    </button>
-                    <button type="button" class="btn btn-default btn-sm" >
-                        <i class="btn-icon fas fa-save"></i>
-                        <span class="btn-label">Save</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+<mf-view th:fragment="view">
+    <mf-data>
+        <mf-codes>
+        </mf-codes>
+        <mf-messages>
+            <mf-message id="ME_EVAL0001_01"></mf-message>
+            <mf-message id="ME_EVAL0001_02"></mf-message>
+            <mf-message id="ME_EVAL0001_03"></mf-message>
+        </mf-messages>
+    </mf-data>
+    <mf-actions>
+        <mf-action name="clickWorkflowList" args="args">
+            selectedContent(args.item);
+        </mf-action>
+
+        <mf-action name="getWorkflowList" >
+            httpClient.get(`/console/api/workflow`, {},
+                function(response){
+                    grid.setSheetData('workflowListGrid', response);
+                },
+                function(error){
+                    alert('조회하는데 실패하였습니다.');
+                }
+            );
+        </mf-action>
+
+        <mf-action name="executeWorkflow" >
+            initFunctionGrid();
+
+            $("#executeTarget").val($("#workflowCode").val());
+            $("#executeType").val('WORKFLOW');
+            $("#requestMessageId").val('');
+            $("#responseData").val('');
+            showGrid('execute-card',true);
+        </mf-action>
+
+        <mf-action name="newWorkflowAuthority" >
+            workflowAuthorityGrid.addRowData();
+        </mf-action>
+
+        <mf-action name="saveWorkflowAuthority" >
+            const saveData = workflowAuthorityGrid.getSheetData();
+            console.log('saveData',saveData);
+        </mf-action>
+    </mf-actions>
+    <mf-layout>
+        <mf-row>
+            <mf-col size="col-3">
+                <mf-card>
+                    <mf-card-header title="목록">
+                        <mf-action-button id="search" actionName="getWorkflowList" icon="fas fa-search"></mf-action-button>
+                    </mf-card-header>
+                    <mf-card-body>
+                        <mf-grid id="workflowListGrid" width="100%" height="800px"
+                                 rowClickActionName="clickWorkflowList"
+                        >
+                            <mf-grid-column  type="number" id="id"           label="ID"    width="50px"  hidden="true" ></mf-grid-column>
+                            <mf-grid-column  type="text"   id="workflowCode" label="코드"   width="150px" ></mf-grid-column>
+                            <mf-grid-column  type="text"   id="displayName"  label="명칭"   width="200px" ></mf-grid-column>
+                        </mf-grid>
+                    </mf-card-body>
+                </mf-card>
+            </mf-col>
+            <mf-col size="col-6">
+                <mf-card>
+                    <mf-card-header title="정의">
+                        <mf-action-button id="new"      actionName="newContent"     icon="fas fa-plus"          ></mf-action-button>
+                        <mf-action-button id="save"     actionName="save"           icon="fas fa-save"          ></mf-action-button>
+                        <mf-action-button id="delete"   actionName="deleteContent"  icon="fas fa-trash"         ></mf-action-button>
+                    </mf-card-header>
+                    <mf-card-body>
+                        <mf-form id="workflowDetailForm">
+                            <mf-row>
+                                <mf-text-input id="workflowId"      label="ID"        enable="false"  size="col-1" hidden="true"></mf-text-input>
+                                <mf-text-input id="workflowCode"    label="코드"       enable="true"   size="col-3" ></mf-text-input>
+                                <mf-text-input id="displayName"     label="명칭"       enable="true"   size="col-3" ></mf-text-input>
+                                <mf-toggle id="useAuthValidation"   label="인증사용"    enable="true"   size="col-2" ></mf-toggle>
+                            </mf-row>
+                        </mf-form>
+                    </mf-card-body>
+                    <mf-card-header title="워크플로우">
+                        <mf-action-button id="executeWorkflow" actionName="executeWorkflow"       icon="fas fa-play"></mf-action-button>
+                        <mf-action-button id="saveFunction" actionName="saveFunction" icon="fas fa-save" ></mf-action-button>
+                    </mf-card-header>
+                    <mf-card-body>
+                        <div id="workflowGrid" style="display:flex; flex-direction:column; gap:10px; align-items: center; justify-content: center;">
+                        </div>
+                    </mf-card-body>
+                </mf-card>
+            </mf-col>
+            <mf-col size="col-3">
+
+                <mf-card id="workflow-authority-card" hidden>
+                    <mf-card-header title="접근제어">
+                        <mf-action-button id="newWorkflowAuthority" actionName="newWorkflowAuthority" icon="fas fa-plus"></mf-action-button>
+                        <mf-action-button id="saveWorkflowAuthority" actionName="saveWorkflowAuthority" icon="fas fa-save"></mf-action-button>
+                    </mf-card-header>
+                    <mf-card-body>
+                        <div id="workflowAuthorityGrid"></div>
+                    </mf-card-body>
+                </mf-card>
+
+                <mf-card id="execute-card" hidden>
+                    <mf-card-header title="실행">
+                        <mf-action-button id="execute" actionName="execute" icon="fas fa-play"></mf-action-button>
+                    </mf-card-header>
+                    <mf-card-body>
+                        <mf-form id="executeForm">
+                            <mf-row>
+                                <mf-text-input id="executeType" label="실행유형" size="col-1"  enable="false" hidden="true"></mf-text-input>
+                                <mf-text-input id="executeTarget" label="대상" size="col-3"  enable="false" ></mf-text-input>
+                                <mf-text-input id="requestMessageId" label="요청메시지ID" size="col-3" enable="true" ></mf-text-input>
+                            </mf-row>
+                            <mf-row>
+                                <mf-grid id="executeGrid" width="100%" height="300px"
+                                         control="true" editing="true" inserting="true"
+                                >
+                                    <mf-grid-column  type="text"   id="key"    label="key"     width="100px" align="left" ></mf-grid-column>
+                                    <mf-grid-column  type="text"   id="value"  label="value"   width="100px" align="left" ></mf-grid-column>
+                                </mf-grid>
+                            </mf-row>
+                            <mf-row>
+                                <div class="form-group col-3">
+                                    <label>실행 결과</label>
+                                    <textarea id="responseData"  rows="20" cols="100"></textarea>
+                                </div>
+                            </mf-row>
+                        </mf-form>
+                    </mf-card-body>
+                </mf-card>
+            </mf-col>
+        </mf-row>
+    </mf-layout>
+</mf-view>
 </html>

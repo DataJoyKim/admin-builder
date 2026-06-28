@@ -1,11 +1,11 @@
 class Sheet {
     // Sheet.initSheet(sheetId, width, height, setting, columnInfo);
-    static initSheet(sheetId, width, height, setting, columnInfo) {
-        const sheet = new Sheet(sheetId, width, height, setting, columnInfo);
+    static initSheet(sheetId, width, height, setting, columnInfo, events) {
+        const sheet = new Sheet(sheetId, width, height, setting, columnInfo, events);
         window[sheetId] = sheet;
     }
 
-    constructor(sheetId, width, height, setting, columnInfo) {
+    constructor(sheetId, width, height, setting, columnInfo, events) {
         window.SheetManager = window.SheetManager || {};
         this.agGrid = agGrid;
 
@@ -22,10 +22,10 @@ class Sheet {
            {code:this.SHEET_STATUS.DELETE, name:'삭제'}
         ];
 
-        this.init(sheetId, width, height, setting, columnInfo);
+        this.init(sheetId, width, height, setting, columnInfo, events);
     }
 
-    init(sheetId, width, height, setting, columnInfo) {
+    init(sheetId, width, height, setting, columnInfo, events) {
         // element 설정
         const sheetEl = $("#"+sheetId);
         sheetEl.addClass('ag-theme-quartz');
@@ -112,9 +112,10 @@ class Sheet {
                 columnDef.rowDrag = column.rowDrag;
             }
 
-            const isLast = index === columns.length - 1;
-            if(isLast) {
-                //columnDef.flex = 1; // 마지막 컬럼은 크기 확장
+            if(setting.useExpendLastColumn != undefined && setting.useExpendLastColumn) {
+                if(index === columns.length - 1) {
+                    columnDef.flex = 1; // 마지막 컬럼은 크기 확장
+                }
             }
 
             columnDefs.push(columnDef);
@@ -174,8 +175,27 @@ class Sheet {
             gridOptions.rowDragManaged = true;
         }
 
+        // 셀 포커싱 사용안함
+        if(setting.offCellFocus != undefined) {
+            gridOptions.suppressCellFocus = setting.offCellFocus;
+        }
+
+        // 이벤트
+        if(events != undefined) {
+            if(events.onSelectionChanged != undefined) {
+                gridOptions.onSelectionChanged = function(event) {
+                    events.onSelectionChanged(event.api.getSelectedRows()[0]);
+                }
+            }
+        }
+
         // 시트 생성
-       const sheet = this.agGrid.createGrid(document.querySelector('#'+sheetId), gridOptions);
+        const el = document.querySelector('#' + sheetId);
+        if (!el) {
+            console.error("AG Grid target element not found:", sheetId);
+            return;
+        }
+        const sheet = this.agGrid.createGrid(el, gridOptions);
 
        sheet.hideOverlay();
 
