@@ -1,12 +1,9 @@
 package com.datajoy.admin_builder.workflow;
 
-import com.datajoy.admin_builder.function.FunctionExecutor;
-import com.datajoy.admin_builder.function.FunctionFactory;
-import com.datajoy.admin_builder.function.FunctionResult;
-import com.datajoy.admin_builder.function.WorkflowFunction;
-import com.datajoy.admin_builder.function.code.ResultType;
 import com.datajoy.admin_builder.dto.RequestMessage;
 import com.datajoy.admin_builder.dto.ResponseMessage;
+import com.datajoy.admin_builder.function.*;
+import com.datajoy.admin_builder.function.code.ResultType;
 import com.datajoy.admin_builder.security.domain.AuthenticatedUser;
 import com.datajoy.admin_builder.security.domain.GrantedAuthority;
 import com.datajoy.admin_builder.security.exception.SecurityBusinessException;
@@ -18,12 +15,16 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class WorkflowService {
     private final WorkflowRepository workflowRepository;
+    private final WorkflowFunctionRepository workflowFunctionRepository;
     private final WorkflowAuthorityRepository workflowAuthorityRepository;
     private final FunctionFactory functionFactory;
     private final AuthService authService;
@@ -41,6 +42,8 @@ public class WorkflowService {
 
             Workflow workflow = opWorkflow.get();
 
+            List<WorkflowFunction> functions = workflowFunctionRepository.findByWorkflowId(workflow.getId());
+
             AuthenticatedUser user = null;
 
             if(workflow.getUseAuthValidation()) {
@@ -51,7 +54,7 @@ public class WorkflowService {
                 validateAuthorization(user, workflow);
             }
 
-            return executeFunction(requestMessage, user, workflow.getFunctions());
+            return executeFunction(requestMessage, user, functions);
         }
         catch (SecurityBusinessException e) {
             return ResponseMessage.createErrorMessage(e.getStatus(), e.getErrorCode(), e.getErrorMsg());

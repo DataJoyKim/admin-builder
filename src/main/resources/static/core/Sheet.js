@@ -130,7 +130,7 @@ class Sheet {
           stopEditingWhenCellsLoseFocus: true,
           headerHeight: 35,
           localeText: {
-            noRowsToShow: '조회된 데이터가 없습니다.'
+            noRowsToShow: '데이터가 없습니다.'
           },
           rowSelection: 'single',
           //suppressRowClickSelection: true,
@@ -286,6 +286,11 @@ class Sheet {
 
     getSelectedRowData() {
         return this.getSheetObj().getSelectedRows()[0];
+    }
+
+    selectRow(row) {
+        const rowNode = this.getSheetObj().getDisplayedRowAtIndex(row);
+        rowNode.setSelected(true);
     }
 
     initData() {

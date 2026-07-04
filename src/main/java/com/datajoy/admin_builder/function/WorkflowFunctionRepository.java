@@ -6,4 +6,8 @@ import java.util.List;
 
 public interface WorkflowFunctionRepository extends JpaRepository<WorkflowFunction, Long> {
     List<WorkflowFunction> findByWorkflowIdOrderByOrderNum(Long workflowId);
+
+    void deleteByWorkflowId(Long workflowId);
+
+    List<WorkflowFunction> findByWorkflowId(Long workflowId);
 }

@@ -4,7 +4,7 @@
         position: relative;
         background-color: #ffffff;
         width: 260px;
-        height: 165px;
+        height: 180px;
         border-radius: 13px;
         display: flex;
         flex-direction: column;
@@ -95,8 +95,8 @@
 <script th:fragment="script">
     App.codes = {
         "FUNCTION_TYPE":[
-            {code:"ENTITY",name:"Entity"},
             {code:"SQL",name:"SQL"},
+            {code:"ENTITY",name:"Entity"},
             {code:"REST_CLIENT",name:"Rest Client"},
             {code:"MESSAGE_PROCESSOR",name:"메시지처리"}
         ],
@@ -131,15 +131,15 @@
             ],
             {
                 onSelectionChanged:function(row) {
-                    console.log('row',row);
+                    selectedContent(row.id);
                 }
             });
 
         getWorkflowList();
         setWorkflowGrid();
-
         setAuthorityGrid();
         showGrid('workflow-authority-card',true);
+        newContent();
     }
 
     function getWorkflowList() {
@@ -162,12 +162,12 @@
 
                 codes = codes.concat(response);
 
-                const columns = [
-                    {field:'id', label:'ID', type:'text', width:30, hide:true, editable: true, align:'center', required:true},
-                    {field:'authorityCode', label:'권한', type:'combo', width:350, editable: true, align:'center', required:false, comboCodes:codes}
-                ];
-
-                Sheet.initSheet('workflowAuthorityGrid', "100%", "800px",{useSeq:false,useStatus:true,useDelete:true}, columns);
+                Sheet.initSheet('workflowAuthorityGrid', "100%", "500px",
+                    {useSeq:false,useStatus:false,useDelete:true,useExpendLastColumn:true},
+                    [
+                        {field:'id', label:'ID', type:'text', width:30, hide:true, editable: true, align:'center', required:true},
+                        {field:'authorityCode', label:'권한', type:'combo', width:300, editable: true, align:'center', required:false, comboCodes:codes}
+                    ]);
             },
             function(error){
                 alert('error');
@@ -176,61 +176,53 @@
     }
 
     function save() {
+        httpClient.post(`/console/api/workflow/save`,{},
+            {
+                workflow:getContent(),
+                workflowFunctions:getWorkflowFunctionData(),
+                workflowAuthority:workflowAuthorityGrid.getSheetData()
+            },
+            function(response){
+                alert("저장 완료되었습니다.");
+                getWorkflowList();
+                selectedContent(response.id);
+            },
+            function(error){
+                alert("에러 발생하였습니다.");
+            }
+        );
+    }
+
+    function deleteWorkflow() {
+        if(!confirm("삭제하시겠습니까?")) {
+            return;
+        }
+
         let id = $("#workflowId").val();
 
-        if(id) updateContent(id);
-        else insertContent();
-    }
-
-    function selectedContent(item) {
-        httpClient.get(`/console/api/workflow/${item.id}`, {},
-            function(response){
-                setContentData(response);
-                getWorkflowFunction(item.id);
-                getWorkflowAuthority(item.id);
-            },
-            function(error){
-                alert('error');
-            }
-        );
-    }
-
-    function insertContent() {
-        httpClient.post(`/console/api/workflow`,{},getContent(),
-            function(response){
-                alert("저장완료되었습니다.");
-                getWorkflowList();
-            },
-            function(error){
-                alert('error');
-            }
-        );
-    }
-
-    function updateContent(id) {
-      httpClient.put(`/console/api/workflow/${id}`, {}, getContent(),
-          function(response){
-              alert("저장완료되었습니다.");
-              getWorkflowList();
-          },
-          function(error){
-              alert('error');
-          }
-      );
-    }
-
-    function deleteContent() {
-      let id = $("#workflowId").val();
-
-      httpClient.delete(`/console/api/workflow/${id}`, {},
+        httpClient.delete(`/console/api/workflow/${id}`, {},
           function(response){
               alert("삭제 처리 완료되었습니다.");
               getWorkflowList();
+              newContent();
           },
           function(error){
               alert('error');
           }
-      );
+        );
+    }
+
+    function selectedContent(workflowId) {
+        httpClient.get(`/console/api/workflow/${workflowId}`, {},
+            function(response){
+                setContentData(response);
+                getWorkflowFunction(workflowId);
+                getWorkflowAuthority(workflowId);
+            },
+            function(error){
+                alert('error');
+            }
+        );
     }
 
     function setContentData(response) {
@@ -272,6 +264,7 @@
 
         drawWorkflow('workflowGrid',[]);
         initFunctionGrid();
+        workflowAuthorityGrid.setSheetData([]);
       }
 
     function getWorkflowFunction(workflowId) {
@@ -283,72 +276,6 @@
                 alert('error');
             }
         );
-    }
-
-    function insertWorkflowFunction(workflowId, item) {
-        httpClient.post(`/console/api/workflow-function`,{},
-            {
-               workflowId:workflowId,
-               functionName:item.functionName,
-               functionType:item.functionType,
-               orderNum:item.orderNum,
-               isLogging:item.isLogging,
-               requestMessageId:item.requestMessageId,
-               responseMessageId:item.responseMessageId
-            },
-            function(response){
-                alert("생성 완료되었습니다.");
-                getWorkflowFunction(workflowId);
-            },
-            function(error){
-                alert('error');
-            }
-        );
-    }
-
-    function updateWorkflowFunction(workflowId, item) {
-      httpClient.put(`/console/api/workflow-function/${item.id}`, {},
-          {
-               workflowId:workflowId,
-               functionName:item.functionName,
-               functionType:item.functionType,
-               orderNum:item.orderNum,
-               isLogging:item.isLogging,
-               requestMessageId:item.requestMessageId,
-               responseMessageId:item.responseMessageId
-          },
-          function(response){
-              alert("변경 완료되었습니다.");
-              getWorkflowFunction(workflowId);
-          },
-          function(error){
-              alert('error');
-          }
-      );
-    }
-
-    function deleteWorkflowFunction(workflowId, item) {
-      httpClient.delete(`/console/api/workflow-function/${item.id}`, {},
-          function(response){
-              alert("삭제 완료되었습니다.");
-              getWorkflowFunction(workflowId);
-          },
-          function(error){
-              alert('error');
-          }
-      );
-    }
-
-    function saveWorkflowFunction(workflowId, items) {
-      httpClient.post(`/console/api/workflow-function/save`, {},items,
-          function(response){
-              alert("저장완료되었습니다.");
-              getWorkflowFunction(workflowId);
-          },
-          function(error){
-              alert('error');
-          }
-      );
     }
 
     function execute() {
@@ -387,6 +314,9 @@
     function getWorkflowAuthority(workflowId) {
         httpClient.get(`/console/api/workflow-authority`, {workflowId:workflowId},
             function(response){
+                for(let data of response) {
+                    data._status = 'C';
+                }
                 workflowAuthorityGrid.setSheetData(response);
             },
             function(error){
@@ -395,49 +325,6 @@
         );
     }
 
-    function insertWorkflowAuthority(workflowId, item) {
-        httpClient.post(`/console/api/workflow-authority`,{},
-            {
-               workflowId:workflowId,
-               authorityCode:item.authorityCode
-            },
-            function(response){
-                alert("생성 완료되었습니다.");
-                getWorkflowAuthority(workflowId);
-            },
-            function(error){
-                alert('error');
-            }
-        );
-    }
-
-    function updateWorkflowAuthority(workflowId, item) {
-      httpClient.put(`/console/api/workflow-authority/${item.id}`, {},
-          {
-               workflowId:workflowId,
-               authorityCode:item.authorityCode
-          },
-          function(response){
-              alert("변경 완료되었습니다.");
-              getWorkflowAuthority(workflowId);
-          },
-          function(error){
-              alert('error');
-          }
-      );
-    }
-
-    function deleteWorkflowAuthority(workflowId, item) {
-      httpClient.delete(`/console/api/workflow-authority/${item.id}`, {},
-          function(response){
-              alert("삭제 완료되었습니다.");
-              getWorkflowAuthority(workflowId);
-          },
-          function(error){
-              alert('error');
-          }
-      );
-    }
     function setWorkflowGrid() {
         $("#workflowGrid").sortable({
             axis: "y",
@@ -560,8 +447,8 @@
                     <span class="step-message-id display-element"   style="color: #065f9e;" ${hiddenDisplayElement}>
                         <span class="display-element" >${data.requestMessageId}</span>
                     </span>
-                    <span class="step-message-id input-element" ${hiddenInputElement}>
-                        <input class="input-element" type="text" name="requestMessageId" value="${data.requestMessageId}" placeholder="요청메시지ID 입력" style="width:150px;" autocomplete="off" ></input>
+                    <span class="step-message-id input-element col-12" ${hiddenInputElement}>
+                        <input class="input-element form-control form-control-sm rounded-1" type="text" name="requestMessageId" value="${data.requestMessageId}" placeholder="요청메시지ID 입력" autocomplete="off" ></input>
                     </span>
                 </div>
 
@@ -594,8 +481,8 @@
                     <span class="step-message-id display-element"   style="color: #065f46;" ${hiddenDisplayElement}>
                         <span class="display-element" >${data.responseMessageId}</span>
                     </span>
-                    <span class="step-message-id input-element"   ${hiddenInputElement}>
-                        <input class="input-element" type="text" name="responseMessageId" value="${data.responseMessageId}" placeholder="응답메시지ID 입력" style="width:150px;" autocomplete="off" ></input>
+                    <span class="step-message-id input-element col-12"   ${hiddenInputElement}>
+                        <input class="input-element form-control form-control-sm rounded-1" type="text" name="responseMessageId" value="${data.responseMessageId}" placeholder="응답메시지ID 입력" autocomplete="off" ></input>
                     </span>
                 </div>
 
@@ -646,15 +533,8 @@
         drawConnectors();
     }
 
-    function saveFunction() {
-        if(!confirm("저장하시겠습니까?")) {
-            return;
-        }
-
+    function getWorkflowFunctionData() {
         const stepItems = document.querySelectorAll('#workflowGrid .step-item');
-
-        let workflowId = $("#workflowId").val();
-        workflowId = (workflowId) ? Number(workflowId) : null;
 
         let items = new Array();
         for(const stepItem of stepItems) {
@@ -662,16 +542,15 @@
             const fields = stepItem.querySelectorAll('input[name], select[name]');
             fields.forEach(el => (data[el.name] = el.value));
             data.id = (data.workflowFunctionId) ? Number(data.workflowFunctionId) : null;
-            data.workflowId = workflowId;
             data.orderNum = (data.orderNum) ? Number(data.orderNum) : null;
             items.push(data);
         }
 
-        saveWorkflowFunction(workflowId, items);
+        return items;
     }
 
     function deleteFunction(event) {
-        if(!confirm("삭제하시겠습니까?")) {
+        if(!confirm("삭제하시겠습니까?\n(삭제 후 저장해야 반영됩니다.)")) {
             return;
         }
 
@@ -685,13 +564,8 @@
         fields.forEach(el => (data[el.name] = el.value));
         data.id = data.workflowFunctionId;
 
-        if(data.workflowFunctionId) {
-            deleteWorkflowFunction($("#workflowId").val(), data);
-        }
-        else {
-            stepItem.remove();
-            drawConnectors();
-        }
+        stepItem.remove();
+        drawConnectors();
     }
 
     function editFunction(event) {
@@ -833,7 +707,7 @@
         <div class="col-sm-3">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">list</h3>
+                    <h3 class="card-title">Workflows</h3>
                     <div class="card-tools">
                         <button type="button" class="btn btn-default btn-sm" onclick="getWorkflowList()">
                             <i class="btn-icon fas fa-search"></i>
@@ -847,16 +721,111 @@
             </div>
         </div>
         <div class="col-sm-9">
-            <div class="card-header">
-                <div class="card-tools">
-                    <button type="button" class="btn btn-default btn-sm" >
-                        <i class="btn-icon fas fa-plus"></i>
-                        <span class="btn-label">Create</span>
-                    </button>
-                    <button type="button" class="btn btn-default btn-sm" >
-                        <i class="btn-icon fas fa-save"></i>
-                        <span class="btn-label">Save</span>
-                    </button>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-default btn-sm" onclick="newContent()">
+                            <i class="btn-icon fas fa-plus"></i>
+                            <span class="btn-label">Create</span>
+                        </button>
+                        <button type="button" class="btn btn-default btn-sm" onclick="save()">
+                            <i class="btn-icon fas fa-save"></i>
+                            <span class="btn-label">Save</span>
+                        </button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="deleteWorkflow()">
+                            <i class="btn-icon fas fa-trash"></i>
+                            <span class="btn-label">Delete</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+
+                    <div class="row">
+                        <div class="col-sm-8">
+                            <div class="card">
+                                <div id="workflowGrid" style="width:100%; min-height:800px; display:flex; flex-direction:column; gap:10px; align-items: center; justify-content: center;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-4">
+                            <div class="card" style="min-height:800px;">
+                                <div class="card-header p-0 border-bottom-0">
+                                    <ul class="nav nav-tabs" id="detail-tab" role="tablist">
+                                        <li class="nav-item">
+                                            <a class="nav-link active" id="workflow-def-tab" data-toggle="pill" href="#workflow-def" role="tab" aria-controls="workflow-def" aria-selected="true">
+                                                Definition
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" id="execute-tab" data-toggle="pill" href="#execute" role="tab" aria-controls="execute" aria-selected="false">
+                                                Execute
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="card-body">
+                                    <div class="tab-content" id="detail-tabContent" >
+
+                                        <div class="tab-pane fade show active" id="workflow-def" role="tabpanel" aria-labelledby="workflow-def-tab">
+
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="form-group col-1 d-none">
+                                                        <input type="text" class="form-control form-control-sm rounded-0" id="workflowId" >
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="form-group d-flex">
+                                                        <label for="workflowCode" style="width:130px;">코드</label>
+                                                        <input type="text" class="form-control form-control-sm rounded-0" id="workflowCode" autocomplete="off" >
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="form-group d-flex">
+                                                        <label for="displayName" style="width:130px;">명칭</label>
+                                                        <input type="text" class="form-control form-control-sm rounded-0" id="displayName" autocomplete="off">
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="form-group d-flex">
+                                                        <label for="useAuthValidation" style="width:100px;">인증사용</label>
+                                                        <div class="custom-control custom-switch" style="transform: scale(1.5); transform-origin: left center;">
+                                                            <input type="checkbox" class="custom-control-input" id="useAuthValidation">
+                                                            <label for="useAuthValidation" class="custom-control-label" style="cursor: pointer;">
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <label>권한</label>
+                                                    <div style=" display: flex; margin-left: auto;">
+                                                        <button type="button" class="btn btn-default btn-sm" onclick="workflowAuthorityGrid.addRowData()" >
+                                                            <i class="btn-icon fas fa-plus"></i>
+                                                            <span class="btn-label">Add</span>
+                                                        </button>
+                                                    </div>
+                                                    <div id="workflowAuthorityGrid"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="tab-pane fade" id="execute" role="tabpanel" aria-labelledby="execute-tab">
+                                            <div class="card-header">
+                                                <div class="card-tools">
+                                                    <mf-action-button id="execute" actionName="execute()" icon="fas fa-check"></mf-action-button>
+                                                </div>
+                                            </div>
+                                            <div class="card-body">
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>

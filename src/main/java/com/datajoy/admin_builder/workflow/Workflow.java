@@ -30,10 +30,6 @@ public class Workflow {
     @Column(nullable = false)
     private Boolean useAuthValidation;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "WORKFLOW_ID")
-    private List<WorkflowFunction> functions = new ArrayList<>();
-
     public void update(String workflowCode, String displayName, String note, Boolean useAuthValidation) {
         this.workflowCode = workflowCode;
         this.displayName = displayName;
