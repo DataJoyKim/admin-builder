@@ -29,8 +29,8 @@ public class Query {
     @Column(nullable = false, length = 100)
     private String dataSourceName;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "QUERY_ID")
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval=true)
+    @JoinColumn(name = "query_id")
     private List<QueryParam> queryParams = new ArrayList<>();
 
     @Lob
@@ -58,5 +58,20 @@ public class Query {
                 .sql(this.query)
                 .sqlParameters(sqlParameters)
                 .build();
+    }
+
+    public void update(
+            String queryName,
+            String displayName,
+            String dataSourceName,
+            String query,
+            List<QueryParam> queryParams) {
+        this.queryName = queryName;
+        this.displayName = displayName;
+        this.dataSourceName = dataSourceName;
+        this.query = query;
+
+        this.queryParams.clear();
+        this.queryParams.addAll(queryParams);
     }
 }

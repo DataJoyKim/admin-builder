@@ -27,7 +27,7 @@ public class QueryExecutor implements FunctionExecutor {
         List<Map<String,Object>> results = new ArrayList<>();
 
         for(Map<String, Object> param : params) {
-            String seq = (String) param.get(config.getRequestMessageSeqKey());
+            String seq = String.valueOf(param.get(config.getRequestMessageSeqKey()));
 
             QueryRequest queryParams = QueryRequest.builder()
                                         .contents(param)

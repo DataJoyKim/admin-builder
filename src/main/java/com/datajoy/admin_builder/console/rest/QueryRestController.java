@@ -1,13 +1,15 @@
 package com.datajoy.admin_builder.console.rest;
 
-import com.datajoy.admin_builder.query.Query;
-import com.datajoy.admin_builder.query.QueryRequest;
-import com.datajoy.admin_builder.query.QueryResult;
-import com.datajoy.admin_builder.query.QueryService;
+import com.datajoy.admin_builder.console.repository.ConsoleQueryParamRepository;
+import com.datajoy.admin_builder.query.*;
 import com.datajoy.admin_builder.console.repository.ConsoleQueryRepository;
+import com.datajoy.admin_builder.query.code.AutoValueType;
+import com.datajoy.admin_builder.query.code.InOut;
+import com.datajoy.admin_builder.query.code.ParamType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -21,6 +23,8 @@ public class QueryRestController {
     private ConsoleQueryRepository queryRepository;
     @Autowired
     private QueryService queryService;
+    @Autowired
+    private ConsoleQueryParamRepository queryParamRepository;
 
     @GetMapping("")
     public ResponseEntity<?> getQuery(
@@ -41,6 +45,55 @@ public class QueryRestController {
     public ResponseEntity<?> getQuery(@PathVariable("id") Long id) {
         Query results = queryRepository.findById(id)
                 .orElseThrow(RuntimeException::new);
+
+        return new ResponseEntity<>(results, HttpStatus.OK);
+    }
+
+    @Transactional
+    @PostMapping("/save")
+    public ResponseEntity<?> save(@RequestBody Map<String,Object> params) {
+        Map<String,Object> pQuery = (Map<String, Object>) params.get("query");
+        List<Map<String,Object>> pQueryParams = (List<Map<String,Object>>) params.get("queryParams");
+
+        Long id = (pQuery.get("id") == null || ((String) pQuery.get("id")).isEmpty())
+                ? null
+                : Long.valueOf((String) pQuery.get("id"));
+
+        List<QueryParam> queryParams = new ArrayList<>();
+        for(Map<String,Object> p : pQueryParams) {
+            queryParams.add(
+                    QueryParam.builder()
+                        .paramName((String) p.get("paramName"))
+                        .paramType(ParamType.valueOf((String) p.get("paramType")))
+                        .autoValueType(AutoValueType.valueOf((String) p.get("autoValueType")))
+                        .inOut(InOut.valueOf((String) p.get("inOut")))
+                    .build());
+        }
+
+        Query query;
+        if (id == null) {
+            query = Query.builder()
+                    .queryName((String) pQuery.get("queryName"))
+                    .displayName((String) pQuery.get("displayName"))
+                    .dataSourceName((String) pQuery.get("dataSourceName"))
+                    .query((String) pQuery.get("query"))
+                    .queryParams(queryParams)
+                    .build();
+        }
+        else {
+            query = queryRepository.findById(id)
+                    .orElseThrow(RuntimeException::new);
+
+            query.update(
+                    (String) pQuery.get("queryName"),
+                    (String) pQuery.get("displayName"),
+                    (String) pQuery.get("dataSourceName"),
+                    (String) pQuery.get("query"),
+                    queryParams
+            );
+        }
+
+        Query results = queryRepository.save(query);
 
         return new ResponseEntity<>(results, HttpStatus.OK);
     }

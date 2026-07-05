@@ -99,17 +99,8 @@
             {code:"ENTITY",name:"Entity"},
             {code:"REST_CLIENT",name:"Rest Client"},
             {code:"MESSAGE_PROCESSOR",name:"메시지처리"}
-        ],
-        "YN_CD":[
-            {code:"true",name:"Y"},
-            {code:"false",name:"N"}
-        ],
-        "CODE_LANGUAGE":[
-            {code:"GROOVY",name:"Groovy"}
         ]
     };
-
-    let codes;
 
     $( document ).ready(function() {
         init();
@@ -135,11 +126,23 @@
                 }
             });
 
+        Sheet.initSheet('executeGrid', "100%", "300px",
+            {
+                useSeq:false,
+                useStatus:false,
+                useDelete:true,
+                useExpendLastColumn:true
+            },
+            [
+                {field:'messageId', label:'메시지ID', type:'text', width:120, editable: true, align:'left', required:false},
+                {field:'key', label:'컬럼', type:'text', width:120, editable: true, align:'left', required:false},
+                {field:'value', label:'값', type:'text', width:100, editable: true, align:'left', required:false}
+            ]);
+
         getWorkflowList();
         setWorkflowGrid();
         setAuthorityGrid();
         showGrid('workflow-authority-card',true);
-        newContent();
     }
 
     function getWorkflowList() {
@@ -168,6 +171,8 @@
                         {field:'id', label:'ID', type:'text', width:30, hide:true, editable: true, align:'center', required:true},
                         {field:'authorityCode', label:'권한', type:'combo', width:300, editable: true, align:'center', required:false, comboCodes:codes}
                     ]);
+
+                newContent();
             },
             function(error){
                 alert('error');
@@ -279,26 +284,17 @@
     }
 
     function execute() {
-        let executeType = $("#executeType").val();
-        let executeTarget = $("#executeTarget").val();
-        let requestMessageId = $("#requestMessageId").val();
+        const gridData = executeGrid.getSheetData();
 
-        let contents = {};
-        let gridData = grid.getSheetData("executeGrid");
-
-        for(let i=0; i<gridData.length; i++) {
-            let value = gridData[i]["value"];
-            if(value == "null") {
-                contents[gridData[i]["key"]] = null;
+        const body = gridData.reduce((result, item) => {
+            if (!result[item.messageId]) {
+                result[item.messageId] = [];
             }
-            else {
-                contents[gridData[i]["key"]] = value;
-            }
-        }
+            result[item.messageId].push(item);
+            return result;
+        }, {});
 
-        let body = {};
-        body[requestMessageId] = [contents];
-        let header = {workflowCode : executeTarget};
+        let header = {workflowCode : $("#workflowCode").val()};
 
         httpClient.post(`/workflow`,{},{body:body,header:header},
             function(response){
@@ -811,12 +807,25 @@
                                         </div>
 
                                         <div class="tab-pane fade" id="execute" role="tabpanel" aria-labelledby="execute-tab">
-                                            <div class="card-header">
-                                                <div class="card-tools">
-                                                    <mf-action-button id="execute" actionName="execute()" icon="fas fa-check"></mf-action-button>
-                                                </div>
-                                            </div>
                                             <div class="card-body">
+                                                <div class="row">
+                                                    <label>요청메시지</label>
+                                                    <div style=" display: flex; margin-left: auto;">
+                                                        <button type="button" class="btn btn-default btn-sm" onclick="executeGrid.addRowData()" >
+                                                            <i class="btn-icon fas fa-plus"></i>
+                                                            <span class="btn-label">Add</span>
+                                                        </button>
+                                                        <button type="button" class="btn btn-success btn-sm" onclick="execute()" >
+                                                            <i class="btn-icon fas fa-play"></i>
+                                                            <span class="btn-label">Run</span>
+                                                        </button>
+                                                    </div>
+                                                    <div id="executeGrid"></div>
+                                                </div>
+                                                <div class="row">
+                                                    <label>실행 결과</label>
+                                                    <textarea class="col-12" id="responseData"  rows="10" ></textarea>
+                                                </div>
                                             </div>
                                         </div>
 

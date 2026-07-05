@@ -17,9 +17,6 @@ public class QueryParam {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name="QUERY_ID", nullable = false)
-    private Long queryId;
-
     @Column(nullable = false, length = 200)
     private String paramName;
 
