@@ -49,6 +49,13 @@
         border-radius: 12px;
     }
 
+    .message-in {
+        background-color: #bae6ff;color: #0369a1;
+    }
+    .message-out {
+        background-color: #a8f0a0;color: #047857;
+    }
+
     .step-message-id {
        font-weight: 500;
        font-size: 12px;
@@ -71,6 +78,11 @@
         position: absolute;
         top: -25px;
         right: 5px;
+        color: #065f9e;
+    }
+
+    .step-tool {
+        cursor: pointer;
     }
 
     .step-function-img {
@@ -85,6 +97,13 @@
     .step-function-name {
         display: flex;
         flex-direction: column;
+    }
+
+    .function-display-name {
+        color: #1f2937; font-weight: 500;font-size: 18px;
+    }
+    .function-name {
+        color: #1f2937; font-weight: 300;font-size: 14px;
     }
 
     .selected {
@@ -102,8 +121,52 @@
         ]
     };
 
+    const STEP_ITEM_ID_PREFIX = 'step-item-';
+
     $( document ).ready(function() {
         init();
+
+        // 컴포넌트 선택 영역
+        $(document).on("click", ".step-item", function(e) {
+            e.stopPropagation();
+
+            // 이전 선택 제거
+            $(".step-item").removeClass("selected");
+
+            // 현재 요소 선택
+            $(this).addClass("selected");
+        });
+
+        $(document).off("input").on('input', '.input-element', function(e) {
+            const name = $(this).attr('name');
+            const value = $(this).val();
+            const itemId = $(this).data('item-id');
+            const itemData = getStepItemData(itemId);
+            itemData[name] = value;
+
+            setStepItemData(itemId, itemData);
+        });
+
+        $(document).on('click', '[name="btnEdit"]', function(e) {
+            const itemId = $(this).data('item-id');
+            changeEditMode(itemId);
+        });
+
+        $(document).on('click', '[name="btnCancel"]', function(e) {
+            const itemId = $(this).data('item-id');
+            changeViewMode(itemId);
+        });
+
+        $(document).on('click', '[name="btnDelete"]', function(e) {
+            const itemId = $(this).data('item-id');
+            deleteFunction(itemId, e);
+        });
+
+        $(document).on('click', '[name="btnFunctionSetting"]', function(e) {
+            const itemId = $(this).data('item-id');
+            const item = getStepItemData(itemId);
+            openPopupFunctionSetting(item.functionType, item.functionName);
+        });
     });
 
     function init() {
@@ -196,6 +259,17 @@
                 alert("에러 발생하였습니다.");
             }
         );
+    }
+
+    function getWorkflowFunctionData() {
+        const stepItems = document.querySelectorAll('#workflowGrid .step-item');
+
+        let items = new Array();
+        for(const stepItem of stepItems) {
+            items.push(getStepItemData(stepItem.id));
+        }
+
+        return items;
     }
 
     function deleteWorkflow() {
@@ -350,31 +424,39 @@
 
     function setStepItemsOrderNum() {
         $("#workflowGrid .step-item").each(function(index) {
-            $(this).find("input[name='orderNum']").val(index + 1);
+            const orderNum = index + 1;
+
+            $(this).find("input[name='orderNum']").val(orderNum);
+
+            const data = $(this).data("data");
+            if (data) {
+                data.orderNum = orderNum;
+            }
         });
     }
 
     function drawWorkflow(id, response){
-        let stepItemIdPrefix = 'step-item-';
-        let html = '';
+        const layout = $("#"+id);
+
+        layout.empty();
 
         for(let data of response) {
-            html += htmlStepItem(stepItemIdPrefix+data.id, data, false);
+            const itemId = STEP_ITEM_ID_PREFIX+data.id;
+            layout.append(renderStepItem(itemId, data));
+            changeViewMode(itemId);
         }
-         html += htmlAddStepItem();
-        html += htmlConnectLine();
-
-        $("#"+id).html(html);
+        layout.append(renderAddStepItem());
+        layout.append(renderConnectLine());
 
         drawConnectors();
 
         for(let data of response) {
-            setStepItemData(stepItemIdPrefix+data.id, data);
+            setStepItemData(STEP_ITEM_ID_PREFIX+data.id, data);
         }
     }
 
-    function htmlAddStepItem() {
-        return `
+    function renderAddStepItem() {
+        return $(`
             <div class="add-step-item connector"
                  style="justify-content:center; align-items:center; cursor:pointer; border:2px dashed #9ca3af; background:#f9fafb;"
                  onclick="addStepItem()">
@@ -382,170 +464,189 @@
                 <i class="fas fa-plus" style="font-size:24px; color:#6b7280;"></i>
                 <div style="margin-top:5px; color:#6b7280;">단계 추가</div>
             </div>
-        `;
+        `);
+    }
+
+    function renderConnectLine() {
+        return $(`<svg id="connectorLayer" width="100%" height="100%" style="position:absolute; top:0; left:0; pointer-events:none;"></svg>`);
     }
 
     function setStepItemData(id, data) {
         $('#'+id).data('data', data);
+
+        for(let columnName in data) {
+            const value = data[columnName];
+            if(columnName == 'functionType') {
+                $(`#${id} [name="view-${columnName}"]`).attr("src", getFunctionIconPath(value));
+            }
+            else {
+                $(`#${id} [name="view-${columnName}"]`).text((value) ? value : '');
+            }
+        }
     }
 
     function getStepItemData(id) {
         return $('#'+id).data('data');
     }
-
-    function htmlConnectLine() {
-        return `<svg id="connectorLayer" width="100%" height="100%" style="position:absolute; top:0; left:0; pointer-events:none;"></svg>`;
+    function removeStepItemData(id) {
+        $('#'+id).removeData("data");
     }
 
-    function htmlStepItem(id, data, create) {
-        let iconPath = '';
-        if(data.functionType == 'SQL'){
-            iconPath = '/dist/img/func-sql.png';
+    function getFunctionIconPath(functionType) {
+        if(functionType == 'SQL'){
+            return '/dist/img/func-sql.png';
         }
-        else if(data.functionType == 'ENTITY'){
-            iconPath = '/dist/img/func-entity.png';
+        else if(functionType == 'ENTITY'){
+            return '/dist/img/func-entity.png';
         }
-        else if(data.functionType == 'REST_CLIENT'){
-            iconPath = '/dist/img/func-restclient.png';
+        else if(functionType == 'REST_CLIENT'){
+            return '/dist/img/func-restclient.png';
         }
-        else if(data.functionType == 'MESSAGE_PROCESSOR'){
-            iconPath = '/dist/img/func-code.png';
-        }
-
-        let hiddenDisplayElement = '';
-        let hiddenInputElement = 'hidden';
-        let hiddenUndoBtn = 'hidden';
-        let hiddenEditBtn = '';
-        let hiddenDeleteBtn = '';
-        if(create) {
-            hiddenInputElement = '';
-            hiddenDisplayElement = 'hidden';
-            hiddenEditBtn = 'hidden';
-            hiddenUndoBtn = 'hidden';
+        else if(functionType == 'MESSAGE_PROCESSOR'){
+            return '/dist/img/func-code.png';
         }
 
-        let htmlOptionFunctionType = '';
-        let functionTypeCode = App.codes['FUNCTION_TYPE'];
-        for(let v of functionTypeCode) {
-            htmlOptionFunctionType += `<option value="${v.code}" ${data.functionType == v.code ? 'selected' : ''}>${v.name}</option>`;
+        return null;
+    }
+
+    function inputEl(itemId, name, value, attr) {
+        const el = $(`<input class="form-control form-control-sm rounded-1 input-element" type="text" name="${name}" data-item-id="${itemId}"></input>`);
+        el.attr('autocomplete' , 'off');
+        if(value) {
+            el.val(value);
         }
 
-        return `
-            <div class="step-item connector" id="${id}">
-                <input type="number" name="workflowFunctionId" value="${data.id}" hidden></input>
-                <input type="number" name="orderNum" value="${data.orderNum}" hidden></input>
+        if(attr && attr.placeholder) {
+            el.attr('placeholder'  , attr.placeholder);
+        }
 
-                <!-- IN 영역 -->
-                <div class="step-message" >
-                    <span class="step-message-type display-element" style="background-color: #bae6ff;color: #0369a1;" ${hiddenDisplayElement}>
-                        IN
-                    </span>
-                    <span class="step-message-id display-element"   style="color: #065f9e;" ${hiddenDisplayElement}>
-                        <span class="display-element" >${data.requestMessageId}</span>
-                    </span>
-                    <span class="step-message-id input-element col-12" ${hiddenInputElement}>
-                        <input class="input-element form-control form-control-sm rounded-1" type="text" name="requestMessageId" value="${data.requestMessageId}" placeholder="요청메시지ID 입력" autocomplete="off" ></input>
-                    </span>
-                </div>
+        return el;
+    }
 
-                <!-- 기능 영역 -->
-                <div class="step-function" >
-                    <span class="step-function-img display-element" ${hiddenDisplayElement}>
-                        <img class="display-element" src="${iconPath}" width="60" height="60" style="display:block;" ${hiddenDisplayElement}>
-                    </span>
-                    <span class="step-function-name display-element" ${hiddenDisplayElement}>
-                        <font class="display-element"  style="color: #1f2937; font-weight: 500;font-size: 18px;" ${hiddenDisplayElement}>
-                            ${data.displayName}
-                        </font>
-                        <font class="display-element"  style="color: #1f2937; font-weight: 300;font-size: 14px;" ${hiddenDisplayElement}>
-                            ${data.functionName}
-                        </font>
-                    </span>
-                    <span class="step-editor input-element col-12" ${hiddenInputElement}>
-                        <select class="input-element form-control form-control-sm rounded-1" name="functionType" ${hiddenInputElement}>
-                            ${htmlOptionFunctionType}
-                        </select>
-                        <input class="input-element form-control form-control-sm rounded-1" type="text" name="functionName" value="${data.functionName}" placeholder="기능코드 입력" autocomplete="off" ${hiddenInputElement}></input>
-                    </span>
-                </div>
+    function selectEl(itemId, name, codes, selectedValue) {
+        const el = $(`<select class="form-control form-control-sm rounded-1 input-element" name="${name}" data-item-id="${itemId}"></select>`);
 
-                <!-- OUT 영역 -->
-                <div class="step-message" >
-                    <span class="step-message-type display-element" style="background-color: #a8f0a0;color: #047857;" ${hiddenDisplayElement}>
-                        OUT
-                    </span>
-                    <span class="step-message-id display-element"   style="color: #065f46;" ${hiddenDisplayElement}>
-                        <span class="display-element" >${data.responseMessageId}</span>
-                    </span>
-                    <span class="step-message-id input-element col-12"   ${hiddenInputElement}>
-                        <input class="input-element form-control form-control-sm rounded-1" type="text" name="responseMessageId" value="${data.responseMessageId}" placeholder="응답메시지ID 입력" autocomplete="off" ></input>
-                    </span>
-                </div>
+        for(const code of codes) {
+            el.append($(`<option value="${code.code}">${code.name}</option>`));
+        }
 
-                <!-- 드래그 핸들 -->
-                <span class="step-tools" style="color: #065f9e;">
-                    <i class="fas fa-undo" name="btnCancel" style="cursor: pointer;" onclick="cancelEditFunction(event)" ${hiddenUndoBtn}></i>
-                    <i class="fas fa-pen" name="btnEdit" style="cursor: pointer;" onclick="editFunction(event)" ${hiddenEditBtn}></i>
-                    <i class="fas fa-trash" name="btnDelete"  style="cursor: pointer;" onclick="deleteFunction(event)" ></i>
-                    <i class="fas fa-ellipsis-h" name="btnFunctionSetting" style="cursor: pointer;" onclick="openPopupFunctionSetting('${data.functionType}','${data.functionName}')"  ${hiddenDisplayElement}></i>
+        el.val(selectedValue);
+
+        return el;
+    }
+
+    function changeViewMode(id) {
+        $(`#${id} .mode-edit`).css('display', 'none');
+        $(`#${id} .mode-view`).css('display', '');
+        changeEditBtn(id, false);
+    }
+    function changeEditMode(id) {
+        $(`#${id} .mode-edit`).css('display', '');
+        $(`#${id} .mode-view`).css('display', 'none');
+        changeEditBtn(id, true);
+    }
+
+    function changeEditBtn(itemId, change) {
+        showTool(itemId, 'btnEdit', !change);
+        showTool(itemId, 'btnCancel', change);
+    }
+
+    function showTool(id, toolName, show) {
+        $(`#${id} [name="${toolName}"]`).prop("hidden", !show);
+    }
+
+    function renderStepItem(id, data) {
+        const stepItemEl = $(`<div class="step-item connector" id="${id}"></div>`);
+
+        const hiddenEl = $(`
+            <input type="number" name="id" value="${data.id}" hidden></input>
+            <input type="number" name="orderNum" value="${data.orderNum}" hidden></input>
+        `);
+
+        const messageInViewEl = $(`
+            <div class="step-message mode-view" style="display:none;">
+                <span class="step-message-type message-in">IN</span>
+                <span class="step-message-id"   name="view-requestMessageId">${data.requestMessageId}</span>
+            </div>
+        `);
+
+        const functionViewEl = $(`
+            <div class="step-function mode-view" style="display:none;" >
+                <span class="step-function-img">
+                    <img name="view-functionType" src="${getFunctionIconPath(data.functionType)}" width="60" height="60" style="display:block;">
+                </span>
+                <span class="step-function-name">
+                    <font class="function-display-name"     name="view-displayName">${data.displayName}</font>
+                    <font class="function-name"             name="view-functionName">${data.functionName}</font>
                 </span>
             </div>
-        `;
-    }
+        `);
 
-    // 컴포넌트 선택 영역
-    $(document).on("click", ".step-item", function(e) {
-        e.stopPropagation();
+        const messageOutViewEl = $(`
+            <div class="step-message mode-view" style="display:none;" >
+                <span class="step-message-type message-out">OUT</span>
+                <span class="step-message-id" name="view-responseMessageId">${data.responseMessageId}</span>
+            </div>
+        `);
 
-        // 이전 선택 제거
-        $(".step-item").removeClass("selected");
+        const messageInEditEl = $(`<div class="step-message mode-edit" style="display:none;"></div>`);
+        const messageInIdEl = $(`<span class="step-message-id col-12"></span>`);
+        messageInIdEl.append(inputEl(id, 'requestMessageId', data.requestMessageId, {placeholder:'요청메시지ID 입력'}));
+        messageInEditEl.append(messageInIdEl);
 
-        // 현재 요소 선택
-        $(this).addClass("selected");
-    });
+        const functionEditEl = $(`<div class="step-function mode-edit" style="display:none;"></div>`);
+        const functionEditorEl = $(`<span class="step-editor col-12"></span>`);
+        functionEditorEl.append(selectEl(id, 'functionType', App.codes['FUNCTION_TYPE'], data.functionType));
+        functionEditorEl.append(inputEl(id, 'functionName', data.functionName, {placeholder:'기능코드 입력'}));
+        functionEditEl.append(functionEditorEl);
 
-    function executeFunction(functionType, functionName, requestMessageId) {
-        $("#executeTarget").val(functionName);
-        $("#executeType").val(functionType);
-        $("#requestMessageId").val(requestMessageId);
-        $("#responseData").val('');
+        const messageOutEditEl = $(`<div class="step-message mode-edit" style="display:none;" ></div>`);
+        const messageOutIdEl = $(`<span class="step-message-id col-12"></span>`);
+        messageOutIdEl.append(inputEl(id, 'responseMessageId', data.responseMessageId, {placeholder:'응답메시지ID 입력'}));
+        messageOutEditEl.append(messageOutIdEl);
 
-        showGrid('execute-card',true);
+        const toolsEl = $(`
+            <span class="step-tools">
+                <i class="step-tool fas fa-undo"        name="btnCancel"            data-item-id="${id}" hidden></i>
+                <i class="step-tool fas fa-pen"         name="btnEdit"              data-item-id="${id}"></i>
+                <i class="step-tool fas fa-trash"       name="btnDelete"            data-item-id="${id}" ></i>
+                <i class="step-tool fas fa-ellipsis-h"  name="btnFunctionSetting"   data-item-id="${id}"></i>
+            </span>
+        `);
+
+        stepItemEl.append(hiddenEl);
+        stepItemEl.append(messageInViewEl);
+        stepItemEl.append(messageInEditEl);
+        stepItemEl.append(functionViewEl);
+        stepItemEl.append(functionEditEl);
+        stepItemEl.append(messageOutViewEl);
+        stepItemEl.append(messageOutEditEl);
+        stepItemEl.append(toolsEl);
+
+        return stepItemEl;
     }
 
     function addStepItem() {
-        let orderNum = getLastStepOrder()+1;
-
-        const newItem = htmlStepItem('step-item-C'+orderNum, {
+        const orderNum = getLastStepOrder()+1;
+        const id = 'step-item-C'+orderNum;
+        const data = {
             orderNum:Number(orderNum),
-            functionType:"",
+            functionType:"SQL",
             functionName:"",
+            displayName:"(기능생성필요)",
             requestMessageId:"",
             responseMessageId:""
-        }, true);
-
-        $(".add-step-item").before(newItem);
-
-        drawConnectors();
-    }
-
-    function getWorkflowFunctionData() {
-        const stepItems = document.querySelectorAll('#workflowGrid .step-item');
-
-        let items = new Array();
-        for(const stepItem of stepItems) {
-            const data = {};
-            const fields = stepItem.querySelectorAll('input[name], select[name]');
-            fields.forEach(el => (data[el.name] = el.value));
-            data.id = (data.workflowFunctionId) ? Number(data.workflowFunctionId) : null;
-            data.orderNum = (data.orderNum) ? Number(data.orderNum) : null;
-            items.push(data);
         }
 
-        return items;
+        $(".add-step-item").before(renderStepItem(id, data));
+        changeEditMode(id);
+
+        drawConnectors();
+
+        setStepItemData(id, data);
     }
 
-    function deleteFunction(event) {
+    function deleteFunction(itemId, event) {
         if(!confirm("삭제하시겠습니까?\n(삭제 후 저장해야 반영됩니다.)")) {
             return;
         }
@@ -562,74 +663,8 @@
 
         stepItem.remove();
         drawConnectors();
-    }
 
-    function editFunction(event) {
-        event.stopPropagation();
-
-        const stepItem = event.target.closest('.step-item');
-        if (!stepItem) return;
-
-        const inputElements = stepItem.querySelectorAll('.input-element')
-        inputElements.forEach(el => {
-            el.hidden = false;
-        });
-
-        const displayElements = stepItem.querySelectorAll('.display-element')
-        displayElements.forEach(el => {
-            el.hidden = true;
-        });
-
-        const btnCancels = stepItem.querySelectorAll('[name="btnCancel"]');
-        btnCancels.forEach(el => {
-            el.hidden = false;
-        });
-
-        const btnEdits = stepItem.querySelectorAll('[name="btnEdit"]');
-        btnEdits.forEach(el => {
-            el.hidden = true;
-        });
-
-        const btnDeletes = stepItem.querySelectorAll('[name="btnDelete"]');
-        btnDeletes.forEach(el => {
-            el.hidden = true;
-        });
-    }
-
-    function cancelEditFunction(event) {
-        event.stopPropagation();
-
-        const stepItem = event.target.closest('.step-item');
-        if (!stepItem) return;
-
-        let originalData = getStepItemData(stepItem.id);
-        console.log('originalData',originalData);
-
-        const inputElements = stepItem.querySelectorAll('.input-element')
-        inputElements.forEach(el => {
-            el.hidden = true;
-            el.value = originalData[el.name];
-        });
-
-        const displayElements = stepItem.querySelectorAll('.display-element')
-        displayElements.forEach(el => {
-            el.hidden = false;
-        });
-
-        const btnCancels = stepItem.querySelectorAll('[name="btnCancel"]');
-        btnCancels.forEach(el => {
-            el.hidden = true;
-        });
-
-        const btnEdits = stepItem.querySelectorAll('[name="btnEdit"]');
-        btnEdits.forEach(el => {
-            el.hidden = false;
-        });
-
-        const btnDeletes = stepItem.querySelectorAll('[name="btnDelete"]');
-        btnDeletes.forEach(el => {
-            el.hidden = false;
-        });
+        removeStepItemData(itemId);
     }
 
     function drawConnectors() {
@@ -684,6 +719,11 @@
     }
 
     function openPopupFunctionSetting(type, functionName) {
+        if(!functionName) {
+            alert("기능코드를 입력해주세요.");
+            return;
+        }
+
         if(type == 'SQL') {
             App.modalPopup.open('/console/workflow-sql',{title:'SQL 팝업',size:"modal-xl",messageId:'FUNC_REQUEST'},{functionName:functionName});
         }

@@ -57,7 +57,7 @@
                 {field:'inOut', label:'IN/OUT', type:'combo', width:150, editable: true, align:'center', required:true, comboCodes:App.codes['IN_OUT']}
             ]);
 
-        Sheet.initSheet('executeGrid', "100%", "300px",
+        Sheet.initSheet('executeGrid', "100%", "250px",
             {
                 useSeq:false,
                 useStatus:false,
@@ -65,9 +65,8 @@
                 useExpendLastColumn:true
             },
             [
-                {field:'messageId', label:'메시지ID', type:'text', width:300, editable: true, align:'left', required:false},
-                {field:'key', label:'컬럼', type:'text', width:300, editable: true, align:'left', required:false},
-                {field:'value', label:'값', type:'text', width:100, editable: true, align:'left', required:false}
+                {field:'key', label:'파라미터', type:'text', width:400, editable: true, align:'left', required:false},
+                {field:'value', label:'값', type:'text', width:400, editable: true, align:'left', required:false}
             ]);
 
         App.modalPopup.receiveParam('FUNC_REQUEST', function(data){
@@ -119,18 +118,17 @@
     }
 
     function execute() {
-        let executeTarget = functionName;
+        let executeTarget = $("#query-queryName").val();
 
         let contents = {};
-        let gridData = grid.getSheetData("executeGrid");
+        const gridData = executeGrid.getSheetData();
 
-        for(let i=0; i<gridData.length; i++) {
-            let value = gridData[i]["value"];
-            if(value == "null") {
-                contents[gridData[i]["key"]] = null;
+        for(const data of gridData) {
+            if(data.value == "null") {
+                contents[data.key] = null;
             }
             else {
-                contents[gridData[i]["key"]] = value;
+                contents[data.key] = data.value;
             }
         }
 
@@ -269,7 +267,7 @@
                             </div>
                             <div class="form-group col-3">
                                 <label for="query-queryName">쿼리명</label>
-                                <input type="text" class="form-control form-control-sm rounded-0" id="query-queryName" autocomplete="off" >
+                                <input type="text" class="form-control form-control-sm rounded-0" id="query-queryName" autocomplete="off" disabled>
                             </div>
                             <div class="form-group col-3">
                                 <label for="query-displayName">화면노출명</label>
@@ -303,7 +301,7 @@
                 <div class="tab-pane fade" id="execute" role="tabpanel" aria-labelledby="execute-tab">
                     <div class="card-body">
                         <div class="row">
-                            <label>요청메시지</label>
+                            <label>SQL 파라미터</label>
                             <div style=" display: flex; margin-left: auto;">
                                 <button type="button" class="btn btn-default btn-sm" onclick="executeGrid.addRowData()" >
                                     <i class="btn-icon fas fa-plus"></i>
@@ -318,7 +316,7 @@
                         </div>
                         <div class="row">
                             <label>실행 결과</label>
-                            <textarea class="col-12" id="responseData"  rows="10" ></textarea>
+                            <textarea class="col-12" id="responseData"  rows="15" ></textarea>
                         </div>
                     </div>
                 </div>
