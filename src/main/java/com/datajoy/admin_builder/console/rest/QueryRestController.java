@@ -1,8 +1,6 @@
 package com.datajoy.admin_builder.console.rest;
 
-import com.datajoy.admin_builder.console.repository.ConsoleQueryParamRepository;
 import com.datajoy.admin_builder.query.*;
-import com.datajoy.admin_builder.console.repository.ConsoleQueryRepository;
 import com.datajoy.admin_builder.query.code.AutoValueType;
 import com.datajoy.admin_builder.query.code.InOut;
 import com.datajoy.admin_builder.query.code.ParamType;
@@ -15,16 +13,15 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController("console.QueryRestController")
 @RequestMapping("/console/api/query")
 public class QueryRestController {
     @Autowired
-    private ConsoleQueryRepository queryRepository;
+    private QueryRepository queryRepository;
     @Autowired
     private QueryService queryService;
-    @Autowired
-    private ConsoleQueryParamRepository queryParamRepository;
 
     @GetMapping("")
     public ResponseEntity<?> getQuery(
@@ -32,7 +29,9 @@ public class QueryRestController {
     ) {
         List<Query> results;
         if(queryName != null) {
-            results = queryRepository.findByQueryName(queryName);
+            Optional<Query> query = queryRepository.findByQueryName(queryName);
+            results = new ArrayList<>();
+            query.ifPresent(results::add);
         }
         else {
             results = queryRepository.findAll();
@@ -96,37 +95,6 @@ public class QueryRestController {
         Query results = queryRepository.save(query);
 
         return new ResponseEntity<>(results, HttpStatus.OK);
-    }
-
-    @PostMapping("")
-    public ResponseEntity<?> createQuery(@RequestBody Map<String,Object> params) {
-
-        Query query = Query.builder()
-                .queryName((String) params.get("queryName"))
-                .displayName((String) params.get("displayName"))
-                .dataSourceName((String) params.get("dataSourceName"))
-                .query((String) params.get("query"))
-                .build();
-
-        Query results = queryRepository.save(query);
-
-        return new ResponseEntity<>(results, HttpStatus.OK);
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateQuery(@PathVariable("id") Long id, @RequestBody Map<String,Object> params) {
-        Query query = queryRepository.findById(id)
-                .orElseThrow(RuntimeException::new);
-
-        queryRepository.update(
-                query.getId(),
-                (String) params.get("queryName"),
-                (String) params.get("displayName"),
-                (String) params.get("dataSourceName"),
-                (String) params.get("query")
-        );
-
-        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")

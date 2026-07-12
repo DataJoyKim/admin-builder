@@ -4,6 +4,7 @@ import com.datajoy.admin_builder.entity.code.EntityStatus;
 import com.datajoy.admin_builder.entity.query.EntityQueryGenerator;
 import com.datajoy.admin_builder.entity.query.EntityQueryGeneratorFactory;
 import com.datajoy.admin_builder.entity.query.FailedQueryGenerationException;
+import com.datajoy.admin_builder.query.QueryParam;
 import com.datajoy.admin_builder.sql.SqlParameter;
 import jakarta.persistence.*;
 import lombok.*;
@@ -35,7 +36,7 @@ public class Entity {
     @Column(nullable = false, length = 100)
     private String tableName;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval=true)
     @JoinColumn(name = "ENTITY_ID")
     private List<EntityColumn> entityColumns = new ArrayList<>();
 
@@ -81,5 +82,21 @@ public class Entity {
             i++;
         }
         return sqlParameters;
+    }
+
+    public void update(
+            String entityName,
+            String displayName,
+            String dataSourceName,
+            String tableName,
+            List<EntityColumn> entityColumns
+    ) {
+        this.entityName = entityName;
+        this.displayName = displayName;
+        this.dataSourceName = dataSourceName;
+        this.tableName = tableName;
+
+        this.entityColumns.clear();
+        this.entityColumns.addAll(entityColumns);
     }
 }

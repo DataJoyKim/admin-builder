@@ -53,6 +53,90 @@
     function init() {
         setDatSourceAsDatabase();
 
+        Sheet.initSheet('entityColumnGrid', "100%", "400px",
+            {
+                useSeq:true,
+                useStatus:false,
+                useDelete:true,
+                useExpendLastColumn:true
+            },
+            [
+                {field:'id', label:'ID', type:'text', width:20, editable: false, align:'left', required:false, hide:true},
+                {field:'columnName', label:'컬럼', type:'text', width:250, editable: true, align:'left', required:true},
+                {field:'displayName', label:'화면노출명', type:'text', width:250, editable: true, align:'left', required:true},
+                {field:'useKey', label:'Key', type:'check', width:100, editable: true, align:'center', required:false},
+                {field:'columnType', label:'타입', type:'combo', width:200, editable: true, align:'center', required:false, comboCodes:App.codes['COLUMN_TYPE']},
+                {field:'orderNum', label:'순서', type:'number', width:100, editable: true, align:'center', required:false}
+            ]);
+
+        Sheet.initSheet('selectQueryGrid', "100%", "400px",
+            {
+                useSeq:false,
+                useStatus:false,
+                useDelete:false,
+                useExpendLastColumn:true
+            },
+            [
+                {field:'columnName', label:'컬럼', type:'text', width:250, editable: false, align:'left', required:false},
+                {field:'selectWhereType', label:'where 유형', type:'combo', width:200, editable: true, align:'center', required:false, comboCodes:App.codes['SELECT_WHERE_TYPE']},
+                {field:'selectWhereCompareOperator', label:'where 비교연산자', type:'combo', width:200, editable: true, align:'center', required:false, comboCodes:App.codes['SELECT_WHERE_COMPARE_OPERATOR']},
+                {field:'selectOrderByNum', label:'order by 순서', type:'number', width:200, editable: true, align:'center', required:false},
+                {field:'selectOrderBySortOrder', label:'order by 정렬유형', type:'combo', width:200, editable: true, align:'center', required:false, comboCodes:App.codes['SORT_ORDER']}
+            ]);
+
+        Sheet.initSheet('insertQueryGrid', "100%", "400px",
+            {
+                useSeq:false,
+                useStatus:false,
+                useDelete:false,
+                useExpendLastColumn:true
+            },
+            [
+                {field:'columnName', label:'컬럼', type:'text', width:250, editable: false, align:'left', required:false},
+                {field:'insertNullResolveType', label:'null 처리유형', type:'combo', width:200, editable: true, align:'center', required:false, comboCodes:App.codes['NULL_RESOLVE_TYPE']},
+                {field:'insertAutoValueType', label:'자동값 유형', type:'combo', width:200, editable: true, align:'center', required:false, comboCodes:App.codes['ENTITY_AUTO_VALUE_TYPE']},
+                {field:'insertAutoValue', label:'자동값', type:'text', width:250, editable: true, align:'left', required:false}
+            ]);
+
+        Sheet.initSheet('updateQueryGrid', "100%", "400px",
+            {
+                useSeq:false,
+                useStatus:false,
+                useDelete:false,
+                useExpendLastColumn:true
+            },
+            [
+                {field:'columnName', label:'컬럼', type:'text', width:250, editable: false, align:'left', required:false},
+                {field:'updateNullResolveType', label:'null 처리유형', type:'combo', width:200, editable: true, align:'center', required:false, comboCodes:App.codes['NULL_RESOLVE_TYPE']},
+                {field:'updateAutoValueType', label:'자동값 유형', type:'combo', width:200, editable: true, align:'center', required:false, comboCodes:App.codes['ENTITY_AUTO_VALUE_TYPE']},
+                {field:'updateAutoValue', label:'자동값', type:'text', width:250, editable: true, align:'left', required:false}
+            ]);
+
+        Sheet.initSheet('deleteQueryGrid', "100%", "400px",
+            {
+                useSeq:false,
+                useStatus:false,
+                useDelete:false,
+                useExpendLastColumn:true
+            },
+            [
+                {field:'columnName', label:'컬럼', type:'text', width:250, editable: false, align:'left', required:false},
+                {field:'deleteAutoValueType', label:'자동값 유형', type:'combo', width:200, editable: true, align:'center', required:false, comboCodes:App.codes['ENTITY_AUTO_VALUE_TYPE']},
+                {field:'deleteAutoValue', label:'자동값', type:'text', width:250, editable: true, align:'left', required:false}
+            ]);
+
+        Sheet.initSheet('executeGrid', "100%", "250px",
+            {
+                useSeq:false,
+                useStatus:false,
+                useDelete:true,
+                useExpendLastColumn:true
+            },
+            [
+                {field:'key', label:'파라미터', type:'text', width:400, editable: true, align:'left', required:false},
+                {field:'value', label:'값', type:'text', width:400, editable: true, align:'left', required:false}
+            ]);
+
         App.modalPopup.receiveParam('FUNC_REQUEST', function(data){
             if(!data.functionName) {
                 alert('기능코드가 존재하지않습니다.');
@@ -60,6 +144,15 @@
 
             functionName = data.functionName;
             getEntity(functionName)
+        });
+    }
+
+    function newRowEntityColumnGrid() {
+        entityColumnGrid.addRowData({
+            columnName:"(컬럼)",
+            displayName:"(화면노출명)",
+            columnType:"STRING",
+            orderNum:1
         });
     }
 
@@ -113,26 +206,10 @@
             function(response){
                 if(response[0]) {
                     setEntityContent(response[0]);
-                    getEntityColumn(response[0].id);
                 }
                 else {
                     newEntityContent(entityName);
                 }
-            },
-            function(error){
-                alert('error');
-            }
-        );
-    }
-
-    function getEntityColumn(entityId) {
-        httpClient.get(`/console/api/entity-column/${entityId}`, {},
-            function(response){
-                grid.setSheetData('entityColumnGrid', response);
-                grid.setSheetData('entityColumnSelectGrid', response);
-                grid.setSheetData('entityColumnInsertGrid', response);
-                grid.setSheetData('entityColumnUpdateGrid', response);
-                grid.setSheetData('entityColumnDeleteGrid', response);
             },
             function(error){
                 alert('error');
@@ -150,12 +227,62 @@
         }
     }
 
+    function getEntityColumns() {
+        const columns = entityColumnGrid.getSheetData();
+        const selectQueryMap = getQuerySheetData(selectQueryGrid.getSheetData());
+        const insertQueryMap = getQuerySheetData(insertQueryGrid.getSheetData());
+        const updateQueryMap = getQuerySheetData(updateQueryGrid.getSheetData());
+        const deleteQueryMap = getQuerySheetData(deleteQueryGrid.getSheetData());
+
+        for(const col of columns) {
+            const selectObj = selectQueryMap[col.columnName];
+            if(selectObj) {
+                for(let queryCol in selectObj) {
+                    col[queryCol] = selectObj[queryCol];
+                }
+            }
+            const insertObj = insertQueryMap[col.columnName];
+            if(insertObj) {
+                for(let queryCol in insertObj) {
+                    col[queryCol] = insertObj[queryCol];
+                }
+            }
+            const updateObj = updateQueryMap[col.columnName];
+            if(updateObj) {
+                for(let queryCol in updateObj) {
+                    col[queryCol] = updateObj[queryCol];
+                }
+            }
+            const deleteObj = deleteQueryMap[col.columnName];
+            if(deleteObj) {
+                for(let queryCol in deleteObj) {
+                    col[queryCol] = deleteObj[queryCol];
+                }
+            }
+        }
+
+        return columns;
+    }
+
+    function getQuerySheetData(data) {
+        return data.reduce((result, item) => {
+            result[item.columnName] = item;
+            return result;
+        }, {});
+
+    }
+
     function setEntityContent(params) {
         $("#entity-id").val(params.id);
         $("#entity-entityName").val(params.entityName);
         $("#entity-displayName").val(params.displayName);
         $("#entity-dataSourceName").val(params.dataSourceName);
         $("#entity-tableName").val(params.tableName);
+        entityColumnGrid.setSheetData(params.entityColumns);
+        selectQueryGrid.setSheetData(params.entityColumns);
+        insertQueryGrid.setSheetData(params.entityColumns);
+        updateQueryGrid.setSheetData(params.entityColumns);
+        deleteQueryGrid.setSheetData(params.entityColumns);
       }
 
       function newEntityContent(entityName){
@@ -164,19 +291,18 @@
             entityName:entityName,
             displayName:'',
             dataSourceName:'',
-            tableName:''
+            tableName:'',
+            entityColumns:[]
             });
       }
 
-    function saveEntity() {
-      let id = $("#entity-id").val();
-
-        if(id) updateEntityContent(id);
-        else insertEntityContent();
-    }
-
-    function insertEntityContent() {
-        httpClient.post(`/console/api/entity`,{},getEntityContent(),
+    function save() {
+        httpClient.post(`/console/api/entity/save`,
+            {},
+            {
+                'entity':getEntityContent(),
+                'entityColumns':getEntityColumns()
+            },
             function(response){
                 alert("저장완료되었습니다.");
                 getEntity($("#entity-entityName").val());
@@ -186,269 +312,151 @@
             }
         );
     }
-
-    function updateEntityContent(id) {
-      httpClient.put(`/console/api/entity/${id}`, {}, getEntityContent(),
-          function(response){
-              alert("저장완료되었습니다.");
-              getEntity($("#entity-entityName").val());
-          },
-          function(error){
-              alert('error');
-          }
-      );
-    }
-
-    function deleteEntityContent() {
-      let id = $("#entity-id").val();
-
-      httpClient.delete(`/console/api/entity/${id}`, {},
-          function(response){
-              alert("삭제 처리 완료되었습니다.");
-              getEntity($("#entity-entityName").val());
-          },
-          function(error){
-              alert('error');
-          }
-      );
-    }
-
-    function insertEntityColumn(entityId, item) {
-        httpClient.post(`/console/api/entity-column`,{},
-            {
-               entityId:entityId,
-               columnName:item.columnName,
-               displayName:item.displayName,
-               useKey:item.useKey,
-               columnType:item.columnType
-            },
-            function(response){
-                alert("생성 완료되었습니다.");
-                getEntityColumn(entityId);
-            },
-            function(error){
-                alert('error');
-            }
-        );
-    }
-
-    function updateEntityColumn(path, entityId, entityColumnId, params) {
-      httpClient.put(`/console/api/entity-column/${entityColumnId}${path}`, {},params,
-          function(response){
-              alert("변경 완료되었습니다.");
-              getEntityColumn(entityId);
-          },
-          function(error){
-              alert('error');
-          }
-      );
-    }
-
-    function deleteEntityColumn(entityId, item) {
-      httpClient.delete(`/console/api/entity-column/${item.id}`, {},
-          function(response){
-              alert("삭제 완료되었습니다.");
-              getEntityColumn(entityId);
-          },
-          function(error){
-              alert('error');
-          }
-      );
-    }
 </script>
-<mf-view th:fragment="view">
-    <mf-data>
-        <mf-codes>
-        </mf-codes>
-        <mf-messages>
-            <mf-message id="ME_EVAL0001_01"></mf-message>
-            <mf-message id="ME_EVAL0001_02"></mf-message>
-            <mf-message id="ME_EVAL0001_03"></mf-message>
-        </mf-messages>
-    </mf-data>
-    <mf-actions>
+<div th:fragment="view">
+    <div class="card">
+        <div class="card-header p-0 border-bottom-0">
+            <ul class="nav nav-tabs" id="detail-tab" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="workflow-def-tab" data-toggle="pill" href="#workflow-def" role="tab" aria-controls="workflow-def" aria-selected="true">
+                        Definition
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="execute-tab" data-toggle="pill" href="#execute" role="tab" aria-controls="execute" aria-selected="false">
+                        Execute
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body">
+            <div class="tab-content" id="detail-tabContent" >
 
-        <mf-action name="insertEntityColumnEvent" args="args">
-            insertEntityColumn($("#entity-id").val(), args.item);
-        </mf-action>
+                <div class="tab-pane fade show active" id="workflow-def" role="tabpanel" aria-labelledby="workflow-def-tab">
+                    <div class="card-body">
+                        <div class="row">
+                            <div style=" display: flex; margin-left: auto;">
+                                <button type="button" class="btn btn-default btn-sm" onclick="save()" >
+                                    <i class="btn-icon fas fa-save"></i>
+                                    <span class="btn-label">Save</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-1 d-none">
+                                <label for="entity-id">ID</label>
+                                <input type="text" class="form-control form-control-sm rounded-0" id="entity-id" autocomplete="off" >
+                            </div>
+                            <div class="form-group col-3">
+                                <label for="entity-entityName">엔티티명</label>
+                                <input type="text" class="form-control form-control-sm rounded-0" id="entity-entityName" autocomplete="off" disabled>
+                            </div>
+                            <div class="form-group col-3">
+                                <label for="entity-displayName">화면노출명</label>
+                                <input type="text" class="form-control form-control-sm rounded-0" id="entity-displayName" autocomplete="off">
+                            </div>
+                            <div class="form-group col-3">
+                                <label for="entity-dataSourceName">데이터소스</label>
+                                <select class="form-control form-control-sm" id="entity-dataSourceName" >
+                                </select>
+                            </div>
+                            <div class="form-group col-2">
+                                <label for="entity-tableName">테이블명</label>
+                                <input type="text" class="form-control form-control-sm rounded-0" id="entity-tableName" autocomplete="off">
+                            </div>
+                        </div>
+                    </div>
 
-        <mf-action name="updateEntityColumnEvent" args="args">
-            updateEntityColumn("", $("#entity-id").val(),args.item.id,
-            {
-            columnName:args.item.columnName,
-            displayName:args.item.displayName,
-            useKey:args.item.useKey,
-            columnType:args.item.columnType,
-            orderNum:args.item.orderNum
-            });
-        </mf-action>
+                    <div class="tab-content">
+                        <div class="card-header p-0 border-bottom-0">
+                            <ul class="nav nav-tabs" id="column-tab" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="column-def-tab" data-toggle="pill" href="#column-def" role="tab" aria-controls="column-def" aria-selected="true">
+                                        컬럼
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="select-query-tab" data-toggle="pill" href="#select-query" role="tab" aria-controls="select-query" aria-selected="false">
+                                        Select 쿼리
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="insert-query-tab" data-toggle="pill" href="#insert-query" role="tab" aria-controls="insert-query" aria-selected="false">
+                                        Insert 쿼리
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="update-query-tab" data-toggle="pill" href="#update-query" role="tab" aria-controls="update-query" aria-selected="false">
+                                        Update 쿼리
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="delete-query-tab" data-toggle="pill" href="#delete-query" role="tab" aria-controls="delete-query" aria-selected="false">
+                                        Delete 쿼리
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="tab-pane fade show active" id="column-def" role="tabpanel" aria-labelledby="column-def-tab">
+                            <div class="row">
+                                <div style=" display: flex; margin-left: auto;">
+                                    <button type="button" class="btn btn-default btn-sm" onclick="newRowEntityColumnGrid()" >
+                                        <i class="btn-icon fas fa-plus"></i>
+                                        <span class="btn-label">Add</span>
+                                    </button>
+                                </div>
+                                <div id="entityColumnGrid"></div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="select-query" role="tabpanel" aria-labelledby="select-query-tab">
+                            <div class="row">
+                                <div id="selectQueryGrid"></div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="insert-query" role="tabpanel" aria-labelledby="insert-query-tab">
+                            <div class="row">
+                                <div id="insertQueryGrid"></div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="update-query" role="tabpanel" aria-labelledby="update-query-tab">
+                            <div class="row">
+                                <div id="updateQueryGrid"></div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="delete-query" role="tabpanel" aria-labelledby="delete-query-tab">
+                            <div class="row">
+                                <div id="deleteQueryGrid"></div>
+                            </div>
+                        </div>
+                    </div>
 
-        <mf-action name="deleteEntityColumnEvent" args="args">
-            deleteEntityColumn($("#entity-id").val(), args.item);
-        </mf-action>
+                </div>
 
-        <mf-action name="updateEntityColumnSelectEvent" args="args">
-            updateEntityColumn("/select", $("#entity-id").val(),args.item.id,
-            {
-            selectWhereType:args.item.selectWhereType,
-            selectWhereCompareOperator:args.item.selectWhereCompareOperator,
-            selectOrderByNum:args.item.selectOrderByNum,
-            selectOrderBySortOrder:args.item.selectOrderBySortOrder
-            });
-        </mf-action>
+                <div class="tab-pane fade" id="execute" role="tabpanel" aria-labelledby="execute-tab">
+                    <div class="card-body">
+                        <div class="row">
+                            <label>SQL 파라미터</label>
+                            <div style=" display: flex; margin-left: auto;">
+                                <button type="button" class="btn btn-default btn-sm" onclick="executeGrid.addRowData()" >
+                                    <i class="btn-icon fas fa-plus"></i>
+                                    <span class="btn-label">Add</span>
+                                </button>
+                                <button type="button" class="btn btn-success btn-sm" onclick="execute()" >
+                                    <i class="btn-icon fas fa-play"></i>
+                                    <span class="btn-label">Run</span>
+                                </button>
+                            </div>
+                            <div id="executeGrid"></div>
+                        </div>
+                        <div class="row">
+                            <label>실행 결과</label>
+                            <textarea class="col-12" id="responseData"  rows="15" ></textarea>
+                        </div>
+                    </div>
+                </div>
 
-        <mf-action name="updateEntityColumnInsertEvent" args="args">
-            updateEntityColumn("/insert", $("#entity-id").val(),args.item.id,
-            {
-            selectWhereType:args.item.selectWhereType,
-            selectWhereCompareOperator:args.item.selectWhereCompareOperator,
-            selectOrderByNum:args.item.selectOrderByNum,
-            selectOrderBySortOrder:args.item.selectOrderBySortOrder
-            });
-        </mf-action>
-
-        <mf-action name="updateEntityColumnUpdateEvent" args="args">
-            updateEntityColumn("/update", $("#entity-id").val(),args.item.id,
-            {
-            updateNullResolveType:args.item.updateNullResolveType,
-            updateAutoValueType:args.item.updateAutoValueType,
-            updateAutoValue:args.item.updateAutoValue
-            });
-        </mf-action>
-
-        <mf-action name="updateEntityColumnDeleteEvent" args="args">
-            updateEntityColumn("/delete", $("#entity-id").val(),args.item.id,
-            {
-            deleteAutoValueType:args.item.deleteAutoValueType,
-            deleteAutoValue:args.item.deleteAutoValue
-            });
-        </mf-action>
-    </mf-actions>
-    <mf-layout>
-        <mf-row>
-            <mf-col size="col-12">
-                <mf-card id="func-card" >
-                    <mf-tab-group>
-                        <mf-tab id="func" title="기능" active>
-                            <mf-card-header>
-                                <mf-action-button id="save" actionName="saveEntity" icon="fas fa-save"></mf-action-button>
-                                <mf-action-button id="delete" actionName="deleteEntityContent" icon="fas fa-trash"></mf-action-button>
-                            </mf-card-header>
-                            <mf-card-body>
-                                <mf-form id="entityForm">
-                                    <mf-row>
-                                        <mf-text-input id="entity-id"           label="ID"          enable="false" size="col-1" hidden="true"></mf-text-input>
-                                        <mf-text-input id="entity-entityName"   label="엔티티명"      enable="false" size="col-3" ></mf-text-input>
-                                        <mf-text-input id="entity-displayName"  label="화면노출명"    enable="true"  size="col-3" ></mf-text-input>
-                                        <mf-select id="entity-dataSourceName"   label="데이터소스"    enable="true"  size="col-3" ></mf-select>
-                                        <mf-text-input id="entity-tableName"    label="테이블명"      enable="true"  size="col-2" ></mf-text-input>
-                                    </mf-row>
-                                </mf-form>
-                            </mf-card-body>
-
-                            <mf-tab-group>
-                                <mf-tab id="entityColumn" title="컬럼 설정" active>
-                                    <mf-grid id="entityColumnGrid" width="100%" height="500px"
-                                             control="true" editing="true" inserting="true"
-                                             insertActionName="insertEntityColumnEvent"
-                                             updateActionName="updateEntityColumnEvent"
-                                             deleteActionName="deleteEntityColumnEvent"
-                                    >
-                                        <mf-grid-column  type="number"   id="id"           label="ID"        width="20px"  hidden="true" ></mf-grid-column>
-                                        <mf-grid-column  type="text"     id="columnName"   label="컬럼명"     width="100px" align="left" ></mf-grid-column>
-                                        <mf-grid-column  type="text"     id="displayName"  label="화면노출명"  width="100px" align="left" ></mf-grid-column>
-                                        <mf-grid-column  type="checkbox" id="useKey"       label="key"       width="50px" ></mf-grid-column>
-                                        <mf-grid-column  type="select"   id="columnType"   label="type"      width="50px" dataProvider="COLUMN_TYPE"></mf-grid-column>
-                                        <mf-grid-column  type="number"   id="orderNum"     label="순서"       width="30px" ></mf-grid-column>
-                                    </mf-grid>
-                                </mf-tab>
-
-                                <mf-tab id="entityColumnSelect" title="select 쿼리 설정" >
-                                    <mf-grid id="entityColumnSelectGrid" width="100%" height="500px"
-                                             control="true" editing="true"
-                                             updateActionName="updateEntityColumnSelectEvent"
-                                    >
-                                        <mf-grid-column  type="number"   id="id"                            label="ID"               width="20px"  hidden="true" ></mf-grid-column>
-                                        <mf-grid-column  type="text"     id="columnName"                    label="컬럼명"            width="100px" align="left" ></mf-grid-column>
-                                        <mf-grid-column  type="select"   id="selectWhereType"               label="where 유형"        width="50px" dataProvider="SELECT_WHERE_TYPE"></mf-grid-column>
-                                        <mf-grid-column  type="select"   id="selectWhereCompareOperator"    label="where 비교 연산자"  width="50px" dataProvider="SELECT_WHERE_COMPARE_OPERATOR"></mf-grid-column>
-                                        <mf-grid-column  type="number"   id="selectOrderByNum"              label="order by 순서"     width="50px" ></mf-grid-column>
-                                        <mf-grid-column  type="select"   id="selectOrderBySortOrder"        label="order by 정렬유형"  width="50px" dataProvider="SORT_ORDER"></mf-grid-column>
-                                    </mf-grid>
-                                </mf-tab>
-
-                                <mf-tab id="entityColumnInsert" title="insert 쿼리 설정">
-                                    <mf-grid id="entityColumnInsertGrid" width="100%" height="500px"
-                                             control="true" editing="true"
-                                             updateActionName="updateEntityColumnInsertEvent"
-                                    >
-                                        <mf-grid-column  type="number"   id="id"                      label="ID"           width="20px"  hidden="true" ></mf-grid-column>
-                                        <mf-grid-column  type="text"     id="columnName"              label="컬럼명"        width="100px" align="left" ></mf-grid-column>
-                                        <mf-grid-column  type="select"   id="insertNullResolveType"   label="null 처리유형"  width="50px" dataProvider="NULL_RESOLVE_TYPE"></mf-grid-column>
-                                        <mf-grid-column  type="select"   id="insertAutoValueType"     label="자동값 유형"    width="50px" dataProvider="ENTITY_AUTO_VALUE_TYPE"></mf-grid-column>
-                                        <mf-grid-column  type="text"     id="insertAutoValue"         label="자동값"        width="100px" align="left" ></mf-grid-column>
-                                    </mf-grid>
-                                </mf-tab>
-
-                                <mf-tab id="entityColumnUpdate" title="update 쿼리 설정">
-                                    <mf-grid id="entityColumnUpdateGrid" width="100%" height="500px"
-                                             control="true" editing="true"
-                                             updateActionName="updateEntityColumnUpdateEvent"
-                                    >
-                                        <mf-grid-column  type="number"   id="id"                     label="ID"           width="20px"  hidden="true" ></mf-grid-column>
-                                        <mf-grid-column  type="text"     id="columnName"             label="컬럼명"        width="100px" align="left" ></mf-grid-column>
-                                        <mf-grid-column  type="select"   id="updateNullResolveType"  label="null 처리유형"  width="50px" dataProvider="NULL_RESOLVE_TYPE"></mf-grid-column>
-                                        <mf-grid-column  type="select"   id="updateAutoValueType"    label="자동값 유형"    width="50px" dataProvider="ENTITY_AUTO_VALUE_TYPE"></mf-grid-column>
-                                        <mf-grid-column  type="text"     id="updateAutoValue"        label="자동값"        width="100px" align="left" ></mf-grid-column>
-                                    </mf-grid>
-                                </mf-tab>
-
-                                <mf-tab id="entityColumnDelete" title="delete 쿼리 설정">
-                                    <mf-grid id="entityColumnDeleteGrid" width="100%" height="500px"
-                                             control="true" editing="true"
-                                             updateActionName="updateEntityColumnDeleteEvent"
-                                    >
-                                        <mf-grid-column  type="number"   id="id"                     label="ID"          width="20px"  hidden="true" ></mf-grid-column>
-                                        <mf-grid-column  type="text"     id="columnName"             label="컬럼명"       width="100px" align="left" ></mf-grid-column>
-                                        <mf-grid-column  type="select"   id="deleteAutoValueType"    label="자동값 유형"   width="50px" dataProvider="ENTITY_AUTO_VALUE_TYPE"></mf-grid-column>
-                                        <mf-grid-column  type="text"     id="deleteAutoValue"        label="자동값"       width="100px" align="left" ></mf-grid-column>
-                                    </mf-grid>
-                                </mf-tab>
-                            </mf-tab-group>
-                        </mf-tab>
-
-                        <mf-tab id="execute_tab" title="실행" >
-                            <mf-card-header>
-                                <mf-action-button id="execute" actionName="execute" icon="fas fa-play"></mf-action-button>
-                            </mf-card-header>
-                            <mf-card-body>
-                                <mf-form id="executeForm">
-                                    <mf-row>
-                                        <mf-text-input id="executeType" label="실행유형" size="col-1"  enable="false" hidden="true"></mf-text-input>
-                                        <mf-text-input id="executeTarget" label="대상" size="col-3"  enable="false" ></mf-text-input>
-                                        <mf-text-input id="requestMessageId" label="요청메시지ID" size="col-3" enable="true" ></mf-text-input>
-                                    </mf-row>
-                                    <mf-row>
-                                        <mf-grid id="executeGrid" width="100%" height="300px"
-                                                 control="true" editing="true" inserting="true"
-                                        >
-                                            <mf-grid-column  type="text"   id="key"    label="key"     width="100px" align="left" ></mf-grid-column>
-                                            <mf-grid-column  type="text"   id="value"  label="value"   width="100px" align="left" ></mf-grid-column>
-                                        </mf-grid>
-                                    </mf-row>
-                                    <mf-row>
-                                        <div class="form-group col-3">
-                                            <label>실행 결과</label>
-                                            <textarea id="responseData"  rows="20" cols="50"></textarea>
-                                        </div>
-                                    </mf-row>
-                                </mf-form>
-                            </mf-card-body>
-                        </mf-tab>
-                    </mf-tab-group>
-                </mf-card>
-            </mf-col>
-        </mf-row>
-    </mf-layout>
-</mf-view>
+            </div>
+        </div>
+    </div>
+</div>
 </html>

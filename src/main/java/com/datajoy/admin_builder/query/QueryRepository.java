@@ -2,6 +2,7 @@ package com.datajoy.admin_builder.query;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface QueryRepository extends JpaRepository<Query, Long> {
