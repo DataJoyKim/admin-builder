@@ -46,6 +46,66 @@
 
     function init() {
         setDatSourceAsRestServer();
+        App.util.setCodeBox("rest-client-method", App.codes['METHOD']);
+        App.util.setCodeBox("rest-client-contentType", App.codes['CONTENT_TYPE']);
+        App.util.setCodeBox("rest-client-bodyMessageFormat", App.codes['BODY_MESSAGE_FORMAT']);
+
+        Sheet.initSheet('queryParamsGrid', "100%", "300px",
+            {
+                useSeq:true,
+                useStatus:false,
+                useDelete:true,
+                useExpendLastColumn:true
+            },
+            [
+                {field:'id', label:'ID', type:'text', width:20, editable: false, align:'left', required:false, hide:true},
+                {field:'paramName', label:'파라미터', type:'text', width:250, editable: true, align:'left', required:true},
+                {field:'valueType', label:'값유형', type:'combo', width:200, editable: true, align:'center', required:false, comboCodes:App.codes['VALUE_TYPE']},
+                {field:'inputValue', label:'입력값', type:'text', width:250, editable: true, align:'left', required:false}
+            ]);
+
+        Sheet.initSheet('headersGrid', "100%", "300px",
+            {
+                useSeq:true,
+                useStatus:false,
+                useDelete:true,
+                useExpendLastColumn:true
+            },
+            [
+                {field:'id', label:'ID', type:'text', width:20, editable: false, align:'left', required:false, hide:true},
+                {field:'name', label:'Header 명', type:'text', width:250, editable: true, align:'left', required:true},
+                {field:'valueType', label:'값유형', type:'combo', width:200, editable: true, align:'center', required:false, comboCodes:App.codes['VALUE_TYPE']},
+                {field:'inputValue', label:'입력값', type:'text', width:250, editable: true, align:'left', required:false}
+            ]);
+
+        Sheet.initSheet('bodyGrid', "100%", "300px",
+            {
+                useSeq:true,
+                useStatus:false,
+                useDelete:true,
+                useExpendLastColumn:true
+            },
+            [
+                {field:'id', label:'ID', type:'text', width:20, editable: false, align:'left', required:false, hide:true},
+                {field:'paramName', label:'파라미터', type:'text', width:200, editable: true, align:'left', required:true},
+                {field:'parentParamName', label:'부모 파라미터', type:'text', width:200, editable: true, align:'left', required:false},
+                {field:'dataType', label:'데이터유형', type:'combo', width:100, editable: true, align:'center', required:false, comboCodes:App.codes['REST_DATA_TYPE']},
+                {field:'orderNum', label:'순서', type:'number', width:100, editable: true, align:'center', required:false},
+                {field:'valueType', label:'값유형', type:'combo', width:100, editable: true, align:'center', required:false, comboCodes:App.codes['VALUE_TYPE']},
+                {field:'inputValue', label:'입력값', type:'text', width:200, editable: true, align:'left', required:false}
+            ]);
+
+        Sheet.initSheet('executeGrid', "100%", "250px",
+            {
+                useSeq:false,
+                useStatus:false,
+                useDelete:true,
+                useExpendLastColumn:true
+            },
+            [
+                {field:'key', label:'파라미터', type:'text', width:400, editable: true, align:'left', required:false},
+                {field:'value', label:'값', type:'text', width:400, editable: true, align:'left', required:false}
+            ]);
 
         App.modalPopup.receiveParam('FUNC_REQUEST', function(data){
             if(!data.functionName) {
@@ -105,9 +165,6 @@
                 function(response){
                     if(response[0]) {
                         setRestClientContent(response[0]);
-                        getRestClientQueryParam(response[0].id);
-                        getRestClientHeader(response[0].id);
-                        getRestClientBody(response[0].id);
                     }
                     else {
                         newRestClientContent(clientName);
@@ -141,6 +198,9 @@
             $("#rest-client-path").val(params.path);
             $("#rest-client-contentType").val(params.contentType);
             $("#rest-client-bodyMessageFormat").val(params.bodyMessageFormat);
+            queryParamsGrid.setSheetData(params.queryParams);
+            headersGrid.setSheetData(params.headers);
+            bodyGrid.setSheetData(params.body);
           }
 
           function newRestClientContent(clientName){
@@ -152,22 +212,22 @@
                 method:'',
                 path:'',
                 contentType:'',
-                bodyMessageFormat:''
+                bodyMessageFormat:'',
+                queryParams:[],
+                headers:[],
+                body:[]
                 });
           }
 
-          function saveRestClient() {
-            let id = $('#rest-client-id').val();
-            if(id) {
-                updateRestClient(id);
-            }
-            else {
-                insertRestClient();
-            }
-          }
-
-        function insertRestClient() {
-            httpClient.post(`/console/api/rest-client`,{},getRestClientContent(),
+        function save() {
+            httpClient.post(`/console/api/rest-client/save`,
+                {},
+                {
+                    'restClient':getRestClientContent(),
+                    'queryParams':"",
+                    'headers':"",
+                    'body':""
+                },
                 function(response){
                     alert("저장완료되었습니다.");
                     getRestClient();
@@ -178,368 +238,188 @@
             );
         }
 
-        function updateRestClient(id) {
-          httpClient.put(`/console/api/rest-client/${id}`, {}, getRestClientContent(),
-              function(response){
-                  alert("저장완료되었습니다.");
-                  getRestClient();
-              },
-              function(error){
-                  alert('error');
-              }
-          );
+        function newRowQueryParams() {
+            queryParamsGrid.addRowData({
+                paramName:"(파라미터)",
+                valueType:"PARAM_VALUE",
+                inputValue:""
+            });
         }
 
-        function deleteRestClient() {
-          let id = $("#rest-client-id").val();
-
-          httpClient.delete(`/console/api/rest-client/${id}`, {},
-              function(response){
-                  alert("삭제 처리 완료되었습니다.");
-                  getRestClient();
-              },
-              function(error){
-                  alert('error');
-              }
-          );
+        function newRowHeaders() {
+            headersGrid.addRowData({
+                name:"(Header 명)",
+                valueType:"PARAM_VALUE",
+                inputValue:""
+            });
         }
 
-        function getRestClientQueryParam(clientId) {
-            httpClient.get(`/console/api/rest-client/query-param/${clientId}`, {},
-                function(response){
-                    grid.setSheetData('restClientQueryParamsGrid', response);
-                },
-                function(error){
-                    alert('error');
-                }
-            );
-        }
-
-        function insertRestClientQueryParam(clientId, item) {
-            httpClient.post(`/console/api/rest-client/query-param`,{},
-                {
-                   clientId:clientId,
-                   paramName:item.paramName,
-                   valueType:item.valueType,
-                   inputValue:item.inputValue
-                },
-                function(response){
-                    alert("생성 완료되었습니다.");
-                    getRestClientQueryParam(clientId);
-                },
-                function(error){
-                    alert('error');
-                }
-            );
-        }
-
-        function updateRestClientQueryParam(clientId,item) {
-          httpClient.put(`/console/api/rest-client/query-param/${item.id}`, {},
-              {
-                   paramName:item.paramName,
-                   valueType:item.valueType,
-                   inputValue:item.inputValue
-              },
-              function(response){
-                  alert("변경 완료되었습니다.");
-                  getRestClientQueryParam(clientId);
-              },
-              function(error){
-                  alert('error');
-              }
-          );
-        }
-
-        function deleteRestClientQueryParam(clientId, item) {
-          httpClient.delete(`/console/api/rest-client/query-param/${item.id}`, {},
-              function(response){
-                  alert("삭제 완료되었습니다.");
-                  getRestClientQueryParam(clientId);
-              },
-              function(error){
-                  alert('error');
-              }
-          );
-        }
-
-
-        function getRestClientHeader(clientId) {
-            httpClient.get(`/console/api/rest-client/header/${clientId}`, {},
-                function(response){
-                    grid.setSheetData('restClientHeadersGrid', response);
-                },
-                function(error){
-                    alert('error');
-                }
-            );
-        }
-
-        function insertRestClientHeader(clientId, item) {
-            httpClient.post(`/console/api/rest-client/header`,{},
-                {
-                   clientId:clientId,
-                   name:item.name,
-                   valueType:item.valueType,
-                   inputValue:item.inputValue
-                },
-                function(response){
-                    alert("생성 완료되었습니다.");
-                    getRestClientHeader(clientId);
-                },
-                function(error){
-                    alert('error');
-                }
-            );
-        }
-
-        function updateRestClientHeader(clientId,item) {
-          httpClient.put(`/console/api/rest-client/header/${item.id}`, {},
-              {
-                   name:item.name,
-                   valueType:item.valueType,
-                   inputValue:item.inputValue
-              },
-              function(response){
-                  alert("변경 완료되었습니다.");
-                  getRestClientHeader(clientId);
-              },
-              function(error){
-                  alert('error');
-              }
-          );
-        }
-
-        function deleteRestClientHeader(clientId, item) {
-          httpClient.delete(`/console/api/rest-client/header/${item.id}`, {},
-              function(response){
-                  alert("삭제 완료되었습니다.");
-                  getRestClientHeader(clientId);
-              },
-              function(error){
-                  alert('error');
-              }
-          );
-        }
-
-        function getRestClientBody(clientId) {
-            httpClient.get(`/console/api/rest-client/body/${clientId}`, {},
-                function(response){
-                    grid.setSheetData('restClientBodyGrid', response);
-                },
-                function(error){
-                    alert('error');
-                }
-            );
-        }
-
-        function insertRestClientBody(clientId, item) {
-            httpClient.post(`/console/api/rest-client/body`,{},
-                {
-                   clientId:clientId,
-                   paramName:item.paramName,
-                   parentParamName:item.parentParamName,
-                   dataType:item.dataType,
-                   valueType:item.valueType,
-                   orderNum:item.orderNum,
-                   inputValue:item.inputValue
-                },
-                function(response){
-                    alert("생성 완료되었습니다.");
-                    getRestClientBody(clientId);
-                },
-                function(error){
-                    alert('error');
-                }
-            );
-        }
-
-        function updateRestClientBody(clientId,item) {
-          httpClient.put(`/console/api/rest-client/body/${item.id}`, {},
-              {
-                   paramName:item.paramName,
-                   parentParamName:item.parentParamName,
-                   dataType:item.dataType,
-                   valueType:item.valueType,
-                   orderNum:item.orderNum,
-                   inputValue:item.inputValue
-              },
-              function(response){
-                  alert("변경 완료되었습니다.");
-                  getRestClientBody(clientId);
-              },
-              function(error){
-                  alert('error');
-              }
-          );
-        }
-
-        function deleteRestClientBody(clientId, item) {
-          httpClient.delete(`/console/api/rest-client/body/${item.id}`, {},
-              function(response){
-                  alert("삭제 완료되었습니다.");
-                  getRestClientBody(clientId);
-              },
-              function(error){
-                  alert('error');
-              }
-          );
+        function newRowBody() {
+            bodyGrid.addRowData({
+                paramName:"(파라미터)",
+                parentParamName:"ROOT",
+                dataType:"STRING",
+                valueType:"PARAM_VALUE",
+                inputValue:"",
+                orderNum:1
+            });
         }
 </script>
-<mf-view th:fragment="view">
-    <mf-data>
-        <mf-codes>
-        </mf-codes>
-        <mf-messages>
-            <mf-message id="ME_EVAL0001_01"></mf-message>
-            <mf-message id="ME_EVAL0001_02"></mf-message>
-            <mf-message id="ME_EVAL0001_03"></mf-message>
-        </mf-messages>
-    </mf-data>
-    <mf-actions>
+<div th:fragment="view">
+    <div class="card">
+        <div class="card-header p-0 border-bottom-0">
+            <ul class="nav nav-tabs" id="detail-tab" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="workflow-def-tab" data-toggle="pill" href="#workflow-def" role="tab" aria-controls="workflow-def" aria-selected="true">
+                        Definition
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="execute-tab" data-toggle="pill" href="#execute" role="tab" aria-controls="execute" aria-selected="false">
+                        Execute
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body">
+            <div class="tab-content" id="detail-tabContent" >
 
-        <mf-action name="insertRestClientQueryParamEvent" args="args">
-            insertRestClientQueryParam($("#rest-client-id").val(), args.item);
-        </mf-action>
+                <div class="tab-pane fade show active" id="workflow-def" role="tabpanel" aria-labelledby="workflow-def-tab">
+                    <div class="card-body">
+                        <div class="row">
+                            <div style=" display: flex; margin-left: auto;">
+                                <button type="button" class="btn btn-default btn-sm" onclick="save()" >
+                                    <i class="btn-icon fas fa-save"></i>
+                                    <span class="btn-label">Save</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-1 d-none">
+                                <label for="rest-client-id">ID</label>
+                                <input type="text" class="form-control form-control-sm rounded-0" id="rest-client-id" autocomplete="off" >
+                            </div>
+                            <div class="form-group col-3">
+                                <label for="rest-client-clientName">Rest Client</label>
+                                <input type="text" class="form-control form-control-sm rounded-0" id="rest-client-clientName" autocomplete="off" disabled>
+                            </div>
+                            <div class="form-group col-3">
+                                <label for="rest-client-displayName">화면노출명</label>
+                                <input type="text" class="form-control form-control-sm rounded-0" id="rest-client-displayName" autocomplete="off">
+                            </div>
+                            <div class="form-group col-3">
+                                <label for="rest-client-dataSourceName">데이터소스</label>
+                                <select class="form-control form-control-sm" id="rest-client-dataSourceName" >
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-3">
+                                <label for="rest-client-method">Method</label>
+                                <select class="form-control form-control-sm" id="rest-client-method" >
+                                </select>
+                            </div>
+                            <div class="form-group col-3">
+                                <label for="rest-client-path">Path</label>
+                                <input type="text" class="form-control form-control-sm rounded-0" id="rest-client-path" autocomplete="off" >
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-3">
+                                <label for="rest-client-contentType">Content-Type</label>
+                                <select class="form-control form-control-sm" id="rest-client-contentType" >
+                                </select>
+                            </div>
+                            <div class="form-group col-3">
+                                <label for="rest-client-bodyMessageFormat">Body 포맷</label>
+                                <select class="form-control form-control-sm" id="rest-client-bodyMessageFormat" >
+                                </select>
+                            </div>
+                        </div>
+                    </div>
 
-        <mf-action name="updateRestClientQueryParamEvent" args="args">
-            updateRestClientQueryParam($("#rest-client-id").val(),args.item);
-        </mf-action>
+                    <div class="tab-content">
+                        <div class="card-header p-0 border-bottom-0">
+                            <ul class="nav nav-tabs" id="rest-client-tab" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="query-params-tab" data-toggle="pill" href="#query-params" role="tab" aria-controls="query-params" aria-selected="true">
+                                        Query Params
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="headers-tab" data-toggle="pill" href="#headers" role="tab" aria-controls="headers" aria-selected="false">
+                                        Headers
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="body-tab" data-toggle="pill" href="#body" role="tab" aria-controls="body" aria-selected="false">
+                                        Body
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="tab-pane fade show active" id="query-params" role="tabpanel" aria-labelledby="query-params-tab">
+                            <div class="row">
+                                <div style=" display: flex; margin-left: auto;">
+                                    <button type="button" class="btn btn-default btn-sm" onclick="newRowQueryParams()" >
+                                        <i class="btn-icon fas fa-plus"></i>
+                                        <span class="btn-label">Add</span>
+                                    </button>
+                                </div>
+                                <div id="queryParamsGrid"></div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="headers" role="tabpanel" aria-labelledby="headers-tab">
+                            <div class="row">
+                                <div style=" display: flex; margin-left: auto;">
+                                    <button type="button" class="btn btn-default btn-sm" onclick="newRowHeaders()" >
+                                        <i class="btn-icon fas fa-plus"></i>
+                                        <span class="btn-label">Add</span>
+                                    </button>
+                                </div>
+                                <div id="headersGrid"></div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="body" role="tabpanel" aria-labelledby="body-tab">
+                            <div class="row">
+                                <div style=" display: flex; margin-left: auto;">
+                                    <button type="button" class="btn btn-default btn-sm" onclick="newRowBody()" >
+                                        <i class="btn-icon fas fa-plus"></i>
+                                        <span class="btn-label">Add</span>
+                                    </button>
+                                </div>
+                                <div id="bodyGrid"></div>
+                            </div>
+                        </div>
+                    </div>
 
-        <mf-action name="deleteRestClientQueryParamEvent" args="args">
-            deleteRestClientQueryParam($("#rest-client-id").val(), args.item);
-        </mf-action>
+                </div>
 
-        <mf-action name="insertRestClientHeaderEvent" args="args">
-            insertRestClientHeader($("#rest-client-id").val(), args.item);
-        </mf-action>
+                <div class="tab-pane fade" id="execute" role="tabpanel" aria-labelledby="execute-tab">
+                    <div class="card-body">
+                        <div class="row">
+                            <label>SQL 파라미터</label>
+                            <div style=" display: flex; margin-left: auto;">
+                                <button type="button" class="btn btn-default btn-sm" onclick="executeGrid.addRowData()" >
+                                    <i class="btn-icon fas fa-plus"></i>
+                                    <span class="btn-label">Add</span>
+                                </button>
+                                <button type="button" class="btn btn-success btn-sm" onclick="execute()" >
+                                    <i class="btn-icon fas fa-play"></i>
+                                    <span class="btn-label">Run</span>
+                                </button>
+                            </div>
+                            <div id="executeGrid"></div>
+                        </div>
+                        <div class="row">
+                            <label>실행 결과</label>
+                            <textarea class="col-12" id="responseData"  rows="15" ></textarea>
+                        </div>
+                    </div>
+                </div>
 
-        <mf-action name="updateRestClientHeaderEvent" args="args">
-            updateRestClientHeader($("#rest-client-id").val(),args.item);
-        </mf-action>
-
-        <mf-action name="deleteRestClientHeaderEvent" args="args">
-            deleteRestClientHeader($("#rest-client-id").val(), args.item);
-        </mf-action>
-
-        <mf-action name="insertRestClientBodyEvent" args="args">
-            insertRestClientBody($("#rest-client-id").val(), args.item);
-        </mf-action>
-
-        <mf-action name="updateRestClientBodyEvent" args="args">
-            updateRestClientBody($("#rest-client-id").val(),args.item);
-        </mf-action>
-
-        <mf-action name="deleteRestClientBodyEvent" args="args">
-            deleteRestClientBody($("#rest-client-id").val(), args.item);
-        </mf-action>
-    </mf-actions>
-    <mf-layout>
-        <mf-row>
-            <mf-col size="col-12">
-                <mf-card id="func-card" >
-                    <mf-tab-group>
-                        <mf-tab id="func" title="기능" active>
-                            <mf-card-header>
-                                <mf-action-button id="saveRestClient" actionName="saveRestClient" icon="fas fa-save"></mf-action-button>
-                                <mf-action-button id="deleteRestClient" actionName="deleteRestClient" icon="fas fa-trash"></mf-action-button>
-                            </mf-card-header>
-                            <mf-card-body>
-                                <mf-form id="entityForm">
-                                    <mf-row>
-                                        <mf-text-input id="rest-client-id"              label="ID"          size="col-1" enable="false" hidden="true"></mf-text-input>
-                                        <mf-text-input id="rest-client-clientName"      label="클라이언트명"  size="col-3" enable="false"></mf-text-input>
-                                        <mf-text-input id="rest-client-displayName"     label="화면노출명"    size="col-3" enable="true" ></mf-text-input>
-                                        <mf-select     id="rest-client-dataSourceName"  label="데이터소스"    size="col-3" enable="true" ></mf-select>
-                                    </mf-row>
-                                    <mf-row>
-                                        <mf-select id="rest-client-method"   label="method" enable="true" size="col-2" dataProvider="METHOD" useFirstItem="true" firstItemLabel="" firstItemValue=""></mf-select>
-                                        <mf-text-input id="rest-client-path" label="path"   enable="true" size="col-4" ></mf-text-input>
-                                    </mf-row>
-                                    <mf-row>
-                                        <mf-select id="rest-client-contentType"         label="contentType"  enable="true" size="col-3" dataProvider="CONTENT_TYPE" useFirstItem="true" firstItemLabel="" firstItemValue=""></mf-select>
-                                        <mf-select id="rest-client-bodyMessageFormat"   label="body 포맷"     enable="true" size="col-2" dataProvider="BODY_MESSAGE_FORMAT" useFirstItem="true" firstItemLabel="" firstItemValue=""></mf-select>
-                                    </mf-row>
-                                </mf-form>
-                            </mf-card-body>
-
-                            <mf-tab-group>
-                                <mf-tab id="restClientQueryParams" title="Query Params" active>
-                                    <mf-grid id="restClientQueryParamsGrid" width="100%" height="500px"
-                                             control="true" editing="true" inserting="true"
-                                             insertActionName="insertRestClientQueryParamEvent"
-                                             updateActionName="updateRestClientQueryParamEvent"
-                                             deleteActionName="deleteRestClientQueryParamEvent"
-                                    >
-                                        <mf-grid-column  type="number"   id="id"          label="ID"          width="20px"  hidden="true" ></mf-grid-column>
-                                        <mf-grid-column  type="text"     id="paramName"   label="파라미터명"    width="100px" align="left" ></mf-grid-column>
-                                        <mf-grid-column  type="select"   id="valueType"   label="값유형"       width="50px" dataProvider="VALUE_TYPE"></mf-grid-column>
-                                        <mf-grid-column  type="text"     id="inputValue"  label="입력값"       width="100px" align="left" ></mf-grid-column>
-                                    </mf-grid>
-                                </mf-tab>
-                                <mf-tab id="restClientHeaders" title="Headers">
-                                    <mf-grid id="restClientHeadersGrid" width="100%" height="500px"
-                                             control="true" editing="true" inserting="true"
-                                             insertActionName="insertRestClientHeaderEvent"
-                                             updateActionName="updateRestClientHeaderEvent"
-                                             deleteActionName="deleteRestClientHeaderEvent"
-                                    >
-                                        <mf-grid-column  type="number"   id="id"            label="ID"      width="20px"  hidden="true" ></mf-grid-column>
-                                        <mf-grid-column  type="text"     id="name"          label="key"     width="100px" align="left" ></mf-grid-column>
-                                        <mf-grid-column  type="select"   id="valueType"     label="값유형"   width="50px" dataProvider="VALUE_TYPE"></mf-grid-column>
-                                        <mf-grid-column  type="text"     id="inputValue"    label="입력값"   width="100px" align="left" ></mf-grid-column>
-                                    </mf-grid>
-                                </mf-tab>
-                                <mf-tab id="restClientBody" title="Body">
-                                    <mf-grid id="restClientBodyGrid" width="100%" height="500px"
-                                             control="true" editing="true" inserting="true"
-                                             insertActionName="insertRestClientBodyEvent"
-                                             updateActionName="updateRestClientBodyEvent"
-                                             deleteActionName="deleteRestClientBodyEvent"
-                                    >
-                                        <mf-grid-column  type="number"   id="id"                label="ID"            width="20px"  hidden="true" ></mf-grid-column>
-                                        <mf-grid-column  type="text"     id="paramName"         label="파라미터명"      width="100px" align="left" ></mf-grid-column>
-                                        <mf-grid-column  type="text"     id="parentParamName"   label="부모 파라미터명"  width="100px" align="left" ></mf-grid-column>
-                                        <mf-grid-column  type="select"   id="dataType"          label="데이터유형"      width="50px" dataProvider="REST_DATA_TYPE"></mf-grid-column>
-                                        <mf-grid-column  type="select"   id="valueType"         label="값유형"         width="50px" dataProvider="VALUE_TYPE"></mf-grid-column>
-                                        <mf-grid-column  type="text"     id="inputValue"        label="입력값"         width="100px" align="left" ></mf-grid-column>
-                                        <mf-grid-column  type="number"   id="orderNum"          label="순서"           width="30px" ></mf-grid-column>
-                                    </mf-grid>
-                                </mf-tab>
-                            </mf-tab-group>
-                        </mf-tab>
-
-                        <mf-tab id="execute_tab" title="실행" >
-                            <mf-card-header>
-                                <mf-action-button id="execute" actionName="execute" icon="fas fa-play"></mf-action-button>
-                            </mf-card-header>
-                            <mf-card-body>
-                                <mf-form id="executeForm">
-                                    <mf-row>
-                                        <mf-text-input id="executeType" label="실행유형" size="col-1"  enable="false" hidden="true"></mf-text-input>
-                                        <mf-text-input id="executeTarget" label="대상" size="col-3"  enable="false" ></mf-text-input>
-                                        <mf-text-input id="requestMessageId" label="요청메시지ID" size="col-3" enable="true" ></mf-text-input>
-                                    </mf-row>
-                                    <mf-row>
-                                        <mf-grid id="executeGrid" width="100%" height="300px"
-                                                 control="true" editing="true" inserting="true"
-                                        >
-                                            <mf-grid-column  type="text"   id="key"    label="key"     width="100px" align="left" ></mf-grid-column>
-                                            <mf-grid-column  type="text"   id="value"  label="value"   width="100px" align="left" ></mf-grid-column>
-                                        </mf-grid>
-                                    </mf-row>
-                                    <mf-row>
-                                        <div class="form-group col-3">
-                                            <label>실행 결과</label>
-                                            <textarea id="responseData"  rows="20" cols="50"></textarea>
-                                        </div>
-                                    </mf-row>
-                                </mf-form>
-                            </mf-card-body>
-                        </mf-tab>
-                    </mf-tab-group>
-                </mf-card>
-            </mf-col>
-        </mf-row>
-    </mf-layout>
-</mf-view>
+            </div>
+        </div>
+    </div>
+</div>
 </html>

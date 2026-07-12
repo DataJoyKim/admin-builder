@@ -1,13 +1,7 @@
 package com.datajoy.admin_builder.console.rest;
 
-import com.datajoy.admin_builder.restclient.RestClient;
-import com.datajoy.admin_builder.restclient.RestClientRequest;
-import com.datajoy.admin_builder.restclient.RestClientResult;
-import com.datajoy.admin_builder.restclient.RestClientService;
-import com.datajoy.admin_builder.restclient.code.BodyMessageFormat;
-import com.datajoy.admin_builder.restclient.code.ContentType;
-import com.datajoy.admin_builder.restclient.code.HttpMethod;
-import com.datajoy.admin_builder.console.repository.ConsoleRestClientRepository;
+import com.datajoy.admin_builder.restclient.*;
+import com.datajoy.admin_builder.restclient.code.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,12 +10,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController("console.RestClientRestController")
 @RequestMapping("/console/api/rest-client")
 public class RestClientRestController {
     @Autowired
-    private ConsoleRestClientRepository restClientRepository;
+    private RestClientRepository restClientRepository;
     @Autowired
     private RestClientService restClientService;
 
@@ -31,7 +26,9 @@ public class RestClientRestController {
     ) {
         List<RestClient> results;
         if(clientName != null) {
-            results = restClientRepository.findByClientName(clientName);
+            Optional<RestClient> restClient = restClientRepository.findByClientName(clientName);
+            results = new ArrayList<>();
+            restClient.ifPresent(results::add);
         }
         else {
             results = restClientRepository.findAll();
@@ -48,46 +45,88 @@ public class RestClientRestController {
         return new ResponseEntity<>(results, HttpStatus.OK);
     }
 
-    @PostMapping("")
-    public ResponseEntity<?> createRestClient(@RequestBody Map<String,Object> params) {
-        String contentType = (String) params.get("contentType");
-        String bodyMessageFormat = (String) params.get("bodyMessageFormat");
+    @PostMapping("/save")
+    public ResponseEntity<?> save(@RequestBody Map<String,Object> params) {
+        Map<String,Object> pRestClient = (Map<String, Object>) params.get("restClient");
+        List<Map<String,Object>> pQueryParams = (List<Map<String,Object>>) params.get("queryParams");
+        List<Map<String,Object>> pHeaders = (List<Map<String,Object>>) params.get("headers");
+        List<Map<String,Object>> pBody = (List<Map<String,Object>>) params.get("body");
 
-        RestClient restClient = RestClient.builder()
-                .clientName((String) params.get("clientName"))
-                .displayName((String) params.get("displayName"))
-                .dataSourceName((String) params.get("dataSourceName"))
-                .method(HttpMethod.valueOf((String) params.get("method")))
-                .path((String) params.get("path"))
-                .contentType((contentType != null && !contentType.isEmpty()) ? ContentType.valueOf((String) params.get("contentType")) : null)
-                .bodyMessageFormat((bodyMessageFormat != null && !bodyMessageFormat.isEmpty()) ? BodyMessageFormat.valueOf((String) params.get("bodyMessageFormat")) : null)
-                .build();
+        Long id = (pRestClient.get("id") == null || ((String) pRestClient.get("id")).isEmpty())
+                ? null
+                : Long.valueOf((String) pRestClient.get("id"));
+
+        List<RestClientQueryParam> queryParams = new ArrayList<>();
+        for(Map<String,Object> p : pQueryParams) {
+            queryParams.add(
+                    RestClientQueryParam.builder()
+                            .paramName((String) p.get("paramName"))
+                            .valueType(ValueType.valueOf((String) p.get("valueType")))
+                            .inputValue((String) p.get("inputValue"))
+                            .build());
+        }
+
+        List<RestClientHeader> headers = new ArrayList<>();
+        for(Map<String,Object> p : pHeaders) {
+            headers.add(
+                    RestClientHeader.builder()
+                            .name((String) p.get("name"))
+                            .valueType(ValueType.valueOf((String) p.get("valueType")))
+                            .inputValue((String) p.get("inputValue"))
+                            .build());
+        }
+
+        List<RestClientBody> body = new ArrayList<>();
+        for(Map<String,Object> p : pBody) {
+            body.add(
+                    RestClientBody.builder()
+                            .paramName((String) p.get("paramName"))
+                            .parentParamName((String) p.get("parentParamName"))
+                            .dataType(MessageDataType.valueOf((String) p.get("dataType")))
+                            .valueType(ValueType.valueOf((String) p.get("valueType")))
+                            .orderNum((Integer) p.get("orderNum"))
+                            .inputValue((String) p.get("inputValue"))
+                            .build());
+        }
+
+        Object contentType = pRestClient.get("contentType");
+        Object bodyMessageFormat = pRestClient.get("bodyMessageFormat");
+        RestClient restClient;
+        if (id == null) {
+            restClient = RestClient.builder()
+                    .clientName((String) pRestClient.get("clientName"))
+                    .displayName((String) pRestClient.get("displayName"))
+                    .dataSourceName((String) pRestClient.get("dataSourceName"))
+                    .method(HttpMethod.valueOf((String) pRestClient.get("method")))
+                    .path((String) pRestClient.get("path"))
+                    .contentType((contentType != null) ? ContentType.valueOf((String) contentType) : null)
+                    .bodyMessageFormat((bodyMessageFormat != null) ? BodyMessageFormat.valueOf((String) bodyMessageFormat) : null)
+                    .queryParams(queryParams)
+                    .headers(headers)
+                    .body(body)
+                    .build();
+        }
+        else {
+            restClient = restClientRepository.findById(id)
+                    .orElseThrow(RuntimeException::new);
+
+            restClient.update(
+                    (String) params.get("clientName"),
+                    (String) params.get("displayName"),
+                    (String) params.get("dataSourceName"),
+                    HttpMethod.valueOf((String) params.get("method")),
+                    (String) params.get("path"),
+                    (contentType != null) ? ContentType.valueOf((String) contentType) : null,
+                    (bodyMessageFormat != null) ? BodyMessageFormat.valueOf((String) bodyMessageFormat) : null,
+                    queryParams,
+                    headers,
+                    body
+            );
+        }
 
         RestClient results = restClientRepository.save(restClient);
 
         return new ResponseEntity<>(results, HttpStatus.OK);
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateRestClient(@PathVariable("id") Long id, @RequestBody Map<String,Object> params) {
-        RestClient results = restClientRepository.findById(id)
-                .orElseThrow(RuntimeException::new);
-
-        String contentType = (String) params.get("contentType");
-        String bodyMessageFormat = (String) params.get("bodyMessageFormat");
-
-        restClientRepository.update(
-                results.getId(),
-                (String) params.get("clientName"),
-                (String) params.get("displayName"),
-                (String) params.get("dataSourceName"),
-                HttpMethod.valueOf((String) params.get("method")),
-                (String) params.get("path"),
-                (contentType != null && !contentType.isEmpty()) ? ContentType.valueOf((String) params.get("contentType")) : null,
-                (bodyMessageFormat != null && !bodyMessageFormat.isEmpty()) ? BodyMessageFormat.valueOf((String) params.get("bodyMessageFormat")) : null
-        );
-
-        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")

@@ -51,15 +51,15 @@ public class RestClient {
     @Column(length = 50)
     private BodyMessageFormat bodyMessageFormat;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval=true)
     @JoinColumn(name = "CLIENT_ID")
     private List<RestClientBody> body = new ArrayList<>();
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval=true)
     @JoinColumn(name = "CLIENT_ID")
     private List<RestClientHeader> headers = new ArrayList<>();
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval=true)
     @JoinColumn(name = "CLIENT_ID")
     private List<RestClientQueryParam> queryParams = new ArrayList<>();
 
@@ -184,5 +184,33 @@ public class RestClient {
         else {
             return null;
         }
+    }
+
+    public void update(
+            String clientName,
+            String displayName,
+            String dataSourceName,
+            HttpMethod method,
+            String path,
+            ContentType contentType,
+            BodyMessageFormat bodyMessageFormat,
+            List<RestClientQueryParam> queryParams,
+            List<RestClientHeader> headers,
+            List<RestClientBody> body
+    ) {
+        this.clientName = clientName;
+        this.displayName = displayName;
+        this.dataSourceName = dataSourceName;
+        this.method = method;
+        this.path = path;
+        this.contentType = contentType;
+        this.bodyMessageFormat = bodyMessageFormat;
+        this.queryParams.clear();
+        this.queryParams.addAll(queryParams);
+        this.headers.clear();
+        this.headers.addAll(headers);
+        this.body.clear();
+        this.body.addAll(body);
+
     }
 }
