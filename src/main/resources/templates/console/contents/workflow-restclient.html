@@ -14,11 +14,13 @@
             {code:"DELETE",name:"DELETE"}
         ],
         "CONTENT_TYPE":[
+            {code:"",name:""},
             {code:"APPLICATION_JSON",name:"application/json"},
             {code:"APPLICATION_FORM_URLENCODED",name:"application/x-www-form-urlencoded"},
             {code:"TEXT_PLAIN",name:"text/plain"}
         ],
         "BODY_MESSAGE_FORMAT":[
+            {code:"",name:""},
             {code:"ARRAY",name:"Array"},
             {code:"OBJECT",name:"Object"}
         ],
@@ -164,6 +166,20 @@
             httpClient.get(`/console/api/rest-client`, {clientName:clientName},
                 function(response){
                     if(response[0]) {
+                        const data = response[0];
+
+                        for(let queryParam of data.queryParams) {
+                            queryParam._status = 'C';
+                        }
+
+                        for(let header of data.headers) {
+                            header._status = 'C';
+                        }
+
+                        for(let bodyObj of data.body) {
+                            bodyObj._status = 'C';
+                        }
+
                         setRestClientContent(response[0]);
                     }
                     else {
@@ -177,6 +193,16 @@
         }
 
         function getRestClientContent() {
+            let contentType = $("#rest-client-contentType").val();
+            if(contentType == '') {
+                contentType = null;
+            }
+
+            let bodyMessageFormat = $("#rest-client-bodyMessageFormat").val();
+            if(bodyMessageFormat == '') {
+                bodyMessageFormat = null;
+            }
+
             return {
                 id: $("#rest-client-id").val(),
                 clientName: $("#rest-client-clientName").val(),
@@ -184,8 +210,8 @@
                 dataSourceName: $("#rest-client-dataSourceName").val(),
                 method: $("#rest-client-method").val(),
                 path: $("#rest-client-path").val(),
-                contentType: $("#rest-client-contentType").val(),
-                bodyMessageFormat: $("#rest-client-bodyMessageFormat").val()
+                contentType: contentType,
+                bodyMessageFormat: bodyMessageFormat
             }
         }
 
@@ -224,9 +250,9 @@
                 {},
                 {
                     'restClient':getRestClientContent(),
-                    'queryParams':"",
-                    'headers':"",
-                    'body':""
+                    'queryParams':queryParamsGrid.getSheetData(),
+                    'headers':headersGrid.getSheetData(),
+                    'body':bodyGrid.getSheetData()
                 },
                 function(response){
                     alert("저장완료되었습니다.");

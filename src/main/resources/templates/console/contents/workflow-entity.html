@@ -205,7 +205,13 @@
         httpClient.get(`/console/api/entity`, {entityName:entityName},
             function(response){
                 if(response[0]) {
-                    setEntityContent(response[0]);
+                    const data response[0];
+
+                    for(let entityColumn of data.entityColumns) {
+                        entityColumn._status = 'C';
+                    }
+
+                    setEntityContent(data);
                 }
                 else {
                     newEntityContent(entityName);

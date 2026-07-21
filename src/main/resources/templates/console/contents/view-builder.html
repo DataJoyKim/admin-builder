@@ -4,27 +4,37 @@
 <div th:fragment="view">
     <div id="app-container" style="margin:0; display:flex; height:100vh; font-family:Arial, sans-serif;">
         <div id="left-panel">
-            <h4>오브젝트 설정</h4>
-            <div class="input-group col-12">
-                <input type="text" class="form-control rounded-0" id="objectCode" placeholder="오브젝트코드" spellcheck="false" autocomplete="off" data-watch="true" >
-                <span class="input-group-append">
-                    <button type="button" class="btn btn-default btn-flat" onclick="openPopupObject()">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </span>
-            </div>
-            <div class="form-group col-12">
-                <button type="button" class="btn btn-primary btn-sm form-control" onclick="load()">
-                    <i class="fas fa-download"></i>불러오기
-                </button>
-            </div>
-            <div class="form-group col-12">
-                <button type="button" class="btn btn-default btn-sm form-control" onclick="openPopupMenu()">
-                    메뉴등록
-                </button>
+            <div id="object-panel" >
+                <div class="row" style="margin-bottom:5px;">
+                    <div class="input-group col-12">
+                        <input type="text" class="form-control form-control-sm rounded-0" id="objectCode" placeholder="오브젝트코드 입력" spellcheck="false" autocomplete="off" data-watch="true" >
+                        <input type="text" class="form-control form-control-sm rounded-0" id="objectName" placeholder="" spellcheck="false" autocomplete="off" data-watch="true" disabled>
+                        <span class="input-group-append">
+                        <button type="button" class="btn btn-default btn-sm" onclick="openPopupObject()">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group col-12">
+                        <button type="button" class="btn btn-default btn-sm" onclick="createObject()">
+                            <i class="fas fa-plus-square"></i><span>Create</span>
+                        </button>
+                        <button type="button" class="btn btn-default btn-sm" onclick="load()">
+                            <i class="fas fa-download"></i><span>Load</span>
+                        </button>
+                        <button type="button" class="btn btn-default btn-sm" onclick="openPopupMenu()">
+                            <i class="fas fa-th-list"></i><span>Menu</span>
+                        </button>
+                    </div>
+                </div>
             </div>
 
-            <h4>컴포넌트</h4>
+            <hr style="border: none; border-top: 1px solid #ddd; margin: 10px 0;">
+
+            <h5>Component</h5>
             <div id="component-panel" >
             </div>
         </div>
@@ -53,7 +63,10 @@
                     <i class="fas fa-save"></i>Save
                 </button>
             </div>
-            <h4>옵션</h4>
+
+            <hr style="border: none; border-top: 1px solid #ddd; margin: 10px 0;">
+
+            <h5>Option</h5>
             <div id="options">
                 컴포넌트를 선택하세요
             </div>
@@ -69,8 +82,13 @@
         App.modalPopup.receiveParam('OBJECT_RESULT',function(data){
             if(data.objectCode) {
                 $("#objectCode").val(data.objectCode);
+                $("#objectName").val(data.objectName);
                 load();
             }
+        });
+
+        $('#objectCode').on('change', function() {
+            loadObject($(this).val());
         });
     });
 
@@ -132,6 +150,48 @@
             },
             function(error){
                 alert("에러가 발생되었습니다.");
+            }
+        );
+    }
+
+    function loadObject(objectCode) {
+        httpClient.get(`/console/api/object`, {objectCode:objectCode},
+            function(response){
+                if(response && response[0]){
+                    $("#objectName").val(response[0].objectName);
+                    load();
+                }
+                else {
+                    $("#objectName").val("(없음)");
+                }
+            },
+            function(error){
+                alert('error');
+            }
+        );
+    }
+
+
+    function createObject() {
+        let objectName = prompt("생성할 오브젝트명을 입력해주세요.");
+
+        const objectCode = $("#objectCode").val();
+
+        httpClient.post(`/console/api/object`,{},
+            {
+                objectCode: objectCode,
+                objectName: objectName,
+                type: 'VIEW_BUILDER',
+                path: '-',
+                useAuthValidation: "true",
+                useAuthorityValidation: "true"
+            },
+            function(response){
+                alert("생성되었습니다.");
+                loadObject(objectCode);
+            },
+            function(error){
+                alert('error');
             }
         );
     }

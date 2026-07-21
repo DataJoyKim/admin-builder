@@ -18,6 +18,8 @@ class VbSheet extends ViewObject {
            useStatus: true,
            useDelete: true,
            useDnd:false,
+           useExpendLastColumn:false,
+           offCellFocus:false,
            columns:[]
        };
     }
@@ -56,7 +58,9 @@ class VbSheet extends ViewObject {
                 useSeq:options.useSeq,
                 useStatus:options.useStatus,
                 useDelete:options.useDelete,
-                useDnd:options.useDnd
+                useDnd:options.useDnd,
+                useExpendLastColumn:options.useExpendLastColumn,
+                offCellFocus:options.offCellFocus
             },
             options.columns
             );
@@ -138,6 +142,11 @@ class VbSheet extends ViewObject {
         $rowToggle.append(this.optionPanel.toggle('useDnd',{label:'DnD컬럼', size:'col-3'}));
         $panel.append($rowToggle);
 
+        let $rowToggle2 = this.optionPanel.row();
+        $rowToggle2.append(this.optionPanel.toggle('useExpendLastColumn',{label:'마지막컬럼 자동확장', size:'col-7'}));
+        $rowToggle2.append(this.optionPanel.toggle('offCellFocus',{label:'셀 포커싱 비활성화', size:'col-5'}));
+        $panel.append($rowToggle2);
+
         let $rowGrid = this.optionPanel.row();
         $rowGrid.append(this.optionPanel.input('width',{label:'넓이', size:'col-6'}));
         $rowGrid.append(this.optionPanel.input('height',{label:'높이', size:'col-6'}));
@@ -153,6 +162,8 @@ class VbSheet extends ViewObject {
         this.optionPanel.check('useStatus',options.useStatus);
         this.optionPanel.check('useDelete',options.useDelete);
         this.optionPanel.check('useDnd',options.useDnd);
+        this.optionPanel.check('useExpendLastColumn',options.useExpendLastColumn);
+        this.optionPanel.check('offCellFocus',options.offCellFocus);
         this.optionPanel.setValue('width',options.width);
         this.optionPanel.setValue('height',options.height);
         this.optionPanel.setValue('columns',options.columns);
@@ -193,6 +204,14 @@ class VbSheet extends ViewObject {
 
         this.optionPanel.clickEvent('useDnd',(e) => {
             super.changeOptionValue($el, options, 'useDnd', $(e.target).is(':checked'));
+        });
+
+        this.optionPanel.clickEvent('useExpendLastColumn',(e) => {
+            super.changeOptionValue($el, options, 'useExpendLastColumn', $(e.target).is(':checked'));
+        });
+
+        this.optionPanel.clickEvent('offCellFocus',(e) => {
+            super.changeOptionValue($el, options, 'offCellFocus', $(e.target).is(':checked'));
         });
 
         this.optionPanel.clickEvent('column-setting',(e) => {

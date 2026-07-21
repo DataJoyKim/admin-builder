@@ -25,6 +25,42 @@ class Sheet {
         this.init(sheetId, width, height, setting, columnInfo, events);
     }
 
+    /**
+     * Sheet 를 초기화한다.
+     *
+     * @param {string} sheetId - Sheet Element ID
+     * @param {string|number} width - Sheet 너비
+     * @param {string|number} height - Sheet 높이
+     * @param {Object} setting - Sheet 설정
+     * @param {Array<Object>} columnInfo - 컬럼 정의 목록
+     * @param {Object} [events] - 이벤트 정의
+     * @returns {Object} AG Grid 객체
+     *
+     * setting
+     * -------
+     * useDnd               : Row Drag & Drop 사용
+     * useSeq               : 순번 컬럼(_seq) 사용
+     * useStatus            : 상태 컬럼(_status) 사용
+     * useDelete            : 삭제 컬럼(_delete) 사용
+     * useExpendLastColumn  : 마지막 컬럼 자동 확장
+     * offCellFocus         : 셀 포커스 비활성화
+     *
+     * columnInfo[]
+     * ------------
+     * field        : 컬럼 필드명
+     * label        : 컬럼 헤더명
+     * type         : text | number | check | combo | date
+     * width        : 컬럼 너비
+     * editable     : 수정 가능 여부
+     * align        : left | center | right
+     * required     : 필수 여부
+     * hide         : 숨김 여부
+     * comboCodes   : combo 타입 코드 목록
+     *
+     * events
+     * ------
+     * onSelectionChanged(row) : 행 선택 이벤트
+     */
     init(sheetId, width, height, setting, columnInfo, events) {
         // element 설정
         const sheetEl = $("#"+sheetId);

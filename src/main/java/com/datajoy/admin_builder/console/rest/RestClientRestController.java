@@ -111,11 +111,11 @@ public class RestClientRestController {
                     .orElseThrow(RuntimeException::new);
 
             restClient.update(
-                    (String) params.get("clientName"),
-                    (String) params.get("displayName"),
-                    (String) params.get("dataSourceName"),
-                    HttpMethod.valueOf((String) params.get("method")),
-                    (String) params.get("path"),
+                    (String) pRestClient.get("clientName"),
+                    (String) pRestClient.get("displayName"),
+                    (String) pRestClient.get("dataSourceName"),
+                    HttpMethod.valueOf((String) pRestClient.get("method")),
+                    (String) pRestClient.get("path"),
                     (contentType != null) ? ContentType.valueOf((String) contentType) : null,
                     (bodyMessageFormat != null) ? BodyMessageFormat.valueOf((String) bodyMessageFormat) : null,
                     queryParams,

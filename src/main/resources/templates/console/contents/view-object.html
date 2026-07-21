@@ -161,7 +161,8 @@
 
           function apply() {
             let params = {
-                objectCode: $("#objectCode").val()
+                objectCode: $("#objectCode").val(),
+                objectName: $("#objectName").val()
             };
 
             App.modalPopup.sendParamToParent('OBJECT_RESULT', params);

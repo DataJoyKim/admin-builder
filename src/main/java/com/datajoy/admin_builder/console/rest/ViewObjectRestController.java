@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController("console.ViewObjectRestController")
 @RequestMapping("/console/api/object")
@@ -19,8 +20,18 @@ public class ViewObjectRestController {
     private ViewObjectRepository repository;
 
     @GetMapping("")
-    public ResponseEntity<?> getList() {
-        List<ViewObject> results = repository.findAll();
+    public ResponseEntity<?> getList(
+            @RequestParam(name = "objectCode", required = false) String objectCode
+    ) {
+        List<ViewObject> results;
+        if(objectCode != null) {
+            Optional<ViewObject> object = repository.findByObjectCode(objectCode);
+            results = new ArrayList<>();
+            object.ifPresent(results::add);
+        }
+        else {
+            results = repository.findAll();
+        }
 
         return new ResponseEntity<>(results, HttpStatus.OK);
     }
