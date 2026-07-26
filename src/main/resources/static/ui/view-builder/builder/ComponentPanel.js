@@ -6,6 +6,7 @@ class ComponentPanel {
 
         let $layoutEl = this.details('레이아웃',true);
         this.item($layoutEl, 'row', 'Row', 'com-html.png');
+        this.item($layoutEl, 'col', 'Col', 'com-html.png');
         $panel.append($layoutEl);
 
         let $containerEl = this.details('컨테이너',true);

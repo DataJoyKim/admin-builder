@@ -11,7 +11,7 @@ class Card extends ViewObject {
     componentOptions() {
         return {
            id:this.componentId() + super.getComponentIdNumber(),
-           size:"col-6",
+           size:"col-12",
            title:"Title",
            useCardHeader:true
        };

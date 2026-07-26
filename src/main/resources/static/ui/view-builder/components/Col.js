@@ -1,16 +1,17 @@
-class Layout extends ViewObject {
+class Col extends ViewObject {
     constructor(optionPanel) {
         super(optionPanel);
         this.optionPanel = optionPanel;
     }
 
     componentId() {
-        return 'layout';
+        return 'col';
     }
 
     componentOptions() {
         return {
-           id:this.componentId() + super.getComponentIdNumber()
+           id:this.componentId() + super.getComponentIdNumber(),
+           size:'col-6'
        };
     }
 
@@ -19,9 +20,13 @@ class Layout extends ViewObject {
  * ======================================= */
     renderRuntime(options, children) {
         let el = $(`
-           <div class="layout" id="layout" style="min-height: 993px;" >
-           </div>
+            <div id="${options.id}" class="${options.size}" >
+            </div>
         `);
+
+        if (children) {
+            el.append(children);
+        }
 
         return el;
     }
@@ -33,8 +38,12 @@ class Layout extends ViewObject {
  * ======================================= */
     renderBuilder(options) {
         let el = `
-           <div class="component layout wrapper vb-item vb-container" id="${options.id}" style="min-height: 993px;" data-type="${this.componentId()}">
-           </div>
+            <div id="${options.id}" class="component ${options.size} vb-item vb-container" data-type="${this.componentId()}">
+                ${super.componentDeleteBtn()}
+                <div class="drop-area-label">
+                    + Drag & Drop
+                </div>
+            </div>
         `;
 
         return $(el);
@@ -43,11 +52,12 @@ class Layout extends ViewObject {
     styleBuilder() {
         return `
             .vb-item[data-type="${this.componentId()}"] {
-                cursor: pointer;
-                width: 100%;
-                min-height: 90%;
-                border: 2px dashed #bbb;
-                padding-bottom: 50px;
+                background-color: white;
+                padding: 5px;
+                min-height: 50px;
+                height: auto;
+                margin: 0 !important;
+                border: 1px dashed #bbb;
             }
         `;
     }
@@ -59,24 +69,25 @@ class Layout extends ViewObject {
         }]
     }
 
-    afterAddComponent(componentFactory, $el, $componentEl) {
-        // 초기 로드 시 Row 컴포넌트 셋팅
-        super.addComponentByType(componentFactory, 'row', $componentEl);
-    }
-
 /* =======================================
  * Option Panel Setting
  * ======================================= */
     optionPanelView($panel, options) {
         $panel.append(this.optionPanel.input('component-id',{label:'컴포넌트명', size:'col-6', enabled:false}));
-        $panel.append(this.optionPanel.button('row-add',{label:'Layout 내용', size:'col-12', btnLabel:'행 추가',icon:'fas fa-plus'}));
+        $panel.append(this.optionPanel.select('size',{label:'크기', size:'col-6', options:this.optionPanel.optionSize()}));
+        $panel.append(this.optionPanel.button('row-add',{label:'내용', size:'col-12', btnLabel:'행 추가',icon:'fas fa-plus'}));
     }
 
     optionPanelScript($el, options) {
         this.optionPanel.setValue('component-id',this.componentId());
+        this.optionPanel.setValue('size',options.size);
     }
 
     optionPanelEvent($el, options, componentFactory) {
+        this.optionPanel.changeEvent('size',(e) => {
+            super.changeOptionValue($el, options, 'size', $(e.target).val());
+            super.changeSize($el, options.size);
+        });
         this.optionPanel.clickEvent('row-add',(e) => {
           super.addComponentByType(componentFactory, 'row', $el);
         });

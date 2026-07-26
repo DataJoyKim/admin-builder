@@ -51,6 +51,7 @@ class Row extends ViewObject {
     styleBuilder() {
         return `
             .vb-item[data-type="${this.componentId()}"] {
+                background-color: white;
                 padding: 5px;
                 min-height: 50px;
                 height: auto;
@@ -72,11 +73,16 @@ class Row extends ViewObject {
  * ======================================= */
     optionPanelView($panel, options) {
         $panel.append(this.optionPanel.input('component-id',{label:'컴포넌트명', size:'col-6', enabled:false}));
+        $panel.append(this.optionPanel.button('col-add',{label:'내용', size:'col-12', btnLabel:'열 추가',icon:'fas fa-plus'}));
     }
 
     optionPanelScript($el, options) {
         this.optionPanel.setValue('component-id',this.componentId());
     }
 
-    optionPanelEvent($el, options, componentFactory) {}
+    optionPanelEvent($el, options, componentFactory) {
+        this.optionPanel.clickEvent('col-add',(e) => {
+          super.addComponentByType(componentFactory, 'col', $el);
+        });
+    }
 }

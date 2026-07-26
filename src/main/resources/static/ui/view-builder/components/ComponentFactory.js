@@ -11,6 +11,7 @@ class ComponentFactory {
                 "form": new Form(this.optionPanel),
                 "grid": new VbGrid(this.optionPanel, this.utils.grid),
                 "sheet": new VbSheet(this.optionPanel),
+                "col": new Col(this.optionPanel),
                 "row": new Row(this.optionPanel),
                 "card": new Card(this.optionPanel),
                 "card-body": new CardBody(this.optionPanel),
