@@ -55,6 +55,9 @@ public class ViewBuilderController {
             @PathVariable("objectCode") String objectCode
     ) {
         ViewObject viewObject = viewObjectService.getViewObject(objectCode);
+        if(viewObject == null) {
+            return "/error/error404";
+        }
 
         if(Boolean.TRUE.equals(viewObject.getUseAuthValidation())) {
             AuthenticatedUser user;

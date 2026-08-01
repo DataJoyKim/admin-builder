@@ -44,6 +44,7 @@ public class LayoutRestController {
                 .logoLink((String) params.get("logoLink"))
                 .logoImg((String) params.get("logoImg"))
                 .layoutTitle((String) params.get("layoutTitle"))
+                .homeObjectCode((String) params.get("homeObjectCode"))
                 .build();
 
         return new ResponseEntity<>(repository.save(createdData), HttpStatus.OK);
@@ -62,7 +63,8 @@ public class LayoutRestController {
                 (String) params.get("logoBackgroundColor"),
                 (String) params.get("logoLink"),
                 (String) params.get("logoImg"),
-                (String) params.get("layoutTitle")
+                (String) params.get("layoutTitle"),
+                (String) params.get("homeObjectCode")
         );
 
         repository.save(savedData);

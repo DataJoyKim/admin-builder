@@ -39,6 +39,12 @@ class ViewBuilder {
         $(".component-item").draggable({
             helper: "clone",
             start: function(event, ui) {
+                if (!$("#objectCode").val()) {
+                    alert("오브젝트 코드를 입력해주세요.");
+                    event.preventDefault();
+                    return false;
+                }
+
                 ui.helper.css({
                     width: "180px"
                 });

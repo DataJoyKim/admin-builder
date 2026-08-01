@@ -1226,7 +1226,7 @@
     onTabCreated: function onTabCreated(item) {
       return item;
     },
-    autoIframeMode: true,
+    autoIframeMode: false,
     autoItemActive: true,
     autoShowNewTab: true,
     autoDarkMode: false,

@@ -29,6 +29,8 @@ public class Layout {
     private String logoImg;
     @Column(length = 100)
     private String layoutTitle;
+    @Column(length = 100)
+    private String homeObjectCode;
 
     public void update(
             Boolean useAuthValidation,
@@ -38,7 +40,8 @@ public class Layout {
             String logoBackgroundColor,
             String logoLink,
             String logoImg,
-            String layoutTitle
+            String layoutTitle,
+            String homeObjectCode
     ) {
         this.useAuthValidation = useAuthValidation;
         this.useProfile = useProfile;
@@ -48,5 +51,6 @@ public class Layout {
         this.logoLink = logoLink;
         this.logoImg = logoImg;
         this.layoutTitle = layoutTitle;
+        this.homeObjectCode = homeObjectCode;
     }
 }

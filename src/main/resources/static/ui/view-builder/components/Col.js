@@ -40,9 +40,6 @@ class Col extends ViewObject {
         let el = `
             <div id="${options.id}" class="component ${options.size} vb-item vb-container" data-type="${this.componentId()}">
                 ${super.componentDeleteBtn()}
-                <div class="drop-area-label">
-                    + Drag & Drop
-                </div>
             </div>
         `;
 

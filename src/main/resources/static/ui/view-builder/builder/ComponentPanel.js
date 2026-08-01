@@ -28,7 +28,7 @@ class ComponentPanel {
         $panel.append($inputEl);
 
         let $etcEl = this.details('기타',true);
-        this.item($etcEl, 'html', 'Html', 'com-html.png');
+        this.item($etcEl, 'custom-html', 'Html', 'com-html.png');
         $panel.append($etcEl);
     }
 

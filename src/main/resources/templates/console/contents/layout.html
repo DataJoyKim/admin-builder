@@ -104,7 +104,8 @@
                 logoBackgroundColor: $("#logoBackgroundColor").val(),
                 logoLink: $("#logoLink").val(),
                 logoImg: $("#logoImg").val(),
-                layoutTitle: $("#layoutTitle").val()
+                layoutTitle: $("#layoutTitle").val(),
+                homeObjectCode: $("#homeObjectCode").val()
             }
         }
 
@@ -118,6 +119,8 @@
             $("#logoLink").val(params.logoLink);
             $("#logoImg").val(params.logoImg);
             $("#layoutTitle").val(params.layoutTitle);
+            $("#homeObjectCode").val(params.homeObjectCode);
+
           }
     </script>
 <div th:fragment="view">
@@ -164,6 +167,11 @@
                             </div>
                             <div class="col-md-2">
                                 <mf-text-input id="logoText" label="로그 텍스트" enable="true"></mf-text-input>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <mf-text-input id="homeObjectCode" label="Home 오브젝트코드" enable="true"></mf-text-input>
                             </div>
                         </div>
                     </div>

@@ -58,7 +58,9 @@
             <div class="content-wrapper iframe-mode" data-widget="iframe" data-loading-screen="750">
                 <div class="nav navbar navbar-expand navbar-white navbar-light border-bottom p-0">
                     <div class="nav-item dropdown">
-                        <a class="nav-link bg-danger dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Close</a>
+                        <a class="nav-link bg-light" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+                            <i class="nav-item fas fa-times" style="color:#bd2130"></i>
+                        </a>
                         <div class="dropdown-menu mt-0">
                             <a class="dropdown-item" href="#" data-widget="iframe-close" data-type="all">Close All</a>
                             <a class="dropdown-item" href="#" data-widget="iframe-close" data-type="all-other">Close All Other</a>
@@ -139,7 +141,7 @@
 
                     setRootMenu();
 
-                    setHomeContent();
+                    setHomeContent(data.homeObjectCode);
                   },
                   error: function(error) {
                     alert('에러가 발생하였습니다.');
@@ -228,8 +230,8 @@
             }
 
             function getMenuHtml(menu) {
-                let menuPath = (menu.objectCode != null) ? '/pages/'+menu.objectCode : '#';
-                let menuItemClass = 'nav-icon ' + menu.icon;
+                const menuPath = (menu.objectCode != null) ? '/pages/'+menu.objectCode : '#';
+                const menuItemClass = 'nav-icon ' + menu.icon;
 
                 let shtml = '';
 
@@ -253,24 +255,12 @@
                 return shtml;
             }
 
-            function setHomeContent() {
+            function setHomeContent(objectCode) {
                 let homeHtml = ``;
 
-                homeHtml += `<div class="container-fluid">`;
-                homeHtml += `    <div class="row">`;
-                homeHtml += `        <div class="col-lg-6">`;
-                homeHtml += `            <div class="card">`;
-                homeHtml += `                <div class="card-header border-0">`;
-                homeHtml += `                    <div class="d-flex justify-content-between">`;
-                homeHtml += `                        <h3 class="card-title">공지사항</h3>`;
-                homeHtml += `                    </div>`;
-                homeHtml += `                </div>`;
-                homeHtml += `                <div class="card-body">`;
-                homeHtml += `                </div>`;
-                homeHtml += `            </div>`;
-                homeHtml += `        </div>`;
-                homeHtml += `    </div>`;
-                homeHtml += `</div>`;
+                if(objectCode) {
+                    homeHtml += `<iframe src="/pages/${objectCode}"></iframe>`;
+                }
 
                 $("#homeContent").html(homeHtml);
             }
