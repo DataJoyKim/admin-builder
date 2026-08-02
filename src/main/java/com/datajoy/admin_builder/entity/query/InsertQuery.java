@@ -14,7 +14,7 @@ public class InsertQuery extends AbstractEntityQuery {
                 columns(resolvedEntityColumns) +
                 ") values (" + System.lineSeparator() +
                 params(resolvedEntityColumns) +
-                ");";
+                ")";
     }
 
     private String columns(List<EntityColumn> entityColumns) {

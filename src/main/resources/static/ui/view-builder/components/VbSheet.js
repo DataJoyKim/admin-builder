@@ -73,7 +73,7 @@ class VbSheet extends ViewObject {
 
             })
             .on('getData', function(){
-                return sheet.getSheetData();
+                return sheet.getSaveData();
             })
             .on('setData', function(e, data){
                 VB.globalVariable.setMessage(options.dataProvider, data);

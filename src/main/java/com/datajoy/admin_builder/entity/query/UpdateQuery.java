@@ -26,8 +26,7 @@ public class UpdateQuery extends AbstractEntityQuery {
                 "set " + System.lineSeparator() +
                 updateSet(setColumns) +
                 "where 1=1 " + System.lineSeparator() +
-                where(keyColumns) +
-                ";";
+                where(keyColumns);
     }
 
     private String updateSet(List<EntityColumn> setColumns) {

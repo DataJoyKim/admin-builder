@@ -169,6 +169,7 @@ class Sheet {
             noRowsToShow: '데이터가 없습니다.'
           },
           rowSelection: 'single',
+            suppressClipboardPaste: false, // 클립보드 붙여넣기 사용. 엔터프라이즈 버전만 다중 붙여넣기 가능
           //suppressRowClickSelection: true,
           onCellValueChanged: (event) => {
             const current = event.data;
@@ -317,7 +318,38 @@ class Sheet {
     }
 
     getSaveData() {
-        return [];
+        const rows = [];
+
+        const columns = this.getSheetColumns().reduce((obj, item) => {
+            obj[item.field] = item;
+            return obj;
+        }, {});
+
+        this.getSheetObj().forEachNode(node => {
+            const status = node.data._status;
+            if(
+                status === this.SHEET_STATUS.CREATE ||
+                status === this.SHEET_STATUS.DELETE ||
+                status === this.SHEET_STATUS.UPDATE
+            ) {
+                for(const col in node.data) {
+                    const colMeta = columns[col];
+
+                    // 필수값 검증
+                    if(colMeta.required) {
+                        const value = node.data[col];
+                        if(value === undefined || value == null || value == '') {
+                            alert(colMeta.label + ' 필수로 입력해주세요.');
+                            return;
+                        }
+                    }
+                }
+
+                rows.push(node.data);
+            }
+        });
+
+        return rows;
     }
 
     getSelectedRowData() {

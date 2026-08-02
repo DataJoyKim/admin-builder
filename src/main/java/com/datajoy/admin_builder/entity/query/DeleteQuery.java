@@ -18,10 +18,9 @@ public class DeleteQuery extends AbstractEntityQuery {
             }
         }
 
-        return "delete " + tableName + System.lineSeparator() +
+        return "delete from " + tableName + System.lineSeparator() +
                 "where 1=1 " + System.lineSeparator() +
-                where(keyColumns) +
-                ";";
+                where(keyColumns);
     }
 
     private String where(List<EntityColumn> keyColumns) {

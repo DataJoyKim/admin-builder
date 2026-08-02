@@ -38,6 +38,7 @@ public class Entity {
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval=true)
     @JoinColumn(name = "ENTITY_ID")
+    @OrderBy("orderNum ASC")
     private List<EntityColumn> entityColumns = new ArrayList<>();
 
     public List<EntitySqlQuery> generateQuery(EntityConfig config, EntityRequest params) {
@@ -46,7 +47,7 @@ public class Entity {
         List<EntitySqlQuery> entitySqlQueryList = new ArrayList<>();
 
         for(Map<String, Object> content : contents) {
-            String seq = (String) content.get(config.getSeqParamKeyName());
+            String seq = String.valueOf(content.get(config.getSeqParamKeyName()));
             EntityStatus status = EntityStatus.valueOf((String) content.get(config.getStatusParamKeyName()));
 
             String sql = createSql(status);
@@ -70,14 +71,15 @@ public class Entity {
         }
     }
 
-    private static List<SqlParameter> createSqlParameters(Map<String, Object> content) {
+    private List<SqlParameter> createSqlParameters(Map<String, Object> content) {
         List<SqlParameter> sqlParameters = new ArrayList<>();
         int i=0;
-        for(String parameterName : content.keySet()) {
+        for(EntityColumn column : this.entityColumns) {
+
             sqlParameters.add(SqlParameter.createSqlParameter(
-                    parameterName,
+                    column.getColumnName(),
                     i,
-                    content.get(parameterName)
+                    content.get(column.getColumnName())
             ));
             i++;
         }

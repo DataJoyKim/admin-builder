@@ -47,9 +47,15 @@ class Workflow extends Actions {
 
             const requestMessagesSetting = ${requestMessagesSetting};
 
-            for(const setting of requestMessagesSetting) {
-                let messageData = ${message}[setting.messageId];
-                requestMessage[setting.messageId] =  ((messageData) ? messageData : [{}]);
+            for(const setting of requestMessagesSetting) {                
+                const dataProvider = $("div[dataProvider='"+setting.messageId+"']");
+                if(dataProvider[0]) {
+                    requestMessage[setting.messageId] = $("div[dataProvider='"+setting.messageId+"']").triggerHandler('getData');
+                }
+                else {
+                    const messageData = ${message}[setting.messageId];
+                    requestMessage[setting.messageId] = ((messageData) ? messageData : [{}]);
+                }
             }
         `;
 

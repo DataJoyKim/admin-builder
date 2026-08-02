@@ -6,6 +6,7 @@ import com.datajoy.admin_builder.sql.parameterbind.ParameterBindType;
 import com.datajoy.admin_builder.sql.parameterbind.ParameterBinder;
 import com.datajoy.admin_builder.sql.parameterbind.ParameterBinderFactory;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -13,7 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+@Slf4j
 @RequiredArgsConstructor
 public class SqlExecutor {
     private final DataSource dataSource;
@@ -38,6 +39,8 @@ public class SqlExecutor {
             for(SqlParameter sqlParameter : sqlQuery.getSqlParameters()) {
                 stmt.setObject(sqlParameter.getParameterIndex(), sqlParameter.getValue());
             }
+
+            SqlExecutorPrint.print(sqlQuery);
 
             rs = stmt.executeQuery();
 
