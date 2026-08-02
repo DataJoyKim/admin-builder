@@ -7,6 +7,7 @@ class Workflow extends Actions {
     actionOptions() {
         return [
             {id:'workflowCode', label:'워크플로우ID', type:'text', size:'col-6', defaultValue:''},
+            {id:'confirmMsg', label:'확인창 메시지', type:'text', size:'col-6', defaultValue:''},
             {id:'requestMessages', label:'요청메시지 설정', type:'sheet', size:'col-12', defaultValue:''},
             {id:'responseMessageId', label:'응답메시지ID', type:'text', size:'col-6', defaultValue:''}
         ]
@@ -30,6 +31,15 @@ class Workflow extends Actions {
 
         // 함수 코드 생성
         let code = ``;
+
+        // 확인창 메시지
+        if(options.confirmMsg) {
+            code += `
+                if(!confirm('${options.confirmMsg}')) {
+                    return;
+                }
+            `;
+        }
 
         // 요청메시지 코드 생성
         code += `
@@ -70,6 +80,8 @@ class Workflow extends Actions {
 
     optionPanelView($panel, optionPanel) {
         $panel.append(optionPanel.getHtml('workflowCode'));
+
+        $panel.append(optionPanel.getHtml('confirmMsg'));
 
         $panel.append(optionPanel.getHtml('requestMessages'));
 

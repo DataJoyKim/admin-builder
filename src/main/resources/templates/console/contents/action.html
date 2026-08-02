@@ -28,15 +28,25 @@
 
             setCodes(codes);
 
-            grid.initSheet('jsGrid1', "100%","500px",
-            [
-                {name: "id", title:"ID", type: "number", width: 50, hidden:true, editing: false, inserting: false},
-                {name: "actionName", title:"Action", type: "text", width: 150 },
-                {name: "displayName", title:"명칭", type: "text", width: 200 }
-            ],
-            function(args) {
-                selectedContent(args.item);
-            });
+            Sheet.initSheet('jsGrid1', "100%", "600px",
+                {
+                    useSeq:false,
+                    useStatus:false,
+                    useDelete:false,
+                    useExpendLastColumn:true,
+                    offCellFocus:true
+                },
+                [
+                    {field:'id', label:'ID', type:'text', width:30, hide:true, editable: true, align:'center', required:false},
+                    {field:'actionName', label:'Action', type:'text', width:150, editable: false, align:'left', required:false},
+                    {field:'displayName', label:'명칭', type:'text', width:150, editable: false, align:'left', required:false},
+                    {field:'type', label:'유형', type:'combo', width:150, editable: false, align:'left', required:false, comboCodes:codes.ActionType}
+                ],
+                {
+                    onSelectionChanged:function(row) {
+                        selectedContent(row);
+                    }
+                });
 
             App.modalPopup.receiveParam('ACTION_REQUEST', function(data){
                 if(!data.objectCode) {
@@ -55,7 +65,7 @@
         function getList() {
             httpClient.get(`/console/api/action`, {objectCode:P_OBJECT_CODE},
                 function(response){
-                    grid.setSheetData('jsGrid1', response);
+                    jsGrid1.setSheetData(response);
                 },
                 function(error){
                     alert('error');
