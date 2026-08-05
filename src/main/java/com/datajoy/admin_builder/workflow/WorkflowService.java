@@ -15,10 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -109,6 +106,9 @@ public class WorkflowService {
             FunctionExecutor executor = functionFactory.instance(func.getFunctionType());
 
             List<Map<String, Object>> params = messageStorage.get(func.getRequestMessageId());
+            if(params == null) {
+                params = new ArrayList<>();
+            }
 
             FunctionResult result = executor.execute(user, func.getFunctionName(), params);
 
