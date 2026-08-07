@@ -22,18 +22,7 @@ class WorkflowClient {
             },
             success: function(response) {
                 console.log('workflowClient.execute.'+workflowCode+'.response',response);
-                if(!response.resultType){
-                    alert('워크플로우 실행에 실패하였습니다.');
-                }
-                else if(response.resultType == 'SUCCESS') {
-                    _success(response.contents);
-                }
-                else if(response.resultType == 'FAILURE') {
-                    alert(response.message);
-                }
-                else {
-                    alert('워크플로우 실행에 실패하였습니다.');
-                }
+                _success(response);
             },
             error: function(error) {
                 console.log('workflowClient.execute.error',error);
