@@ -71,91 +71,26 @@ class Sheet {
         const columns = [];
 
         // 시트 옵션
-        if(setting.useDnd != undefined) {
+        if(setting.useDnd !== undefined) {
             columns.push({field:'_dnd', label:'', type:'text', width:50, hide:!setting.useDnd, editable: false, align:'center', required:false, rowDrag: true});
         }
 
-        if(setting.useSeq != undefined) {
+        if(setting.useSeq !== undefined) {
             columns.push({field:'_seq', label:'번호', type:'text', width:60, hide:!setting.useSeq, editable: false, align:'center', required:false});
         }
 
-        if(setting.useStatus != undefined) {
+        if(setting.useStatus !== undefined) {
             columns.push({field:'_status', label:'상태', type:'combo', width:60, hide:!setting.useStatus, editable: false, align:'center', required:false,comboCodes:this.COMBO_SHEET_STATUS});
         }
 
-        if(setting.useDelete != undefined) {
+        if(setting.useDelete !== undefined) {
             columns.push({field:'_delete', label:'삭제', type:'check', width:60, hide:!setting.useDelete, editable: true, align:'center', required:false});
         }
 
         $.merge(columns, columnInfo);
 
         // 컬럼 변환
-        const columnDefs = [];
-        columns.forEach((column, index) => {
-            const columnDef = {};
-            if(column.type == 'check') {
-                columnDef.cellDataType = 'boolean';
-            }
-            else if(column.type == 'combo') {
-                const comboCodes = (column.comboCodes) ? column.comboCodes : [];
-
-                columnDef.singleClickEdit = true;
-                columnDef.cellEditorParams = {
-                    values: comboCodes.map(item => item.code)
-                }
-
-                columnDef.valueFormatter = (params) => {
-                    return this.getCodeLabel(comboCodes, params.value);
-                }
-
-                if(column.editable) {
-                    columnDef.cellEditor = 'agSelectCellEditor'; // 편집 모드 시 콤보박스
-                }
-            }
-            else if(column.type == 'date') {
-                columnDef.cellDataType = 'dateString';
-            }
-            else {
-                columnDef.cellDataType = column.type;
-            }
-
-            columnDef.field = column.field;
-            columnDef.headerName = column.label;
-            columnDef.width = column.width;
-            columnDef.editable = column.editable;
-            columnDef.cellStyle = {};
-            columnDef.headerClass = 'ag-center-header';
-
-            if(column.type == 'check') {
-                columnDef.cellClass = 'align-'+column.align;
-            }
-            else {
-                columnDef.cellStyle.textAlign = column.align;
-            }
-
-            if(column.required) {
-                columnDef.headerClass = columnDef.headerClass + ' required-header';
-            }
-
-            if(column.hide != undefined) {
-                columnDef.hide = column.hide;
-                if(column.hide) {
-                    columnDef.suppressColumnsToolPanel = true; // 컬럼 선택 패널에서도 숨김
-                }
-            }
-
-            if(column.rowDrag != undefined) {
-                columnDef.rowDrag = column.rowDrag;
-            }
-
-            if(setting.useExpendLastColumn != undefined && setting.useExpendLastColumn) {
-                if(index === columns.length - 1) {
-                    columnDef.flex = 1; // 마지막 컬럼은 크기 확장
-                }
-            }
-
-            columnDefs.push(columnDef);
-        });
+        const columnDefs = this.createColumnDefs(setting, columns);
 
         // 시트 옵션 설정
         const originalDataMap = new WeakMap();
@@ -240,6 +175,117 @@ class Sheet {
        this.setSheetMetadata(sheetId, {sheet:sheet, originalDataMap:originalDataMap, columns:columns});
 
        return sheet;
+    }
+
+    createColumnDefs(setting, columns) {
+
+        const columnDefs = [];
+        columns.forEach((column, index) => {
+            const columnDef = {};
+            if(column.type === 'check') {
+                columnDef.cellDataType = 'boolean';
+            }
+            else if(column.type === 'combo') {
+                const comboCodes = (column.comboCodes) ? column.comboCodes : [];
+
+                columnDef.singleClickEdit = true;
+                columnDef.cellEditorParams = {
+                    values: comboCodes.map(item => item.code)
+                }
+
+                columnDef.valueFormatter = (params) => {
+                    return this.getCodeLabel(comboCodes, params.value);
+                }
+
+                if(column.editable) {
+                    columnDef.cellEditor = 'agSelectCellEditor'; // 편집 모드 시 콤보박스
+                }
+            }
+            else if(column.type === 'date') {
+                columnDef.cellDataType = 'dateString';
+            }
+            else {
+                columnDef.cellDataType = column.type;
+            }
+
+            columnDef.field = column.field;
+            columnDef.headerName = column.label;
+            columnDef.width = column.width;
+            columnDef.editable = column.editable;
+            columnDef.cellStyle = {};
+            columnDef.headerClass = 'ag-center-header';
+
+            if(column.type === 'check') {
+                columnDef.cellClass = 'align-'+column.align;
+            }
+            else {
+                columnDef.cellStyle.textAlign = column.align;
+            }
+
+            if(column.required) {
+                columnDef.headerClass = columnDef.headerClass + ' required-header';
+            }
+
+            if(column.hide !== undefined) {
+                columnDef.hide = column.hide;
+                if(column.hide) {
+                    columnDef.suppressColumnsToolPanel = true; // 컬럼 선택 패널에서도 숨김
+                }
+            }
+
+            if(column.rowDrag !== undefined) {
+                columnDef.rowDrag = column.rowDrag;
+            }
+
+            if(setting.useExpendLastColumn !== undefined && setting.useExpendLastColumn) {
+                if(index === columns.length - 1) {
+                    columnDef.flex = 1; // 마지막 컬럼은 크기 확장
+                }
+            }
+
+            if(column.labelGroup !== undefined) {
+                columnDef.labelGroup = column.labelGroup;
+            }
+
+            columnDefs.push(columnDef);
+        });
+
+        return this.convertHeaderMerge(columnDefs);
+    }
+
+    convertHeaderMerge(columns) {
+
+        const result = [];
+        const groups = {};
+
+        columns.forEach(column => {
+
+            if(column.labelGroup) {
+
+                const groupName = column.labelGroup;
+
+                if(!groups[groupName]) {
+                    groups[groupName] = {
+                        headerName: groupName,
+                        headerClass: 'ag-center-group-header',
+                        children: []
+                    };
+
+                    result.push(groups[groupName]);
+                }
+
+                const child = { ...column };
+                delete child.labelGroup;
+
+                groups[groupName].children.push(child);
+
+            }
+            else {
+                result.push(column);
+            }
+        });
+
+        return result;
     }
 
     getSheetData() {

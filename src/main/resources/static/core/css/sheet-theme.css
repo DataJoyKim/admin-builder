@@ -1,6 +1,14 @@
 .ag-center-header .ag-header-cell-label {
     justify-content: center;
 }
+.ag-header-group-cell.ag-center-group-header .ag-header-group-cell-label {
+    display: flex !important;
+    justify-content: center !important;
+    width: 100% !important;
+}
+.ag-header-group-cell.ag-center-group-header .ag-header-group-text {
+    text-align: center !important;
+}
 .required-header .ag-header-cell-text::before {
     content: "*";
     color: red;

@@ -38,12 +38,18 @@ class VbSheet extends ViewObject {
 
         const columns = options.columns;
         for(const col of columns) {
-            if(col.type == 'combo') {
+            if(col.type === 'combo') {
                 if(col.comboCodeName) {
-                    let codes = VB.globalVariable.getCode()[col.comboCodeName];
-                    if(!codes) {
-                        codes = [];
+                    let codes = [];
+                    if(col.useFirstItem) {
+                        codes.push({code: col.firstItemValue, name: col.firstItemLabel});
                     }
+
+                    const comboCodeData = VB.globalVariable.getCode()[col.comboCodeName];
+                    if(comboCodeData) {
+                        codes = codes.concat(comboCodeData);
+                    }
+
                     col.comboCodes = codes;
                 }
             }
@@ -62,7 +68,7 @@ class VbSheet extends ViewObject {
                 useExpendLastColumn:options.useExpendLastColumn,
                 offCellFocus:options.offCellFocus
             },
-            options.columns
+            columns
             );
 
         const sheet = window[options.id];

@@ -27,6 +27,8 @@ public class ViewObject {
     private Boolean useAuthValidation = true;
     @Column
     private Boolean useAuthorityValidation = true;
+    @Column
+    private Boolean useToolbar = true;
 
     public void update(
             String objectCode,
@@ -34,7 +36,8 @@ public class ViewObject {
             ObjectType type,
             String path,
             Boolean useAuthValidation,
-            Boolean useAuthorityValidation
+            Boolean useAuthorityValidation,
+            Boolean useToolbar
     ) {
         this.objectCode = objectCode;
         this.objectName = objectName;
@@ -42,5 +45,6 @@ public class ViewObject {
         this.path = path;
         this.useAuthValidation = useAuthValidation;
         this.useAuthorityValidation = useAuthorityValidation;
+        this.useToolbar = useToolbar;
     }
 }

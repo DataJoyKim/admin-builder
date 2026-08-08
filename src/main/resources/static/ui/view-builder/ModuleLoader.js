@@ -16,6 +16,7 @@ class ModuleLoader {
         ];
 
         this.actionsModules = [
+            `${configs.paths.actions}/ActionHandlerScriptEngine.js`,
             `${configs.paths.actions}/Script.js`,
             `${configs.paths.actions}/NewData.js`,
             `${configs.paths.actions}/Workflow.js`

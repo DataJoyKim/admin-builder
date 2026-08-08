@@ -41,7 +41,7 @@ class View {
                 self.globalVariable.setCode(response.codeMap);
 
                 const render = new Render(self.actionsFactory, self.componentFactory);
-                render.init(self.canvasId, view, response.viewActions);
+                render.init(self.canvasId, response.viewObject, view, response.viewActions);
             },
             function(error){
                 alert("화면을 불러오는데 실패하였습니다.");

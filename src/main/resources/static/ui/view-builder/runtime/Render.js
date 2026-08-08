@@ -5,12 +5,12 @@ class Render {
         this.componentFactory = componentFactory;
     }
 
-    init(id, viewData, actionsData) {
+    init(id, viewObject, viewData, actionsData) {
         this.initQueue = [];
 
         this.registerActions(actionsData);
 
-        this.render(id, viewData);
+        this.render(id, viewObject, viewData);
 
         for (let initQ of this.initQueue) {
             initQ();
@@ -29,14 +29,20 @@ class Render {
         }
     }
 
-    render(id, data) {
+    render(id, viewObject, data) {
+        // Toolbar Rendering
+        if(viewObject.useToolbar) {
+            $(".toolbar-section").append(this.toolbar());
+        }
+
+        // View Object Content Rendering
         const contentWrapper = $('<div>')
             .addClass('wrapper')
             .attr('id', id);
 
         contentWrapper.append(this.component(data));
 
-        $("#"+id).replaceWith(contentWrapper);
+        $(".content-section").append(contentWrapper);
     }
 
     component(viewData) {
@@ -81,5 +87,34 @@ class Render {
         else {
             return this.component(data.children);
         }
+    }
+
+    toolbar() {
+        return $(`
+            <nav class="navbar navbar-expand  navbar-light toolbar">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" role="button" data-toggle="tooltip" title="즐겨찾기" onClick="">
+                            <i class="far fa-star"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" role="button" data-toggle="tooltip" title="가이드" onClick="">
+                            <i class="fas fa-info"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" role="button" data-toggle="tooltip" title="공유하기" onClick="">
+                            <i class="fas fa-share-alt"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" role="button" data-toggle="tooltip" title="새로고침" onClick="refresh()">
+                            <i class="fas fa-redo-alt"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        `);
     }
 }

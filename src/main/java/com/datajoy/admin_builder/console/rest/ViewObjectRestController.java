@@ -54,6 +54,7 @@ public class ViewObjectRestController {
                 .path((String) params.get("path"))
                 .useAuthValidation(Boolean.valueOf((String) params.get("useAuthValidation")))
                 .useAuthorityValidation(Boolean.valueOf((String) params.get("useAuthorityValidation")))
+                .useToolbar(Boolean.valueOf((String) params.get("useToolbar")))
                 .build();
 
         return new ResponseEntity<>(repository.save(createdData), HttpStatus.OK);
@@ -70,7 +71,8 @@ public class ViewObjectRestController {
                 ObjectType.valueOf((String) params.get("type")),
                 (String) params.get("path"),
                 Boolean.valueOf((String) params.get("useAuthValidation")),
-                Boolean.valueOf((String) params.get("useAuthorityValidation"))
+                Boolean.valueOf((String) params.get("useAuthorityValidation")),
+                Boolean.valueOf((String) params.get("useToolbar"))
         );
 
         repository.save(savedData);

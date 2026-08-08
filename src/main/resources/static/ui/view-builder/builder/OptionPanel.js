@@ -171,6 +171,8 @@ class OptionPanel {
     sheetScript(id, width, height, columns) {
         const sheet = new Sheet(id, width, height,{useSeq:false,useStatus:false,useDelete:true}, columns);
         window['_sheet_'+id] = sheet;
+
+        return sheet;
     }
 
     toggle(id, option) {

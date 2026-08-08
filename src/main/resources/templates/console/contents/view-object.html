@@ -38,6 +38,7 @@
             App.util.setCodeBox("type", codes["ObjectType"]);
             App.util.setCodeBox("useAuthValidation", codes["Boolean"]);
             App.util.setCodeBox("useAuthorityValidation", codes["Boolean"]);
+            App.util.setCodeBox("useToolbar", codes["Boolean"]);
         }
 
         function getList() {
@@ -121,7 +122,8 @@
                 type:response.type,
                 path:response.path,
                 useAuthorityValidation:response.useAuthorityValidation,
-                useAuthValidation:response.useAuthValidation
+                useAuthValidation:response.useAuthValidation,
+                useToolbar:response.useToolbar
               });
         }
 
@@ -133,7 +135,8 @@
                 type: $("#type").val(),
                 path: $("#path").val(),
                 useAuthValidation: $("#useAuthValidation").val(),
-                useAuthorityValidation: $("#useAuthorityValidation").val()
+                useAuthorityValidation: $("#useAuthorityValidation").val(),
+                useToolbar: $("#useToolbar").val()
             }
         }
 
@@ -145,6 +148,7 @@
             $("#path").val(params.path);
             $("#useAuthValidation").val(String(params.useAuthValidation));
             $("#useAuthorityValidation").val(String(params.useAuthorityValidation));
+            $("#useToolbar").val(String(params.useToolbar));
           }
 
           function newContent(){
@@ -155,7 +159,8 @@
                 type:'',
                 path:'',
                 useAuthorityValidation:'true',
-                useAuthValidation:'true'
+                useAuthValidation:'true',
+                useToolbar:'true'
               });
           }
 
@@ -216,6 +221,9 @@
                             </div>
                             <div class="col-md-4">
                                 <mf-select id="useAuthorityValidation" label="권한검증사용" enable="true" useFirstItem="true" firstItemLabel="" firstItemValue=""></mf-select>
+                            </div>
+                            <div class="col-md-4">
+                                <mf-select id="useToolbar" label="Toolbar 사용" enable="true" useFirstItem="true" firstItemLabel="" firstItemValue=""></mf-select>
                             </div>
                         </div>
                         <div class="row">

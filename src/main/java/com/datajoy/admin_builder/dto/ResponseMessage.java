@@ -21,7 +21,7 @@ public class ResponseMessage {
                 .status(200)
                 .code("S001")
                 .resultType(ResultType.SUCCESS)
-                .message("응답 성공하였습니다.")
+                .message("처리완료 되었습니다.")
                 .build();
     }
 

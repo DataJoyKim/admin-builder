@@ -22,14 +22,19 @@ class WorkflowClient {
             },
             success: function(response) {
                 console.log('workflowClient.execute.'+workflowCode+'.response',response);
-                _success(response);
+                if(response.resultType && response.resultType === 'FAILURE') {
+                    _error(response.code, response.status, response.message, response.content);
+                }
+                else {
+                    _success(response);
+                }
             },
             error: function(error) {
                 console.log('workflowClient.execute.error',error);
                 if(error.responseJSON) {
                     let response = error.responseJSON;
 
-                    if(response.resultType && response.resultType == 'FAILURE') {
+                    if(response.resultType && response.resultType === 'ERROR') {
                         _error(response.code, response.status, response.message, response.content);
                     }
                     else {

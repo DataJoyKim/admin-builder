@@ -101,7 +101,7 @@ public class WorkflowService {
     ) {
         Map<String, List<Map<String, Object>>> messageStorage = requestMessage.getBody();
 
-        boolean hasFailure = false;
+        int failureCnt = 0;
         for(WorkflowFunction func : functions) {
             FunctionExecutor executor = functionFactory.instance(func.getFunctionType());
 
@@ -113,17 +113,20 @@ public class WorkflowService {
             FunctionResult result = executor.execute(user, func.getFunctionName(), params);
 
             if(ResultType.FAILURE.equals(result.getResultType())) {
-                hasFailure = true;
+                failureCnt++;
             }
 
             messageStorage.put(func.getResponseMessageId(), result.getResults());
         }
 
-        if(!hasFailure) {
+        if(failureCnt == 0) {
             return ResponseMessage.createSuccessMessage(createResponseData(functions, messageStorage));
         }
+        else if(failureCnt < functions.size()) {
+            return ResponseMessage.createErrorMessage(500, "E-EXE-002", "에러가 발생되었습니다.");
+        }
         else {
-            return ResponseMessage.createErrorMessage(500, "E-EXE-001", "응답 실패하였습니다.");
+            return ResponseMessage.createErrorMessage(500, "E-EXE-001", "에러가 발생되었습니다.");
         }
     }
 

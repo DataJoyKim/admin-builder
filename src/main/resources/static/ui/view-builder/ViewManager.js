@@ -10,6 +10,7 @@ class ViewManager {
         };
         window.VB.objectCode = App.objectCode;
         window.VB.actionExecutor = new ActionExecutor();
+        window.VB.actionHandlerScriptEngine = new ActionHandlerScriptEngine();
         window.VB.globalVariable = new GlobalVariable();
         const optionPanel = new OptionPanel();
         window.VB.actionsFactory = new ActionsFactory(optionPanel, VB.globalVariable);
