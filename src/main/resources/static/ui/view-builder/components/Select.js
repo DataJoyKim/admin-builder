@@ -1,23 +1,27 @@
-class Input extends ViewObject {
+class Select extends ViewObject {
     constructor(optionPanel) {
         super(optionPanel);
         this.optionPanel = optionPanel;
     }
 
     componentId() {
-        return 'input';
+        return 'select';
     }
 
     componentOptions() {
         return {
-           id:this.componentId() + super.getComponentIdNumber(),
-           size:'col-auto',
-           width:'250px',
-           label:'Label',
-           labelWidth:'120px',
-           horizontal:true,
-           editable:true,
-           hidden:false
+            id:this.componentId() + super.getComponentIdNumber(),
+            size:'col-auto',
+            width:'250px',
+            label:'Label',
+            labelWidth:'120px',
+            horizontal:true,
+            editable:true,
+            hidden:false,
+            codeName:'',
+            useFirstItem: true,
+            firstItemLabel: '',
+            firstItemValue:''
        };
     }
 
@@ -65,11 +69,7 @@ class Input extends ViewObject {
             }
         }
 
-        let $inputEl = $(`<input type="text" class="form-control form-control-sm rounded-1" id="${options.id}" >`);
-        $inputEl.attr('placeholder'  , '');
-        $inputEl.attr('autocomplete' , 'off');
-        $inputEl.attr('data-watch'   , 'true');
-        $inputEl.prop('spellcheck'   , false);
+        let $inputEl = $(`<select class="form-control form-control-sm rounded-1 form-select" id="${options.id}" >`);
 
         if(!options.editable) {
             $inputEl.prop('readOnly', true);
@@ -87,7 +87,23 @@ class Input extends ViewObject {
         return this.element(options, false);
     }
 
-    scriptRuntime(el, options) {}
+    scriptRuntime(el, options) {
+        if(options.codeName) {
+            let optionHtml = '';
+            if(options.useFirstItem) {
+                optionHtml += `<option value="${options.firstItemValue}">${options.firstItemLabel}</option>`;
+            }
+
+            const codeData = VB.globalVariable.getCode()[options.codeName];
+            if(codeData) {
+                for(const code of codeData) {
+                    optionHtml += `<option value="${code.code}">${code.name}</option>`;
+                }
+            }
+
+            $("#"+options.id).append(optionHtml);
+        }
+    }
 
 /* =======================================
  * Builder Component Setting
@@ -108,7 +124,7 @@ class Input extends ViewObject {
 
     getElement($el) {
         return {
-            inputEl:$el.children("input"),
+            inputEl:$el.children("select"),
             labelEl:$el.children("label")
         }
     }
@@ -126,6 +142,10 @@ class Input extends ViewObject {
         $panel.append(this.optionPanel.toggle('horizontal',{label:'수평배치', size:'col-12'}));
         $panel.append(this.optionPanel.toggle('editable',{label:'editable', size:'col-12'}));
         $panel.append(this.optionPanel.toggle('hidden',{label:'hidden', size:'col-12'}));
+        $panel.append(this.optionPanel.input('codeName',{label:'코드명', size:'col-6'}));
+        $panel.append(this.optionPanel.toggle('useFirstItem',{label:'첫번째항목 사용', size:'col-12'}));
+        $panel.append(this.optionPanel.input('firstItemLabel',{label:'첫번째항목 라벨', size:'col-6'}));
+        $panel.append(this.optionPanel.input('firstItemValue',{label:'첫번째항목 값', size:'col-6'}));
     }
 
     optionPanelScript($el, options) {
@@ -135,9 +155,13 @@ class Input extends ViewObject {
         this.optionPanel.setValue('width',options.width);
         this.optionPanel.setValue('labelWidth',options.labelWidth);
         this.optionPanel.setValue('label',options.label);
+        this.optionPanel.setValue('codeName',options.codeName);
+        this.optionPanel.setValue('firstItemLabel',options.firstItemLabel);
+        this.optionPanel.setValue('firstItemValue',options.firstItemValue);
         this.optionPanel.check('horizontal',options.horizontal);
         this.optionPanel.check('editable',options.editable);
         this.optionPanel.check('hidden',options.hidden);
+        this.optionPanel.check('useFirstItem',options.useFirstItem);
     }
 
     optionPanelEvent($el, options, componentFactory) {
@@ -190,6 +214,22 @@ class Input extends ViewObject {
 
             super.changeOptionValue($el, options, 'editable', value);
             inputEl.prop('readOnly', !value);
+        });
+
+        this.optionPanel.changeEvent('useFirstItem',(e) => {
+            super.changeOptionValue($el, options, 'useFirstItem', $(e.target).is(':checked'));
+        });
+
+        this.optionPanel.changeEvent('codeName',(e) => {
+            super.changeOptionValue($el, options, 'codeName', $(e.target).val());
+        });
+
+        this.optionPanel.changeEvent('firstItemLabel',(e) => {
+            super.changeOptionValue($el, options, 'firstItemLabel', $(e.target).val());
+        });
+
+        this.optionPanel.changeEvent('firstItemValue',(e) => {
+            super.changeOptionValue($el, options, 'firstItemValue', $(e.target).val());
         });
     }
 }

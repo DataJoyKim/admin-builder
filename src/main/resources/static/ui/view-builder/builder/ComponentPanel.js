@@ -25,6 +25,7 @@ class ComponentPanel {
 
         let $inputEl = this.details('폼 입력 요소',true);
         this.item($inputEl, 'input', 'Input', 'com-input.png');
+        this.item($inputEl, 'select', 'Select', 'com-input.png');
         $panel.append($inputEl);
 
         let $etcEl = this.details('기타',true);

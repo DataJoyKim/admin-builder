@@ -222,6 +222,12 @@ class Sheet {
                 columnDef.cellStyle.textAlign = column.align;
             }
 
+            if(setting.offDisableColumnColor === undefined || setting.offDisableColumnColor == null || !setting.offDisableColumnColor) {
+                if(!column.editable) {
+                    columnDef.cellStyle.backgroundColor = "#f3f3f3";
+                }
+            }
+
             if(column.required) {
                 columnDef.headerClass = columnDef.headerClass + ' required-header';
             }
@@ -385,8 +391,7 @@ class Sheet {
                     if(colMeta.required) {
                         const value = node.data[col];
                         if(value === undefined || value == null || value == '') {
-                            alert(colMeta.label + ' 필수로 입력해주세요.');
-                            return;
+                            throw new Error(colMeta.label + ' 필수로 입력해주세요.');
                         }
                     }
                 }
@@ -411,7 +416,7 @@ class Sheet {
         const columns = this.getSheetColumns();
         const data = {};
         for(const column of columns) {
-            if(column.type == 'check') {
+            if(column.type === 'check') {
                 data[column.field] = false;
             }
             else {

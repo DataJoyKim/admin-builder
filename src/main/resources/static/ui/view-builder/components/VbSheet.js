@@ -18,8 +18,9 @@ class VbSheet extends ViewObject {
            useStatus: true,
            useDelete: true,
            useDnd:false,
-           useExpendLastColumn:false,
+           useExpendLastColumn:true,
            offCellFocus:false,
+           offDisableColumnColor:false,
            columns:[]
        };
     }
@@ -39,13 +40,13 @@ class VbSheet extends ViewObject {
         const columns = options.columns;
         for(const col of columns) {
             if(col.type === 'combo') {
-                if(col.comboCodeName) {
+                if(col.codeName) {
                     let codes = [];
                     if(col.useFirstItem) {
                         codes.push({code: col.firstItemValue, name: col.firstItemLabel});
                     }
 
-                    const comboCodeData = VB.globalVariable.getCode()[col.comboCodeName];
+                    const comboCodeData = VB.globalVariable.getCode()[col.codeName];
                     if(comboCodeData) {
                         codes = codes.concat(comboCodeData);
                     }
@@ -66,7 +67,8 @@ class VbSheet extends ViewObject {
                 useDelete:options.useDelete,
                 useDnd:options.useDnd,
                 useExpendLastColumn:options.useExpendLastColumn,
-                offCellFocus:options.offCellFocus
+                offCellFocus:options.offCellFocus,
+                offDisableColumnColor:options.offDisableColumnColor
             },
             columns
             );
@@ -141,23 +143,21 @@ class VbSheet extends ViewObject {
         $rowDataProvider.append(this.optionPanel.input('dataProvider',{label:'dataProvider', size:'col-7'}));
         $panel.append($rowDataProvider);
 
-        let $rowToggle = this.optionPanel.row();
-        $rowToggle.append(this.optionPanel.toggle('useSeq',{label:'Seq컬럼', size:'col-3'}));
-        $rowToggle.append(this.optionPanel.toggle('useStatus',{label:'상태컬럼', size:'col-3'}));
-        $rowToggle.append(this.optionPanel.toggle('useDelete',{label:'삭제컬럼', size:'col-3'}));
-        $rowToggle.append(this.optionPanel.toggle('useDnd',{label:'DnD컬럼', size:'col-3'}));
-        $panel.append($rowToggle);
-
-        let $rowToggle2 = this.optionPanel.row();
-        $rowToggle2.append(this.optionPanel.toggle('useExpendLastColumn',{label:'마지막컬럼 자동확장', size:'col-7'}));
-        $rowToggle2.append(this.optionPanel.toggle('offCellFocus',{label:'셀 포커싱 비활성화', size:'col-5'}));
-        $panel.append($rowToggle2);
-
         let $rowGrid = this.optionPanel.row();
         $rowGrid.append(this.optionPanel.input('width',{label:'넓이', size:'col-6'}));
         $rowGrid.append(this.optionPanel.input('height',{label:'높이', size:'col-6'}));
         $rowGrid.append(this.optionPanel.button('column-setting',{label:'컬럼 설정', btnLabel:'설정',size:'col-12', icon:'fas fa-cog'}));
         $panel.append($rowGrid);
+
+        let $rowOption = this.optionPanel.row();
+        $rowOption.append(this.optionPanel.toggle('useSeq',{label:'Seq컬럼', size:'col-12'}));
+        $rowOption.append(this.optionPanel.toggle('useStatus',{label:'상태컬럼', size:'col-12'}));
+        $rowOption.append(this.optionPanel.toggle('useDelete',{label:'삭제컬럼', size:'col-12'}));
+        $rowOption.append(this.optionPanel.toggle('useDnd',{label:'DnD컬럼', size:'col-12'}));
+        $rowOption.append(this.optionPanel.toggle('useExpendLastColumn',{label:'마지막컬럼 자동확장', size:'col-12'}));
+        $rowOption.append(this.optionPanel.toggle('offCellFocus',{label:'셀 포커싱 비활성화', size:'col-12'}));
+        $rowOption.append(this.optionPanel.toggle('offDisableColumnColor',{label:'수정불가 컬럼 색상 비활성화', size:'col-12'}));
+        $panel.append($rowOption);
     }
 
     optionPanelScript($el, options) {
@@ -170,6 +170,7 @@ class VbSheet extends ViewObject {
         this.optionPanel.check('useDnd',options.useDnd);
         this.optionPanel.check('useExpendLastColumn',options.useExpendLastColumn);
         this.optionPanel.check('offCellFocus',options.offCellFocus);
+        this.optionPanel.check('offDisableColumnColor',options.offDisableColumnColor);
         this.optionPanel.setValue('width',options.width);
         this.optionPanel.setValue('height',options.height);
         this.optionPanel.setValue('columns',options.columns);
@@ -218,6 +219,10 @@ class VbSheet extends ViewObject {
 
         this.optionPanel.clickEvent('offCellFocus',(e) => {
             super.changeOptionValue($el, options, 'offCellFocus', $(e.target).is(':checked'));
+        });
+
+        this.optionPanel.clickEvent('offDisableColumnColor',(e) => {
+            super.changeOptionValue($el, options, 'offDisableColumnColor', $(e.target).is(':checked'));
         });
 
         this.optionPanel.clickEvent('column-setting',(e) => {

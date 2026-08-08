@@ -76,7 +76,7 @@
 }
 .drop-hover {
   border-color: blue;
-  background: #eef;
+  background-color: #eef !important;
 }
 .drop-area-label {
     z-index: 0;

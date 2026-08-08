@@ -16,6 +16,7 @@ class ComponentFactory {
                 "card": new Card(this.optionPanel),
                 "card-body": new CardBody(this.optionPanel),
                 "input": new Input(this.optionPanel),
+                "select": new Select(this.optionPanel),
                 "layout": new Layout(this.optionPanel),
                 "custom-html": new CustomHtml(this.optionPanel)
             };

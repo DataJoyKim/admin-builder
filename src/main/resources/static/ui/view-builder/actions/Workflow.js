@@ -34,15 +34,6 @@ class Workflow extends Actions {
         // 함수 코드 생성
         let code = ``;
 
-        // 확인창 메시지
-        if(options.confirmMsg) {
-            code += `
-                if(!confirm('${options.confirmMsg}')) {
-                    return;
-                }
-            `;
-        }
-
         // 요청메시지 코드 생성
         code += `
             let requestMessage = {};
@@ -52,7 +43,12 @@ class Workflow extends Actions {
             for(const setting of requestMessagesSetting) {                
                 const dataProvider = $("div[dataProvider='"+setting.messageId+"']");
                 if(dataProvider[0]) {
-                    requestMessage[setting.messageId] = $("div[dataProvider='"+setting.messageId+"']").triggerHandler('getData');
+                    try {
+                        requestMessage[setting.messageId] = $("div[dataProvider='"+setting.messageId+"']").triggerHandler('getData');
+                    } catch (e) {
+                        alert(e.message);
+                        return;
+                    }
                 }
                 else {
                     const messageData = ${message}[setting.messageId];
@@ -70,6 +66,15 @@ class Workflow extends Actions {
                 }
             }
         `;
+
+        // 확인창 메시지
+        if(options.confirmMsg) {
+            code += `
+                if(!confirm('${options.confirmMsg}')) {
+                    return;
+                }
+            `;
+        }
 
         // 워크플로우 실행 코드 생성
         code += `

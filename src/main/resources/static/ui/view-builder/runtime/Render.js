@@ -104,12 +104,12 @@ class Render {
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#" role="button" data-toggle="tooltip" title="공유하기" onClick="">
+                        <a class="nav-link" href="#" role="button" data-toggle="tooltip" title="공유하기" onClick="VB.utils.toolbar.share()">
                             <i class="fas fa-share-alt"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#" role="button" data-toggle="tooltip" title="새로고침" onClick="refresh()">
+                        <a class="nav-link" href="#" role="button" data-toggle="tooltip" title="새로고침" onClick="VB.utils.toolbar.refresh()">
                             <i class="fas fa-redo-alt"></i>
                         </a>
                     </li>

@@ -6,7 +6,8 @@ class ModuleLoader {
         this.commonModules = [
             `/ActionExecutor.js`,
             `/GlobalVariable.js`,
-            `/ViewManager.js`
+            `/ViewManager.js`,
+            `/utils/ViewBuilderUtil.js`
         ];
 
         this.beforeModules = [
@@ -30,6 +31,7 @@ class ModuleLoader {
              `${configs.paths.components}/Form.js`,
              `${configs.paths.components}/VbGrid.js`,
              `${configs.paths.components}/Input.js`,
+             `${configs.paths.components}/Select.js`,
              `${configs.paths.components}/Layout.js`,
              `${configs.paths.components}/Row.js`,
              `${configs.paths.components}/Col.js`,
