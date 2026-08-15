@@ -2,6 +2,8 @@ package com.datajoy.admin_builder.datasource;
 
 import com.datajoy.admin_builder.datasource.database.DataSourceDatabaseMeta;
 import com.datajoy.admin_builder.datasource.database.DataSourceDatabaseRegister;
+import com.datajoy.admin_builder.datasource.notification.DataSourceNotificationRegister;
+import com.datajoy.admin_builder.datasource.notification.NotificationProvider;
 import com.datajoy.admin_builder.datasource.restserver.DataSourceRestServer;
 import com.datajoy.admin_builder.datasource.restserver.DataSourceRestServerRegister;
 import jakarta.annotation.PostConstruct;
@@ -24,5 +26,8 @@ public class DataSourceInitializer {
 
         List<DataSourceRestServer> restServers = dataSourceService.getDataSourceRestServer();
         DataSourceRestServerRegister.initialize(restServers);
+
+        List<NotificationProvider> notifications = dataSourceService.getNotificationProvider();
+        DataSourceNotificationRegister.initialize(notifications);
     }
 }

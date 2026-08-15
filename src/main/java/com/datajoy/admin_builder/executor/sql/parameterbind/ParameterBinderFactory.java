@@ -1,4 +1,4 @@
-package com.datajoy.admin_builder.sql.parameterbind;
+package com.datajoy.admin_builder.executor.sql.parameterbind;
 
 public class ParameterBinderFactory {
 

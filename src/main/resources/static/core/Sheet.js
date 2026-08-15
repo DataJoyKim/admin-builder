@@ -213,10 +213,11 @@ class Sheet {
             columnDef.width = column.width;
             columnDef.editable = column.editable;
             columnDef.cellStyle = {};
+            columnDef.cellClass = [];
             columnDef.headerClass = 'ag-center-header';
 
             if(column.type === 'check') {
-                columnDef.cellClass = 'align-'+column.align;
+                columnDef.cellClass.push('align-'+column.align);
             }
             else {
                 columnDef.cellStyle.textAlign = column.align;
@@ -224,7 +225,7 @@ class Sheet {
 
             if(setting.offDisableColumnColor === undefined || setting.offDisableColumnColor == null || !setting.offDisableColumnColor) {
                 if(!column.editable) {
-                    columnDef.cellStyle.backgroundColor = "#f3f3f3";
+                    columnDef.cellClass.push('disabled-cell');
                 }
             }
 

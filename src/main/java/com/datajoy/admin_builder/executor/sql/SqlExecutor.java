@@ -1,10 +1,10 @@
-package com.datajoy.admin_builder.sql;
+package com.datajoy.admin_builder.executor.sql;
 
 import com.datajoy.admin_builder.datasource.database.DataSourceDatabaseRegister;
 import com.datajoy.admin_builder.datasource.LookupKey;
-import com.datajoy.admin_builder.sql.parameterbind.ParameterBindType;
-import com.datajoy.admin_builder.sql.parameterbind.ParameterBinder;
-import com.datajoy.admin_builder.sql.parameterbind.ParameterBinderFactory;
+import com.datajoy.admin_builder.executor.sql.parameterbind.ParameterBindType;
+import com.datajoy.admin_builder.executor.sql.parameterbind.ParameterBinder;
+import com.datajoy.admin_builder.executor.sql.parameterbind.ParameterBinderFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

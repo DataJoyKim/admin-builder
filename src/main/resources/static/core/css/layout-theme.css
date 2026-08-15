@@ -44,3 +44,6 @@
 body {
     background: transparent !important;
 }
+.toolbar {
+    border-bottom: 1px solid #ddd;
+}

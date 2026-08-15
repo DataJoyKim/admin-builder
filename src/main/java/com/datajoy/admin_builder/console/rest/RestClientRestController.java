@@ -1,5 +1,6 @@
 package com.datajoy.admin_builder.console.rest;
 
+import com.datajoy.admin_builder.executor.rest.HttpMethod;
 import com.datajoy.admin_builder.restclient.*;
 import com.datajoy.admin_builder.restclient.code.*;
 import org.springframework.beans.factory.annotation.Autowired;

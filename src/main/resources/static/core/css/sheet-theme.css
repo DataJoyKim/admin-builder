@@ -16,6 +16,20 @@
     font-weight: bold;
 }
 
+
+/* Row Hover */
+.ag-theme-quartz .disabled-cell {
+    background-color: #f3f3f3;
+}
+.ag-theme-quartz .ag-row-hover .disabled-cell {
+    background-color: var(--ag-row-hover-color);
+}
+.ag-theme-quartz .ag-row-selected .disabled-cell {
+    background-color: var(--ag-selected-row-background-color);
+}
+
+
+/* Align */
 .align-left .ag-cell-wrapper {
     width: 100%;
     justify-content: flex-start;

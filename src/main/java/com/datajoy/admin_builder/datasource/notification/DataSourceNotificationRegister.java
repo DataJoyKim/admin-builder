@@ -1,0 +1,44 @@
+package com.datajoy.admin_builder.datasource.notification;
+
+import com.datajoy.admin_builder.datasource.LookupKey;
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+@Slf4j
+public class DataSourceNotificationRegister {
+    private static Map<LookupKey, Notification> dataSourceMap;
+
+    public static void initialize(List<NotificationProvider> metadataList) {
+        dataSourceMap = new ConcurrentHashMap<>();
+
+        for(NotificationProvider meta : metadataList) {
+            try {
+                dataSourceMap.put(LookupKey.generateKey(meta.getDataSourceName()), meta.createDataSource());
+                log.info("BusinessDataSource - initialized businessDataSource : [{}]", meta.getDataSourceName());
+            }
+            catch (Exception e) {
+                log.error("BusinessDataSource - initialize failed.. businessDataSource: [{}]", meta.getDataSourceName());
+                log.error("error", e);
+            }
+        }
+    }
+
+    public static Map<LookupKey, Notification> getDataSourceMap() {
+        return dataSourceMap;
+    }
+
+    public static Notification getDataSource(LookupKey lookupKey) {
+        return dataSourceMap.get(lookupKey);
+    }
+
+    public static void registry(NotificationProvider meta) throws NotificationCreationException {
+        Notification dataSource = meta.createDataSource();
+
+        LookupKey lookupKey = LookupKey.generateKey(meta.getDataSourceName());
+
+        dataSourceMap.put(lookupKey, dataSource);
+    }
+}

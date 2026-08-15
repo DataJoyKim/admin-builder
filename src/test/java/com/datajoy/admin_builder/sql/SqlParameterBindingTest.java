@@ -1,8 +1,8 @@
 package com.datajoy.admin_builder.sql;
 
-import com.datajoy.admin_builder.sql.SqlParameter;
-import com.datajoy.admin_builder.sql.SqlQuery;
-import com.datajoy.admin_builder.sql.parameterbind.NameBind;
+import com.datajoy.admin_builder.executor.sql.SqlParameter;
+import com.datajoy.admin_builder.executor.sql.SqlQuery;
+import com.datajoy.admin_builder.executor.sql.parameterbind.NameBind;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

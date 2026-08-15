@@ -1,6 +1,6 @@
-package com.datajoy.admin_builder.sql.parameterbind;
+package com.datajoy.admin_builder.executor.sql.parameterbind;
 
-import com.datajoy.admin_builder.sql.SqlQuery;
+import com.datajoy.admin_builder.executor.sql.SqlQuery;
 
 public class IndexBind implements ParameterBinder {
     @Override

@@ -1,4 +1,4 @@
-package com.datajoy.admin_builder.sql;
+package com.datajoy.admin_builder.executor.sql;
 
 import lombok.Builder;
 import lombok.Getter;

@@ -1,23 +1,21 @@
-package com.datajoy.admin_builder.restclient;
+package com.datajoy.admin_builder.executor.rest;
 
 import com.datajoy.admin_builder.datasource.LookupKey;
 import com.datajoy.admin_builder.datasource.restserver.DataSourceRestServerRegister;
-import com.datajoy.admin_builder.restclient.code.HttpMethod;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 @Slf4j
-@Component
-public class RestClientExecutor {
+@RequiredArgsConstructor
+public class RestExecutor {
+    private final RestClient restClient;
 
-    public RestClientExecutorResponse execute(RestClientExecutorRequest request) {
-
-        RestClient restClient = DataSourceRestServerRegister.getDataSource(LookupKey.generateKey(request.getDataSource()));
+    public RestExecutorResponse execute(RestExecutorRequest request) {
 
         ResponseEntity<String> response = null;
 
@@ -58,11 +56,17 @@ public class RestClientExecutor {
 
         Object body = formatting(response);
 
-        return RestClientExecutorResponse.builder()
+        return RestExecutorResponse.builder()
                 .status(response.getStatusCode())
                 .headers(response.getHeaders())
                 .body(body)
                 .build();
+    }
+
+    public static RestExecutor createRestClientExecutor(String dataSourceName) {
+        RestClient restClient = DataSourceRestServerRegister.getDataSource(LookupKey.generateKey(dataSourceName));
+
+        return new RestExecutor(restClient);
     }
 
     private static Object formatting(ResponseEntity<String> response) {

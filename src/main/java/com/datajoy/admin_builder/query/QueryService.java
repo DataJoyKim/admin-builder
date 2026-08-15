@@ -1,9 +1,9 @@
 package com.datajoy.admin_builder.query;
 
 import com.datajoy.admin_builder.query.code.QueryResultCode;
-import com.datajoy.admin_builder.sql.SqlExecutor;
-import com.datajoy.admin_builder.sql.SqlQuery;
-import com.datajoy.admin_builder.sql.parameterbind.ParameterBindType;
+import com.datajoy.admin_builder.executor.sql.SqlExecutor;
+import com.datajoy.admin_builder.executor.sql.SqlQuery;
+import com.datajoy.admin_builder.executor.sql.parameterbind.ParameterBindType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

@@ -2,10 +2,12 @@ package com.datajoy.admin_builder.restclient;
 
 import com.datajoy.admin_builder.datasource.restserver.DataSourceRestServer;
 import com.datajoy.admin_builder.datasource.restserver.DataSourceRestServerRegister;
-import com.datajoy.admin_builder.restclient.*;
+import com.datajoy.admin_builder.executor.rest.HttpMethod;
+import com.datajoy.admin_builder.executor.rest.RestExecutor;
+import com.datajoy.admin_builder.executor.rest.RestExecutorRequest;
+import com.datajoy.admin_builder.executor.rest.RestExecutorResponse;
 import com.datajoy.admin_builder.restclient.code.BodyMessageFormat;
 import com.datajoy.admin_builder.restclient.code.ContentType;
-import com.datajoy.admin_builder.restclient.code.HttpMethod;
 import com.datajoy.admin_builder.restclient.code.ValueType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -35,8 +37,6 @@ class RestClientTest {
     public void getTest(){
         setDataSource();
 
-        RestClientExecutor executor = new RestClientExecutor();
-
         // queryParams 설정
         List<RestClientQueryParam> queryParams = new ArrayList<>();
         queryParams.add(RestClientQueryParam.builder().paramName("codeKind").valueType(ValueType.PARAM_VALUE).build());
@@ -56,6 +56,8 @@ class RestClientTest {
                 .headers(headers)
                 .build();
 
+        RestExecutor executor = RestExecutor.createRestClientExecutor(clientMeta.getDataSourceName());
+
         // 요청파라미터
         Map<String, Object> p = new HashMap<>();
         p.put("codeKind", "CAR_COMPANY_CD");
@@ -63,10 +65,10 @@ class RestClientTest {
 
         RestClientRequest params = RestClientRequest.builder().params(p).build();
 
-        RestClientExecutorRequest request = clientMeta.createRequest(params);
+        RestExecutorRequest request = clientMeta.createRequest(params);
 
         // 요청
-        RestClientExecutorResponse response =  executor.execute(request);
+        RestExecutorResponse response =  executor.execute(request);
 
         Assertions.assertNotNull(response);
     }
@@ -75,8 +77,6 @@ class RestClientTest {
     @Test
     public void postTest(){
         setDataSource();
-
-        RestClientExecutor executor = new RestClientExecutor();
 
         // queryParams 설정
         List<RestClientQueryParam> queryParams = new ArrayList<>();
@@ -102,6 +102,8 @@ class RestClientTest {
                 .body(bodyMessage)
                 .build();
 
+        RestExecutor executor = RestExecutor.createRestClientExecutor(clientMeta.getDataSourceName());
+
         // 요청파라미터
         Map<String, Object> p = new HashMap<>();
         p.put("version","v1");
@@ -111,10 +113,10 @@ class RestClientTest {
 
         RestClientRequest params = RestClientRequest.builder().params(p).requestBody(body).build();
 
-        RestClientExecutorRequest request = clientMeta.createRequest(params);
+        RestExecutorRequest request = clientMeta.createRequest(params);
 
         // 요청
-        RestClientExecutorResponse response = executor.execute(request);
+        RestExecutorResponse response = executor.execute(request);
 
         System.out.println(response);
     }

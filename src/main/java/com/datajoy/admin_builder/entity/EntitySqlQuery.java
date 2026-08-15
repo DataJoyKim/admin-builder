@@ -1,7 +1,7 @@
 package com.datajoy.admin_builder.entity;
 
-import com.datajoy.admin_builder.sql.SqlParameter;
-import com.datajoy.admin_builder.sql.SqlQuery;
+import com.datajoy.admin_builder.executor.sql.SqlParameter;
+import com.datajoy.admin_builder.executor.sql.SqlQuery;
 import lombok.Builder;
 import lombok.Getter;
 

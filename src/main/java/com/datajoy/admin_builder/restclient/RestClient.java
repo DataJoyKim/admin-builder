@@ -1,8 +1,9 @@
 package com.datajoy.admin_builder.restclient;
 
+import com.datajoy.admin_builder.executor.rest.RestExecutorRequest;
 import com.datajoy.admin_builder.restclient.code.BodyMessageFormat;
 import com.datajoy.admin_builder.restclient.code.ContentType;
-import com.datajoy.admin_builder.restclient.code.HttpMethod;
+import com.datajoy.admin_builder.executor.rest.HttpMethod;
 import com.datajoy.admin_builder.restclient.code.MessageDataType;
 import jakarta.persistence.*;
 import lombok.*;
@@ -63,13 +64,12 @@ public class RestClient {
     @JoinColumn(name = "CLIENT_ID")
     private List<RestClientQueryParam> queryParams = new ArrayList<>();
 
-    public RestClientExecutorRequest createRequest(RestClientRequest request) {
-        return RestClientExecutorRequest.builder()
+    public RestExecutorRequest createRequest(RestClientRequest request) {
+        return RestExecutorRequest.builder()
                 .requestQueryParam(createRequestQueryParams(request.getParams()))
                 .requestHeaders(createRequestHeaders(request.getParams()))
                 .mediaType(createMediaType())
                 .requestBody(createRequestBody(request.getRequestBody()))
-                .dataSource(this.dataSourceName)
                 .method(this.method)
                 .path(this.path)
                 .requestPathVariable(request.getParams())

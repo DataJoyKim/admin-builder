@@ -4,8 +4,7 @@ import com.datajoy.admin_builder.entity.code.EntityStatus;
 import com.datajoy.admin_builder.entity.query.EntityQueryGenerator;
 import com.datajoy.admin_builder.entity.query.EntityQueryGeneratorFactory;
 import com.datajoy.admin_builder.entity.query.FailedQueryGenerationException;
-import com.datajoy.admin_builder.query.QueryParam;
-import com.datajoy.admin_builder.sql.SqlParameter;
+import com.datajoy.admin_builder.executor.sql.SqlParameter;
 import jakarta.persistence.*;
 import lombok.*;
 

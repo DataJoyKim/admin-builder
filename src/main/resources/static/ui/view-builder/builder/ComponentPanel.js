@@ -19,6 +19,9 @@ class ComponentPanel {
         //this.item($sheetEl, 'grid', 'jsGrid', 'com-grid.png');
         $panel.append($sheetEl);
 
+        let $chartEl = this.details('차트',true);
+        $panel.append($chartEl);
+
         let $buttonEl = this.details('버튼',true);
         this.item($buttonEl, 'button', 'Button', 'com-button.png');
         $panel.append($buttonEl);

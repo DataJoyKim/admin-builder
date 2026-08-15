@@ -1,6 +1,5 @@
-package com.datajoy.admin_builder.restclient;
+package com.datajoy.admin_builder.executor.rest;
 
-import com.datajoy.admin_builder.restclient.code.HttpMethod;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,8 +11,7 @@ import java.net.URI;
 import java.util.Map;
 
 @Getter @AllArgsConstructor @Builder
-public class RestClientExecutorRequest {
-    private String dataSource;
+public class RestExecutorRequest {
     private HttpMethod method;
     private String path;
     private Object requestBody;

@@ -2,10 +2,10 @@ package com.datajoy.admin_builder.sql;
 
 import com.datajoy.admin_builder.datasource.database.DataSourceDatabaseMeta;
 import com.datajoy.admin_builder.datasource.database.DatabaseKind;
-import com.datajoy.admin_builder.sql.SqlExecutor;
-import com.datajoy.admin_builder.sql.SqlParameter;
-import com.datajoy.admin_builder.sql.SqlQuery;
-import com.datajoy.admin_builder.sql.parameterbind.ParameterBindType;
+import com.datajoy.admin_builder.executor.sql.SqlExecutor;
+import com.datajoy.admin_builder.executor.sql.SqlParameter;
+import com.datajoy.admin_builder.executor.sql.SqlQuery;
+import com.datajoy.admin_builder.executor.sql.parameterbind.ParameterBindType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

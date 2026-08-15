@@ -1,4 +1,4 @@
-package com.datajoy.admin_builder.restclient;
+package com.datajoy.admin_builder.executor.rest;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,7 +7,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 
 @Getter @AllArgsConstructor @Builder
-public class RestClientExecutorResponse {
+public class RestExecutorResponse {
     private HttpHeaders headers;
     private Object body;
     private HttpStatusCode status;

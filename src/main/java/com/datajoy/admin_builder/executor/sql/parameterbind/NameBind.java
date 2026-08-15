@@ -1,7 +1,7 @@
-package com.datajoy.admin_builder.sql.parameterbind;
+package com.datajoy.admin_builder.executor.sql.parameterbind;
 
-import com.datajoy.admin_builder.sql.SqlParameter;
-import com.datajoy.admin_builder.sql.SqlQuery;
+import com.datajoy.admin_builder.executor.sql.SqlParameter;
+import com.datajoy.admin_builder.executor.sql.SqlQuery;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
