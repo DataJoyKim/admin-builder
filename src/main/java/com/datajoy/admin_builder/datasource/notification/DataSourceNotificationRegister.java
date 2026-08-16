@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 public class DataSourceNotificationRegister {
-    private static Map<LookupKey, Notification> dataSourceMap;
+    private static Map<LookupKey, NotificationSender> dataSourceMap;
 
     public static void initialize(List<NotificationProvider> metadataList) {
         dataSourceMap = new ConcurrentHashMap<>();
@@ -26,16 +26,16 @@ public class DataSourceNotificationRegister {
         }
     }
 
-    public static Map<LookupKey, Notification> getDataSourceMap() {
+    public static Map<LookupKey, NotificationSender> getDataSourceMap() {
         return dataSourceMap;
     }
 
-    public static Notification getDataSource(LookupKey lookupKey) {
+    public static NotificationSender getDataSource(LookupKey lookupKey) {
         return dataSourceMap.get(lookupKey);
     }
 
     public static void registry(NotificationProvider meta) throws NotificationCreationException {
-        Notification dataSource = meta.createDataSource();
+        NotificationSender dataSource = meta.createDataSource();
 
         LookupKey lookupKey = LookupKey.generateKey(meta.getDataSourceName());
 

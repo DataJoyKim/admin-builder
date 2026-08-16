@@ -8,12 +8,12 @@ import java.util.Map;
 
 @Component
 public class NotificationValidator {
-    public ConnectValidation validateConnect(NotificationProvider metadata, Map<LookupKey, Notification> dataSourceMap) {
+    public ConnectValidation validateConnect(NotificationProvider metadata, Map<LookupKey, NotificationSender> dataSourceMap) {
         ConnectValidation validate = new ConnectValidation();
 
         LookupKey lookupKey = LookupKey.generateKey(metadata.getDataSourceName());
 
-        Notification notification = dataSourceMap.get(lookupKey);
+        NotificationSender notification = dataSourceMap.get(lookupKey);
 
         try {
             SendResult result = notification.validate();

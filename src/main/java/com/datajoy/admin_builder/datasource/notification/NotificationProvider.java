@@ -37,7 +37,7 @@ public class NotificationProvider {
     @Column
     private String options;
 
-    public Notification createDataSource() throws NotificationCreationException {
+    public NotificationSender createDataSource() throws NotificationCreationException {
         ObjectMapper objectMapper = new ObjectMapper();
 
         try {

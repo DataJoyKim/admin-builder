@@ -8,6 +8,8 @@ import com.datajoy.admin_builder.entity.EntityRepository;
 import com.datajoy.admin_builder.function.WorkflowFunction;
 import com.datajoy.admin_builder.function.WorkflowFunctionRepository;
 import com.datajoy.admin_builder.function.code.FunctionType;
+import com.datajoy.admin_builder.notification.Notification;
+import com.datajoy.admin_builder.notification.NotificationRepository;
 import com.datajoy.admin_builder.query.Query;
 import com.datajoy.admin_builder.query.QueryRepository;
 import com.datajoy.admin_builder.restclient.RestClient;
@@ -36,6 +38,8 @@ public class WorkflowFunctionRestController {
     private RestClientRepository restClientRepository;
     @Autowired
     private MessageProcessorRepository messageProcessorRepository;
+    @Autowired
+    private NotificationRepository notificationRepository;
 
     @PostMapping("/save")
     public ResponseEntity<?> save(@RequestBody List<Map<String,Object>> params) {
@@ -138,6 +142,12 @@ public class WorkflowFunctionRestController {
         }
         else if(FunctionType.MESSAGE_PROCESSOR.equals(w.getFunctionType())) {
             Optional<MessageProcessor> func = messageProcessorRepository.findByProcessorName(w.getFunctionName());
+            if(func.isPresent()){
+                displayName = func.get().getDisplayName();
+            }
+        }
+        else if(FunctionType.NOTIFICATION.equals(w.getFunctionType())) {
+            Optional<Notification> func = notificationRepository.findByNotificationName(w.getFunctionName());
             if(func.isPresent()){
                 displayName = func.get().getDisplayName();
             }

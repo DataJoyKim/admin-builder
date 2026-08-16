@@ -13,7 +13,7 @@ import java.util.Properties;
 @Slf4j
 @AllArgsConstructor
 @Builder
-public class SmtpProvider implements Notification {
+public class SmtpProvider implements NotificationSender {
     private String host;
     private Integer port;
     private String username;
@@ -60,6 +60,13 @@ public class SmtpProvider implements Notification {
 
     @Override
     public SendResult send(String to, String subject, String content) {
+        if(to == null || to.isEmpty()) {
+            return SendResult.builder()
+                    .resultType(SendResultType.FAILURE)
+                    .errorMessage("메시지 수신자가 지정되지않았습니다.")
+                    .build();
+        }
+
         try {
             JavaMailSenderImpl mailSender = createMailSender();
 

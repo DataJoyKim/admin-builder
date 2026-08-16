@@ -117,7 +117,8 @@
             {code:"SQL",name:"SQL"},
             {code:"ENTITY",name:"Entity"},
             {code:"REST_CLIENT",name:"Rest Client"},
-            {code:"MESSAGE_PROCESSOR",name:"메시지처리"}
+            {code:"MESSAGE_PROCESSOR",name:"메시지처리"},
+            {code:"NOTIFICATION",name:"알림"}
         ]
     };
 
@@ -494,17 +495,20 @@
     }
 
     function getFunctionIconPath(functionType) {
-        if(functionType == 'SQL'){
+        if(functionType === 'SQL'){
             return '/dist/img/func-sql.png';
         }
-        else if(functionType == 'ENTITY'){
+        else if(functionType === 'ENTITY'){
             return '/dist/img/func-entity.png';
         }
-        else if(functionType == 'REST_CLIENT'){
+        else if(functionType === 'REST_CLIENT'){
             return '/dist/img/func-restclient.png';
         }
-        else if(functionType == 'MESSAGE_PROCESSOR'){
+        else if(functionType === 'MESSAGE_PROCESSOR'){
             return '/dist/img/func-code.png';
+        }
+        else if(functionType === 'NOTIFICATION'){
+            return '/dist/img/func-notification.png';
         }
 
         return null;
@@ -725,17 +729,20 @@
             return;
         }
 
-        if(type == 'SQL') {
+        if(type === 'SQL') {
             App.modalPopup.open('/console/workflow-sql',{title:'SQL 팝업',size:"modal-xl",messageId:'FUNC_REQUEST'},{functionName:functionName});
         }
-        else if(type == 'ENTITY') {
+        else if(type === 'ENTITY') {
             App.modalPopup.open('/console/workflow-entity',{title:'Entity 팝업',size:"modal-xl",messageId:'FUNC_REQUEST'},{functionName:functionName});
         }
-        else if(type == 'REST_CLIENT') {
+        else if(type === 'REST_CLIENT') {
             App.modalPopup.open('/console/workflow-restclient',{title:'Rest Client 팝업',size:"modal-xl",messageId:'FUNC_REQUEST'},{functionName:functionName});
         }
-        else if(type == 'MESSAGE_PROCESSOR') {
+        else if(type === 'MESSAGE_PROCESSOR') {
             App.modalPopup.open('/console/workflow-message',{title:'메시지 처리 팝업',size:"modal-xl",messageId:'FUNC_REQUEST'},{functionName:functionName});
+        }
+        else if(type === 'NOTIFICATION') {
+            App.modalPopup.open('/console/workflow-notification',{title:'알림 팝업',size:"modal-xl",messageId:'FUNC_REQUEST'},{functionName:functionName});
         }
     }
 </script>

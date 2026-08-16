@@ -1,10 +1,7 @@
 package com.datajoy.admin_builder.function;
 
 import com.datajoy.admin_builder.function.code.FunctionType;
-import com.datajoy.admin_builder.function.executor.MessageProcessorExecutor;
-import com.datajoy.admin_builder.function.executor.EntityExecutor;
-import com.datajoy.admin_builder.function.executor.QueryExecutor;
-import com.datajoy.admin_builder.function.executor.RestClientExecutor;
+import com.datajoy.admin_builder.function.executor.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +13,7 @@ public class FunctionFactory {
     private final QueryExecutor queryExecutor;
     private final RestClientExecutor restClientExecutor;
     private final MessageProcessorExecutor messageProcessorExecutor;
+    private final NotificationExecutor notificationExecutor;
 
     public FunctionExecutor instance(FunctionType functionType) {
         return switch (functionType) {
@@ -23,6 +21,7 @@ public class FunctionFactory {
             case SQL -> queryExecutor;
             case REST_CLIENT -> restClientExecutor;
             case MESSAGE_PROCESSOR -> messageProcessorExecutor;
+            case NOTIFICATION -> notificationExecutor;
         };
     }
 }
