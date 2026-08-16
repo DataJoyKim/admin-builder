@@ -121,13 +121,7 @@
         function validateConnectDataSource() {
             let id = $("#id").val();
 
-            const toEmail = prompt("상태확인메일 전송할 담당자 이메일을 입력해주세요.", "ks13ny@gmail.com");
-            if(!toEmail) {
-                alert("이메일을 입력해야 전송됩니다.");
-                return;
-            }
-
-            httpClient.get(`/console/api/datasource/notification/${id}/connect-valid`, {toEmail:toEmail},
+            httpClient.get(`/console/api/datasource/notification/${id}/connect-valid`, {},
                 function(response){
                     if(response != null && response.result === true) {
                         alert("연결 성공");
@@ -167,7 +161,9 @@
                     connectionTimeout:$("#connectionTimeout").val(),
                     writeTimeout:$("#writeTimeout").val(),
                     timeout:$("#timeout").val(),
-                    smtpContentType:$("#smtpContentType").val()
+                    smtpContentType:$("#smtpContentType").val(),
+                    smtpSecurityType:$("#smtpSecurityType").val(),
+                    sslProtocols:$("#sslProtocols").val()
                 }
 
                 options = JSON.stringify(options);
@@ -200,6 +196,8 @@
                 $("#writeTimeout").val(options.writeTimeout);
                 $("#timeout").val(options.timeout);
                 $("#smtpContentType").val(options.smtpContentType);
+                $("#smtpSecurityType").val(options.smtpSecurityType);
+                $("#sslProtocols").val(options.sslProtocols);
             }
           }
 
@@ -316,19 +314,19 @@
                                 <input type="text" class="form-control form-control-sm rounded-0" id="host" autocomplete="off" >
                             </div>
                             <div class="form-group col-2">
-                                <label for="host">port</label>
+                                <label for="port">port</label>
                                 <input type="text" class="form-control form-control-sm rounded-0" id="port" autocomplete="off" >
                             </div>
                         </div>
                         <div class="row">
                             <div class="form-group col-3">
-                                <label for="host">username</label>
+                                <label for="username">username</label>
                                 <input type="text" class="form-control form-control-sm rounded-0" id="username" autocomplete="off" >
                             </div>
                         </div>
                         <div class="row">
                             <div class="form-group col-3">
-                                <label for="host">password</label>
+                                <label for="password">password</label>
                                 <input type="text" class="form-control form-control-sm rounded-0" id="password" autocomplete="off" >
                             </div>
                         </div>
@@ -340,6 +338,20 @@
                                     <option value="HTML">Html</option>
                                     <option value="TEXT">Text</option>
                                 </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-3">
+                                <label for="smtpSecurityType">Security Type</label>
+                                <select class="form-control form-control-sm rounded-1 form-select" id="smtpSecurityType" >
+                                    <option value="">선택</option>
+                                    <option value="STARTTLS">STARTTLS</option>
+                                    <option value="SSL_TLS">SSL/TLS</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-3">
+                                <label for="sslProtocols">SSL Protocols</label>
+                                <input type="text" class="form-control form-control-sm rounded-0" id="sslProtocols" autocomplete="off" >
                             </div>
                         </div>
                         <div class="row">

@@ -21,31 +21,38 @@ public class SmtpProvider implements Notification {
     private Integer connectionTimeout; //Socket 연결 타임아웃
     private Integer writeTimeout; // Socket Write 타임아웃 (메일본문, 첨부파일 보낼때 대기하는시간)
     private Integer timeout; // Socket Read 타임아웃 (인증완료, 수신완료 상태확인하는용)
+    private String sslProtocols;
     private SmtpContentType smtpContentType;
+    private SmtpSecurityType smtpSecurityType;
 
     private JavaMailSenderImpl createMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+
         mailSender.setHost(this.host);
         mailSender.setPort(this.port);
         mailSender.setUsername(this.username);
         mailSender.setPassword(this.password);
-        log.info("SMTP Username: [{}]", this.username);
-        log.info("SMTP Password Length: [{}]", this.password != null ? this.password.length() : 0);
+
         Properties props = mailSender.getJavaMailProperties();
-        props.put("mail.smtp.ssl.trust", this.host);
-        props.put("mail.transport.protocol", "smtp");
+
         props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.smtp.starttls.required", "true");
-        props.put("mail.debug", "true");
-        if(this.connectionTimeout != null) {
-            props.put("mail.smtp.connectiontimeout", String.valueOf(this.connectionTimeout));
+        props.put("mail.smtp.connectiontimeout", String.valueOf(this.connectionTimeout));
+        props.put("mail.smtp.timeout", String.valueOf(this.timeout));
+        props.put("mail.smtp.writetimeout", String.valueOf(this.writeTimeout));
+
+        if(this.sslProtocols != null) {
+            props.put("mail.smtp.ssl.protocols", this.sslProtocols);
         }
-        if(this.timeout != null) {
-            props.put("mail.smtp.timeout", String.valueOf(this.timeout));
-        }
-        if(this.writeTimeout != null){
-            props.put("mail.smtp.writetimeout", String.valueOf(this.writeTimeout));
+
+        switch (this.smtpSecurityType) {
+            case SSL_TLS:
+                props.put("mail.smtp.ssl.enable", "true");
+                break;
+
+            case STARTTLS:
+                props.put("mail.smtp.starttls.enable", "true");
+                props.put("mail.smtp.starttls.required", "true");
+                break;
         }
 
         return mailSender;

@@ -56,6 +56,8 @@ public class NotificationProvider {
                         .writeTimeout(Integer.valueOf(optionsMap.get("writeTimeout")))
                         .timeout(Integer.valueOf(optionsMap.get("timeout")))
                         .smtpContentType(SmtpContentType.valueOf(optionsMap.get("smtpContentType")))
+                        .smtpSecurityType(SmtpSecurityType.valueOf(optionsMap.get("smtpSecurityType")))
+                        .sslProtocols(optionsMap.get("sslProtocols"))
                         .build();
             }
             else {
