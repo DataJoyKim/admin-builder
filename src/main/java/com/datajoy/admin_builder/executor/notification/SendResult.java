@@ -1,4 +1,4 @@
-package com.datajoy.admin_builder.datasource.notification;
+package com.datajoy.admin_builder.executor.notification;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

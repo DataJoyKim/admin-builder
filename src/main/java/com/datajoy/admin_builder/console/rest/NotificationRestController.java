@@ -61,6 +61,7 @@ public class NotificationRestController {
                     .dataSourceName((String) params.get("dataSourceName"))
                     .subject((String) params.get("subject"))
                     .content((String) params.get("content"))
+                    .toAlias((String) params.get("toAlias"))
                     .build();
         }
         else {
@@ -71,6 +72,7 @@ public class NotificationRestController {
                     (String) params.get("notificationName"),
                     (String) params.get("displayName"),
                     (String) params.get("dataSourceName"),
+                    (String) params.get("toAlias"),
                     (String) params.get("subject"),
                     (String) params.get("content")
             );

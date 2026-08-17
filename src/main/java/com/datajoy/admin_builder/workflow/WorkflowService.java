@@ -123,10 +123,10 @@ public class WorkflowService {
             return ResponseMessage.createSuccessMessage(createResponseData(functions, messageStorage));
         }
         else if(failureCnt < functions.size()) {
-            return ResponseMessage.createErrorMessage(500, "E-EXE-002", "에러가 발생되었습니다.");
+            return ResponseMessage.createErrorMessage(500, "E-EXE-002", "에러가 발생되었습니다.", messageStorage);
         }
         else {
-            return ResponseMessage.createErrorMessage(500, "E-EXE-001", "에러가 발생되었습니다.");
+            return ResponseMessage.createErrorMessage(500, "E-EXE-001", "에러가 발생되었습니다.", messageStorage);
         }
     }
 

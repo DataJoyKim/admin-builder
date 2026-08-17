@@ -2,6 +2,7 @@ package com.datajoy.admin_builder.console.rest;
 
 import com.datajoy.admin_builder.datasource.ConnectValidation;
 import com.datajoy.admin_builder.datasource.notification.*;
+import com.datajoy.admin_builder.executor.notification.NotificationType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

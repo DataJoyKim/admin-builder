@@ -1,6 +1,6 @@
 package com.datajoy.admin_builder.notification;
 
-import com.datajoy.admin_builder.datasource.notification.SendResultType;
+import com.datajoy.admin_builder.executor.notification.SendResultType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

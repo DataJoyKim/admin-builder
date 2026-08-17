@@ -2,6 +2,9 @@ package com.datajoy.admin_builder.datasource.notification;
 
 import com.datajoy.admin_builder.datasource.ConnectValidation;
 import com.datajoy.admin_builder.datasource.LookupKey;
+import com.datajoy.admin_builder.executor.notification.NotificationSender;
+import com.datajoy.admin_builder.executor.notification.SendResult;
+import com.datajoy.admin_builder.executor.notification.SendResultType;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;

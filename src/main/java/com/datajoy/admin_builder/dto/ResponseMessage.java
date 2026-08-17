@@ -33,4 +33,14 @@ public class ResponseMessage {
                 .message(errorMsg)
                 .build();
     }
+
+    public static ResponseMessage createErrorMessage(Integer status, String errorCode, String errorMsg, Map<String, List<Map<String, Object>>> contents) {
+        return ResponseMessage.builder()
+                .status(status)
+                .code(errorCode)
+                .resultType(ResultType.ERROR)
+                .message(errorMsg)
+                .contents(contents)
+                .build();
+    }
 }

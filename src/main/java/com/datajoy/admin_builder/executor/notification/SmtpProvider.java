@@ -1,4 +1,4 @@
-package com.datajoy.admin_builder.datasource.notification;
+package com.datajoy.admin_builder.executor.notification;
 
 import jakarta.mail.internet.MimeMessage;
 import lombok.AllArgsConstructor;

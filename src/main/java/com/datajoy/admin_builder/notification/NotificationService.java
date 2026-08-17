@@ -2,9 +2,10 @@ package com.datajoy.admin_builder.notification;
 
 import com.datajoy.admin_builder.datasource.LookupKey;
 import com.datajoy.admin_builder.datasource.notification.DataSourceNotificationRegister;
-import com.datajoy.admin_builder.datasource.notification.NotificationSender;
-import com.datajoy.admin_builder.datasource.notification.SendResult;
-import com.datajoy.admin_builder.datasource.notification.SendResultType;
+import com.datajoy.admin_builder.executor.notification.NotificationSender;
+import com.datajoy.admin_builder.executor.notification.SendResult;
+import com.datajoy.admin_builder.executor.notification.SendResultType;
+import com.datajoy.admin_builder.expression.ParameterExpression;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,9 +19,11 @@ public class NotificationService {
         Notification notification = notificationRepository.findByNotificationName(notificationName)
                 .orElseThrow();
 
+        NotificationMessage message = notification.createMessage(new ParameterExpression(), params);
+
         NotificationSender notificationSender = DataSourceNotificationRegister.getDataSource(LookupKey.generateKey(notification.getDataSourceName()));
 
-        SendResult sendResult = notificationSender.send((String) params.getParams().get("to"), notification.getSubject(), notification.getContent());
+        SendResult sendResult = notificationSender.send(message.getTo(), message.getSubject(), message.getContent());
 
         return NotificationResult.builder()
                 .resultCode(sendResult.getResultType())

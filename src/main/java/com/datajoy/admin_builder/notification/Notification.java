@@ -1,5 +1,6 @@
 package com.datajoy.admin_builder.notification;
 
+import com.datajoy.admin_builder.expression.ParameterExpression;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,6 +11,8 @@ import lombok.*;
 @Table(uniqueConstraints = {@UniqueConstraint(name="NOTIFICATION_UQ",columnNames={"notificationName"})})
 @Entity
 public class Notification {
+    private static final String TO_ALIAS_DEFAULT = "to_address";
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -30,10 +33,14 @@ public class Notification {
     @Column
     private String content;
 
+    @Column(length = 100)
+    private String toAlias;
+
     public void update(
             String notificationName,
             String displayName,
             String dataSourceName,
+            String toAlias,
             String subject,
             String content
     ) {
@@ -42,5 +49,25 @@ public class Notification {
         this.dataSourceName = dataSourceName;
         this.subject = subject;
         this.content = content;
+        this.toAlias = toAlias;
+    }
+
+    public NotificationMessage createMessage(ParameterExpression expression, NotificationRequest params) {
+        NotificationMessage.NotificationMessageBuilder builder = NotificationMessage.builder();
+
+        String toAlias = TO_ALIAS_DEFAULT;
+        if (this.toAlias != null && !this.toAlias.isEmpty()) {
+            toAlias = this.toAlias;
+        }
+
+        builder.to((String) params.getParams().get(toAlias));
+
+        // 제목 표현식 적용
+        builder.subject(expression.resolve(this.subject, params.getParams()));
+
+        // 내용 표현식 적용
+        builder.content(expression.resolve(this.content, params.getParams()));
+
+        return builder.build();
     }
 }

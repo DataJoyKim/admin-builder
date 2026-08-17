@@ -31,6 +31,10 @@
                 {field:'value', label:'값', type:'text', width:400, editable: true, align:'left', required:false}
             ]);
 
+        TextEditor.initTextEditor("content", "100%", "500px");
+
+        executeGrid.addRowData({key:"to"});
+
         App.modalPopup.receiveParam('FUNC_REQUEST', function(data){
             if(!data.functionName) {
                 alert('기능코드가 존재하지않습니다.');
@@ -93,6 +97,7 @@
                         notificationName:data.notificationName,
                         displayName:data.displayName,
                         dataSourceName:data.dataSourceName,
+                        toAlias:data.toAlias,
                         subject:data.subject,
                         content:data.content
                     });
@@ -103,6 +108,7 @@
                         notificationName:functionName,
                         displayName:'',
                         dataSourceName:'',
+                        toAlias:'',
                         subject:'',
                         content:''
                     });
@@ -120,8 +126,9 @@
             notificationName: $("#notificationName").val(),
             displayName: $("#displayName").val(),
             dataSourceName: $("#dataSourceName").val(),
+            toAlias: $("#toAlias").val(),
             subject: $("#subject").val(),
-            content: $("#content").val()
+            content: content.getValue()
         }
     }
 
@@ -131,7 +138,8 @@
         $("#displayName").val(params.displayName);
         $("#dataSourceName").val(params.dataSourceName);
         $("#subject").val(params.subject);
-        $("#content").val(params.content);
+        $("#toAlias").val(params.toAlias);
+        content.setValue(params.content);
     }
 
     function save() {
@@ -211,13 +219,19 @@
                             </div>
                         </div>
                         <div class="row">
+                            <div class="form-group col-3">
+                                <label for="toAlias">수신자 Alias</label>
+                                <input type="text" class="form-control form-control-sm rounded-0" id="toAlias" placeholder="기본값: to_address" autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="row">
                             <div class="form-group col-12">
                                 <label for="subject">제목</label>
                                 <input type="text" class="form-control form-control-sm rounded-0" id="subject" autocomplete="off">
                             </div>
                             <div class="form-group col-12">
                                 <label>내용</label>
-                                <textarea id="content" name="content" rows="30" style="width:100%" ></textarea>
+                                <textarea id="content" name="content" class="d-none"></textarea>
                             </div>
                         </div>
                     </div>

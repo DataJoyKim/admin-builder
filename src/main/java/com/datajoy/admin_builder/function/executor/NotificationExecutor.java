@@ -1,6 +1,6 @@
 package com.datajoy.admin_builder.function.executor;
 
-import com.datajoy.admin_builder.datasource.notification.SendResultType;
+import com.datajoy.admin_builder.executor.notification.SendResultType;
 import com.datajoy.admin_builder.function.FunctionConfig;
 import com.datajoy.admin_builder.function.FunctionExecutor;
 import com.datajoy.admin_builder.function.FunctionResult;
