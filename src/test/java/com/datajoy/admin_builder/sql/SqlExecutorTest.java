@@ -112,41 +112,41 @@ class SqlExecutorTest {
 
         SqlExecutor executor = new SqlExecutor(dataSource);
 
-        executor.execute(SqlQuery.builder()
+        executor.execute("TEST", SqlQuery.builder()
                 .sql(createSql)
                 .build(), ParameterBindType.NAME_BIND);
 
-        executor.execute(SqlQuery.builder()
+        executor.execute("TEST", SqlQuery.builder()
                 .sql(insertSql)
                 .sqlParameters(insertParams)
                 .build(), ParameterBindType.NAME_BIND);
 
-        List<Map<String,Object>> selectResults = executor.execute(SqlQuery.builder()
+        List<Map<String,Object>> selectResults = executor.execute("TEST", SqlQuery.builder()
                 .sql(selectSql)
                 .sqlParameters(selectParams1)
                 .build(), ParameterBindType.NAME_BIND);
 
-        executor.execute(SqlQuery.builder()
+        executor.execute("TEST", SqlQuery.builder()
                 .sql(updateSql)
                 .sqlParameters(updateParams)
                 .build(), ParameterBindType.NAME_BIND);
 
-        List<Map<String,Object>> selectResults2 = executor.execute(SqlQuery.builder()
+        List<Map<String,Object>> selectResults2 = executor.execute("TEST", SqlQuery.builder()
                 .sql(selectSql)
                 .sqlParameters(selectParams2)
                 .build(), ParameterBindType.NAME_BIND);
 
-        executor.execute(SqlQuery.builder()
+        executor.execute("TEST", SqlQuery.builder()
                 .sql(deleteSql)
                 .sqlParameters(deleteParams)
                 .build(), ParameterBindType.NAME_BIND);
 
-        List<Map<String,Object>> selectResults3 = executor.execute(SqlQuery.builder()
+        List<Map<String,Object>> selectResults3 = executor.execute("TEST", SqlQuery.builder()
                 .sql(selectSql)
                 .sqlParameters(selectParams2)
                 .build(), ParameterBindType.NAME_BIND);
 
-        executor.execute(SqlQuery.builder()
+        executor.execute("TEST", SqlQuery.builder()
                 .sql(dropSql)
                 .build(), ParameterBindType.NAME_BIND);
 

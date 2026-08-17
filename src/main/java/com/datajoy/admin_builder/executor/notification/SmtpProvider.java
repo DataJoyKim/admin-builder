@@ -59,13 +59,15 @@ public class SmtpProvider implements NotificationSender {
     }
 
     @Override
-    public SendResult send(String to, String subject, String content) {
+    public SendResult send(String sendId, String to, String subject, String content) {
         if(to == null || to.isEmpty()) {
             return SendResult.builder()
                     .resultType(SendResultType.FAILURE)
                     .errorMessage("메시지 수신자가 지정되지않았습니다.")
                     .build();
         }
+
+        NotificationSenderPrint.printMail(sendId, this.username, to, subject, content);
 
         try {
             JavaMailSenderImpl mailSender = createMailSender();

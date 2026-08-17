@@ -32,7 +32,7 @@ public class QueryService {
         List<Map<String, Object>> resultData = new ArrayList<>();
 
         try {
-            resultData = sqlExecutor.execute(sqlQuery, ParameterBindType.NAME_BIND);
+            resultData = sqlExecutor.execute(queryName, sqlQuery, ParameterBindType.NAME_BIND);
 
             return QueryResult.createQueryResult(QueryResultCode.SUCCESS, resultData);
         }

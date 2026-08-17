@@ -19,7 +19,7 @@ import java.util.Map;
 public class SqlExecutor {
     private final DataSource dataSource;
 
-    public List<Map<String, Object>> execute(SqlQuery sqlQuery, ParameterBindType paramBindingType) throws SQLException {
+    public List<Map<String, Object>> execute(String sqlId, SqlQuery sqlQuery, ParameterBindType paramBindingType) throws SQLException {
         List<Map<String, Object>> resultList;
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -40,7 +40,7 @@ public class SqlExecutor {
                 stmt.setObject(sqlParameter.getParameterIndex(), sqlParameter.getValue());
             }
 
-            SqlExecutorPrint.print(sqlQuery);
+            SqlExecutorPrint.print(sqlId, sqlQuery);
 
             rs = stmt.executeQuery();
 

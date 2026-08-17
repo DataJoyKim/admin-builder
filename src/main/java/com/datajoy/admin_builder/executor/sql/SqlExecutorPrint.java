@@ -4,20 +4,29 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class SqlExecutorPrint {
-    public static void print(SqlQuery sqlQuery) {
+    public static void print(String sqlId, SqlQuery sqlQuery) {
 
-        StringBuilder printQuery = new StringBuilder();
+        StringBuilder print = new StringBuilder();
 
-        printQuery.append(System.lineSeparator());
-        printQuery.append("==================== SQL ====================")
+        print.append(System.lineSeparator());
+        print.append("=============================================")
                 .append(System.lineSeparator());
-        printQuery.append(sqlQuery.getSql())
+        print.append("[SQL] ").append(sqlId)
                 .append(System.lineSeparator());
-        printQuery.append("---------------------------------------------")
+        print.append("---------------------------------------------")
+                .append(System.lineSeparator());
+        print.append(sqlQuery.getSql())
+                .append(System.lineSeparator());
+        print.append("---------------------------------------------")
+                .append(System.lineSeparator());
+        print.append("[Parameter]")
+                .append(System.lineSeparator());
+        print.append("---------------------------------------------")
                 .append(System.lineSeparator());
 
         for (SqlParameter sqlParameter : sqlQuery.getSqlParameters()) {
-            printQuery.append(sqlParameter.getParameterName())
+            print.append("> ")
+                    .append(sqlParameter.getParameterName())
                     .append(" | ")
                     .append(sqlParameter.getParameterIndex())
                     .append(" | ")
@@ -25,8 +34,8 @@ public class SqlExecutorPrint {
                     .append(System.lineSeparator());
         }
 
-        printQuery.append("=============================================");
+        print.append("=============================================");
 
-        log.info(printQuery.toString());
+        log.info(print.toString());
     }
 }

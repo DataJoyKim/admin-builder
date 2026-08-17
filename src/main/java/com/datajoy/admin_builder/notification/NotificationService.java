@@ -23,7 +23,7 @@ public class NotificationService {
 
         NotificationSender notificationSender = DataSourceNotificationRegister.getDataSource(LookupKey.generateKey(notification.getDataSourceName()));
 
-        SendResult sendResult = notificationSender.send(message.getTo(), message.getSubject(), message.getContent());
+        SendResult sendResult = notificationSender.send(notificationName, message.getTo(), message.getSubject(), message.getContent());
 
         return NotificationResult.builder()
                 .resultCode(sendResult.getResultType())
