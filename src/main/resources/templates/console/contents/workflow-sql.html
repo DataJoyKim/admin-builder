@@ -41,6 +41,7 @@
         setDatSourceAsDatabase();
 
         sqlEditor = initCodeEditor('query','text/x-sql');
+        sqlEditor.setSize("100%", "500px");
 
         Sheet.initSheet('queryParameterGrid', "100%", "300px",
             {

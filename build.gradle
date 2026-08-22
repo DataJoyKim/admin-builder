@@ -13,6 +13,10 @@ java {
 	}
 }
 
+ext {
+	graaljsVersion = '24.2.2'
+}
+
 configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
@@ -38,6 +42,8 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
 	implementation 'org.mindrot:jbcrypt:0.4'
 	implementation 'org.codehaus.groovy:groovy-all:3.0.21'
+	implementation "org.graalvm.polyglot:polyglot:${graaljsVersion}"
+	implementation "org.graalvm.polyglot:js:${graaljsVersion}"
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'com.h2database:h2'

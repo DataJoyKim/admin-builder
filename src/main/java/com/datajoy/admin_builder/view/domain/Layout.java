@@ -16,11 +16,11 @@ public class Layout {
     @Column(length = 100)
     private String logoText;
     @Column
-    private Boolean useAuthValidation = true;
+    private Boolean useAuthValidation;
     @Column
-    private Boolean useProfile = true;
+    private Boolean useProfile;
     @Column
-    private Boolean useLogo = true;
+    private Boolean useLogo;
     @Column(length = 10)
     private String logoBackgroundColor;
     @Column(length = 100)

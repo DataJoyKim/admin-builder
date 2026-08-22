@@ -168,6 +168,22 @@
             const item = getStepItemData(itemId);
             openPopupFunctionSetting(item.functionType, item.functionName);
         });
+
+        $(document).on("dblclick", ".step-function", function(e) {
+            e.stopPropagation();
+
+            const itemId = $(this).data('item-id');
+            const item = getStepItemData(itemId);
+
+            if (!item) {
+                return;
+            }
+
+            openPopupFunctionSetting(
+                item.functionType,
+                item.functionName
+            );
+        });
     });
 
     function init() {
@@ -299,6 +315,7 @@
                 setContentData(response);
                 getWorkflowFunction(workflowId);
                 getWorkflowAuthority(workflowId);
+                initExecuteGrid();
             },
             function(error){
                 alert('error');
@@ -346,6 +363,7 @@
         drawWorkflow('workflowGrid',[]);
         initFunctionGrid();
         workflowAuthorityGrid.setSheetData([]);
+        initExecuteGrid();
       }
 
     function getWorkflowFunction(workflowId) {
@@ -357,6 +375,11 @@
                 alert('error');
             }
         );
+    }
+
+    function initExecuteGrid() {
+        executeGrid.setSheetData([]);
+        $("#responseData").val('');
     }
 
     function execute() {
@@ -400,6 +423,7 @@
     function setWorkflowGrid() {
         $("#workflowGrid").sortable({
             axis: "y",
+            cancel: ".drag-cancel",
             cursor: "move",
             placeholder: "workflow-item-placeholder",
             tolerance: "pointer",
@@ -515,7 +539,7 @@
     }
 
     function inputEl(itemId, name, value, attr) {
-        const el = $(`<input class="form-control form-control-sm rounded-1 input-element" type="text" name="${name}" data-item-id="${itemId}"></input>`);
+        const el = $(`<input class="form-control form-control-sm rounded-1 input-element drag-cancel" type="text" name="${name}" data-item-id="${itemId}"></input>`);
         el.attr('autocomplete' , 'off');
         if(value) {
             el.val(value);
@@ -529,7 +553,7 @@
     }
 
     function selectEl(itemId, name, codes, selectedValue) {
-        const el = $(`<select class="form-control form-control-sm rounded-1 input-element" name="${name}" data-item-id="${itemId}"></select>`);
+        const el = $(`<select class="form-control form-control-sm rounded-1 input-element drag-cancel" name="${name}" data-item-id="${itemId}"></select>`);
 
         for(const code of codes) {
             el.append($(`<option value="${code.code}">${code.name}</option>`));
@@ -571,12 +595,12 @@
         const messageInViewEl = $(`
             <div class="step-message mode-view" style="display:none;">
                 <span class="step-message-type message-in">IN</span>
-                <span class="step-message-id"   name="view-requestMessageId">${data.requestMessageId}</span>
+                <span class="step-message-id drag-cancel"   name="view-requestMessageId">${data.requestMessageId}</span>
             </div>
         `);
 
         const functionViewEl = $(`
-            <div class="step-function mode-view" style="display:none;" >
+            <div class="step-function mode-view" style="display:none;" data-item-id="${id}">
                 <span class="step-function-img">
                     <img name="view-functionType" src="${getFunctionIconPath(data.functionType)}" width="60" height="60" style="display:block;">
                 </span>
@@ -590,7 +614,7 @@
         const messageOutViewEl = $(`
             <div class="step-message mode-view" style="display:none;" >
                 <span class="step-message-type message-out">OUT</span>
-                <span class="step-message-id" name="view-responseMessageId">${data.responseMessageId}</span>
+                <span class="step-message-id drag-cancel" name="view-responseMessageId">${data.responseMessageId}</span>
             </div>
         `);
 
@@ -652,9 +676,9 @@
     }
 
     function deleteFunction(itemId, event) {
-        if(!confirm("삭제하시겠습니까?\n(삭제 후 저장해야 반영됩니다.)")) {
-            return;
-        }
+        //if(!confirm("삭제하시겠습니까?\n(삭제 후 저장해야 반영됩니다.)")) {
+        //    return;
+        //}
 
         event.stopPropagation();
 
@@ -745,6 +769,16 @@
             App.modalPopup.open('/console/workflow-notification',{title:'알림 팝업',size:"modal-xl",messageId:'FUNC_REQUEST'},{functionName:functionName});
         }
     }
+
+    function restore() {
+        const workflowId = $("#workflowId").val();
+        if(workflowId) {
+            selectedContent(workflowId);
+        }
+        else {
+            newContent();
+        }
+    }
 </script>
 <div th:fragment="view">
     <div class="row">
@@ -768,6 +802,11 @@
             <div class="card">
                 <div class="card-header">
                     <div class="card-tools">
+
+                        <button type="button" class="btn btn-default btn-sm" onclick="restore()">
+                            <i class="btn-icon fas fa-undo"></i>
+                            <span class="btn-label">Restore</span>
+                        </button>
                         <button type="button" class="btn btn-default btn-sm" onclick="newContent()">
                             <i class="btn-icon fas fa-plus"></i>
                             <span class="btn-label">Create</span>
@@ -871,7 +910,7 @@
                                                     <div id="executeGrid"></div>
                                                 </div>
                                                 <div class="row">
-                                                    <label>실행 결과</label>
+                                                    <label for="responseData">실행 결과</label>
                                                     <textarea class="col-12" id="responseData"  rows="10" ></textarea>
                                                 </div>
                                             </div>

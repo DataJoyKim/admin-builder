@@ -25,6 +25,8 @@ public class Notification {
 
     @Column(nullable = false, length = 100)
     private String dataSourceName;
+    @Column
+    private Boolean enableSend;
 
     @Column(length = 1000)
     private String subject;
@@ -42,7 +44,8 @@ public class Notification {
             String dataSourceName,
             String toAlias,
             String subject,
-            String content
+            String content,
+            Boolean enableSend
     ) {
         this.notificationName = notificationName;
         this.displayName = displayName;
@@ -50,6 +53,7 @@ public class Notification {
         this.subject = subject;
         this.content = content;
         this.toAlias = toAlias;
+        this.enableSend = enableSend;
     }
 
     public NotificationMessage createMessage(ParameterExpression expression, NotificationRequest params) {

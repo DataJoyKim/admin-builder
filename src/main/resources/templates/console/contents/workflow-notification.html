@@ -98,6 +98,7 @@
                         displayName:data.displayName,
                         dataSourceName:data.dataSourceName,
                         toAlias:data.toAlias,
+                        enableSend:data.enableSend,
                         subject:data.subject,
                         content:data.content
                     });
@@ -108,6 +109,7 @@
                         notificationName:functionName,
                         displayName:'',
                         dataSourceName:'',
+                        enableSend:false,
                         toAlias:'',
                         subject:'',
                         content:''
@@ -127,6 +129,7 @@
             displayName: $("#displayName").val(),
             dataSourceName: $("#dataSourceName").val(),
             toAlias: $("#toAlias").val(),
+            enableSend: App.util.isCheck("enableSend"),
             subject: $("#subject").val(),
             content: content.getValue()
         }
@@ -139,6 +142,7 @@
         $("#dataSourceName").val(params.dataSourceName);
         $("#subject").val(params.subject);
         $("#toAlias").val(params.toAlias);
+        App.util.check('enableSend', params.enableSend);
         content.setValue(params.content);
     }
 
@@ -223,6 +227,15 @@
                                 <label for="toAlias">수신자 Alias</label>
                                 <input type="text" class="form-control form-control-sm rounded-0" id="toAlias" placeholder="기본값: to_address" autocomplete="off">
                             </div>
+
+                            <div class="form-group col-3">
+                                <label for="enableSend" style="width:100px;">전송 활성화</label>
+                                <div class="custom-control custom-switch" style="transform: scale(1.5); transform-origin: left center;">
+                                    <input type="checkbox" class="custom-control-input" id="enableSend">
+                                    <label for="enableSend" class="custom-control-label" style="cursor: pointer;">
+                                    </label>
+                                </div>
+                            </div>
                         </div>
                         <div class="row">
                             <div class="form-group col-12">
@@ -230,7 +243,7 @@
                                 <input type="text" class="form-control form-control-sm rounded-0" id="subject" autocomplete="off">
                             </div>
                             <div class="form-group col-12">
-                                <label>내용</label>
+                                <label for="content">내용</label>
                                 <textarea id="content" name="content" class="d-none"></textarea>
                             </div>
                         </div>

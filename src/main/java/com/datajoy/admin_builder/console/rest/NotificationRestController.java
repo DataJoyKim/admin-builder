@@ -62,6 +62,7 @@ public class NotificationRestController {
                     .subject((String) params.get("subject"))
                     .content((String) params.get("content"))
                     .toAlias((String) params.get("toAlias"))
+                    .enableSend((Boolean) params.get("enableSend"))
                     .build();
         }
         else {
@@ -74,7 +75,8 @@ public class NotificationRestController {
                     (String) params.get("dataSourceName"),
                     (String) params.get("toAlias"),
                     (String) params.get("subject"),
-                    (String) params.get("content")
+                    (String) params.get("content"),
+                    (Boolean) params.get("enableSend")
             );
         }
 

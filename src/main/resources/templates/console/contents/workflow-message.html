@@ -7,25 +7,8 @@
             {code:"true",name:"Y"},
             {code:"false",name:"N"}
         ],
-        "PARAM_TYPE":[
-            {code:"STRING",name:"String"},
-            {code:"NUMBER",name:"Number"},
-            {code:"DATE",name:"Date"}
-        ],
-        "IN_OUT":[
-            {code:"IN",name:"IN"},
-            {code:"OUT",name:"OUT"}
-        ],
-        "AUTO_VALUE_TYPE":[
-            {code:"DEFAULT",name:"기본"},
-            {code:"STATIC_VALUE",name:"static 값"},
-            {code:"RESERVED_WORD",name:"예약어"}
-        ],
-        "COLUMN_TYPE":[
-            {code:"STRING",name:"String"},
-            {code:"NUMBER",name:"Number"},
-            {code:"DATE",name:"Date"},
-            {code:"DATETIME",name:"Datetime"}
+        "CODE_LANGUAGE":[
+            {code:"JAVASCRIPT",name:"Javascript"}
         ]
     };
 
@@ -39,6 +22,7 @@
 
     function init() {
         codeEditor = initCodeEditor('script','text/x-sql');
+        codeEditor.setSize("100%", "700px");
 
         App.modalPopup.receiveParam('FUNC_REQUEST', function(data){
             if(!data.functionName) {
@@ -253,14 +237,14 @@
                                 <mf-form id="codeForm">
                                     <mf-row>
                                         <mf-text-input id="code-id"            label="ID"        enable="false" size="col-1" hidden="true"></mf-text-input>
-                                        <mf-text-input id="code-processorName"     label="처리명"     enable="false" size="col-3" ></mf-text-input>
+                                        <mf-text-input id="code-processorName"     label="처리기명"     enable="false" size="col-3" ></mf-text-input>
                                         <mf-text-input id="code-displayName"   label="화면노출명"  enable="true"  size="col-3" ></mf-text-input>
                                         <mf-select id="code-language"   label="언어"     enable="false" size="col-2" dataProvider="CODE_LANGUAGE" useFirstItem="false" firstItemLabel="" firstItemValue=""></mf-select>
                                     </mf-row>
                                     <mf-row>
                                         <mf-col class="col-md-12">
                                             <label>스크립트</label>
-                                            <textarea id="script" name="script" ></textarea>
+                                            <textarea id="script" name="script" class="d-none"></textarea>
                                         </mf-col>
                                     </mf-row>
                                 </mf-form>
