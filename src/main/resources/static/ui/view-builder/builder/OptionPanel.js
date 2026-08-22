@@ -117,6 +117,9 @@ class OptionPanel {
         inputEl.attr('spellcheck',false);
         inputEl.attr('autocomplete','off');
         inputEl.prop('readonly', !(option.enabled ?? true));
+        if(option.placeholder) {
+            inputEl.attr('placeholder',option.placeholder);
+        }
 
         if(option.value != undefined) {
             inputEl.val(option.value);

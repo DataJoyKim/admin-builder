@@ -20,6 +20,7 @@ class ComponentPanel {
         $panel.append($sheetEl);
 
         let $chartEl = this.details('차트',true);
+        this.item($chartEl, 'barline-chart', 'Bar/Line', 'com-barline-chart.png');
         $panel.append($chartEl);
 
         let $buttonEl = this.details('버튼',true);

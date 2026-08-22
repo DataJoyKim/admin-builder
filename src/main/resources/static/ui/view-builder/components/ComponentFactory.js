@@ -18,6 +18,7 @@ class ComponentFactory {
                 "input": new Input(this.optionPanel),
                 "select": new Select(this.optionPanel),
                 "layout": new Layout(this.optionPanel),
+                'barline-chart':new BarLineChart(this.optionPanel),
                 "custom-html": new CustomHtml(this.optionPanel)
             };
     }
