@@ -27,6 +27,10 @@ class ComponentFactory {
         return this._instanceMap[type];
     }
 
+    getInstanceMap() {
+        return this._instanceMap;
+    }
+
     getComponentIdMap() {
         let componentIdMap = {};
 

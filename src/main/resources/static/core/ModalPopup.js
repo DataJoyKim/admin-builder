@@ -4,87 +4,102 @@ class ModalPopup {
     }
 
     open(url, options = {}, params) {
-      const settings = {
-        title: options.title || '',
-        size: options.size || 'modal-xl',
-        height: options.height || '80vh',
-        messageId: options.messageId || "POPUP_REQUEST"
-      };
+        const settings = {
+            title: options.title || '',
+            size: options.size || 'modal-xl',
+            height: options.height || '80vh',
+            messageId: options.messageId || 'POPUP_REQUEST'
+        };
 
-      let $popup = $('#'+this.POPUP_ID);
+        let $popup = $('#' + this.POPUP_ID);
 
-      if ($popup.length === 0) {
+        if ($popup.length === 0) {
 
-        $popup = $('<div>')
-          .addClass('modal fade')
-          .attr({
-            id: 'popup',
-            tabindex: '-1',
-            'aria-hidden': 'true'
-          });
+            $popup = $('<div>')
+                .addClass('modal fade')
+                .attr({
+                    id: this.POPUP_ID,
+                    tabindex: '-1',
+                    'aria-hidden': 'true'
+                });
 
-        const $dialog = $('<div>')
-          .addClass('modal-dialog ' + settings.size);
+            const $dialog = $('<div>')
+                .addClass('modal-dialog');
 
-        const $content = $('<div>')
-          .addClass('modal-content');
+            const $content = $('<div>')
+                .addClass('modal-content');
 
-        const $header = $('<div>')
-          .addClass('modal-header');
+            const $header = $('<div>')
+                .addClass('modal-header');
 
-        const $title = $('<h5>')
-          .addClass('modal-title')
-          .attr('id', 'popup-title');
+            const $title = $('<h5>')
+                .addClass('modal-title')
+                .attr('id', 'popup-title');
 
-        const $closeBtn = $('<button>')
-          .addClass('close')
-          .attr({
-            type: 'button',
-            'data-dismiss': 'modal'
-          })
-          .html('<span>&times;</span>');
+            const $closeBtn = $('<button>')
+                .addClass('close')
+                .attr({
+                    type: 'button',
+                    'data-dismiss': 'modal'
+                })
+                .html('<span>&times;</span>');
 
-        const $body = $('<div>')
-          .addClass('modal-body p-0');
+            const $body = $('<div>')
+                .addClass('modal-body p-0');
 
-        const $iframe = $('<iframe>')
-          .attr({ id: 'popup-frame' })
-          .css({
-            width: '100%',
-            border: 0
-          });
+            const $iframe = $('<iframe>')
+                .attr({ id: 'popup-frame' })
+                .css({
+                    width: '100%',
+                    border: 0
+                });
 
-        // 조립
-        $header.append($title, $closeBtn);
-        $body.append($iframe);
-        $content.append($header, $body);
-        $dialog.append($content);
-        $popup.append($dialog);
+            $header.append($title, $closeBtn);
+            $body.append($iframe);
+            $content.append($header, $body);
+            $dialog.append($content);
+            $popup.append($dialog);
 
-        $('body').append($popup);
+            $('body').append($popup);
 
-        $popup.on('hidden.bs.modal', function () {
-          $('#popup-frame').attr('src', 'about:blank');
-        });
-      }
+            $popup.on('hidden.bs.modal', function () {
+                $('#popup-frame').attr('src', 'about:blank');
+            });
+        }
 
-      $('#popup-title').text(settings.title);
-      $('#popup-frame')
-         .off('load')
-         .on('load', function () {
-            this.contentWindow.postMessage(
-                {
-                    messageId:settings.messageId,
-                    type: 'POPUP_REQUEST',
-                    payload: params
-                },
-                '*'
-            );
-         })
-        .css('height', settings.height)
-        .attr('src', url);
+        // =========================
+        // open 할 때마다 설정 적용
+        // =========================
 
-      $popup.modal('show');
+        const $dialog = $popup.find('.modal-dialog');
+        const $title = $popup.find('.modal-title');
+        const $iframe = $popup.find('iframe');
+
+        // size
+        $dialog
+            .removeClass('modal-sm modal-lg modal-xl modal-fullscreen')
+            .addClass(settings.size);
+
+        // title
+        $title.text(settings.title);
+
+        // iframe
+        $iframe
+            .off('load')
+            .on('load', function () {
+                this.contentWindow.postMessage(
+                    {
+                        messageId: settings.messageId,
+                        type: 'POPUP_REQUEST',
+                        payload: params
+                    },
+                    '*'
+                );
+            })
+            .css('height', settings.height)
+            .attr('src', url);
+
+        $popup.modal('show');
     }
 
     sendParamToParent(messageId, params) {

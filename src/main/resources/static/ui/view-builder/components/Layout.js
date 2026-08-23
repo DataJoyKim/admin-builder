@@ -43,6 +43,7 @@ class Layout extends ViewObject {
     styleBuilder() {
         return `
             .vb-item[data-type="${this.componentId()}"] {
+                background-color: white;
                 cursor: pointer;
                 width: 100%;
                 min-height: 90%;

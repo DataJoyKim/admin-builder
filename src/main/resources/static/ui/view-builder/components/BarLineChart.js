@@ -85,7 +85,20 @@ class BarLineChart extends ViewObject {
         }
 
         if(options.seriesSetting) {
-            chartOp.series = options.seriesSetting;
+            let series = [];
+            for(const setting of options.seriesSetting) {
+                let seriesObj = {};
+                seriesObj.name = setting.name;
+                seriesObj.type = setting.type;
+                if(setting.color) {
+                    seriesObj.itemStyle = {};
+                    seriesObj.itemStyle.color = setting.color;
+                }
+
+                series.push(seriesObj);
+            }
+
+            chartOp.series = series;
         }
 
         chart.setOption(chartOp);
@@ -100,7 +113,23 @@ class BarLineChart extends ViewObject {
             })
             .on('bindData', function(e, data){
                 VB.globalVariable.setMessage(options.dataProvider, data);
-                chart.setData(data);
+
+                const ALIAS_ITEM = 'ch_item';
+                const ALIAS_VALUE = 'ch_value';
+
+                const result = [];
+
+                $.each(data, function(i, item) {
+                    let series = result.find(x => x.name === item[ALIAS_ITEM]);
+                    if (!series) {
+                        series = {name: item[ALIAS_ITEM],data: []};
+                        result.push(series);
+                    }
+
+                    series.data.push(item[ALIAS_VALUE]);
+                });
+
+                chart.setData(result);
             });
     }
 
@@ -109,7 +138,7 @@ class BarLineChart extends ViewObject {
  * ======================================= */
     renderBuilder(options) {
         let el = `
-            <div id="${options.id}" class="component vb-item" data-type="${this.componentId()}">
+            <div id="${options.id}" class="component vb-item" data-type="${this.componentId()}" style="width: ${options.width}; height: ${options.height};">
                 ${super.componentDeleteBtn()}
                 Bar/Line Chart [${options.id}]
             </div>
@@ -122,8 +151,6 @@ class BarLineChart extends ViewObject {
         return `
             .vb-item[data-type="${this.componentId()}"] {
                 background-color: #ffffff;
-                height: 400px;
-                width: 100%;
                 display: flex;
                 justify-content: center;
                 align-items: center;
@@ -167,7 +194,7 @@ class BarLineChart extends ViewObject {
         $panel.append($op2Grid);
 
         let $op3Grid = this.optionPanel.row();
-        $op3Grid.append(this.optionPanel.button('seriesSetting',{label:'Series 설정', btnLabel:'설정',size:'col-12', icon:'fas fa-cog'}));
+        $op3Grid.append(this.optionPanel.button('seriesSetting',{label:'정적 차트항목 설정', btnLabel:'설정',size:'col-12', icon:'fas fa-cog'}));
         $panel.append($op3Grid);
 
         let $op4Grid = this.optionPanel.row();
@@ -243,8 +270,8 @@ class BarLineChart extends ViewObject {
 
         this.optionPanel.clickEvent('seriesSetting',(e) => {
             const changeOptionValue = super.changeOptionValue;
-            App.modalPopup.open('/console/view-sheet-column',{title:'컬럼설정 팝업',size:"modal-xl",messageId:'SHEET_COLUMN_REQUEST'},{seriesSetting:options.seriesSetting});
-            App.modalPopup.receiveParam('SHEET_COLUMN_RESULT',function(data){
+            App.modalPopup.open('/console/view-chart-item',{title:'차트항목 설정 팝업',size:"modal-lg",messageId:'CHART_ITEM_REQUEST'},{seriesSetting:options.seriesSetting});
+            App.modalPopup.receiveParam('CHART_ITEM_RESULT',function(data){
                 if(data.seriesSetting) {
                     changeOptionValue($el, options, 'seriesSetting', data.seriesSetting);
                 }
