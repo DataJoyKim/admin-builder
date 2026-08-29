@@ -20,6 +20,11 @@ class BarLineChart extends ViewObject {
             titleTextAlign: '',
             titleFontSize: '',
             direction: 'VERTICAL',
+            useLegend: true,
+            legendLeft:'',
+            legendTop:'',
+            legendOrient:'',
+            legendFontSize:'',
             staticCategory: '',
             seriesSetting: []
        };
@@ -39,6 +44,7 @@ class BarLineChart extends ViewObject {
         const chart = new Chart(options.id);
         const chartOp = {};
 
+        // 차트 타이틀
         if(options.title) {
             chartOp.title = {};
             chartOp.title.text = options.title;
@@ -61,6 +67,30 @@ class BarLineChart extends ViewObject {
             }
         }
 
+        // 차트 Tooltip
+        chartOp.tooltip = {trigger: 'axis'};
+
+        // 차트 범례
+        if(options.useLegend) {
+            const legendData = [];
+            for(const setting of options.seriesSetting) {
+                legendData.push(setting.name);
+            }
+
+            chartOp.legend = {
+                show: true,
+                left: (options.legendLeft) ? options.legendLeft : 'center', // 범례 위치
+                top: (options.legendTop) ? options.legendTop : 'bottom', // 범례 위치
+                orient: (options.legendOrient) ? options.legendOrient : 'horizontal', // 가로/세로
+                itemGap: 20, // 범례 간격
+                itemWidth: 25, // 아이콘 크기
+                itemHeight: 14,
+                textStyle: {fontSize: (options.legendFontSize) ? options.legendFontSize : 14}, // 글자 스타일
+                data: legendData
+            }
+        }
+
+        // 차트 카테고리
         let category;
         if(options.staticCategory) {
             category = options.staticCategory.split(',').map(v => v.trim());
@@ -84,6 +114,7 @@ class BarLineChart extends ViewObject {
             chartOp.yAxis.type = 'value';
         }
 
+        // 차트 항목 설정
         if(options.seriesSetting) {
             let series = [];
             for(const setting of options.seriesSetting) {
@@ -101,6 +132,7 @@ class BarLineChart extends ViewObject {
             chartOp.series = series;
         }
 
+        // 차트 옵션 셋팅
         chart.setOption(chartOp);
 
         // 시트 이벤트 생성
@@ -114,20 +146,42 @@ class BarLineChart extends ViewObject {
             .on('bindData', function(e, data){
                 VB.globalVariable.setMessage(options.dataProvider, data);
 
-                const ALIAS_ITEM = 'ch_item';
-                const ALIAS_VALUE = 'ch_value';
+                const CATEGORY_ALIAS = 'ch_category';
+
+                const dataGroup = data.reduce((acc, item) => {
+                    acc[item[CATEGORY_ALIAS]] = item;
+                    return acc;
+                }, {});
+
+                if(!category) {
+                    category = [];
+                    for(const cat in dataGroup) {
+                        category.push(cat);
+                    }
+
+                    const axis = (options.direction === 'HORIZONTAL') ? 'yAxis' : 'xAxis';
+                    chartOp[axis].data = category;
+                    chart.setOption(chartOp);
+                }
 
                 const result = [];
 
-                $.each(data, function(i, item) {
-                    let series = result.find(x => x.name === item[ALIAS_ITEM]);
-                    if (!series) {
-                        series = {name: item[ALIAS_ITEM],data: []};
-                        result.push(series);
+                for (const setting of options.seriesSetting) {
+                    const seriesData = [];
+                    for (const cat of category) {
+                        const dataObj = dataGroup[cat];
+
+                        if (!dataObj) {
+                            seriesData.push(null);
+                            continue;
+                        }
+
+                        const value = dataObj[setting.alias];
+                        seriesData.push(value == null || value === '' ? null : Number(value));
                     }
 
-                    series.data.push(item[ALIAS_VALUE]);
-                });
+                    result.push({name: setting.name, data: seriesData});
+                }
 
                 chart.setData(result);
             });
@@ -194,7 +248,7 @@ class BarLineChart extends ViewObject {
         $panel.append($op2Grid);
 
         let $op3Grid = this.optionPanel.row();
-        $op3Grid.append(this.optionPanel.button('seriesSetting',{label:'정적 차트항목 설정', btnLabel:'설정',size:'col-12', icon:'fas fa-cog'}));
+        $op3Grid.append(this.optionPanel.button('seriesSetting',{label:'차트항목 설정', btnLabel:'설정',size:'col-12', icon:'fas fa-cog'}));
         $panel.append($op3Grid);
 
         let $op4Grid = this.optionPanel.row();
@@ -207,6 +261,18 @@ class BarLineChart extends ViewObject {
         $op5Grid.append(this.optionPanel.input('titleTextAlign',{label:'제목 TextAlign', size:'col-6',placeholder:'left|center|right'}));
         $op5Grid.append(this.optionPanel.input('titleFontSize',{label:'제목 FontSize', size:'col-6', placeholder:'15'}));
         $panel.append($op5Grid);
+
+        let $op6Grid = this.optionPanel.row();
+        $op6Grid.append(this.optionPanel.toggle('useLegend',{label:'범례 사용', size:'col-12'}));
+        $op6Grid.append(this.optionPanel.input('legendLeft',{label:'범례 Left', size:'col-6', placeholder:'left|center|right|10px|10%'}));
+        $op6Grid.append(this.optionPanel.input('legendTop',{label:'범례 Top', size:'col-6',placeholder:'top|middle|bottom|10px|10%'}));
+        $op6Grid.append(this.optionPanel.select('legendOrient',{label:'범례 배치', size:'col-6',
+            options:`
+                <option value="vertical">세로</option>
+                <option value="horizontal">가로</option>
+            `}));
+        $op6Grid.append(this.optionPanel.input('legendFontSize',{label:'범례 FontSize', size:'col-6', placeholder:'15'}));
+        $panel.append($op6Grid);
     }
 
     optionPanelScript($el, options) {
@@ -223,6 +289,11 @@ class BarLineChart extends ViewObject {
         this.optionPanel.setValue('seriesSetting',options.seriesSetting);
         this.optionPanel.setValue('staticCategory',options.staticCategory);
         this.optionPanel.setValue('direction',options.direction);
+        this.optionPanel.check('useLegend',options.useLegend);
+        this.optionPanel.setValue('legendLeft',options.legendLeft);
+        this.optionPanel.setValue('legendTop',options.legendTop);
+        this.optionPanel.setValue('legendOrient',options.legendOrient);
+        this.optionPanel.setValue('legendFontSize',options.legendFontSize);
     }
 
     optionPanelEvent($el, options, componentFactory) {
@@ -266,6 +337,22 @@ class BarLineChart extends ViewObject {
         });
         this.optionPanel.inputEvent('direction',(e) => {
             super.changeOptionValue($el, options, 'direction', $(e.target).val());
+        });
+
+        this.optionPanel.changeEvent('useLegend',(e) => {
+            super.changeOptionValue($el, options, 'useLegend', $(e.target).is(':checked'));
+        });
+        this.optionPanel.inputEvent('legendLeft',(e) => {
+            super.changeOptionValue($el, options, 'legendLeft', $(e.target).val());
+        });
+        this.optionPanel.inputEvent('legendTop',(e) => {
+            super.changeOptionValue($el, options, 'legendTop', $(e.target).val());
+        });
+        this.optionPanel.inputEvent('legendOrient',(e) => {
+            super.changeOptionValue($el, options, 'legendOrient', $(e.target).val());
+        });
+        this.optionPanel.inputEvent('legendFontSize',(e) => {
+            super.changeOptionValue($el, options, 'legendFontSize', $(e.target).val());
         });
 
         this.optionPanel.clickEvent('seriesSetting',(e) => {

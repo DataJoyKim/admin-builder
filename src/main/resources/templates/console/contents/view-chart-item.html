@@ -16,13 +16,14 @@
             };
 
             const columns = [
-                {field:'name', label:'차트항목명', type:'text', width:200, hide:false, editable: true, align:'center', required:true},
+                {field:'alias', label:'차트항목 alias', type:'text', width:180, hide:false, editable: true, align:'center', required:true},
+                {field:'name', label:'차트항목명', type:'text', width:180, hide:false, editable: true, align:'center', required:true},
                 {field:'type', label:'차트유형', type:'combo', width:120, editable: true, align:'center', required:true, comboCodes:codes.TYPE},
-                {field:'color', label:'차트색상', type:'text', width:200, hide:false, editable: true, align:'center', required:false}
+                {field:'color', label:'차트색상', type:'text', width:150, hide:false, editable: true, align:'center', required:false}
 
             ];
 
-            Sheet.initSheet('mySheet1', "650px", "400px",
+            Sheet.initSheet('mySheet1', "100%", "400px",
                 {
                     useSeq:false,
                     useStatus:false,
