@@ -1,35 +1,393 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <style th:fragment="style">
+    /* ============ Full-height page shell ============ */
+    /* adminlte.js의 fixLayoutHeight()가 로드 시 html/body에 인라인 height:auto를
+       강제로 지정해버려서 일반 규칙으로는 무시된다. !important로 덮어써야 한다. */
+    html, body {
+        height: 100% !important;
+        margin: 0;
+    }
+
+    .wrapper {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .wrapper > div {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+    }
+
+    /* ============ App shell ============ */
+    .wf-app {
+        display: flex;
+        flex: 1;
+        min-height: 0;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #ffffff;
+    }
+
+    /* ============ Sidebar (workflow list) ============ */
+    .wf-sidebar {
+        width: 280px;
+        flex: 0 0 280px;
+        border-right: 1px solid #eef0f2;
+        display: flex;
+        flex-direction: column;
+        background: #fbfbfc;
+        margin-left: 0;
+        transition: margin-left .18s ease;
+        overflow: hidden;
+    }
+
+    .wf-sidebar.collapsed {
+        margin-left: -280px;
+    }
+
+    .wf-sidebar-header {
+        padding: 14px;
+        border-bottom: 1px solid #eef0f2;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .btn-new-workflow {
+        width: 100%;
+        border: none;
+        border-radius: 8px;
+        background: #4A90E2;
+        color: #fff;
+        padding: 9px 12px;
+        font-weight: 600;
+        font-size: 13px;
+        cursor: pointer;
+    }
+
+    .btn-new-workflow:hover {
+        background: #3d7fce;
+    }
+
+    .wf-search {
+        position: relative;
+    }
+
+    .wf-search input {
+        width: 100%;
+        padding: 6px 30px 6px 10px;
+        border: 1px solid #d7dbe0;
+        border-radius: 6px;
+        font-size: 12.5px;
+    }
+
+    .wf-search i {
+        position: absolute;
+        right: 9px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9199a3;
+        cursor: pointer;
+        font-size: 12px;
+    }
+
+    .wf-search i:hover {
+        color: #4A90E2;
+    }
+
+    .wf-list {
+        flex: 1;
+        overflow-y: auto;
+        padding: 8px;
+    }
+
+    .wf-list-empty {
+        color: #9199a3;
+        font-size: 12.5px;
+        text-align: center;
+        padding: 24px 0;
+    }
+
+    .wf-list-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 10px;
+        border-radius: 8px;
+        cursor: pointer;
+        margin-bottom: 4px;
+    }
+
+    .wf-list-item:hover {
+        background: #f1f3f5;
+    }
+
+    .wf-list-item.active {
+        background: #eef5ff;
+    }
+
+    .wf-list-item-icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+        background: #eef1f4;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6b7280;
+        flex: 0 0 30px;
+        font-size: 12px;
+    }
+
+    .wf-list-item.active .wf-list-item-icon {
+        background: #4A90E2;
+        color: #fff;
+    }
+
+    .wf-list-item-info {
+        min-width: 0;
+    }
+
+    .wf-list-item-name {
+        font-size: 13.5px;
+        font-weight: 600;
+        color: #1f2937;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .wf-list-item-code {
+        font-size: 11.5px;
+        color: #9199a3;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* ============ Main area ============ */
+    .wf-main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+    }
+
+    .wf-topbar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 16px;
+        border-bottom: 1px solid #eef0f2;
+    }
+
+    .wf-sidebar-toggle {
+        border: none;
+        background: transparent;
+        color: #6b7280;
+        font-size: 16px;
+        cursor: pointer;
+        padding: 4px 6px;
+    }
+
+    .wf-title-group {
+        display: flex;
+        gap: 6px;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .wf-code-input, .wf-name-input {
+        border: 1px solid transparent;
+        background: transparent;
+        border-radius: 6px;
+        padding: 4px 8px;
+    }
+
+    .wf-code-input:hover, .wf-name-input:hover {
+        border-color: #e5e7eb;
+    }
+
+    .wf-code-input:focus, .wf-name-input:focus {
+        background: #f1f3f5;
+        outline: none;
+        border-color: #e5e7eb;
+    }
+
+    .wf-code-input {
+        font-size: 12px;
+        color: #9199a3;
+        width: 160px;
+    }
+
+    .wf-name-input {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1f2937;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .wf-topbar-actions {
+        display: flex;
+        gap: 6px;
+        flex: 0 0 auto;
+    }
+
+    .wf-topbar-actions button {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12.5px;
+        border: 1px solid #d7dbe0;
+        background: #fff;
+        border-radius: 7px;
+        padding: 6px 12px;
+        cursor: pointer;
+        color: #374151;
+        white-space: nowrap;
+    }
+
+    .wf-topbar-actions button:hover {
+        background: #f1f3f5;
+    }
+
+    .wf-topbar-actions button.btn-primary {
+        background: #4A90E2;
+        border-color: #4A90E2;
+        color: #fff;
+    }
+
+    .wf-topbar-actions button.btn-primary:hover {
+        background: #3d7fce;
+    }
+
+    .wf-topbar-actions button.btn-danger {
+        color: #dc2626;
+        border-color: #f3c9c9;
+    }
+
+    .wf-topbar-actions button.btn-danger:hover {
+        background: #fef2f2;
+    }
+
+    /* ============ Canvas ============ */
+    .wf-canvas-wrap {
+        position: relative;
+        flex: 1;
+        min-height: 0;
+    }
+
+    .wf-canvas {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        overflow: auto;
+        background-color: #fafbfc;
+        background-image: radial-gradient(circle, #d7dce3 1.2px, transparent 1.2px);
+        background-size: 20px 20px;
+        padding: 40px 0 60px 0;
+    }
+
+    #workflowGrid {
+        position: relative;
+        width: 100%;
+        min-height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+    }
+
+    #connectorLayer {
+        overflow: visible;
+        z-index: 0;
+    }
+
     .step-item {
         position: relative;
         background-color: #ffffff;
-        width: 260px;
-        height: 180px;
-        border-radius: 13px;
+        width: 300px;
+        border-radius: 12px;
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
+        align-items: stretch;
         font-size: 14px;
-        border: 3px solid #898989;
-        //box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        margin-top:10px;
-        margin-bottom:15px;
+        border: 1px solid #e2e5ea;
+        box-shadow: 0 1px 3px rgba(16, 24, 40, .07);
+        margin: 0 0 40px 0;
         word-break: break-word;
         overflow-wrap: break-word;
+        cursor: pointer;
+        z-index: 1;
+        transition: box-shadow .15s ease, border-color .15s ease;
     }
+
+    .step-item:hover {
+        box-shadow: 0 6px 16px rgba(16, 24, 40, .12);
+    }
+
+    .step-item.selected {
+        border-color: #4A90E2;
+        box-shadow: 0 0 0 3px rgba(74, 144, 226, .18);
+    }
+
+    /* ============ Drag handle (node move) ============ */
+    .step-drag-handle {
+        flex: 0 0 26px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #fafbfc;
+        border-right: 1px solid #eef0f2;
+        border-top-left-radius: 11px;
+        border-bottom-left-radius: 11px;
+        color: #c7cbd1;
+        cursor: grab;
+    }
+
+    .step-drag-handle:hover {
+        background: #eef5ff;
+        color: #4A90E2;
+    }
+
+    .step-drag-handle:active {
+        cursor: grabbing;
+    }
+
+    .step-body {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
     .add-step-item {
         position: relative;
-        background-color: #ffffff;
-        width: 100px;
-        height: 100px;
-        border-radius: 13px;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
         display: flex;
-        flex-direction: column;
-        font-size: 14px;
-        border: 3px solid #898989;
-        margin-top:10px;
-        margin-bottom:15px;
-        word-break: break-word;
-        overflow-wrap: break-word;
+        align-items: center;
+        justify-content: center;
+        background-color: #ffffff;
+        border: 2px dashed #c7cbd1;
+        color: #9199a3;
+        cursor: pointer;
+        /* step-item은 왼쪽에 26px 드래그 핸들이 있어 카드 내용 중심이 그만큼 오른쪽으로
+           치우쳐 있다. + 버튼도 같은 만큼 오른쪽으로 밀어야 화살표가 일직선으로 이어진다. */
+        margin: 0 0 0 26px;
+        z-index: 1;
+        transition: all .15s ease;
+    }
+
+    .add-step-item:hover {
+        border-color: #4A90E2;
+        color: #4A90E2;
+        background-color: #eef5ff;
     }
 
     .step-message {
@@ -38,8 +396,6 @@
         justify-content: center;
         gap: 8px;
         padding: 6px 16px;
-        border-top-left-radius: 8px;
-        border-top-right-radius: 8px;
     }
 
     .step-message-type {
@@ -50,15 +406,18 @@
     }
 
     .message-in {
-        background-color: #bae6ff;color: #0369a1;
+        background-color: #bae6ff;
+        color: #0369a1;
     }
+
     .message-out {
-        background-color: #a8f0a0;color: #047857;
+        background-color: #a8f0a0;
+        color: #047857;
     }
 
     .step-message-id {
-       font-weight: 500;
-       font-size: 12px;
+        font-weight: 500;
+        font-size: 12px;
     }
 
     .step-function {
@@ -67,169 +426,393 @@
         flex-direction: row;
         align-items: center;
         justify-content: flex-start;
-        padding: 12px 12px 12px 12px;
+        padding: 14px 16px;
         gap: 12px;
-        border-top: 1px solid #e5e7eb;
-        border-bottom: 1px solid #e5e7eb;
-        cursor: pointer;
-    }
-
-    .step-tools {
-        position: absolute;
-        top: -25px;
-        right: 5px;
-        color: #065f9e;
-    }
-
-    .step-tool {
-        cursor: pointer;
+        border-top: 1px solid #eef0f2;
+        border-bottom: 1px solid #eef0f2;
     }
 
     .step-function-img {
-        width: 60px;
-        height: 60px;
+        width: 44px;
+        height: 44px;
+        flex: 0 0 44px;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-bottom: 4px;
+    }
+
+    .step-function-img img {
+        border-radius: 8px;
     }
 
     .step-function-name {
         display: flex;
         flex-direction: column;
+        min-width: 0;
     }
 
     .function-display-name {
-        color: #1f2937; font-weight: 500;font-size: 18px;
-    }
-    .function-name {
-        color: #1f2937; font-weight: 300;font-size: 14px;
+        color: #1f2937;
+        font-weight: 600;
+        font-size: 15px;
     }
 
-    .selected {
-        outline: 2px solid #4A90E2;
-        outline-offset: 2px;
+    .function-name {
+        color: #8a94a6;
+        font-weight: 400;
+        font-size: 12px;
+    }
+
+    .step-tools {
+        position: absolute;
+        top: -34px;
+        right: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background-color: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 20px;
+        padding: 5px 9px;
+        box-shadow: 0 2px 6px rgba(16, 24, 40, .12);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .12s ease;
+        z-index: 2;
+    }
+
+    .step-item:hover .step-tools,
+    .step-item.selected .step-tools {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .step-tool {
+        cursor: pointer;
+        color: #9199a3;
+        font-size: 11px;
+    }
+
+    .step-tool:hover {
+        color: #dc2626;
+    }
+
+    /* ============ Function type chip ============ */
+    .function-type-chip {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        border: 1px solid #d7dbe0;
+        border-radius: 8px;
+        background: #fff;
+        padding: 7px 10px;
+        font-size: 13px;
+        color: #1f2937;
+        cursor: pointer;
+    }
+
+    .function-type-chip:hover {
+        border-color: #4A90E2;
+    }
+
+    .function-type-chip img {
+        border-radius: 4px;
+    }
+
+    .function-type-chip span[name="chip-name"] {
+        flex: 1;
+        text-align: left;
+    }
+
+    .function-type-chip i {
+        font-size: 10px;
+        color: #9199a3;
+    }
+
+    /* ============ Function type picker modal ============ */
+    .function-type-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        max-height: 60vh;
+        overflow-y: auto;
+    }
+
+    .function-type-item {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 12px 14px;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all .12s ease;
+    }
+
+    .function-type-item:hover {
+        border-color: #4A90E2;
+        background-color: #f5f9ff;
+    }
+
+    .function-type-item.current {
+        border-color: #4A90E2;
+        background-color: #eef5ff;
+    }
+
+    .function-type-icon {
+        flex: 0 0 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .function-type-icon img {
+        border-radius: 6px;
+    }
+
+    .function-type-info {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+    }
+
+    .function-type-name {
+        font-size: 15px;
+        font-weight: 600;
+        color: #1f2937;
+    }
+
+    .function-type-code {
+        font-size: 11px;
+        font-weight: 400;
+        color: #9199a3;
+        margin-left: 6px;
+    }
+
+    .function-type-desc {
+        font-size: 12.5px;
+        color: #6b7280;
+    }
+
+    /* ============ Node detail drawer ============ */
+    .wf-drawer-backdrop {
+        position: absolute;
+        top: 0; left: 0; right: 380px; bottom: 0;
+        background: rgba(17, 24, 39, .06);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .18s ease;
+        z-index: 4;
+    }
+
+    .wf-drawer-backdrop.show {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .wf-node-drawer {
+        position: absolute;
+        top: 0; right: 0; bottom: 0;
+        width: 380px;
+        background: #fff;
+        border-left: 1px solid #e5e7eb;
+        box-shadow: -6px 0 18px rgba(16, 24, 40, .08);
+        transform: translateX(100%);
+        transition: transform .18s ease;
+        display: flex;
+        flex-direction: column;
+        z-index: 5;
+    }
+
+    .wf-node-drawer.open {
+        transform: translateX(0);
+    }
+
+    .wf-drawer-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 16px;
+        border-bottom: 1px solid #eef0f2;
+    }
+
+    .wf-drawer-close {
+        border: none;
+        background: transparent;
+        font-size: 20px;
+        color: #9199a3;
+        cursor: pointer;
+        line-height: 1;
+    }
+
+    .wf-drawer-body {
+        padding: 16px;
+        flex: 1;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .wf-drawer-footer {
+        padding: 14px 16px;
+        border-top: 1px solid #eef0f2;
+    }
+
+    .wf-field label {
+        font-size: 12px;
+        font-weight: 600;
+        color: #6b7280;
+        display: block;
+        margin-bottom: 6px;
+    }
+
+    .wf-field-row {
+        display: flex;
+        gap: 10px;
+    }
+
+    .wf-field-row .wf-field {
+        flex: 1;
+    }
+
+    /* ============ Settings modal ============ */
+    .wf-authority-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 10px;
+        min-height: 26px;
+    }
+
+    .wf-authority-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #eef5ff;
+        color: #1d4ed8;
+        border-radius: 14px;
+        padding: 4px 10px;
+        font-size: 12px;
+    }
+
+    .wf-authority-chip i {
+        cursor: pointer;
+        font-size: 10px;
+    }
+
+    .wf-chip-empty {
+        color: #9199a3;
+        font-size: 12px;
+    }
+
+    .wf-authority-add {
+        display: flex;
+        gap: 8px;
+    }
+
+    .wf-authority-add select {
+        flex: 1;
+    }
+
+    /* ============ Execute modal ============ */
+    .wf-execute-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 24px;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+
+    .wf-execute-row-remove {
+        cursor: pointer;
+        color: #9199a3;
+        text-align: center;
+    }
+
+    .wf-execute-row-remove:hover {
+        color: #dc2626;
+    }
+
+    /* bootstrap의 .form-control[readonly] 배경색 규칙이 명시도가 더 높아
+       !important 없이는 다크 콘솔 배경이 먹히지 않는다. */
+    .wf-console-textarea,
+    .wf-console-textarea[readonly] {
+        background-color: #1e1e1e !important;
+        color: #6fe36f;
+        font-family: "Consolas", "Menlo", "Monaco", monospace;
+        font-size: 12.5px;
+        line-height: 1.5;
+        border: 1px solid #333;
+        border-radius: 6px;
+        resize: vertical;
+        caret-color: transparent;
+        opacity: 1;
+    }
+
+    .wf-console-textarea:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(74, 144, 226, .35);
     }
 </style>
 <script th:fragment="script">
     App.codes = {
-        "FUNCTION_TYPE":[
-            {code:"SQL",name:"SQL"},
-            {code:"ENTITY",name:"Entity"},
-            {code:"REST_CLIENT",name:"Rest Client"},
-            {code:"MESSAGE_PROCESSOR",name:"메시지처리"},
-            {code:"NOTIFICATION",name:"알림"}
+        "FUNCTION_TYPE": [
+            {code: "SQL", name: "SQL", icon: "/dist/img/func-sql.png", description: "직접 작성한 SQL 쿼리를 실행합니다."},
+            {code: "ENTITY", name: "Entity", icon: "/dist/img/func-entity.png", description: "등록된 엔티티 정의를 기준으로 데이터를 조회·등록·수정·삭제합니다."},
+            {code: "REST_CLIENT", name: "Rest Client", icon: "/dist/img/func-restclient.png", description: "등록된 외부 REST 서버를 호출하여 연동합니다."},
+            {code: "MESSAGE_PROCESSOR", name: "메시지처리", icon: "/dist/img/func-message.png", description: "스크립트로 요청/응답 메시지를 가공하고 변환합니다."},
+            {code: "NOTIFICATION", name: "알림", icon: "/dist/img/func-notification.png", description: "이메일 등 채널로 알림을 발송합니다."}
         ]
     };
 
     const STEP_ITEM_ID_PREFIX = 'step-item-';
 
+    let workflowListData = [];
+    let selectedWorkflowId = null;
+    let activeNodeId = null;
+    let authorityCodesMaster = [];
+    let currentAuthorityList = [];
+    let executeRows = [];
+    let executeRowSeq = 0;
+
     $( document ).ready(function() {
         init();
 
-        // 컴포넌트 선택 영역
-        $(document).on("click", ".step-item", function(e) {
-            e.stopPropagation();
-
-            // 이전 선택 제거
-            $(".step-item").removeClass("selected");
-
-            // 현재 요소 선택
-            $(this).addClass("selected");
+        let connectorResizeTimer = null;
+        $(window).on('resize', function() {
+            clearTimeout(connectorResizeTimer);
+            connectorResizeTimer = setTimeout(drawConnectors, 100);
         });
 
-        $(document).off("input").on('input', '.input-element', function(e) {
-            const name = $(this).attr('name');
-            const value = $(this).val();
-            const itemId = $(this).data('item-id');
-            const itemData = getStepItemData(itemId);
-            itemData[name] = value;
+        $(document).on("click", "#drawerTypeChip", function() {
+            if (!activeNodeId) return;
 
-            setStepItemData(itemId, itemData);
-        });
-
-        $(document).on('click', '[name="btnEdit"]', function(e) {
-            const itemId = $(this).data('item-id');
-            changeEditMode(itemId);
-        });
-
-        $(document).on('click', '[name="btnCancel"]', function(e) {
-            const itemId = $(this).data('item-id');
-            changeViewMode(itemId);
-        });
-
-        $(document).on('click', '[name="btnDelete"]', function(e) {
-            const itemId = $(this).data('item-id');
-            deleteFunction(itemId, e);
-        });
-
-        $(document).on('click', '[name="btnFunctionSetting"]', function(e) {
-            const itemId = $(this).data('item-id');
-            const item = getStepItemData(itemId);
-            openPopupFunctionSetting(item.functionType, item.functionName);
-        });
-
-        $(document).on("dblclick", ".step-function", function(e) {
-            e.stopPropagation();
-
-            const itemId = $(this).data('item-id');
-            const item = getStepItemData(itemId);
-
-            if (!item) {
-                return;
-            }
-
-            openPopupFunctionSetting(
-                item.functionType,
-                item.functionName
-            );
+            const data = getStepItemData(activeNodeId);
+            openFunctionTypeModal(data.functionType, function(selectedCode) {
+                data.functionType = selectedCode;
+                setStepItemData(activeNodeId, data);
+                refreshDrawerFields(data);
+            });
         });
     });
 
     function init() {
-        Sheet.initSheet('workflowListGrid', "100%", "800px",
-            {
-                useSeq:true,
-                useStatus:false,
-                useDelete:false,
-                useExpendLastColumn:true,
-                offCellFocus:true,
-                offDisableColumnColor:true,
-            },
-            [
-                {field:'id', label:'ID', type:'text', width:30, hide:true, editable: true, align:'center', required:true},
-                {field:'workflowCode', label:'code', type:'text', width:190, editable: false, align:'left', required:false},
-                {field:'displayName', label:'name', type:'text', width:200, editable: false, align:'left', required:false}
-            ],
-            {
-                onSelectionChanged:function(row) {
-                    selectedContent(row.id);
-                }
-            });
-
-        Sheet.initSheet('executeGrid', "100%", "300px",
-            {
-                useSeq:false,
-                useStatus:false,
-                useDelete:true,
-                useExpendLastColumn:true
-            },
-            [
-                {field:'messageId', label:'메시지ID', type:'text', width:120, editable: true, align:'left', required:false},
-                {field:'key', label:'컬럼', type:'text', width:120, editable: true, align:'left', required:false},
-                {field:'value', label:'값', type:'text', width:100, editable: true, align:'left', required:false}
-            ]);
-
         getWorkflowList();
+        setAuthorityCodesMaster();
         setWorkflowGrid();
-        setAuthorityGrid();
-        showGrid('workflow-authority-card',true);
+        newContent();
     }
+
+    /* ================= Workflow list (left sidebar) ================= */
 
     function getWorkflowList() {
         httpClient.get(`/console/api/workflow`, {},
             function(response){
-                workflowListGrid.setSheetData(response);
+                workflowListData = response;
+                renderWorkflowList();
             },
             function(error){
                 alert('조회하는데 실패하였습니다.');
@@ -237,36 +820,54 @@
         );
     }
 
-    function setAuthorityGrid() {
-        httpClient.get(`/console/api/authority`, {},
-            function(response){
-                let codes = [
-                    {code:'',name:'선택'}
-                ];
+    function renderWorkflowList() {
+        const keyword = ($("#workflowSearch").val() || '').toLowerCase();
+        const $list = $("#workflowList");
+        $list.empty();
 
-                codes = codes.concat(response);
-
-                Sheet.initSheet('workflowAuthorityGrid', "100%", "500px",
-                    {useSeq:false,useStatus:false,useDelete:true,useExpendLastColumn:true},
-                    [
-                        {field:'id', label:'ID', type:'text', width:30, hide:true, editable: true, align:'center', required:true},
-                        {field:'authorityCode', label:'권한', type:'combo', width:300, editable: true, align:'center', required:false, comboCodes:codes}
-                    ]);
-
-                newContent();
-            },
-            function(error){
-                alert('error');
-            }
+        const filtered = workflowListData.filter(w =>
+            !keyword ||
+            (w.workflowCode || '').toLowerCase().includes(keyword) ||
+            (w.displayName || '').toLowerCase().includes(keyword)
         );
+
+        if (filtered.length === 0) {
+            $list.append(`<div class="wf-list-empty">워크플로우가 없습니다.</div>`);
+            return;
+        }
+
+        for (const w of filtered) {
+            const $item = $(`
+                <div class="wf-list-item ${w.id === selectedWorkflowId ? 'active' : ''}">
+                    <span class="wf-list-item-icon"><i class="fas fa-project-diagram"></i></span>
+                    <span class="wf-list-item-info">
+                        <div class="wf-list-item-name">${w.displayName || '(이름없음)'}</div>
+                        <div class="wf-list-item-code">${w.workflowCode || ''}</div>
+                    </span>
+                </div>
+            `);
+
+            $item.on('click', function() {
+                selectedContent(w.id);
+            });
+
+            $list.append($item);
+        }
     }
+
+    function toggleSidebar() {
+        $("#wfSidebar").toggleClass('collapsed');
+        setTimeout(drawConnectors, 200); // 사이드바 접기/펼치기 트랜지션(.18s) 종료 후 화살표 재계산
+    }
+
+    /* ================= Workflow CRUD ================= */
 
     function save() {
         httpClient.post(`/console/api/workflow/save`,{},
             {
                 workflow:getContent(),
                 workflowFunctions:getWorkflowFunctionData(),
-                workflowAuthority:workflowAuthorityGrid.getSheetData()
+                workflowAuthority:currentAuthorityList
             },
             function(response){
                 alert("저장 완료되었습니다.");
@@ -312,10 +913,12 @@
     function selectedContent(workflowId) {
         httpClient.get(`/console/api/workflow/${workflowId}`, {},
             function(response){
+                selectedWorkflowId = response.id;
                 setContentData(response);
                 getWorkflowFunction(workflowId);
                 getWorkflowAuthority(workflowId);
                 initExecuteGrid();
+                renderWorkflowList();
             },
             function(error){
                 alert('error');
@@ -328,7 +931,6 @@
             id:response.id,
             workflowCode:response.workflowCode,
             displayName:response.displayName,
-            note:response.note,
             useAuthValidation:response.useAuthValidation
           });
     }
@@ -347,29 +949,43 @@
         $("#workflowId").val(params.id);
         $("#workflowCode").val(params.workflowCode);
         $("#displayName").val(params.displayName);
-        $("#note").val(params.note);
         App.util.check('useAuthValidation', params.useAuthValidation);
-      }
+    }
 
-      function newContent(){
+    function newContent(){
+        selectedWorkflowId = null;
+
         setContent({
             id:'',
             workflowCode:'',
             displayName:'',
-            note:'',
             useAuthValidation:true
             });
 
         drawWorkflow('workflowGrid',[]);
-        initFunctionGrid();
-        workflowAuthorityGrid.setSheetData([]);
+        currentAuthorityList = [];
+        renderAuthorityChips();
         initExecuteGrid();
-      }
+        renderWorkflowList();
+    }
 
-    function getWorkflowFunction(workflowId) {
-        httpClient.get(`/console/api/workflow-function`, {workflowId:workflowId},
+    function restore() {
+        const workflowId = $("#workflowId").val();
+        if(workflowId) {
+            selectedContent(workflowId);
+        }
+        else {
+            newContent();
+        }
+    }
+
+    /* ================= Settings (auth / authority) ================= */
+
+    function setAuthorityCodesMaster() {
+        httpClient.get(`/console/api/authority`, {},
             function(response){
-                drawWorkflow('workflowGrid',response);
+                authorityCodesMaster = response;
+                renderAuthorityChips();
             },
             function(error){
                 alert('error');
@@ -377,19 +993,118 @@
         );
     }
 
+    function getWorkflowAuthority(workflowId) {
+        httpClient.get(`/console/api/workflow-authority`, {workflowId:workflowId},
+            function(response){
+                currentAuthorityList = response.map(r => ({authorityCode:r.authorityCode}));
+                renderAuthorityChips();
+            },
+            function(error){
+                alert('error');
+            }
+        );
+    }
+
+    function renderAuthorityChips() {
+        const $chips = $("#authorityChips");
+        $chips.empty();
+
+        if (currentAuthorityList.length === 0) {
+            $chips.append(`<span class="wf-chip-empty">등록된 권한이 없습니다.</span>`);
+        }
+
+        for (const item of currentAuthorityList) {
+            const master = authorityCodesMaster.find(a => a.code === item.authorityCode);
+            const label = master ? master.name : item.authorityCode;
+
+            const $chip = $(`
+                <span class="wf-authority-chip">${label} <i class="fas fa-times"></i></span>
+            `);
+
+            $chip.find('i').on('click', function() {
+                removeAuthorityChip(item.authorityCode);
+            });
+
+            $chips.append($chip);
+        }
+
+        const $select = $("#authoritySelect");
+        $select.empty().append(`<option value="">권한 추가...</option>`);
+        for (const a of authorityCodesMaster) {
+            if (!currentAuthorityList.some(item => item.authorityCode === a.code)) {
+                $select.append(`<option value="${a.code}">${a.name}</option>`);
+            }
+        }
+    }
+
+    function addAuthorityChip() {
+        const code = $("#authoritySelect").val();
+        if (!code) return;
+
+        currentAuthorityList.push({authorityCode:code});
+        renderAuthorityChips();
+    }
+
+    function removeAuthorityChip(code) {
+        currentAuthorityList = currentAuthorityList.filter(item => item.authorityCode !== code);
+        renderAuthorityChips();
+    }
+
+    function openSettingsModal() {
+        renderAuthorityChips();
+        $('#settingsModal').modal('show');
+    }
+
+    /* ================= Execute ================= */
+
     function initExecuteGrid() {
-        executeGrid.setSheetData([]);
+        executeRows = [];
+        executeRowSeq = 0;
         $("#responseData").val('');
+        renderExecuteRows();
+    }
+
+    function renderExecuteRows() {
+        const $rows = $("#executeRows");
+        $rows.empty();
+
+        for (const row of executeRows) {
+            const $row = $(`
+                <div class="wf-execute-row">
+                    <input type="text" class="form-control form-control-sm" placeholder="메시지ID">
+                    <input type="text" class="form-control form-control-sm" placeholder="컬럼">
+                    <input type="text" class="form-control form-control-sm" placeholder="값">
+                    <i class="fas fa-times wf-execute-row-remove"></i>
+                </div>
+            `);
+
+            const $inputs = $row.find('input');
+            $inputs.eq(0).val(row.messageId).on('input', function(){ row.messageId = this.value; });
+            $inputs.eq(1).val(row.key).on('input', function(){ row.key = this.value; });
+            $inputs.eq(2).val(row.value).on('input', function(){ row.value = this.value; });
+
+            $row.find('.wf-execute-row-remove').on('click', function() {
+                executeRows = executeRows.filter(r => r.seq !== row.seq);
+                renderExecuteRows();
+            });
+
+            $rows.append($row);
+        }
+    }
+
+    function addExecuteRow() {
+        executeRows.push({seq:++executeRowSeq, messageId:'', key:'', value:''});
+        renderExecuteRows();
     }
 
     function execute() {
-        const gridData = executeGrid.getSheetData();
+        const body = executeRows.reduce((result, item) => {
+            if (!item.messageId) return result;
 
-        const body = gridData.reduce((result, item) => {
             if (!result[item.messageId]) {
                 result[item.messageId] = [];
             }
-            result[item.messageId].push(item);
+            result[item.messageId].push({messageId:item.messageId, key:item.key, value:item.value});
             return result;
         }, {});
 
@@ -403,46 +1118,57 @@
                 $("#responseData").val(JSON.stringify(error.responseJSON,null,3));
             }
         );
-
     }
 
-    function getWorkflowAuthority(workflowId) {
-        httpClient.get(`/console/api/workflow-authority`, {workflowId:workflowId},
-            function(response){
-                for(let data of response) {
-                    data._status = 'C';
-                }
-                workflowAuthorityGrid.setSheetData(response);
-            },
-            function(error){
-                alert('error');
-            }
-        );
+    function openExecuteModal() {
+        $('#executeModal').modal('show');
     }
+
+    function copyExecuteResult() {
+        const text = $("#responseData").val();
+        if (!text) return;
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text);
+        } else {
+            const $textarea = $("#responseData");
+            $textarea.trigger('select');
+            document.execCommand('copy');
+        }
+    }
+
+    /* ================= Canvas / nodes ================= */
 
     function setWorkflowGrid() {
         $("#workflowGrid").sortable({
             axis: "y",
-            cancel: ".drag-cancel",
+            handle: ".step-drag-handle",
+            cancel: ".step-tool",
             cursor: "move",
             placeholder: "workflow-item-placeholder",
             tolerance: "pointer",
             items: ".step-item:not(.add-step-item)",
+            sort: function() {
+                // 드래그 도중에도 다시 그리지 않으면 카드는 실시간으로 움직이는데
+                // 화살표는 드롭 전 좌표에 멈춰있어 서로 어긋나 보인다(찌그러진 것처럼 보임).
+                drawConnectors();
+            },
             update: function() {
                 setStepItemsOrderNum();
                 drawConnectors();
             }
         });
 
-         $("<style>")
+        $("<style>")
         .prop("type", "text/css")
         .html(`
           .workflow-item-placeholder {
-            height: 80px;                   /* 카드 높이와 동일 */
-            border: 2px dashed #007bff;     /* 테두리 강조 */
-            background: #d0e7ff;            /* 배경색 */
-            margin-bottom: 10px;            /* 카드 간격 맞춤 */
-            border-radius: 8px;
+            width: 300px;
+            height: 90px;
+            border: 2px dashed #4A90E2;
+            background: #eef5ff;
+            margin: 0 0 40px 0;
+            border-radius: 12px;
           }
         `)
         .appendTo("head");
@@ -450,26 +1176,33 @@
 
     function setStepItemsOrderNum() {
         $("#workflowGrid .step-item").each(function(index) {
-            const orderNum = index + 1;
-
-            $(this).find("input[name='orderNum']").val(orderNum);
-
             const data = $(this).data("data");
             if (data) {
-                data.orderNum = orderNum;
+                data.orderNum = index + 1;
             }
         });
+    }
+
+    function getWorkflowFunction(workflowId) {
+        httpClient.get(`/console/api/workflow-function`, {workflowId:workflowId},
+            function(response){
+                drawWorkflow('workflowGrid',response);
+            },
+            function(error){
+                alert('error');
+            }
+        );
     }
 
     function drawWorkflow(id, response){
         const layout = $("#"+id);
 
         layout.empty();
+        closeNodeDrawer();
 
         for(let data of response) {
             const itemId = STEP_ITEM_ID_PREFIX+data.id;
             layout.append(renderStepItem(itemId, data));
-            changeViewMode(itemId);
         }
         layout.append(renderAddStepItem());
         layout.append(renderConnectLine());
@@ -483,18 +1216,28 @@
 
     function renderAddStepItem() {
         return $(`
-            <div class="add-step-item connector"
-                 style="justify-content:center; align-items:center; cursor:pointer; border:2px dashed #9ca3af; background:#f9fafb;"
-                 onclick="addStepItem()">
-
-                <i class="fas fa-plus" style="font-size:24px; color:#6b7280;"></i>
-                <div style="margin-top:5px; color:#6b7280;">단계 추가</div>
+            <div class="add-step-item connector" title="단계 추가" onclick="addStepItem()">
+                <i class="fas fa-plus"></i>
             </div>
         `);
     }
 
     function renderConnectLine() {
-        return $(`<svg id="connectorLayer" width="100%" height="100%" style="position:absolute; top:0; left:0; pointer-events:none;"></svg>`);
+        return $(`
+            <svg id="connectorLayer" width="100%" height="100%" style="position:absolute; top:0; left:0; pointer-events:none;">
+                <defs>
+                    <!-- orient="auto"는 화살표 도형이 오른쪽(+x)을 향해 그려져 있다고 가정하고
+                         경로 진행 방향 각도만큼 회전시킨다. 세로선(아래 방향, 90도 회전)에
+                         맞춰 화살표를 아래쪽을 향하도록 그려두면 회전이 90도 더 들어가
+                         옆으로 돌아간 것처럼(끝부분이 찌그러진 것처럼) 보이는 문제가 있었다.
+                         그래서 화살표를 오른쪽을 향하도록 그려서 orient="auto"가 올바르게
+                         회전시키도록 수정했다. -->
+                    <marker id="connectorArrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+                        <path d="M0,0 L0,8 L7,4 Z" fill="#c7cbd1"></path>
+                    </marker>
+                </defs>
+            </svg>
+        `);
     }
 
     function setStepItemData(id, data) {
@@ -509,6 +1252,10 @@
                 $(`#${id} [name="view-${columnName}"]`).text((value) ? value : '');
             }
         }
+
+        if (id === activeNodeId) {
+            refreshDrawerFields(data);
+        }
     }
 
     function getStepItemData(id) {
@@ -518,188 +1265,126 @@
         $('#'+id).removeData("data");
     }
 
+    function getFunctionTypeInfo(functionType) {
+        return App.codes['FUNCTION_TYPE'].find(item => item.code === functionType);
+    }
+
     function getFunctionIconPath(functionType) {
-        if(functionType === 'SQL'){
-            return '/dist/img/func-sql.png';
-        }
-        else if(functionType === 'ENTITY'){
-            return '/dist/img/func-entity.png';
-        }
-        else if(functionType === 'REST_CLIENT'){
-            return '/dist/img/func-restclient.png';
-        }
-        else if(functionType === 'MESSAGE_PROCESSOR'){
-            return '/dist/img/func-message.png';
-        }
-        else if(functionType === 'NOTIFICATION'){
-            return '/dist/img/func-notification.png';
-        }
-
-        return null;
+        const info = getFunctionTypeInfo(functionType);
+        return info ? info.icon : null;
     }
 
-    function inputEl(itemId, name, value, attr) {
-        const el = $(`<input class="form-control form-control-sm rounded-1 input-element drag-cancel" type="text" name="${name}" data-item-id="${itemId}"></input>`);
-        el.attr('autocomplete' , 'off');
-        if(value) {
-            el.val(value);
-        }
-
-        if(attr && attr.placeholder) {
-            el.attr('placeholder'  , attr.placeholder);
-        }
-
-        return el;
-    }
-
-    function selectEl(itemId, name, codes, selectedValue) {
-        const el = $(`<select class="form-control form-control-sm rounded-1 input-element drag-cancel" name="${name}" data-item-id="${itemId}"></select>`);
-
-        for(const code of codes) {
-            el.append($(`<option value="${code.code}">${code.name}</option>`));
-        }
-
-        el.val(selectedValue);
-
-        return el;
-    }
-
-    function changeViewMode(id) {
-        $(`#${id} .mode-edit`).css('display', 'none');
-        $(`#${id} .mode-view`).css('display', '');
-        changeEditBtn(id, false);
-    }
-    function changeEditMode(id) {
-        $(`#${id} .mode-edit`).css('display', '');
-        $(`#${id} .mode-view`).css('display', 'none');
-        changeEditBtn(id, true);
-    }
-
-    function changeEditBtn(itemId, change) {
-        showTool(itemId, 'btnEdit', !change);
-        showTool(itemId, 'btnCancel', change);
-    }
-
-    function showTool(id, toolName, show) {
-        $(`#${id} [name="${toolName}"]`).prop("hidden", !show);
-    }
+    const STEP_CLICK_DELAY = 220; // 더블클릭과 구분하기 위한 단일클릭 지연시간(ms)
 
     function renderStepItem(id, data) {
-        const stepItemEl = $(`<div class="step-item connector" id="${id}"></div>`);
-
-        const hiddenEl = $(`
-            <input type="number" name="id" value="${data.id}" hidden></input>
-            <input type="number" name="orderNum" value="${data.orderNum}" hidden></input>
-        `);
-
-        const messageInViewEl = $(`
-            <div class="step-message mode-view" style="display:none;">
-                <span class="step-message-type message-in">IN</span>
-                <span class="step-message-id drag-cancel"   name="view-requestMessageId">${data.requestMessageId}</span>
-            </div>
-        `);
-
-        const functionViewEl = $(`
-            <div class="step-function mode-view" style="display:none;" data-item-id="${id}">
-                <span class="step-function-img">
-                    <img name="view-functionType" src="${getFunctionIconPath(data.functionType)}" width="60" height="60" style="display:block;">
+        const stepItemEl = $(`
+            <div class="step-item connector" id="${id}">
+                <div class="step-drag-handle" title="드래그하여 순서 이동"><i class="fas fa-grip-vertical"></i></div>
+                <div class="step-body">
+                    <div class="step-message">
+                        <span class="step-message-type message-in">IN</span>
+                        <span class="step-message-id" name="view-requestMessageId">${data.requestMessageId||''}</span>
+                    </div>
+                    <div class="step-function">
+                        <span class="step-function-img">
+                            <img name="view-functionType" src="${getFunctionIconPath(data.functionType)}" width="44" height="44" style="display:block;">
+                        </span>
+                        <span class="step-function-name">
+                            <font class="function-display-name" name="view-displayName">${data.displayName||''}</font>
+                            <font class="function-name" name="view-functionName">${data.functionName||''}</font>
+                        </span>
+                    </div>
+                    <div class="step-message">
+                        <span class="step-message-type message-out">OUT</span>
+                        <span class="step-message-id" name="view-responseMessageId">${data.responseMessageId||''}</span>
+                    </div>
+                </div>
+                <span class="step-tools">
+                    <i class="step-tool fas fa-trash" title="삭제"></i>
                 </span>
-                <span class="step-function-name">
-                    <font class="function-display-name"     name="view-displayName">${data.displayName}</font>
-                    <font class="function-name"             name="view-functionName">${data.functionName}</font>
-                </span>
             </div>
         `);
 
-        const messageOutViewEl = $(`
-            <div class="step-message mode-view" style="display:none;" >
-                <span class="step-message-type message-out">OUT</span>
-                <span class="step-message-id drag-cancel" name="view-responseMessageId">${data.responseMessageId}</span>
-            </div>
-        `);
+        stepItemEl.find('.step-tool').on('click', function(e) {
+            e.stopPropagation();
+            deleteFunction(id);
+        });
 
-        const messageInEditEl = $(`<div class="step-message mode-edit" style="display:none;"></div>`);
-        const messageInIdEl = $(`<span class="step-message-id col-12"></span>`);
-        messageInIdEl.append(inputEl(id, 'requestMessageId', data.requestMessageId, {placeholder:'요청메시지ID 입력'}));
-        messageInEditEl.append(messageInIdEl);
+        // 단일클릭은 상세창을, 더블클릭은 기능 설정 팝업을 열어야 하는데
+        // 브라우저는 더블클릭 시에도 click 이벤트를 먼저 발생시키므로
+        // 지연 타이머로 두 동작이 동시에 뜨는 충돌을 막는다.
+        stepItemEl.on('click', function() {
+            const $this = $(this);
+            clearTimeout($this.data('clickTimer'));
+            $this.data('clickTimer', setTimeout(function() {
+                openNodeDrawer(id);
+            }, STEP_CLICK_DELAY));
+        });
 
-        const functionEditEl = $(`<div class="step-function mode-edit" style="display:none;"></div>`);
-        const functionEditorEl = $(`<span class="step-editor col-12"></span>`);
-        functionEditorEl.append(selectEl(id, 'functionType', App.codes['FUNCTION_TYPE'], data.functionType));
-        functionEditorEl.append(inputEl(id, 'functionName', data.functionName, {placeholder:'기능코드 입력'}));
-        functionEditEl.append(functionEditorEl);
+        stepItemEl.on('dblclick', function(e) {
+            e.preventDefault();
+            const $this = $(this);
+            clearTimeout($this.data('clickTimer'));
 
-        const messageOutEditEl = $(`<div class="step-message mode-edit" style="display:none;" ></div>`);
-        const messageOutIdEl = $(`<span class="step-message-id col-12"></span>`);
-        messageOutIdEl.append(inputEl(id, 'responseMessageId', data.responseMessageId, {placeholder:'응답메시지ID 입력'}));
-        messageOutEditEl.append(messageOutIdEl);
-
-        const toolsEl = $(`
-            <span class="step-tools">
-                <i class="step-tool fas fa-undo"        name="btnCancel"            data-item-id="${id}" hidden></i>
-                <i class="step-tool fas fa-pen"         name="btnEdit"              data-item-id="${id}"></i>
-                <i class="step-tool fas fa-trash"       name="btnDelete"            data-item-id="${id}" ></i>
-                <i class="step-tool fas fa-ellipsis-h"  name="btnFunctionSetting"   data-item-id="${id}"></i>
-            </span>
-        `);
-
-        stepItemEl.append(hiddenEl);
-        stepItemEl.append(messageInViewEl);
-        stepItemEl.append(messageInEditEl);
-        stepItemEl.append(functionViewEl);
-        stepItemEl.append(functionEditEl);
-        stepItemEl.append(messageOutViewEl);
-        stepItemEl.append(messageOutEditEl);
-        stepItemEl.append(toolsEl);
+            const d = getStepItemData(id);
+            if (d) openPopupFunctionSetting(d.functionType, d.functionName);
+        });
 
         return stepItemEl;
     }
 
     function addStepItem() {
-        const orderNum = getLastStepOrder()+1;
-        const id = 'step-item-C'+orderNum;
-        const data = {
-            orderNum:Number(orderNum),
-            functionType:"SQL",
-            functionName:"",
-            displayName:"(기능생성필요)",
-            requestMessageId:"",
-            responseMessageId:""
-        }
+        openFunctionTypeModal(null, function(selectedCode) {
+            const orderNum = getLastStepOrder()+1;
+            const id = 'step-item-C'+orderNum;
+            const data = {
+                orderNum:Number(orderNum),
+                functionType:selectedCode,
+                functionName:"",
+                displayName:"(기능생성필요)",
+                requestMessageId:"",
+                responseMessageId:""
+            }
 
-        $(".add-step-item").before(renderStepItem(id, data));
-        changeEditMode(id);
+            $(".add-step-item").before(renderStepItem(id, data));
+            setStepItemData(id, data);
+            drawConnectors();
 
-        drawConnectors();
-
-        setStepItemData(id, data);
+            openNodeDrawer(id);
+            $("#drawerFunctionName").trigger('focus');
+        });
     }
 
-    function deleteFunction(itemId, event) {
-        //if(!confirm("삭제하시겠습니까?\n(삭제 후 저장해야 반영됩니다.)")) {
-        //    return;
-        //}
-
-        event.stopPropagation();
-
-        const stepItem = event.target.closest('.step-item');
-        if (!stepItem) return;
-
-        const data = {};
-        const fields = stepItem.querySelectorAll('input[name], select[name]');
-        fields.forEach(el => (data[el.name] = el.value));
-        data.id = data.workflowFunctionId;
-
-        stepItem.remove();
-        drawConnectors();
-
+    function deleteFunction(itemId) {
+        $(`#${itemId}`).remove();
         removeStepItemData(itemId);
+
+        if (activeNodeId === itemId) {
+            closeNodeDrawer();
+        }
+
+        drawConnectors();
     }
 
     function drawConnectors() {
         const steps = document.querySelectorAll('.connector');
         const svg = document.getElementById('connectorLayer');
-        svg.innerHTML = ''; // 초기화
+        const grid = document.getElementById('workflowGrid');
+        if (!svg || !grid) return;
+
+        // svg의 height:100%는 flex 컨테이너(auto height)를 기준으로 정확히 계산되지 않아
+        // 화살표가 중간에 잘리는 문제가 있어 실제 그리드 크기로 명시적으로 지정한다.
+        // 주의: grid.scrollWidth/scrollHeight는 쓰면 안 된다 - svg 자신이 grid의 자식이라
+        // 이전에 지정해둔 svg 크기가 grid의 스크롤 크기에 그대로 반영되어, 한 번 커지면
+        // 다시 줄어들지 않는 자기증식 버그가 생긴다(사이드바 접었다 펴면 화살표가 어긋남).
+        // absolute 포지션인 svg는 auto-height 계산에서 제외되므로 getBoundingClientRect가 안전하다.
+        const gridRect = grid.getBoundingClientRect();
+        svg.setAttribute('width', gridRect.width);
+        svg.setAttribute('height', gridRect.height);
+
+        const defs = svg.querySelector('defs');
+        svg.innerHTML = '';
+        if (defs) svg.appendChild(defs);
 
         steps.forEach((step, i) => {
             if(i === steps.length - 1) return; // 마지막은 연결 X
@@ -708,17 +1393,24 @@
             const end = steps[i + 1].getBoundingClientRect();
             const container = svg.getBoundingClientRect();
 
-            const x = start.left + start.width / 2 - container.left;
+            // step-item은 왼쪽에 드래그 핸들(26px)이 붙어있어 카드 전체 폭 기준 중앙이
+            // 실제 보이는 카드 내용(아이콘/텍스트) 중앙보다 왼쪽으로 치우친다.
+            // add-step-item(+ 버튼)에는 핸들이 없으므로 step-body가 있으면 그것을 기준으로 삼는다.
+            const startContent = step.querySelector('.step-body') || step;
+            const endContent = steps[i + 1].querySelector('.step-body') || steps[i + 1];
+            const x1 = startContent.getBoundingClientRect().left + startContent.getBoundingClientRect().width / 2 - container.left;
+            const x2 = endContent.getBoundingClientRect().left + endContent.getBoundingClientRect().width / 2 - container.left;
             const y1 = start.bottom - container.top;
             const y2 = end.top - container.top;
 
             const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-            line.setAttribute("x1", x);
+            line.setAttribute("x1", x1);
             line.setAttribute("y1", y1);
-            line.setAttribute("x2", x);
+            line.setAttribute("x2", x2);
             line.setAttribute("y2", y2);
-            line.setAttribute("stroke", "#bbb");
-            line.setAttribute("stroke-width", "3");
+            line.setAttribute("stroke", "#c7cbd1");
+            line.setAttribute("stroke-width", "2");
+            line.setAttribute("marker-end", "url(#connectorArrow)");
 
             svg.appendChild(line);
         });
@@ -726,25 +1418,86 @@
 
     function getLastStepOrder() {
         const parent = document.querySelector('#workflowGrid');
-
-        const items = parent.querySelectorAll('.step-item');
-        const lastIndex = items.length;
-
-        return lastIndex;
+        return parent.querySelectorAll('.step-item').length;
     }
 
-    function initFunctionGrid() {
-        showGrid('workflow-authority-card',false);
-        showGrid('execute-card',false);
+    /* ================= Node detail drawer ================= */
+
+    function openNodeDrawer(itemId) {
+        activeNodeId = itemId;
+
+        $(".step-item").removeClass("selected");
+        $(`#${itemId}`).addClass("selected");
+
+        refreshDrawerFields(getStepItemData(itemId) || {});
+
+        $("#nodeDrawer").addClass("open");
+        $("#drawerBackdrop").addClass("show");
     }
 
-    function showGrid(id, show) {
-        if(show) {
-            $("#"+id).removeClass('d-none');
+    function closeNodeDrawer() {
+        activeNodeId = null;
+        $(".step-item").removeClass("selected");
+        $("#nodeDrawer").removeClass("open");
+        $("#drawerBackdrop").removeClass("show");
+    }
+
+    function refreshDrawerFields(data) {
+        const info = getFunctionTypeInfo(data.functionType) || {};
+        $("#drawerTypeChip img").attr('src', info.icon || '');
+        $("#drawerTypeChip span[name='chip-name']").text(info.name || '유형 선택');
+        $("#drawerFunctionName").val(data.functionName || '');
+        $("#drawerRequestMessageId").val(data.requestMessageId || '');
+        $("#drawerResponseMessageId").val(data.responseMessageId || '');
+    }
+
+    function onDrawerFieldChange(field, value) {
+        if (!activeNodeId) return;
+
+        const data = getStepItemData(activeNodeId);
+        if (!data) return;
+
+        data[field] = value;
+        setStepItemData(activeNodeId, data);
+    }
+
+    function openDrawerFunctionSetting() {
+        if (!activeNodeId) return;
+        const data = getStepItemData(activeNodeId);
+        openPopupFunctionSetting(data.functionType, data.functionName);
+    }
+
+    function deleteFunctionFromDrawer() {
+        if (!activeNodeId) return;
+        deleteFunction(activeNodeId);
+    }
+
+    /* ================= Function type picker (layer popup) ================= */
+
+    function openFunctionTypeModal(currentCode, onSelect) {
+        const $list = $('#functionTypeList');
+        $list.empty();
+
+        for (const item of App.codes['FUNCTION_TYPE']) {
+            const $item = $(`
+                <div class="function-type-item ${item.code === currentCode ? 'current' : ''}">
+                    <span class="function-type-icon"><img src="${item.icon}" width="40" height="40"></span>
+                    <span class="function-type-info">
+                        <span class="function-type-name">${item.name}<span class="function-type-code">${item.code}</span></span>
+                        <span class="function-type-desc">${item.description}</span>
+                    </span>
+                </div>
+            `);
+
+            $item.on('click', function() {
+                $('#functionTypeModal').modal('hide');
+                onSelect(item.code);
+            });
+
+            $list.append($item);
         }
-        else {
-            $("#"+id).addClass('d-none');
-        }
+
+        $('#functionTypeModal').modal('show');
     }
 
     function openPopupFunctionSetting(type, functionName) {
@@ -769,159 +1522,172 @@
             App.modalPopup.open('/console/workflow-notification',{title:'알림 팝업',size:"modal-xl",messageId:'FUNC_REQUEST'},{functionName:functionName});
         }
     }
-
-    function restore() {
-        const workflowId = $("#workflowId").val();
-        if(workflowId) {
-            selectedContent(workflowId);
-        }
-        else {
-            newContent();
-        }
-    }
 </script>
 <div th:fragment="view">
-    <div class="row">
-        <div class="col-sm-3">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Workflows</h3>
-                    <div class="card-tools">
-                        <button type="button" class="btn btn-default btn-sm" onclick="getWorkflowList()">
-                            <i class="btn-icon fas fa-search"></i>
-                            <span class="btn-label"></span>
+    <div class="wf-app">
+        <aside class="wf-sidebar" id="wfSidebar">
+            <div class="wf-sidebar-header">
+                <button type="button" class="btn-new-workflow" onclick="newContent()">
+                    <i class="fas fa-plus"></i> New Workflow
+                </button>
+                <div class="wf-search">
+                    <input type="text" id="workflowSearch" placeholder="워크플로우 검색" autocomplete="off" oninput="renderWorkflowList()">
+                    <i class="fas fa-sync-alt" title="새로고침" onclick="getWorkflowList()"></i>
+                </div>
+            </div>
+            <div class="wf-list" id="workflowList"></div>
+        </aside>
+
+        <div class="wf-main">
+            <div class="wf-topbar">
+                <button type="button" class="wf-sidebar-toggle" onclick="toggleSidebar()" title="목록 접기/펼치기">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <input type="hidden" id="workflowId">
+                <div class="wf-title-group">
+                    <input type="text" id="workflowCode" class="wf-code-input" placeholder="workflow_code" autocomplete="off">
+                    <input type="text" id="displayName" class="wf-name-input" placeholder="워크플로우 이름을 입력하세요" autocomplete="off">
+                </div>
+                <div class="wf-topbar-actions">
+                    <button type="button" onclick="openSettingsModal()"><i class="fas fa-cog"></i> 설정</button>
+                    <button type="button" onclick="openExecuteModal()"><i class="fas fa-play"></i> 실행</button>
+                    <button type="button" onclick="restore()"><i class="fas fa-undo"></i> 복원</button>
+                    <button type="button" class="btn-primary" onclick="save()"><i class="fas fa-save"></i> 저장</button>
+                    <button type="button" class="btn-danger" onclick="deleteWorkflow()"><i class="fas fa-trash"></i> 삭제</button>
+                </div>
+            </div>
+
+            <div class="wf-canvas-wrap">
+                <div class="wf-canvas">
+                    <div id="workflowGrid"></div>
+                </div>
+
+                <div class="wf-drawer-backdrop" id="drawerBackdrop" onclick="closeNodeDrawer()"></div>
+
+                <aside class="wf-node-drawer" id="nodeDrawer">
+                    <div class="wf-drawer-header">
+                        <span style="font-weight:600;font-size:14px;">노드 설정</span>
+                        <button type="button" class="wf-drawer-close" onclick="closeNodeDrawer()">&times;</button>
+                    </div>
+                    <div class="wf-drawer-body">
+                        <div class="wf-field">
+                            <label>기능 유형</label>
+                            <button type="button" class="function-type-chip" id="drawerTypeChip">
+                                <img name="chip-icon" src="" width="18" height="18">
+                                <span name="chip-name">유형 선택</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        <div class="wf-field">
+                            <label>기능코드</label>
+                            <input type="text" id="drawerFunctionName" class="form-control form-control-sm" placeholder="기능코드 입력" autocomplete="off" oninput="onDrawerFieldChange('functionName', this.value)">
+                        </div>
+                        <div class="wf-field-row">
+                            <div class="wf-field">
+                                <label>요청메시지ID (IN)</label>
+                                <input type="text" id="drawerRequestMessageId" class="form-control form-control-sm" placeholder="요청메시지ID" autocomplete="off" oninput="onDrawerFieldChange('requestMessageId', this.value)">
+                            </div>
+                            <div class="wf-field">
+                                <label>응답메시지ID (OUT)</label>
+                                <input type="text" id="drawerResponseMessageId" class="form-control form-control-sm" placeholder="응답메시지ID" autocomplete="off" oninput="onDrawerFieldChange('responseMessageId', this.value)">
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-outline-primary btn-block btn-sm" onclick="openDrawerFunctionSetting()">
+                            <i class="fas fa-sliders-h"></i> 상세 설정 열기
                         </button>
                     </div>
+                    <div class="wf-drawer-footer">
+                        <button type="button" class="btn btn-outline-danger btn-block btn-sm" onclick="deleteFunctionFromDrawer()">
+                            <i class="fas fa-trash"></i> 노드 삭제
+                        </button>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </div>
+
+    <!-- Function type picker (layer popup) -->
+    <div class="modal fade" id="functionTypeModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">기능 유형 선택</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
-                <div class="card-body">
-                    <div id="workflowListGrid"></div>
+                <div class="modal-body">
+                    <div id="functionTypeList" class="function-type-list"></div>
                 </div>
             </div>
         </div>
-        <div class="col-sm-9">
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-tools">
+    </div>
 
-                        <button type="button" class="btn btn-default btn-sm" onclick="restore()">
-                            <i class="btn-icon fas fa-undo"></i>
-                            <span class="btn-label">Restore</span>
-                        </button>
-                        <button type="button" class="btn btn-default btn-sm" onclick="newContent()">
-                            <i class="btn-icon fas fa-plus"></i>
-                            <span class="btn-label">Create</span>
-                        </button>
-                        <button type="button" class="btn btn-default btn-sm" onclick="save()">
-                            <i class="btn-icon fas fa-save"></i>
-                            <span class="btn-label">Save</span>
-                        </button>
-                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="deleteWorkflow()">
-                            <i class="btn-icon fas fa-trash"></i>
-                            <span class="btn-label">Delete</span>
-                        </button>
+    <!-- Workflow settings (auth / authority) -->
+    <div class="modal fade" id="settingsModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">워크플로우 설정</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="wf-field" style="margin-bottom:18px;">
+                        <label for="useAuthValidation">인증 사용</label>
+                        <div class="custom-control custom-switch" style="transform: scale(1.3); transform-origin: left center;">
+                            <input type="checkbox" class="custom-control-input" id="useAuthValidation">
+                            <label for="useAuthValidation" class="custom-control-label" style="cursor:pointer;"></label>
+                        </div>
+                    </div>
+                    <div class="wf-field">
+                        <label>권한</label>
+                        <div id="authorityChips" class="wf-authority-chips"></div>
+                        <div class="wf-authority-add">
+                            <select id="authoritySelect" class="form-control form-control-sm"></select>
+                            <button type="button" class="btn btn-default btn-sm" onclick="addAuthorityChip()">추가</button>
+                        </div>
                     </div>
                 </div>
-                <div class="card-body">
+            </div>
+        </div>
+    </div>
 
-                    <div class="row">
-                        <div class="col-sm-8">
-                            <div class="card">
-                                <div id="workflowGrid" style="width:100%; min-height:800px; display:flex; flex-direction:column; gap:10px; align-items: center; justify-content: center;">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-sm-4">
-                            <div class="card" style="min-height:800px;">
-                                <div class="card-header p-0 border-bottom-0">
-                                    <ul class="nav nav-tabs" id="detail-tab" role="tablist">
-                                        <li class="nav-item">
-                                            <a class="nav-link active" id="workflow-def-tab" data-toggle="pill" href="#workflow-def" role="tab" aria-controls="workflow-def" aria-selected="true">
-                                                Definition
-                                            </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a class="nav-link" id="execute-tab" data-toggle="pill" href="#execute" role="tab" aria-controls="execute" aria-selected="false">
-                                                Execute
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                                <div class="card-body">
-                                    <div class="tab-content" id="detail-tabContent" >
-
-                                        <div class="tab-pane fade show active" id="workflow-def" role="tabpanel" aria-labelledby="workflow-def-tab">
-
-                                            <div class="card-body">
-                                                <div class="row">
-                                                    <div class="form-group col-1 d-none">
-                                                        <input type="text" class="form-control form-control-sm rounded-0" id="workflowId" >
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="form-group d-flex">
-                                                        <label for="workflowCode" style="width:130px;">코드</label>
-                                                        <input type="text" class="form-control form-control-sm rounded-0" id="workflowCode" autocomplete="off" >
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="form-group d-flex">
-                                                        <label for="displayName" style="width:130px;">명칭</label>
-                                                        <input type="text" class="form-control form-control-sm rounded-0" id="displayName" autocomplete="off">
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="form-group d-flex">
-                                                        <label for="useAuthValidation" style="width:100px;">인증사용</label>
-                                                        <div class="custom-control custom-switch" style="transform: scale(1.5); transform-origin: left center;">
-                                                            <input type="checkbox" class="custom-control-input" id="useAuthValidation">
-                                                            <label for="useAuthValidation" class="custom-control-label" style="cursor: pointer;">
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <label>권한</label>
-                                                    <div style=" display: flex; margin-left: auto;">
-                                                        <button type="button" class="btn btn-default btn-sm" onclick="workflowAuthorityGrid.addRowData()" >
-                                                            <i class="btn-icon fas fa-plus"></i>
-                                                            <span class="btn-label">Add</span>
-                                                        </button>
-                                                    </div>
-                                                    <div id="workflowAuthorityGrid"></div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="tab-pane fade" id="execute" role="tabpanel" aria-labelledby="execute-tab">
-                                            <div class="card-body">
-                                                <div class="row">
-                                                    <label>요청메시지</label>
-                                                    <div style=" display: flex; margin-left: auto;">
-                                                        <button type="button" class="btn btn-default btn-sm" onclick="executeGrid.addRowData()" >
-                                                            <i class="btn-icon fas fa-plus"></i>
-                                                            <span class="btn-label">Add</span>
-                                                        </button>
-                                                        <button type="button" class="btn btn-success btn-sm" onclick="execute()" >
-                                                            <i class="btn-icon fas fa-play"></i>
-                                                            <span class="btn-label">Run</span>
-                                                        </button>
-                                                    </div>
-                                                    <div id="executeGrid"></div>
-                                                </div>
-                                                <div class="row">
-                                                    <label for="responseData">실행 결과</label>
-                                                    <textarea class="col-12" id="responseData"  rows="10" ></textarea>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+    <!-- Execute -->
+    <div class="modal fade" id="executeModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">워크플로우 실행</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="wf-field">
+                        <label style="display:flex;align-items:center;justify-content:space-between;">
+                            요청 메시지
+                            <button type="button" class="btn btn-default btn-sm" onclick="addExecuteRow()">
+                                <i class="fas fa-plus"></i> 행 추가
+                            </button>
+                        </label>
+                        <div id="executeRows"></div>
                     </div>
-
+                    <div class="wf-field">
+                        <label style="display:flex;align-items:center;justify-content:space-between;">
+                            실행 결과
+                            <button type="button" class="btn btn-default btn-sm" onclick="copyExecuteResult()">
+                                <i class="fas fa-copy"></i> 복사
+                            </button>
+                        </label>
+                        <textarea class="form-control wf-console-textarea" id="responseData" rows="10" readonly></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" onclick="execute()">
+                        <i class="fas fa-play"></i> 실행
+                    </button>
                 </div>
             </div>
         </div>
