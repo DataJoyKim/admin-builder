@@ -38,6 +38,7 @@ class CardBody extends ViewObject {
     renderBuilder(options) {
         let el = `
              <div id="${options.id}" class="component card-body vb-item vb-container" data-type="${this.componentId()}">
+                <span class="vb-builder-tag">Card Body</span>
                 ${super.componentDeleteBtn()}
              </div>
         `;
@@ -48,12 +49,38 @@ class CardBody extends ViewObject {
     styleBuilder() {
         return `
             .vb-item[data-type="${this.componentId()}"] {
-                background-color: white;
-                padding: 5px;
-                min-height: 50px;
+                background-color: #ffffff;
+                padding: 10px;
+                min-height: 54px;
                 height: auto;
                 margin: 5px;
-                border: 1px dashed #bbb;
+                border: 1px dashed #c7cbd1;
+                border-radius: 8px;
+                transition: border-color .12s ease, background-color .12s ease;
+            }
+            .vb-item[data-type="${this.componentId()}"]:hover {
+                border-color: #4A90E2;
+                background-color: #fafbfc;
+            }
+            .vb-item[data-type="${this.componentId()}"] .vb-builder-tag {
+                position: absolute;
+                top: 4px;
+                left: 4px;
+                background: #4A90E2;
+                color: #fff;
+                font-size: 9px;
+                font-weight: 700;
+                letter-spacing: .03em;
+                padding: 1px 6px;
+                border-radius: 4px;
+                opacity: .5;
+                transition: opacity .12s ease;
+                pointer-events: none;
+                z-index: 5;
+            }
+            .vb-item[data-type="${this.componentId()}"]:hover .vb-builder-tag,
+            .vb-item[data-type="${this.componentId()}"].selected .vb-builder-tag {
+                opacity: 1;
             }
         `;
     }

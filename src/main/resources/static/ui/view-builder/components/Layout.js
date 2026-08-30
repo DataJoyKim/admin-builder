@@ -43,11 +43,12 @@ class Layout extends ViewObject {
     styleBuilder() {
         return `
             .vb-item[data-type="${this.componentId()}"] {
-                background-color: white;
+                background-color: #ffffff;
                 cursor: pointer;
                 width: 100%;
                 min-height: 90%;
-                border: 2px dashed #bbb;
+                border: 1px dashed #d7dbe0;
+                border-radius: 10px;
                 padding-bottom: 50px;
             }
         `;

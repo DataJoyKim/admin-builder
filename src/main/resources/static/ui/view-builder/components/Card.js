@@ -83,12 +83,19 @@ class Card extends ViewObject {
     styleBuilder() {
         return `
             .vb-item[data-type="${this.componentId()}"] .card-tools {
-                padding-left: 80px;
-                min-width: 150px;
+                padding-left: 60px;
+                min-width: 140px;
                 width: auto;
-                min-height: 30px;
+                min-height: 34px;
                 height: auto;
-                border: 1px dashed #bbb;
+                border: 1px dashed #c7cbd1;
+                border-radius: 6px;
+                background-color: #fafbfc;
+                transition: border-color .12s ease, background-color .12s ease;
+            }
+            .vb-item[data-type="${this.componentId()}"] .card-tools:hover {
+                border-color: #4A90E2;
+                background-color: #eef5ff;
             }
         `;
     }

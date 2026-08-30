@@ -184,6 +184,7 @@ class ViewObject {
         this.optionPanel.init(this._componentId, []);
 
         this.optionPanelView($panel, options);
+        this.optionPanel.groupSections($panel);
 
         this.optionPanelScript($el, options);
 

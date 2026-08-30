@@ -475,15 +475,16 @@
     display: flex;
     flex-wrap: wrap;
     align-content: flex-start;
-    padding: 14px 8px;
+    padding: 12px;
 }
 
 /* VbGrid/VbSheet/BarLineChart는 optionPanel.row()로 필드를 부트스트랩 .row로
-   한 번 더 묶는다. #options 자체가 flex 컨테이너가 되면서 이 .row가 하나의
-   flex 아이템이 되어버려 내용물 크기만큼만 줄어들 수 있는데, 그러면 .row
-   내부의 col-* 자식들의 퍼센트 폭 계산 기준이 애매해진다. .row는 항상
-   #options 폭 전체를 쓰도록 고정해서 원래 의도한 부트스트랩 그리드가
+   한 번 더 묶는다. 섹션 카드 안의 그리드(.vb-opt-section-grid)가 flex 컨테이너가
+   되면서 이 .row가 하나의 flex 아이템이 되어버려 내용물 크기만큼만 줄어들 수
+   있는데, 그러면 .row 내부의 col-* 자식들의 퍼센트 폭 계산 기준이 애매해진다.
+   .row는 항상 그리드 폭 전체를 쓰도록 고정해서 원래 의도한 부트스트랩 그리드가
    내부에서 정상적으로 계산되게 한다. */
+#app-container .vb-opt-section-grid > .row,
 #app-container #options > .row {
     flex: 0 0 100%;
     width: 100%;
@@ -527,22 +528,81 @@
     cursor: default;
 }
 
-/* ---- 섹션 제목 (관련 필드를 묶어서 구분) ---- */
-#app-container #options .vb-opt-section-title {
+/* ---- 섹션 카드: 컴포넌트 팔레트의 카테고리 카드와 같은 톤(둥근 카드 + 접기)으로 통일.
+   sectionTitle()이 만드는 임시 마커는 OptionPanel.groupSections()가 이 구조로 바꿔치기하므로
+   .vb-opt-section-title 자체는 실제 화면에 남지 않는다. ---- */
+#app-container #options > .vb-opt-section {
     flex: 0 0 100%;
     width: 100%;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: .04em;
-    color: #4A90E2;
-    padding: 4px 6px;
-    margin: 10px 0 6px;
-    border-bottom: 1px solid #eef0f2;
+    border: 1px solid #eef0f2;
+    border-radius: 8px;
+    margin: 0 0 10px;
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, .04);
 }
 
-#app-container #options .vb-opt-section-title:first-child {
-    margin-top: 0;
+#app-container #options > .vb-opt-section:last-child {
+    margin-bottom: 0;
+}
+
+#app-container .vb-opt-section-header {
+    padding: 9px 12px;
+    background: #fbfbfc;
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: #374151;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    user-select: none;
+}
+
+#app-container .vb-opt-section-header:hover {
+    background: #f1f3f5;
+}
+
+#app-container .vb-opt-section-header:focus-visible {
+    outline: 2px solid #4A90E2;
+    outline-offset: -2px;
+}
+
+#app-container .vb-opt-section-chevron {
+    color: #9199a3;
+    font-size: 10px;
+    width: 10px;
+    text-align: center;
+    transition: transform .2s ease;
+}
+
+#app-container .vb-opt-section.open .vb-opt-section-chevron {
+    transform: rotate(90deg);
+}
+
+#app-container .vb-opt-section-body {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows .2s ease;
+}
+
+#app-container .vb-opt-section.open .vb-opt-section-body {
+    grid-template-rows: 1fr;
+}
+
+#app-container .vb-opt-section-grid {
+    overflow: hidden;
+    min-height: 0;
+    display: flex;
+    flex-wrap: wrap;
+    /* 세로 패딩은 열렸을 때만 붙는다 - 접었을 때도 패딩만큼 얇은 여백이 남는 것을 방지 */
+    padding: 0 6px;
+    transition: padding .2s ease;
+}
+
+#app-container .vb-opt-section.open .vb-opt-section-grid {
+    padding: 10px 6px 2px;
 }
 
 /* ---- 토글(스위치) 필드: 라벨 왼쪽 + 스위치 오른쪽인 한 줄짜리 설정 목록.

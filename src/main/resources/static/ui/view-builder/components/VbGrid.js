@@ -86,7 +86,11 @@ class VbGrid extends ViewObject {
         let el = `
             <div id="${options.id}" class="component vb-item" data-type="${this.componentId()}">
                 ${super.componentDeleteBtn()}
-                Grid [${options.id}]
+                <div class="vb-builder-placeholder">
+                    <i class="fas fa-th"></i>
+                    <span>Grid</span>
+                    <small>${options.id}</small>
+                </div>
             </div>
         `;
 
@@ -96,16 +100,40 @@ class VbGrid extends ViewObject {
     styleBuilder() {
         return `
             .vb-item[data-type="${this.componentId()}"] {
-                background-color: #ffffff;
+                background-color: #fafbfc;
                 height: 400px;
                 width: 100%;
                 display: flex;
                 justify-content: center;
                 align-items: center;
-                font-size: 18px;
-                border-radius: 8px;
-                border: 2px solid #ddd;
-                box-shadow: 0 2px 3px rgba(0,0,0,0.2);
+                border-radius: 10px;
+                border: 2px dashed #c7cbd1;
+                transition: border-color .12s ease, background-color .12s ease;
+            }
+            .vb-item[data-type="${this.componentId()}"]:hover {
+                border-color: #4A90E2;
+                background-color: #eef5ff;
+            }
+            .vb-item[data-type="${this.componentId()}"] .vb-builder-placeholder {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 6px;
+                color: #9199a3;
+                pointer-events: none;
+            }
+            .vb-item[data-type="${this.componentId()}"] .vb-builder-placeholder i {
+                font-size: 28px;
+                color: #4A90E2;
+            }
+            .vb-item[data-type="${this.componentId()}"] .vb-builder-placeholder span {
+                font-size: 14px;
+                font-weight: 600;
+                color: #374151;
+            }
+            .vb-item[data-type="${this.componentId()}"] .vb-builder-placeholder small {
+                font-size: 11px;
+                color: #9199a3;
             }
         `;
     }

@@ -49,10 +49,17 @@ class CustomHtml extends ViewObject {
     styleBuilder() {
         return `
             .vb-item[data-type="${this.componentId()}"] {
-                padding: 5px;
-                min-height: 30px;
+                padding: 6px;
+                min-height: 34px;
                 height: auto;
                 margin: 0 !important;
+                border-radius: 6px;
+                outline: 1px dashed transparent;
+                transition: outline-color .12s ease, background-color .12s ease;
+            }
+            .vb-item[data-type="${this.componentId()}"]:hover {
+                outline-color: #c7cbd1;
+                background-color: #fafbfc;
             }
         `;
     }

@@ -219,6 +219,66 @@ class OptionPanel {
         return $(`<div class="vb-opt-section-title">${text}</div>`);
     }
 
+    // optionPanelView()가 채워놓은 평평한 목록(섹션 제목 표시 + 필드들이 나란히 나열된 형태)을
+    // 컴포넌트 팔레트와 같은 톤의 접을 수 있는 카드 섹션으로 다시 묶는다. 각 컴포넌트 파일의
+    // optionPanelView()는 그대로 sectionTitle()/필드를 순서대로 append하기만 하면 되고,
+    // 실제 카드 구조로 바꾸는 건 여기서 한 번에 처리한다.
+    groupSections($panel) {
+        const $children = $panel.children().toArray();
+        if ($children.length === 0) return;
+
+        const hasSectionTitle = $children.some(el => el.classList.contains('vb-opt-section-title'));
+        if (!hasSectionTitle) return;
+
+        $panel.empty();
+
+        let $currentGrid = null;
+
+        for (const el of $children) {
+            const $el = $(el);
+
+            if ($el.hasClass('vb-opt-section-title')) {
+                const $section = this.sectionCard($el.text());
+                $panel.append($section);
+                $currentGrid = $section.find('.vb-opt-section-grid');
+            }
+            else if ($currentGrid) {
+                $currentGrid.append($el);
+            }
+            else {
+                // 섹션 제목보다 먼저 나온 필드는(있다면) 그냥 패널에 바로 붙인다.
+                $panel.append($el);
+            }
+        }
+    }
+
+    sectionCard(title) {
+        const $section = $(`
+            <div class="vb-opt-section open">
+                <div class="vb-opt-section-header" role="button" tabindex="0">
+                    <i class="vb-opt-section-chevron fas fa-chevron-right"></i>
+                    <span>${title}</span>
+                </div>
+                <div class="vb-opt-section-body">
+                    <div class="vb-opt-section-grid"></div>
+                </div>
+            </div>
+        `);
+
+        const toggle = () => $section.toggleClass('open');
+
+        $section.find('.vb-opt-section-header')
+            .on('click', toggle)
+            .on('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggle();
+                }
+            });
+
+        return $section;
+    }
+
     formGroup(option) {
         return $(`<div class="form-group ${option.size || ''}"></div>`);
     }

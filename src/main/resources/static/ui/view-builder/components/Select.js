@@ -118,6 +118,11 @@ class Select extends ViewObject {
                 padding: 10px;
                 height: auto;
                 margin: 0 !important;
+                border-radius: 6px;
+                transition: background-color .12s ease;
+            }
+            .vb-item[data-type="${this.componentId()}"]:hover {
+                background-color: #fafbfc;
             }
         `;
     }

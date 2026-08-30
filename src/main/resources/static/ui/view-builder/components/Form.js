@@ -56,8 +56,8 @@ class Form extends ViewObject {
     renderBuilder(options) {
         let el = `
             <form id="${options.id}" class="component form vb-item vb-container" data-type="${this.componentId()}">
+                <span class="vb-builder-tag">Form</span>
                 ${super.componentDeleteBtn()}
-                <div style="text-align: center;width:100%;">Form</div>
             </form>
         `;
 
@@ -67,12 +67,36 @@ class Form extends ViewObject {
     styleBuilder() {
         return `
             .vb-item[data-type="${this.componentId()}"] {
-                padding: 10px;
+                padding: 14px;
                 min-height: 80px;
                 height: auto;
-                border: 1px solid #ddd;
+                border: 1px solid #e5e7eb;
                 background-color: #ffffff;
-                border-radius: 8px;
+                border-radius: 10px;
+                transition: border-color .12s ease;
+            }
+            .vb-item[data-type="${this.componentId()}"]:hover {
+                border-color: #4A90E2;
+            }
+            .vb-item[data-type="${this.componentId()}"] .vb-builder-tag {
+                position: absolute;
+                top: 4px;
+                left: 4px;
+                background: #4A90E2;
+                color: #fff;
+                font-size: 9px;
+                font-weight: 700;
+                letter-spacing: .03em;
+                padding: 1px 6px;
+                border-radius: 4px;
+                opacity: .5;
+                transition: opacity .12s ease;
+                pointer-events: none;
+                z-index: 5;
+            }
+            .vb-item[data-type="${this.componentId()}"]:hover .vb-builder-tag,
+            .vb-item[data-type="${this.componentId()}"].selected .vb-builder-tag {
+                opacity: 1;
             }
         `;
     }
