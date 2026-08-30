@@ -26,6 +26,7 @@ class ComponentPanel {
 
         let $chartEl = this.category('차트', true, 'fas fa-chart-bar');
         this.item($chartEl, 'barline-chart', 'Bar/Line', 'fas fa-chart-bar', '막대/선 그래프 차트');
+        this.item($chartEl, 'pie-chart', 'Pie', 'fas fa-chart-pie', '원형(파이/도넛) 차트');
         $listWrap.append($chartEl);
 
         let $buttonEl = this.category('버튼', true, 'far fa-hand-pointer');

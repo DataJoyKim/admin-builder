@@ -33,6 +33,7 @@ class ModuleLoader {
              `${configs.paths.components}/Input.js`,
              `${configs.paths.components}/Select.js`,
              `${configs.paths.components}/BarLineChart.js`,
+             `${configs.paths.components}/PieChart.js`,
              `${configs.paths.components}/Layout.js`,
              `${configs.paths.components}/Row.js`,
              `${configs.paths.components}/Col.js`,
