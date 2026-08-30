@@ -4,6 +4,26 @@
    모든 규칙을 이 화면 고유 ID인 #app-container 아래로 스코프한다.
    ============================================================ */
 
+/* core/ModalPopup.js가 만드는 공용 팝업(#popup)은 body 최상위에 붙기 때문에
+   #app-container 스코프 밖에 있다. #popup은 그 스크립트가 고정으로 쓰는
+   유일한 id라 전역에 둬도 다른 화면과 충돌하지 않는다.
+   ModalPopup.js는 'modal-fullscreen' 크기를 이미 예약해뒀지만 실제 스타일이
+   없어 지정해도 아무 효과가 없었다 — 넓은 화면이 필요한 팝업(액션 설정 등)이
+   쓸 수 있도록 채워 넣는다. */
+#popup .modal-dialog.modal-fullscreen {
+    max-width: 96vw;
+    width: 96vw;
+    margin: 2vh auto;
+}
+
+/* modal-fullscreen의 약 2/3 너비 버전 — 워크플로우 노드 상세설정 팝업처럼
+   높이는 넉넉해야 하지만 폭까지 화면 전체를 쓸 필요는 없는 경우용. */
+#popup .modal-dialog.modal-fullscreen-md {
+    max-width: 64vw;
+    width: 64vw;
+    margin: 2vh auto;
+}
+
 #app-container {
     margin: 0;
     display: flex;

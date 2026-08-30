@@ -1,81 +1,506 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <style th:fragment="style">
+    #usergroup-app {
+        padding: 16px;
+        background: #f7f8fa;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+        color: #1f2937;
+    }
+
+    #usergroup-app .ds-layout {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    #usergroup-app .ds-list-panel,
+    #usergroup-app .ds-detail-panel {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    #usergroup-app .ds-list-panel {
+        flex: 0 0 360px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    #usergroup-app .ds-detail-panel {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    #usergroup-app .ds-panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 12px 16px;
+        background: #fbfbfc;
+        border-bottom: 1px solid #eef0f2;
+        flex-wrap: wrap;
+    }
+
+    #usergroup-app .ds-panel-header h3 {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 700;
+        color: #1f2937;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    #usergroup-app .ds-panel-header h3 i {
+        color: #4A90E2;
+    }
+
+    #usergroup-app .ds-panel-tools {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    #usergroup-app .ds-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border: 1px solid #d7dbe0;
+        background: #fff;
+        color: #374151;
+        border-radius: 7px;
+        font-size: 12px;
+        padding: 5px 10px;
+        cursor: pointer;
+        transition: background-color .12s ease;
+    }
+
+    #usergroup-app .ds-btn:hover {
+        background: #f1f3f5;
+    }
+
+    #usergroup-app .ds-btn-primary {
+        background: #4A90E2;
+        border-color: #4A90E2;
+        color: #fff;
+    }
+
+    #usergroup-app .ds-btn-primary:hover {
+        background: #3d7fce;
+    }
+
+    #usergroup-app .ds-btn-danger {
+        color: #dc2626;
+    }
+
+    #usergroup-app .ds-btn-danger:hover {
+        background: #fef2f2;
+    }
+
+    /* ---- 목록: ag-Grid 대신 검색+카드형 리스트로 직접 렌더링 ---- */
+    #usergroup-app .ds-list-search {
+        position: relative;
+        padding: 10px 12px;
+        border-bottom: 1px solid #eef0f2;
+    }
+
+    #usergroup-app .ds-list-search i {
+        position: absolute;
+        left: 22px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9199a3;
+        font-size: 12px;
+        pointer-events: none;
+    }
+
+    #usergroup-app .ds-list-search input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 7px 10px 7px 28px;
+        border: 1px solid #d7dbe0;
+        border-radius: 7px;
+        font-size: 12.5px;
+    }
+
+    #usergroup-app .ds-list-search input:focus {
+        border-color: #4A90E2;
+        box-shadow: 0 0 0 3px rgba(74, 144, 226, .12);
+        outline: none;
+    }
+
+    #usergroup-app .ds-list-body {
+        max-height: 560px;
+        min-height: 200px;
+        overflow-y: auto;
+    }
+
+    #usergroup-app .ds-list-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 11px 16px;
+        border-bottom: 1px solid #f1f3f5;
+        border-left: 3px solid transparent;
+        cursor: pointer;
+        transition: background-color .12s ease;
+    }
+
+    #usergroup-app .ds-list-item:hover {
+        background: #fafbfc;
+    }
+
+    #usergroup-app .ds-list-item.selected {
+        background: #eef5ff;
+        border-left-color: #4A90E2;
+    }
+
+    #usergroup-app .ds-list-item-main {
+        flex: 1 1 auto;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    #usergroup-app .ds-list-item-name {
+        font-size: 13px;
+        font-weight: 600;
+        color: #1f2937;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    #usergroup-app .ds-list-item.selected .ds-list-item-name {
+        color: #1d4ed8;
+    }
+
+    #usergroup-app .ds-list-item-code {
+        font-size: 11px;
+        color: #9199a3;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    #usergroup-app .ds-list-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 50px 16px;
+        color: #9199a3;
+        font-size: 12.5px;
+        text-align: center;
+    }
+
+    #usergroup-app .ds-list-empty i {
+        font-size: 22px;
+        color: #d7dbe0;
+    }
+
+    /* ---- 탭 ---- */
+    #usergroup-app .ds-tabs {
+        display: flex;
+        gap: 2px;
+        padding: 8px 16px 0;
+        background: #fbfbfc;
+        border-bottom: 1px solid #eef0f2;
+    }
+
+    #usergroup-app .ds-tabs .nav-link {
+        border: none;
+        border-radius: 7px 7px 0 0;
+        padding: 8px 16px;
+        font-size: 12.5px;
+        font-weight: 600;
+        color: #6b7280;
+        background: transparent;
+    }
+
+    #usergroup-app .ds-tabs .nav-link.active {
+        background: #fff;
+        color: #1d4ed8;
+        box-shadow: inset 0 -2px 0 #4A90E2;
+    }
+
+    #usergroup-app .ds-tab-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 12px 16px;
+        border-bottom: 1px solid #eef0f2;
+    }
+
+    #usergroup-app .ds-tab-toolbar h4 {
+        margin: 0;
+        font-size: 12.5px;
+        font-weight: 700;
+        color: #374151;
+        text-transform: uppercase;
+        letter-spacing: .03em;
+    }
+
+    /* ---- 상세 설정 ---- */
+    #usergroup-app .ds-detail-body {
+        padding: 16px;
+    }
+
+    #usergroup-app .ds-section-grid {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    #usergroup-app .ds-section-grid .form-group {
+        padding: 0 6px;
+        margin-bottom: 14px;
+    }
+
+    #usergroup-app .ds-section-grid label {
+        font-size: 11.5px;
+        font-weight: 600;
+        color: #6b7280;
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    #usergroup-app .ds-section-grid .form-control {
+        width: 100%;
+        box-sizing: border-box;
+        border: 1px solid #d7dbe0;
+        border-radius: 7px;
+        font-size: 13px;
+        padding: 6px 10px;
+        background: #fff;
+        color: #1f2937;
+    }
+
+    #usergroup-app .ds-section-grid .form-control:focus {
+        border-color: #4A90E2;
+        box-shadow: 0 0 0 3px rgba(74, 144, 226, .12);
+        outline: none;
+    }
+
+    /* ---- 관계 편집기(사용자 / 권한 부여) ---- */
+    #usergroup-app .rel-body {
+        padding: 16px;
+    }
+
+    #usergroup-app .rel-add-form {
+        display: flex;
+        align-items: flex-end;
+        gap: 10px;
+        flex-wrap: wrap;
+        padding: 12px;
+        background: #fbfbfc;
+        border: 1px solid #eef0f2;
+        border-radius: 8px;
+        margin-bottom: 12px;
+    }
+
+    #usergroup-app .rel-add-form .form-group {
+        margin-bottom: 0;
+    }
+
+    #usergroup-app .rel-add-form label {
+        font-size: 11px;
+        font-weight: 600;
+        color: #6b7280;
+        margin-bottom: 4px;
+        display: block;
+    }
+
+    #usergroup-app .rel-add-form .form-control {
+        border: 1px solid #d7dbe0;
+        border-radius: 7px;
+        font-size: 13px;
+        padding: 6px 10px;
+    }
+
+    #usergroup-app .rel-add-actions {
+        display: flex;
+        gap: 6px;
+        margin-left: auto;
+    }
+
+    #usergroup-app .rel-list {
+        border: 1px solid #eef0f2;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    #usergroup-app .rel-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 12px;
+        border-bottom: 1px solid #f1f3f5;
+    }
+
+    #usergroup-app .rel-row:last-child {
+        border-bottom: none;
+    }
+
+    #usergroup-app .rel-row:hover {
+        background: #fafbfc;
+    }
+
+    #usergroup-app .rel-row-main {
+        flex: 1 1 auto;
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    #usergroup-app .rel-row-field {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    #usergroup-app .rel-field-label {
+        font-size: 10px;
+        color: #9199a3;
+        text-transform: uppercase;
+        letter-spacing: .03em;
+    }
+
+    #usergroup-app .rel-field-value {
+        color: #1f2937;
+        font-weight: 600;
+        font-size: 12.5px;
+    }
+
+    #usergroup-app .rel-row-actions {
+        display: flex;
+        gap: 4px;
+        flex: 0 0 auto;
+    }
+
+    #usergroup-app .rel-icon-btn {
+        border: 1px solid #d7dbe0;
+        background: #fff;
+        border-radius: 6px;
+        width: 26px;
+        height: 26px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: #374151;
+        font-size: 11px;
+    }
+
+    #usergroup-app .rel-icon-btn:hover {
+        background: #f1f3f5;
+    }
+
+    #usergroup-app .rel-icon-btn.danger {
+        color: #dc2626;
+    }
+
+    #usergroup-app .rel-icon-btn.danger:hover {
+        background: #fef2f2;
+    }
+
+    #usergroup-app .rel-empty {
+        padding: 24px;
+        text-align: center;
+        color: #9199a3;
+        font-size: 12.5px;
+    }
 </style>
 <script th:fragment="script">
+        let USERGROUP_LIST = [];
+        let SELECTED_USERGROUP_ID = null;
+        let UG_USER_LIST = [];
+        let UG_USER_EDIT_ID = null;
+        let UG_AUTHORITY_LIST = [];
+        let UG_AUTHORITY_EDIT_ID = null;
+
         $( document ).ready(function() {
             console.log('version.0.0.6');
             init();
         });
 
         function init() {
-
-            grid.initSheet('jsGrid1', "100%","500px",
-            [
-                {name: "id", title:"ID", type: "number", width: 50, editing: false, inserting: false},
-                {name: "code", title:"코드", type: "text", width: 150 },
-                {name: "name", title:"명칭", type: "text", width: 200 }
-            ],
-            function(args) {
-                selectedContent(args.item);
-            });
-
-            grid.initSheet('userGroupUserGrid', "100%","500px",
-            [
-                {name: "id", title:"ID", type: "number", width: 20, editing: false, inserting: false},
-                {name: "userId", title:"사용자ID", type: "text", width: 50},
-                {name: "userName", title:"사용자명", type: "text", width: 100, editing: false},
-                { type: "control", editButton: true, width: 30, modeSwitchButton: false }
-            ],
-            function(args) {},
-            {
-                inserting: true,
-                editing: true,
-                onItemInserting: function(args) {
-                    insertUserGroupUser($("#id").val(), args.item);
-                },
-                onItemUpdated: function(args) {
-                    updateUserGroupUser($("#id").val(), args.item.id, args.item);
-                },
-                onItemDeleting: function(args) {
-                    deleteUserGroupUser($("#id").val(), args.item);
-                }
-            });
-
-            grid.initSheet('userGroupAuthorityGrid', "100%","500px",
-            [
-                {name: "id", title:"ID", type: "number", width: 20, editing: false, inserting: false},
-                {name: "authorityId", title:"권한ID", type: "text", width: 50},
-                {name: "authorityCode", title:"권한코드", type: "text", width: 100},
-                {name: "authorityName", title:"권한명", type: "text", width: 100, editing: false},
-                { type: "control", editButton: true, width: 30, modeSwitchButton: false }
-            ],
-            function(args) {},
-            {
-                inserting: true,
-                editing: true,
-                onItemInserting: function(args) {
-                    insertUserGroupAuthority($("#id").val(), args.item);
-                },
-                onItemUpdated: function(args) {
-                    updateUserGroupAuthority($("#id").val(), args.item.id, args.item);
-                },
-                onItemDeleting: function(args) {
-                    deleteUserGroupAuthority($("#id").val(), args.item);
-                }
-            });
-
             getList();
         }
 
         function getList() {
             httpClient.get(`/console/api/user-group`, {},
                 function(response){
-                    grid.setSheetData('jsGrid1', response);
+                    USERGROUP_LIST = response || [];
+                    renderUserGroupList($("#userGroupSearch").val());
                 },
                 function(error){
                     alert('error');
                 }
             );
+        }
+
+        function renderUserGroupList(keyword) {
+            const kw = (keyword || '').trim().toLowerCase();
+            const filtered = USERGROUP_LIST.filter(function(item) {
+                if(!kw) return true;
+                return (item.code || '').toLowerCase().includes(kw)
+                    || (item.name || '').toLowerCase().includes(kw);
+            });
+
+            const $body = $("#userGroupListBody");
+            $body.empty();
+
+            if(filtered.length === 0) {
+                const $empty = $(`
+                    <div class="ds-list-empty">
+                        <i class="fas fa-inbox"></i>
+                        <span></span>
+                    </div>
+                `);
+                $empty.find('span').text(USERGROUP_LIST.length === 0 ? '등록된 사용자그룹이 없습니다.' : '검색 결과가 없습니다.');
+                $body.append($empty);
+                return;
+            }
+
+            for(const item of filtered) {
+                const $item = $(`
+                    <div class="ds-list-item" data-id="${item.id}">
+                        <div class="ds-list-item-main">
+                            <span class="ds-list-item-name"></span>
+                            <span class="ds-list-item-code"></span>
+                        </div>
+                    </div>
+                `);
+
+                $item.find('.ds-list-item-name').text(item.name || item.code);
+                $item.find('.ds-list-item-code').text(item.code);
+
+                if(String(item.id) === String(SELECTED_USERGROUP_ID)) {
+                    $item.addClass('selected');
+                }
+
+                $item.on('click', function() {
+                    selectUserGroup(item.id);
+                });
+
+                $body.append($item);
+            }
+        }
+
+        function selectUserGroup(id) {
+            const item = USERGROUP_LIST.find(a => String(a.id) === String(id));
+            if(!item) return;
+
+            SELECTED_USERGROUP_ID = id;
+            $("#userGroupListBody .ds-list-item").removeClass('selected');
+            $(`#userGroupListBody .ds-list-item[data-id="${id}"]`).addClass('selected');
+
+            selectedContent(item);
         }
 
         function selectedContent(item) {
@@ -134,6 +559,7 @@
           httpClient.delete(`/console/api/user-group/${id}`, {},
               function(response){
                   alert("삭제 처리 완료되었습니다.");
+                  SELECTED_USERGROUP_ID = null;
                   getList();
               },
               function(error){
@@ -165,6 +591,13 @@
           }
 
           function newContent(){
+            SELECTED_USERGROUP_ID = null;
+            $("#userGroupListBody .ds-list-item").removeClass('selected');
+            UG_USER_LIST = [];
+            UG_AUTHORITY_LIST = [];
+            renderUserGroupUserList();
+            renderUserGroupAuthorityList();
+
             setContent({
                 id:'',
                 code:'',
@@ -181,12 +614,92 @@
                         response[i].userName = response[i].user.userName;
                     }
 
-                    grid.setSheetData('userGroupUserGrid', response);
+                    UG_USER_LIST = response;
+                    renderUserGroupUserList();
                 },
                 function(error){
                     alert('error');
                 }
             );
+        }
+
+        function renderUserGroupUserList() {
+            const $body = $("#ugUserList");
+            $body.empty();
+
+            if(UG_USER_LIST.length === 0) {
+                $body.append('<div class="rel-empty">등록된 사용자가 없습니다.</div>');
+                return;
+            }
+
+            for(const item of UG_USER_LIST) {
+                const $row = $(`
+                    <div class="rel-row" data-id="${item.id}">
+                        <div class="rel-row-main">
+                            <div class="rel-row-field"><span class="rel-field-label">사용자ID</span><span class="rel-field-value ug-user-id"></span></div>
+                            <div class="rel-row-field"><span class="rel-field-label">사용자명</span><span class="rel-field-value ug-user-name"></span></div>
+                        </div>
+                        <div class="rel-row-actions">
+                            <button type="button" class="rel-icon-btn" title="수정"><i class="fas fa-pen"></i></button>
+                            <button type="button" class="rel-icon-btn danger" title="삭제"><i class="fas fa-times"></i></button>
+                        </div>
+                    </div>
+                `);
+
+                $row.find('.ug-user-id').text(item.userId);
+                $row.find('.ug-user-name').text(item.userName || '');
+
+                $row.find('.rel-icon-btn:not(.danger)').on('click', function() {
+                    editUserGroupUser(item.id);
+                });
+                $row.find('.rel-icon-btn.danger').on('click', function() {
+                    if(confirm('삭제하시겠습니까?')) {
+                        deleteUserGroupUser($("#id").val(), item);
+                    }
+                });
+
+                $body.append($row);
+            }
+        }
+
+        function editUserGroupUser(id) {
+            const item = UG_USER_LIST.find(a => String(a.id) === String(id));
+            if(!item) return;
+
+            UG_USER_EDIT_ID = id;
+            $("#ugUserIdInput").val(item.userId);
+            $("#ugUserSubmitBtn").html('<i class="fas fa-check"></i>수정');
+            $("#ugUserCancelBtn").removeClass('d-none');
+        }
+
+        function cancelUserGroupUserEdit() {
+            UG_USER_EDIT_ID = null;
+            $("#ugUserIdInput").val('');
+            $("#ugUserSubmitBtn").html('<i class="fas fa-plus"></i>추가');
+            $("#ugUserCancelBtn").addClass('d-none');
+        }
+
+        function submitUserGroupUser() {
+            const userGroupId = $("#id").val();
+            if(!userGroupId) {
+                alert('먼저 사용자그룹을 저장해주세요.');
+                return;
+            }
+
+            const userId = $("#ugUserIdInput").val();
+            if(!userId) {
+                alert('사용자ID를 입력해주세요.');
+                return;
+            }
+
+            if(UG_USER_EDIT_ID) {
+                updateUserGroupUser(userGroupId, UG_USER_EDIT_ID, {userId});
+            }
+            else {
+                insertUserGroupUser(userGroupId, {userId});
+            }
+
+            cancelUserGroupUserEdit();
         }
 
         function insertUserGroupUser(userGroupId, item) {
@@ -196,7 +709,6 @@
                    userId:item.userId
                 },
                 function(response){
-                    alert("생성 완료되었습니다.");
                     getUserGroupUser(userGroupId);
                 },
                 function(error){
@@ -212,7 +724,6 @@
                    userId:item.userId
               },
               function(response){
-                  alert("변경 완료되었습니다.");
                   getUserGroupUser(userGroupId);
               },
               function(error){
@@ -224,7 +735,6 @@
         function deleteUserGroupUser(userGroupId, item) {
           httpClient.delete(`/console/api/user-group/user/${item.id}`, {},
               function(response){
-                  alert("삭제 완료되었습니다.");
                   getUserGroupUser(userGroupId);
               },
               function(error){
@@ -243,12 +753,94 @@
                         response[i].authorityName = response[i].authority.name;
                     }
 
-                    grid.setSheetData('userGroupAuthorityGrid', response);
+                    UG_AUTHORITY_LIST = response;
+                    renderUserGroupAuthorityList();
                 },
                 function(error){
                     alert('error');
                 }
             );
+        }
+
+        function renderUserGroupAuthorityList() {
+            const $body = $("#ugAuthorityList");
+            $body.empty();
+
+            if(UG_AUTHORITY_LIST.length === 0) {
+                $body.append('<div class="rel-empty">등록된 권한이 없습니다.</div>');
+                return;
+            }
+
+            for(const item of UG_AUTHORITY_LIST) {
+                const $row = $(`
+                    <div class="rel-row" data-id="${item.id}">
+                        <div class="rel-row-main">
+                            <div class="rel-row-field"><span class="rel-field-label">권한ID</span><span class="rel-field-value ug-authority-id"></span></div>
+                            <div class="rel-row-field"><span class="rel-field-label">권한코드</span><span class="rel-field-value ug-authority-code"></span></div>
+                            <div class="rel-row-field"><span class="rel-field-label">권한명</span><span class="rel-field-value ug-authority-name"></span></div>
+                        </div>
+                        <div class="rel-row-actions">
+                            <button type="button" class="rel-icon-btn" title="수정"><i class="fas fa-pen"></i></button>
+                            <button type="button" class="rel-icon-btn danger" title="삭제"><i class="fas fa-times"></i></button>
+                        </div>
+                    </div>
+                `);
+
+                $row.find('.ug-authority-id').text(item.authorityId);
+                $row.find('.ug-authority-code').text(item.authorityCode || '');
+                $row.find('.ug-authority-name').text(item.authorityName || '');
+
+                $row.find('.rel-icon-btn:not(.danger)').on('click', function() {
+                    editUserGroupAuthority(item.id);
+                });
+                $row.find('.rel-icon-btn.danger').on('click', function() {
+                    if(confirm('삭제하시겠습니까?')) {
+                        deleteUserGroupAuthority($("#id").val(), item);
+                    }
+                });
+
+                $body.append($row);
+            }
+        }
+
+        function editUserGroupAuthority(id) {
+            const item = UG_AUTHORITY_LIST.find(a => String(a.id) === String(id));
+            if(!item) return;
+
+            UG_AUTHORITY_EDIT_ID = id;
+            $("#ugAuthorityIdInput").val(item.authorityId);
+            $("#ugAuthoritySubmitBtn").html('<i class="fas fa-check"></i>수정');
+            $("#ugAuthorityCancelBtn").removeClass('d-none');
+        }
+
+        function cancelUserGroupAuthorityEdit() {
+            UG_AUTHORITY_EDIT_ID = null;
+            $("#ugAuthorityIdInput").val('');
+            $("#ugAuthoritySubmitBtn").html('<i class="fas fa-plus"></i>추가');
+            $("#ugAuthorityCancelBtn").addClass('d-none');
+        }
+
+        function submitUserGroupAuthority() {
+            const userGroupId = $("#id").val();
+            if(!userGroupId) {
+                alert('먼저 사용자그룹을 저장해주세요.');
+                return;
+            }
+
+            const authorityId = $("#ugAuthorityIdInput").val();
+            if(!authorityId) {
+                alert('권한ID를 입력해주세요.');
+                return;
+            }
+
+            if(UG_AUTHORITY_EDIT_ID) {
+                updateUserGroupAuthority(userGroupId, UG_AUTHORITY_EDIT_ID, {authorityId});
+            }
+            else {
+                insertUserGroupAuthority(userGroupId, {authorityId});
+            }
+
+            cancelUserGroupAuthorityEdit();
         }
 
         function insertUserGroupAuthority(userGroupId, item) {
@@ -258,7 +850,6 @@
                    authorityId:item.authorityId
                 },
                 function(response){
-                    alert("생성 완료되었습니다.");
                     getUserGroupAuthority(userGroupId);
                 },
                 function(error){
@@ -274,7 +865,6 @@
                    authorityId:item.authorityId
               },
               function(response){
-                  alert("변경 완료되었습니다.");
                   getUserGroupAuthority(userGroupId);
               },
               function(error){
@@ -286,7 +876,6 @@
         function deleteUserGroupAuthority(userGroupId, item) {
           httpClient.delete(`/console/api/user-group/authority/${item.id}`, {},
               function(response){
-                  alert("삭제 완료되었습니다.");
                   getUserGroupAuthority(userGroupId);
               },
               function(error){
@@ -295,77 +884,96 @@
           );
         }
     </script>
-<div th:fragment="view">
-    <div class="row">
-            <div class="col-lg-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">UserGroup</h3>
-                        <div class="card-tools">
-                            <mf-action-button id="search" actionName="getList()" icon="fas fa-search"></mf-action-button>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div id="jsGrid1"></div>
-                    </div>
+<div id="usergroup-app" th:fragment="view">
+    <div class="ds-layout">
+        <aside class="ds-list-panel">
+            <div class="ds-panel-header">
+                <h3><i class="fas fa-users-cog"></i> 사용자그룹 목록</h3>
+                <div class="ds-panel-tools">
+                    <button type="button" class="ds-btn" onclick="getList()"><i class="fas fa-sync-alt"></i>새로고침</button>
                 </div>
             </div>
-            <div class="col-lg-6">
-                <div class="card">
-                    <ul class="nav nav-tabs" id="user-group-tab" role="tablist">
-                        <li class="nav-item">
-                            <a class="nav-link active" id="detail-tab" data-toggle="pill" href="#detail" role="tab" aria-controls="detail" aria-selected="true">사용자그룹</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" id="user-tab" data-toggle="pill" href="#user" role="tab" aria-controls="user" aria-selected="false">사용자</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" id="authority-tab" data-toggle="pill" href="#authority" role="tab" aria-controls="authority" aria-selected="false">권한 부여</a>
-                        </li>
-                    </ul>
-                    <div class="tab-content" id="tabContent">
-                        <div class="tab-pane fade show active" id="detail" role="tabpanel" aria-labelledby="detail-tab">
-                            <div class="card-header">
-                                <h3 class="card-title">상세 내용</h3>
-                                <div class="card-tools">
-                                    <mf-action-button id="new" actionName="newContent()" icon="fas fa-plus"></mf-action-button>
-                                    <mf-action-button id="save" actionName="save()" icon="fas fa-save"></mf-action-button>
-                                    <mf-action-button id="delete" actionName="deleteContent()" icon="fas fa-trash"></mf-action-button>
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-1">
-                                        <mf-text-input id="id" label="ID" enable="false"></mf-text-input>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <mf-text-input id="code" label="코드" enable="true"></mf-text-input>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <mf-text-input id="name" label="명칭" enable="true" ></mf-text-input>
-                                    </div>
-                                </div>
-                            </div>
+            <div class="ds-list-search">
+                <i class="fas fa-search"></i>
+                <input type="text" id="userGroupSearch" placeholder="코드, 명칭으로 검색" oninput="renderUserGroupList(this.value)">
+            </div>
+            <div class="ds-list-body" id="userGroupListBody"></div>
+        </aside>
+
+        <section class="ds-detail-panel">
+            <ul class="nav ds-tabs" id="user-group-tab" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="detail-tab" data-toggle="pill" href="#detail" role="tab" aria-controls="detail" aria-selected="true">사용자그룹</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="user-tab" data-toggle="pill" href="#user" role="tab" aria-controls="user" aria-selected="false">사용자</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="authority-tab" data-toggle="pill" href="#authority" role="tab" aria-controls="authority" aria-selected="false">권한 부여</a>
+                </li>
+            </ul>
+            <div class="tab-content" id="tabContent">
+                <div class="tab-pane fade show active" id="detail" role="tabpanel" aria-labelledby="detail-tab">
+                    <div class="ds-tab-toolbar">
+                        <h4>상세 내용</h4>
+                        <div class="ds-panel-tools">
+                            <button type="button" class="ds-btn" onclick="newContent()"><i class="fas fa-plus"></i>신규</button>
+                            <button type="button" class="ds-btn ds-btn-primary" onclick="save()"><i class="fas fa-save"></i>저장</button>
+                            <button type="button" class="ds-btn ds-btn-danger" onclick="deleteContent()"><i class="fas fa-trash"></i>삭제</button>
                         </div>
-                        <div class="tab-pane fade" id="user" role="tabpanel" aria-labelledby="user-tab">
-                            <div class="card-header">
-                                <h3 class="card-title">사용자</h3>
+                    </div>
+                    <div class="ds-detail-body">
+                        <input type="hidden" id="id">
+                        <div class="ds-section-grid">
+                            <div class="form-group col-4">
+                                <label for="code">코드</label>
+                                <input type="text" class="form-control" id="code" autocomplete="off">
                             </div>
-                            <div class="card-body">
-                                <div id="userGroupUserGrid"></div>
-                            </div>
-                        </div>
-                        <div class="tab-pane fade" id="authority" role="tabpanel" aria-labelledby="authority-tab">
-                            <div class="card-header">
-                                <h3 class="card-title">권한 부여</h3>
-                            </div>
-                            <div class="card-body">
-                                <div id="userGroupAuthorityGrid"></div>
+                            <div class="form-group col-4">
+                                <label for="name">명칭</label>
+                                <input type="text" class="form-control" id="name" autocomplete="off">
                             </div>
                         </div>
                     </div>
                 </div>
+                <div class="tab-pane fade" id="user" role="tabpanel" aria-labelledby="user-tab">
+                    <div class="ds-tab-toolbar">
+                        <h4>사용자</h4>
+                    </div>
+                    <div class="rel-body">
+                        <div class="rel-add-form">
+                            <div class="form-group">
+                                <label for="ugUserIdInput">사용자ID</label>
+                                <input type="text" class="form-control" id="ugUserIdInput" style="width:180px;">
+                            </div>
+                            <div class="rel-add-actions">
+                                <button type="button" class="ds-btn ds-btn-primary" id="ugUserSubmitBtn" onclick="submitUserGroupUser()"><i class="fas fa-plus"></i>추가</button>
+                                <button type="button" class="ds-btn d-none" id="ugUserCancelBtn" onclick="cancelUserGroupUserEdit()">취소</button>
+                            </div>
+                        </div>
+                        <div class="rel-list" id="ugUserList"></div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="authority" role="tabpanel" aria-labelledby="authority-tab">
+                    <div class="ds-tab-toolbar">
+                        <h4>권한 부여</h4>
+                    </div>
+                    <div class="rel-body">
+                        <div class="rel-add-form">
+                            <div class="form-group">
+                                <label for="ugAuthorityIdInput">권한ID</label>
+                                <input type="text" class="form-control" id="ugAuthorityIdInput" style="width:180px;">
+                            </div>
+                            <div class="rel-add-actions">
+                                <button type="button" class="ds-btn ds-btn-primary" id="ugAuthoritySubmitBtn" onclick="submitUserGroupAuthority()"><i class="fas fa-plus"></i>추가</button>
+                                <button type="button" class="ds-btn d-none" id="ugAuthorityCancelBtn" onclick="cancelUserGroupAuthorityEdit()">취소</button>
+                            </div>
+                        </div>
+                        <div class="rel-list" id="ugAuthorityList"></div>
+                    </div>
+                </div>
             </div>
-        </div>
+        </section>
     </div>
+</div>
 </html>

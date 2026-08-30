@@ -28,6 +28,7 @@ class Actions {
         this.optionPanel.init('action', optionInfo);
 
         this.optionPanelView($panel, this.optionPanel);
+        this.optionPanel.groupSections($panel);
 
         let defaultValueObj = {};
         for(const info of optionInfo) {

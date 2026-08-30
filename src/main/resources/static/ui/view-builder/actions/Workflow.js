@@ -110,22 +110,25 @@ class Workflow extends Actions {
     }
 
     optionPanelView($panel, optionPanel) {
+        $panel.append(optionPanel.sectionTitle('기본'));
         $panel.append(optionPanel.getHtml('workflowCode'));
-
         $panel.append(optionPanel.getHtml('confirmMsg'));
 
+        $panel.append(optionPanel.sectionTitle('요청 메시지'));
         $panel.append(optionPanel.getHtml('requestMessages'));
 
-        optionPanel.sheetScript('requestMessages', "600px", "200px",
+        optionPanel.sheetScript('requestMessages', "100%", "200px",
             [
                {field:'messageId', label:'메시지ID', type:'text', width:180, hide:false, editable: true, align:'left', required:false},
                 {field:'columnSet', label:'컬럼 설정', type:'text', width:350, hide:false, editable: true, align:'left', required:false}
            ]);
 
+        $panel.append(optionPanel.sectionTitle('결과 처리'));
         $panel.append(optionPanel.getHtml('resultHandler'));
-        VB.actionHandlerScriptEngine.createOptionSheet(optionPanel, 'resultHandler', "600px", "250px");
+        VB.actionHandlerScriptEngine.createOptionSheet(optionPanel, 'resultHandler', "100%", "250px");
 
+        $panel.append(optionPanel.sectionTitle('실패 처리'));
         $panel.append(optionPanel.getHtml('failureHandler'));
-        VB.actionHandlerScriptEngine.createOptionSheet(optionPanel, 'failureHandler', "600px", "250px");
+        VB.actionHandlerScriptEngine.createOptionSheet(optionPanel, 'failureHandler', "100%", "250px");
     }
 }

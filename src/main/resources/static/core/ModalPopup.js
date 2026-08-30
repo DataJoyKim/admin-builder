@@ -77,7 +77,7 @@ class ModalPopup {
 
         // size
         $dialog
-            .removeClass('modal-sm modal-lg modal-xl modal-fullscreen')
+            .removeClass('modal-sm modal-lg modal-xl modal-fullscreen modal-fullscreen-md')
             .addClass(settings.size);
 
         // title

@@ -40,10 +40,13 @@ class NewData extends Actions {
     }
 
     optionPanelView($panel, optionPanel) {
+        $panel.append(optionPanel.sectionTitle('기본'));
         $panel.append(optionPanel.getHtml('messageId'));
+
+        $panel.append(optionPanel.sectionTitle('메시지 컬럼'));
         $panel.append(optionPanel.getHtml('messageColumns'));
 
-        optionPanel.sheetScript('messageColumns', "90%", "400px",
+        optionPanel.sheetScript('messageColumns', "100%", "400px",
             [
                {field:'columnName', label:'컬럼', type:'text', width:200, hide:false, editable: true, align:'left', required:false},
                {field:'value', label:'값', type:'text', width:230, hide:false, editable: true, align:'left', required:false}
