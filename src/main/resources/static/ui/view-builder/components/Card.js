@@ -93,19 +93,22 @@ class Card extends ViewObject {
         `;
     }
 
-    componentDropConfig($componentEl) {
-        return [{
-            element: this.getElement($componentEl).cardToolsEl,
-            allowedComponentIds: ["button","custom-html"],
-            sortable: true
-        }]
-    }
+    componentContainerConfig($componentEl) {
+        // 예전 코드는 body 영역(card-body가 실제로 들어가는 곳)이 아니라 카드 바깥쪽
+        // 래퍼($componentEl)에 정렬을 걸고 있어서 card-body 재정렬이 의도대로
+        // 동작하지 않았다. 실제로 card-body가 append되는 .card 엘리먼트를 대상으로 한다.
+        const {cardEl, cardToolsEl} = this.getElement($componentEl);
 
-    componentSortableConfig($componentEl) {
-        return [{
-            element: $componentEl,
-            sortableComponentIds: ["card-body"]
-        }]
+        return [
+            {
+                element: cardToolsEl,
+                allowedComponentIds: ["button","custom-html"]
+            },
+            {
+                element: cardEl,
+                allowedComponentIds: ["card-body"]
+            }
+        ];
     }
 
     afterAddComponent(componentFactory, $el, $componentEl) {

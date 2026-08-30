@@ -58,10 +58,9 @@ class CardBody extends ViewObject {
         `;
     }
 
-    componentDropConfig($componentEl) {
+    componentContainerConfig($componentEl) {
         return [{
-            element: $componentEl,
-            sortable: true
+            element: $componentEl
         }]
     }
 

@@ -105,7 +105,8 @@ class VbSheet extends ViewObject {
         let el = `
             <div id="${options.id}" class="component vb-item" data-type="${this.componentId()}">
                 ${super.componentDeleteBtn()}
-                Sheet [${options.id}]
+                Sheet<br> 
+                [${options.id}]
             </div>
         `;
 

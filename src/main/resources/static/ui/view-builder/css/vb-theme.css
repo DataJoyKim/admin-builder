@@ -173,95 +173,202 @@
 #app-container #component-panel {
     flex: 1 1 auto;
     overflow-y: auto;
-    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
 }
 
-#app-container #component-panel details {
+/* ---- 검색 + 전체 펼치기/접기 툴바 ---- */
+#app-container .vb-component-toolbar {
+    flex: 0 0 auto;
+    display: flex;
+    gap: 6px;
+    padding: 10px 12px 6px;
+}
+
+#app-container .vb-component-search {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+}
+
+#app-container .vb-component-search input {
+    width: 100%;
+    padding: 6px 28px 6px 10px;
+    border: 1px solid #d7dbe0;
+    border-radius: 6px;
+    font-size: 12.5px;
+}
+
+#app-container .vb-component-search input:focus {
+    outline: none;
+    border-color: #4A90E2;
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, .12);
+}
+
+#app-container .vb-component-search i {
+    position: absolute;
+    right: 9px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9199a3;
+    font-size: 11px;
+    pointer-events: none;
+}
+
+#app-container .vb-component-toggle-all {
+    flex: 0 0 auto;
+    width: 30px;
+    border: 1px solid #d7dbe0;
+    background: #fff;
+    border-radius: 6px;
+    color: #6b7280;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+#app-container .vb-component-toggle-all:hover {
+    background: #f1f3f5;
+    border-color: #4A90E2;
+    color: #4A90E2;
+}
+
+#app-container .vb-component-list {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 6px 12px 10px;
+}
+
+/* ---- 카테고리(접기/펼치기) ----
+   네이티브 <details>는 열고 닫힐 때 애니메이션 없이 바로 튀어서 화살표만 부드럽게
+   회전하고 내용은 뚝뚝 끊기는 느낌이었다. grid-template-rows를 0fr↔1fr로 트랜지션하는
+   방식으로 바꿔서 화살표 회전과 내용 펼침이 같이 부드럽게 움직이도록 했다. */
+#app-container .vb-category {
     border: 1px solid #eef0f2;
     border-radius: 8px;
     margin-bottom: 8px;
     overflow: hidden;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, .04);
 }
 
-#app-container #component-panel summary {
+#app-container .vb-category-header {
     padding: 9px 12px;
     background: #fbfbfc;
     font-weight: 600;
     font-size: 12.5px;
     color: #374151;
     cursor: pointer;
-    list-style: none;
     display: flex;
     align-items: center;
     gap: 8px;
+    user-select: none;
 }
 
-#app-container #component-panel summary::-webkit-details-marker {
-    display: none;
+#app-container .vb-category-header:hover {
+    background: #f1f3f5;
 }
 
-#app-container #component-panel summary::before {
-    content: "\f105";
-    font-family: "Font Awesome 5 Free";
-    font-weight: 900;
-    font-size: 10px;
+#app-container .vb-category-header:focus-visible {
+    outline: 2px solid #4A90E2;
+    outline-offset: -2px;
+}
+
+#app-container .vb-category-chevron {
     color: #9199a3;
-    transition: transform .15s ease;
+    font-size: 10px;
+    width: 10px;
+    text-align: center;
+    transition: transform .2s ease;
 }
 
-#app-container #component-panel details[open] summary::before {
+#app-container .vb-category.open .vb-category-chevron {
     transform: rotate(90deg);
 }
 
-#app-container .details-content {
-    padding: 6px;
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
+#app-container .vb-category-icon {
+    color: #4A90E2;
+    font-size: 12px;
+    width: 14px;
+    text-align: center;
+}
+
+#app-container .vb-category-body {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows .2s ease;
+}
+
+#app-container .vb-category.open .vb-category-body {
+    grid-template-rows: 1fr;
+}
+
+/* ---- 컴포넌트 나열: 세로 텍스트 목록 대신 아이콘 중심의 타일 그리드로 ---- */
+#app-container .vb-category-grid {
+    overflow: hidden;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    /* 세로 패딩은 열렸을 때만 붙는다 - grid-template-rows가 0fr로 줄어도 패딩은
+       줄어들지 않아서 접었을 때 얇은 여백이 계속 남아있던 것을 이렇게 없앴다. */
+    padding: 0 8px;
+    transition: padding .2s ease;
+}
+
+#app-container .vb-category.open .vb-category-grid {
+    padding: 8px;
 }
 
 #app-container .component-item {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 10px;
-    padding: 6px 8px;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 4px;
     background: #fff;
-    border: 1px solid transparent;
-    border-radius: 7px;
-    text-align: left;
+    border: 1px solid #eef0f2;
+    border-radius: 8px;
+    text-align: center;
     cursor: grab;
     transition: background .12s ease, border-color .12s ease;
     z-index: 1000;
 }
 
 #app-container .component-item:hover {
-    border: 1px solid #4A90E2;
+    border-color: #4A90E2;
     background: #eef5ff;
-    cursor: grab;
 }
 
-#app-container .component-item img,
+#app-container .component-item i,
 #app-container .component-item label:hover {
     cursor: grab;
 }
 
-#app-container .component-item img {
-    width: 30px;
-    height: 30px;
-    object-fit: contain;
-    border-radius: 6px;
+#app-container .component-item i {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
     background: #f5f7fa;
-    padding: 4px;
-    flex: 0 0 30px;
+    color: #4A90E2;
+    font-size: 15px;
+    flex: 0 0 auto;
+}
+
+#app-container .component-item:hover i {
+    background: #ffffff;
 }
 
 #app-container .component-item label {
     margin: 0;
-    font-size: 13px;
+    font-size: 11px;
+    line-height: 1.3;
     color: #374151;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    max-width: 100%;
+    overflow-wrap: break-word;
 }
 
 /* ============ Canvas ============ */

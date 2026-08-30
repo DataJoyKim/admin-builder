@@ -194,7 +194,8 @@ class BarLineChart extends ViewObject {
         let el = `
             <div id="${options.id}" class="component vb-item" data-type="${this.componentId()}" style="width: ${options.width}; height: ${options.height};">
                 ${super.componentDeleteBtn()}
-                Bar/Line Chart [${options.id}]
+                Bar/Line Chart<br>
+                [${options.id}]
             </div>
         `;
 

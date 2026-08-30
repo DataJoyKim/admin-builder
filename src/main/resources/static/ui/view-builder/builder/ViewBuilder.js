@@ -31,25 +31,9 @@ class ViewBuilder {
     }
 
     init() {
-        this.setComponentItemDrag();
+        // 팔레트 드래그 시작(오브젝트 코드 입력 여부 체크 포함)은
+        // ComponentPanel의 각 카테고리 리스트(Sortable)에서 자체적으로 처리한다.
         this.dropComponent.dropLayout(this.canvasId);
-    }
-
-    setComponentItemDrag() {
-        $(".component-item").draggable({
-            helper: "clone",
-            start: function(event, ui) {
-                if (!$("#objectCode").val()) {
-                    alert("오브젝트 코드를 입력해주세요.");
-                    event.preventDefault();
-                    return false;
-                }
-
-                ui.helper.css({
-                    width: "180px"
-                });
-            }
-        });
     }
 
     preview(objectCode) {
