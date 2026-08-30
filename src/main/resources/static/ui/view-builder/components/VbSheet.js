@@ -133,22 +133,22 @@ class VbSheet extends ViewObject {
  * Option Panel Setting
  * ======================================= */
     optionPanelView($panel, options) {
+        $panel.append(this.optionPanel.sectionTitle('기본'));
         $panel.append(this.optionPanel.input('component-id',{label:'컴포넌트명', size:'col-6', enabled:false}));
 
         let $rowId = this.optionPanel.row();
-        $rowId.append(this.optionPanel.input('id',{label:'ID', size:'col-7'}));
+        $rowId.append(this.optionPanel.input('id',{label:'ID', size:'col-6'}));
+        $rowId.append(this.optionPanel.input('dataProvider',{label:'dataProvider', size:'col-6'}));
         $panel.append($rowId);
 
-        let $rowDataProvider = this.optionPanel.row();
-        $rowDataProvider.append(this.optionPanel.input('dataProvider',{label:'dataProvider', size:'col-7'}));
-        $panel.append($rowDataProvider);
-
+        $panel.append(this.optionPanel.sectionTitle('표시'));
         let $rowGrid = this.optionPanel.row();
         $rowGrid.append(this.optionPanel.input('width',{label:'넓이', size:'col-6'}));
         $rowGrid.append(this.optionPanel.input('height',{label:'높이', size:'col-6'}));
         $rowGrid.append(this.optionPanel.button('column-setting',{label:'컬럼 설정', btnLabel:'설정',size:'col-12', icon:'fas fa-cog'}));
         $panel.append($rowGrid);
 
+        $panel.append(this.optionPanel.sectionTitle('옵션'));
         let $rowOption = this.optionPanel.row();
         $rowOption.append(this.optionPanel.toggle('useSeq',{label:'Seq컬럼', size:'col-12'}));
         $rowOption.append(this.optionPanel.toggle('useStatus',{label:'상태컬럼', size:'col-12'}));

@@ -220,39 +220,36 @@ class BarLineChart extends ViewObject {
  * Option Panel Setting
  * ======================================= */
     optionPanelView($panel, options) {
+        $panel.append(this.optionPanel.sectionTitle('기본'));
         $panel.append(this.optionPanel.input('component-id',{label:'컴포넌트명', size:'col-6', enabled:false}));
 
         let $rowId = this.optionPanel.row();
-        $rowId.append(this.optionPanel.input('id',{label:'ID', size:'col-7'}));
+        $rowId.append(this.optionPanel.input('id',{label:'ID', size:'col-6'}));
+        $rowId.append(this.optionPanel.input('dataProvider',{label:'dataProvider', size:'col-6'}));
         $panel.append($rowId);
-
-        let $rowDataProvider = this.optionPanel.row();
-        $rowDataProvider.append(this.optionPanel.input('dataProvider',{label:'dataProvider', size:'col-7'}));
-        $panel.append($rowDataProvider);
 
         let $rowGrid = this.optionPanel.row();
         $rowGrid.append(this.optionPanel.input('width',{label:'넓이', size:'col-6'}));
         $rowGrid.append(this.optionPanel.input('height',{label:'높이', size:'col-6'}));
         $panel.append($rowGrid);
 
+        $panel.append(this.optionPanel.sectionTitle('데이터'));
         let $op1Grid = this.optionPanel.row();
         $op1Grid.append(this.optionPanel.select('direction',{label:'방향', size:'col-6',
             options:`
                 <option value="VERTICAL">세로</option>
                 <option value="HORIZONTAL">가로</option>
             `}));
+        $op1Grid.append(this.optionPanel.input('staticCategory',{label:'정적 카테고리', size:'col-6'}));
         $panel.append($op1Grid);
-
-        let $op2Grid = this.optionPanel.row();
-        $op2Grid.append(this.optionPanel.input('staticCategory',{label:'정적 카테고리', size:'col-12'}));
-        $panel.append($op2Grid);
 
         let $op3Grid = this.optionPanel.row();
         $op3Grid.append(this.optionPanel.button('seriesSetting',{label:'차트항목 설정', btnLabel:'설정',size:'col-12', icon:'fas fa-cog'}));
         $panel.append($op3Grid);
 
+        $panel.append(this.optionPanel.sectionTitle('제목'));
         let $op4Grid = this.optionPanel.row();
-        $op4Grid.append(this.optionPanel.input('title',{label:'제목', size:'col-6'}));
+        $op4Grid.append(this.optionPanel.input('title',{label:'제목', size:'col-12'}));
         $panel.append($op4Grid);
 
         let $op5Grid = this.optionPanel.row();
@@ -262,6 +259,7 @@ class BarLineChart extends ViewObject {
         $op5Grid.append(this.optionPanel.input('titleFontSize',{label:'제목 FontSize', size:'col-6', placeholder:'15'}));
         $panel.append($op5Grid);
 
+        $panel.append(this.optionPanel.sectionTitle('범례'));
         let $op6Grid = this.optionPanel.row();
         $op6Grid.append(this.optionPanel.toggle('useLegend',{label:'범례 사용', size:'col-12'}));
         $op6Grid.append(this.optionPanel.input('legendLeft',{label:'범례 Left', size:'col-6', placeholder:'left|center|right|10px|10%'}));

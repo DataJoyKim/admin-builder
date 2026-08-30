@@ -92,11 +92,13 @@ class Form extends ViewObject {
  * Option Panel Setting
  * ======================================= */
     optionPanelView($panel, options) {
+        $panel.append(this.optionPanel.sectionTitle('기본'));
         $panel.append(this.optionPanel.input('component-id',{label:'컴포넌트명', size:'col-6', enabled:false}));
-        $panel.append(this.optionPanel.input('id',{label:'ID', size:'col-3'}));
-        $panel.append(this.optionPanel.input('dataProvider',{label:'dataProvider', size:'col-7'}));
-        $panel.append(this.optionPanel.button('row-add',{label:'Form 내용', size:'col-12', btnLabel:'행 추가',icon:'fas fa-plus'}));
+        $panel.append(this.optionPanel.input('id',{label:'ID', size:'col-6'}));
+        $panel.append(this.optionPanel.input('dataProvider',{label:'dataProvider', size:'col-12'}));
 
+        $panel.append(this.optionPanel.sectionTitle('내용'));
+        $panel.append(this.optionPanel.button('row-add',{label:'Form 내용', size:'col-12', btnLabel:'행 추가',icon:'fas fa-plus'}));
     }
 
     optionPanelScript($el, options) {

@@ -114,20 +114,23 @@ class VbGrid extends ViewObject {
  * Option Panel Setting
  * ======================================= */
     optionPanelView($panel, options) {
+        $panel.append(this.optionPanel.sectionTitle('기본'));
         $panel.append(this.optionPanel.input('component-id',{label:'컴포넌트명', size:'col-6', enabled:false}));
 
         let $rowId = this.optionPanel.row();
-        $rowId.append(this.optionPanel.input('id',{label:'ID', size:'col-3'}));
+        $rowId.append(this.optionPanel.input('id',{label:'ID', size:'col-6'}));
         $panel.append($rowId);
 
+        $panel.append(this.optionPanel.sectionTitle('동작'));
         let $rowToggle = this.optionPanel.row();
-        $rowToggle.append(this.optionPanel.toggle('control',{label:'Control 사용', size:'col-4'}));
-        $rowToggle.append(this.optionPanel.toggle('inserting',{label:'생성버튼 사용', size:'col-4'}));
-        $rowToggle.append(this.optionPanel.toggle('editing',{label:'변경버튼 사용', size:'col-4'}));
+        $rowToggle.append(this.optionPanel.toggle('control',{label:'Control 사용', size:'col-12'}));
+        $rowToggle.append(this.optionPanel.toggle('inserting',{label:'생성버튼 사용', size:'col-12'}));
+        $rowToggle.append(this.optionPanel.toggle('editing',{label:'변경버튼 사용', size:'col-12'}));
         $panel.append($rowToggle);
 
+        $panel.append(this.optionPanel.sectionTitle('액션'));
         let $rowAction = this.optionPanel.row();
-        $rowAction.append(this.optionPanel.input('row-select-action',{label:'row 선택 action', size:'col-4'}));
+        $rowAction.append(this.optionPanel.input('row-select-action',{label:'row 선택 action', size:'col-12'}));
         $panel.append($rowAction);
 
         let $rowAction2 = this.optionPanel.row();
@@ -136,6 +139,7 @@ class VbGrid extends ViewObject {
         $rowAction2.append(this.optionPanel.input('delete-action',{label:'삭제 action', size:'col-4'}));
         $panel.append($rowAction2);
 
+        $panel.append(this.optionPanel.sectionTitle('표시'));
         let $rowGrid = this.optionPanel.row();
         $rowGrid.append(this.optionPanel.input('width',{label:'넓이', size:'col-6'}));
         $rowGrid.append(this.optionPanel.input('height',{label:'높이', size:'col-6'}));

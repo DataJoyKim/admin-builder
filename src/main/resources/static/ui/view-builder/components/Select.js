@@ -133,16 +133,23 @@ class Select extends ViewObject {
  * Option Panel Setting
  * ======================================= */
     optionPanelView($panel, options) {
+        $panel.append(this.optionPanel.sectionTitle('기본'));
         $panel.append(this.optionPanel.input('component-id',{label:'컴포넌트명', size:'col-6', enabled:false}));
         $panel.append(this.optionPanel.input('id',{label:'ID', size:'col-6'}));
         $panel.append(this.optionPanel.select('size',{label:'크기', size:'col-6', options:this.optionPanel.optionSize()}));
         $panel.append(this.optionPanel.input('width',{label:'width', size:'col-6'}));
+
+        $panel.append(this.optionPanel.sectionTitle('라벨'));
         $panel.append(this.optionPanel.input('label',{label:'라벨', size:'col-6'}));
         $panel.append(this.optionPanel.input('labelWidth',{label:'라벨 width', size:'col-6'}));
         $panel.append(this.optionPanel.toggle('horizontal',{label:'수평배치', size:'col-12'}));
+
+        $panel.append(this.optionPanel.sectionTitle('동작'));
         $panel.append(this.optionPanel.toggle('editable',{label:'editable', size:'col-12'}));
         $panel.append(this.optionPanel.toggle('hidden',{label:'hidden', size:'col-12'}));
-        $panel.append(this.optionPanel.input('codeName',{label:'코드명', size:'col-6'}));
+
+        $panel.append(this.optionPanel.sectionTitle('코드 연동'));
+        $panel.append(this.optionPanel.input('codeName',{label:'코드명', size:'col-12'}));
         $panel.append(this.optionPanel.toggle('useFirstItem',{label:'첫번째항목 사용', size:'col-12'}));
         $panel.append(this.optionPanel.input('firstItemLabel',{label:'첫번째항목 라벨', size:'col-6'}));
         $panel.append(this.optionPanel.input('firstItemValue',{label:'첫번째항목 값', size:'col-6'}));

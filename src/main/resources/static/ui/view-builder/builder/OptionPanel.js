@@ -90,22 +90,30 @@ class OptionPanel {
     }
 
     button(id, option) {
-        let html = ``;
-        html += `<div class="form-group ${option.size}">`;
+        const formGroupEl = this.formGroup(option);
+
+        // label이 없는 버튼도 옆에 나란히 오는 label 있는 필드와 높이가 어긋나지 않도록
+        // 항상 라벨 자리(빈 라벨)를 확보해둔다.
         if(option.label) {
-            html += `<label for="${this.elementId(id)}">${option.label}</label>`;
+            formGroupEl.append(this.label(id, option));
         }
+        else {
+            formGroupEl.append(`<label class="vb-opt-label-spacer">&nbsp;</label>`);
+        }
+
+        let html = ``;
         html += `<button id="${this.elementId(id)}" type="button" class="btn btn-default btn-sm form-control">`;
         if(option.icon) {
             html += `<i class="${option.icon}"></i>`;
         }
         if(option.btnLabel) {
-            html += `${option.btnLabel}`;
+            html += `<span>${option.btnLabel}</span>`;
         }
         html += `</button>`;
-        html += `</div>`;
 
-        return $(html);
+        formGroupEl.append($(html));
+
+        return formGroupEl;
     }
 
     input(id, option) {
@@ -131,7 +139,10 @@ class OptionPanel {
     }
 
     codeEditor(id, option) {
+        option.size = option.size || 'col-12';
+
         const formGroupEl = this.formGroup(option);
+        formGroupEl.addClass('vb-opt-block');
 
         formGroupEl.append(this.label(id, option));
 
@@ -159,10 +170,15 @@ class OptionPanel {
     }
 
     sheet(id, option) {
-        const formGroupEl = this.formGroup(option);
+        option.size = option.size || 'col-12';
 
-        formGroupEl.append(this.label(id, option));
-        formGroupEl.append($(`<button type="button" class="btn btn-default btn-sm" onclick="_sheet_${id}.addRowData({})"><i class="fas fa-plus"></i><span>입력</span></button>`));
+        const formGroupEl = this.formGroup(option);
+        formGroupEl.addClass('vb-opt-block');
+
+        const headerEl = $(`<div class="vb-opt-block-header"></div>`);
+        headerEl.append(this.label(id, option));
+        headerEl.append($(`<button type="button" class="btn btn-default btn-sm" onclick="_sheet_${id}.addRowData({})"><i class="fas fa-plus"></i><span>입력</span></button>`));
+        formGroupEl.append(headerEl);
 
         const divEl = $(`<div id="${id}"  ></div>`);
 
@@ -180,11 +196,12 @@ class OptionPanel {
 
     toggle(id, option) {
         const formGroupEl = this.formGroup(option);
+        formGroupEl.addClass('vb-opt-toggle-row');
 
         formGroupEl.append(this.label(id, option));
 
         const toggleEl = $(`
-                <div class="custom-control custom-switch" style="transform: scale(1.5); transform-origin: left center;">
+                <div class="custom-control custom-switch">
                     <input type="checkbox" class="custom-control-input" id="${this.elementId(id)}">
                     <label for="${this.elementId(id)}" class="custom-control-label" style="cursor: pointer;"></label>
                 </div>
@@ -195,8 +212,15 @@ class OptionPanel {
         return formGroupEl;
     }
 
+    /* 여러 필드를 묶어서 구분해주는 섹션 제목. formGroup을 거치지 않는 순수
+       구분선이라 col-* 클래스가 없어도 되며, #options가 있어야 항상 한 줄
+       전체를 차지하도록 CSS(vb-theme.css)에서 flex:0 0 100%로 고정한다. */
+    sectionTitle(text) {
+        return $(`<div class="vb-opt-section-title">${text}</div>`);
+    }
+
     formGroup(option) {
-        return $(`<div class="form-group ${option.size}"></div>`);
+        return $(`<div class="form-group ${option.size || ''}"></div>`);
     }
 
     label(id, option) {

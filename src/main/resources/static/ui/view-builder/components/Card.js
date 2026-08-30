@@ -128,13 +128,18 @@ class Card extends ViewObject {
  * Option Panel Setting
  * ======================================= */
     optionPanelView($panel, options) {
+        $panel.append(this.optionPanel.sectionTitle('기본'));
         $panel.append(this.optionPanel.input('component-id',{label:'컴포넌트명', size:'col-6', enabled:false}));
-        $panel.append(this.optionPanel.input('id',{label:'ID', size:'col-3'}));
+        $panel.append(this.optionPanel.input('id',{label:'ID', size:'col-6'}));
         $panel.append(this.optionPanel.select('size',{label:'크기', size:'col-12', options:this.optionPanel.optionSize()}));
+
+        $panel.append(this.optionPanel.sectionTitle('헤더'));
         $panel.append(this.optionPanel.toggle('header-use',{label:'Card Header 사용', size:'col-12'}));
         $panel.append(this.optionPanel.input('title-input',{label:'Card Header 제목', size:'col-12'}));
-        $panel.append(this.optionPanel.button('button-add',{label:'Card 헤더 버튼 추가', size:'col-12', btnLabel:'추가',icon:'fas fa-plus'}));
-        $panel.append(this.optionPanel.button('body-add',{label:'Card 컨텐츠 영역 추가', size:'col-12', btnLabel:'추가',icon:'fas fa-plus'}));
+        $panel.append(this.optionPanel.button('button-add',{label:'헤더 버튼 추가', size:'col-12', btnLabel:'추가',icon:'fas fa-plus'}));
+
+        $panel.append(this.optionPanel.sectionTitle('내용'));
+        $panel.append(this.optionPanel.button('body-add',{label:'컨텐츠 영역 추가', size:'col-12', btnLabel:'추가',icon:'fas fa-plus'}));
     }
 
     optionPanelScript($el, options) {

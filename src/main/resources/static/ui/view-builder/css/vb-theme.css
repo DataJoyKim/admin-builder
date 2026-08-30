@@ -1,91 +1,519 @@
+/* ============================================================
+   vb-theme.css는 콘솔의 모든 화면(content.html)에 전역으로 로드된다.
+   다른 화면과 클래스명이 우연히 겹쳐 스타일이 새어나가는 일이 없도록
+   모든 규칙을 이 화면 고유 ID인 #app-container 아래로 스코프한다.
+   ============================================================ */
+
 #app-container {
-  margin: 0;
-  display: flex;
-  height: 100vh;
-  font-family: Arial, sans-serif;
-}
-#left-panel {
-  width: 300px;
-  background: white;
-  border-right: 1px solid #ccc;
-  padding: 10px;
-}
-#center-panel {
-  flex: 1;
-  background: #fff;
-  padding: 10px;
-  position: relative;
-}
-#right-panel {
-  width: 400px;
-  background: white;
-  border-left: 1px solid #ccc;
-  padding: 10px;
-}
-.details-content{
-  padding: 5px;
-}
-.component-row {
+    margin: 0;
     display: flex;
-}
-.component-item {
-  padding-left: 20px;
-  padding-top: 5px;
-  background: white;
-  border-radius: 2px;
-  text-align: left;
-  z-index:1000;
-}
-.component-item:hover {
-  border: 2px solid #4a90e2;
-  background: #eef5ff;
-  cursor: grab;
-}
-.component-item img,.component-item label:hover {
-  cursor: grab;
+    /* 인라인 height:100%가 이 값을 덮어쓰고 있었는데, adminlte.js가 body의
+       height를 auto로 강제 리셋해버리는 탓에 height:100%는 조상 체인을 타고
+       올라가도 확정된 값이 없어 결국 "내용물만큼만" 높이가 잡히는 문제가 있었다
+       (화면빌더가 뷰포트를 꽉 채우지 못하고 작게 보이던 원인).
+       vh는 조상 요소의 높이 계산과 무관하게 뷰포트 기준으로 항상 확정되므로
+       안전하다. */
+    height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    background: #fafbfc;
+    overflow: hidden;
+    color: #1f2937;
 }
 
-.drop-area {
-  position: relative;
+/* ============ Left / Right panel shells ============ */
+
+#app-container #left-panel,
+#app-container #right-panel {
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
 }
-.selected {
-  outline: 1px solid #007bff;
+
+#app-container #left-panel {
+    width: 300px;
+    flex: 0 0 300px;
+    border-right: 1px solid #eef0f2;
 }
-.component-delete-btn {
+
+#app-container #right-panel {
+    width: 380px;
+    flex: 0 0 380px;
+    border-left: 1px solid #eef0f2;
+}
+
+#app-container hr {
+    display: none;
+}
+
+#app-container h5 {
+    margin: 0;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #1f2937;
+    background: #fbfbfc;
+    border-bottom: 1px solid #eef0f2;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#app-container h5 i {
+    color: #4A90E2;
+    font-size: 12px;
+}
+
+/* ============ Object panel ============ */
+
+#app-container #object-panel {
+    flex: 0 0 auto;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-bottom: 1px solid #eef0f2;
+}
+
+#app-container .vb-panel-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    color: #9199a3;
+    margin: 0;
+}
+
+#app-container .vb-object-input-group {
+    display: flex;
+    gap: 6px;
+}
+
+#app-container .vb-input {
+    width: 100%;
+    flex: 1;
+    min-width: 0;
+    border: 1px solid #d7dbe0;
+    border-radius: 7px;
+    padding: 7px 10px;
+    font-size: 13px;
+    color: #1f2937;
+}
+
+#app-container .vb-input:focus {
+    outline: none;
+    border-color: #4A90E2;
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, .12);
+}
+
+#app-container .vb-input-readonly {
+    background: #f8f9fa;
+    color: #6b7280;
+}
+
+#app-container .vb-icon-btn {
+    flex: 0 0 auto;
+    width: 34px;
+    border: 1px solid #d7dbe0;
+    background: #fff;
+    border-radius: 7px;
+    color: #374151;
+    cursor: pointer;
+}
+
+#app-container .vb-icon-btn:hover {
+    background: #f1f3f5;
+    border-color: #4A90E2;
+    color: #4A90E2;
+}
+
+#app-container .vb-object-actions {
+    display: flex;
+    gap: 6px;
+}
+
+#app-container .vb-object-actions .vb-btn {
+    flex: 1;
+    justify-content: center;
+}
+
+/* ============ Shared button style ============ */
+
+#app-container .vb-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    border: 1px solid #d7dbe0;
+    background: #fff;
+    border-radius: 7px;
+    padding: 6px 12px;
+    cursor: pointer;
+    color: #374151;
+    white-space: nowrap;
+}
+
+#app-container .vb-btn:hover {
+    background: #f1f3f5;
+}
+
+#app-container .vb-btn.vb-btn-primary {
+    background: #4A90E2;
+    border-color: #4A90E2;
+    color: #fff;
+}
+
+#app-container .vb-btn.vb-btn-primary:hover {
+    background: #3d7fce;
+}
+
+/* ============ Component palette ============ */
+
+#app-container #component-panel {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 10px 12px;
+}
+
+#app-container #component-panel details {
+    border: 1px solid #eef0f2;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    overflow: hidden;
+}
+
+#app-container #component-panel summary {
+    padding: 9px 12px;
+    background: #fbfbfc;
+    font-weight: 600;
+    font-size: 12.5px;
+    color: #374151;
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#app-container #component-panel summary::-webkit-details-marker {
+    display: none;
+}
+
+#app-container #component-panel summary::before {
+    content: "\f105";
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    font-size: 10px;
+    color: #9199a3;
+    transition: transform .15s ease;
+}
+
+#app-container #component-panel details[open] summary::before {
+    transform: rotate(90deg);
+}
+
+#app-container .details-content {
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+#app-container .component-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 8px;
+    background: #fff;
+    border: 1px solid transparent;
+    border-radius: 7px;
+    text-align: left;
+    cursor: grab;
+    transition: background .12s ease, border-color .12s ease;
+    z-index: 1000;
+}
+
+#app-container .component-item:hover {
+    border: 1px solid #4A90E2;
+    background: #eef5ff;
+    cursor: grab;
+}
+
+#app-container .component-item img,
+#app-container .component-item label:hover {
+    cursor: grab;
+}
+
+#app-container .component-item img {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+    border-radius: 6px;
+    background: #f5f7fa;
+    padding: 4px;
+    flex: 0 0 30px;
+}
+
+#app-container .component-item label {
+    margin: 0;
+    font-size: 13px;
+    color: #374151;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ============ Canvas ============ */
+
+#app-container #center-panel {
+    flex: 1 1 auto;
+    min-width: 0;
+    position: relative;
+    overflow: auto;
+    background-color: #fafbfc;
+    background-image: radial-gradient(circle, #d7dce3 1.2px, transparent 1.2px);
+    background-size: 20px 20px;
+    padding: 24px;
+}
+
+#app-container .drop-area {
+    position: relative;
+    min-height: 100%;
+}
+
+#app-container .component {
+    position: relative;
+    cursor: grab;
+}
+
+#app-container .selected {
+    outline: 2px solid #4A90E2;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(74, 144, 226, .15);
+}
+
+#app-container .component-delete-btn {
     display: none;
     position: absolute;
-    top: 2px;
-    right: 2px;
-    width: 18px;
-    height: 18px;
-    line-height: 16px;
+    top: -9px;
+    right: -9px;
+    width: 22px;
+    height: 22px;
+    line-height: 20px;
     text-align: center;
-    font-size: 14px;
-    font-weight: bold;
-    background: rgba(0,0,0,0.5);
-    color: white;
-    border: none;
+    font-size: 13px;
+    font-weight: 700;
+    background: #ffffff;
+    color: #dc2626;
+    border: 1px solid #f3c9c9;
     border-radius: 50%;
     cursor: pointer;
     padding: 0;
     z-index: 999;
+    box-shadow: 0 2px 6px rgba(16, 24, 40, .15);
 }
-.component {
-    position: relative;
-    cursor: grab;
+
+#app-container .component-delete-btn:hover {
+    background: #fef2f2;
 }
-.drop-hover {
-  border-color: blue;
-  background-color: #eef !important;
+
+/* border-color만 지정되어 있으면 border-width가 기본값 0이라 실제로는
+   아무것도 보이지 않는 문제가 있었다. outline은 별도 폭 지정 없이도
+   항상 렌더링되므로 안전하다. */
+#app-container .drop-hover {
+    outline: 2px dashed #4A90E2 !important;
+    background-color: #eef5ff !important;
 }
-.drop-area-label {
-    z-index: 0;
-    position: absolute;
-    font-size: 14px;
-    width: 100%;
-    height: 100%;
+
+/* .sortable-placeholder는 JS가 인라인 style로 border/background를 지정하는데
+   (ViewObject.js sortable() 콜백), jQuery의 인라인 style은 !important가 아니므로
+   여기서 !important로 덮어써도 안전하게 이긴다. */
+#app-container .sortable-placeholder {
+    border: 2px dashed #4A90E2 !important;
+    background: #eef5ff !important;
+    border-radius: 6px;
+}
+
+/* ============ Right panel toolbar ============ */
+
+#app-container #right-panel .vb-toolbar {
+    flex: 0 0 auto;
+    padding: 12px 14px;
     display: flex;
-    justify-content: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    border-bottom: 1px solid #eef0f2;
+}
+
+#app-container #right-panel .vb-toolbar .vb-btn {
+    flex: 0 0 auto;
+}
+
+#app-container #right-panel .vb-toolbar .vb-btn.vb-btn-primary {
+    margin-left: auto;
+}
+
+/* ============ Option panel ============ */
+
+/* 컴포넌트별 옵션 필드는 col-6/col-12 같은 부트스트랩 그리드 클래스를 쓰는데,
+   #options가 일반 block 요소라 flex 컨테이너가 아니면 그 col-* 클래스들이
+   전혀 작동하지 않아(각 필드의 flex 속성이 무시되어) 모든 필드가 세로로
+   전체폭을 차지하며 늘어서 있었다. #options를 flex-wrap 컨테이너로 만들면
+   기존 JS 코드를 전혀 건드리지 않고도 의도된 그리드 배치가 살아난다. */
+#app-container #options {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    min-height: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    padding: 14px 8px;
+}
+
+/* VbGrid/VbSheet/BarLineChart는 optionPanel.row()로 필드를 부트스트랩 .row로
+   한 번 더 묶는다. #options 자체가 flex 컨테이너가 되면서 이 .row가 하나의
+   flex 아이템이 되어버려 내용물 크기만큼만 줄어들 수 있는데, 그러면 .row
+   내부의 col-* 자식들의 퍼센트 폭 계산 기준이 애매해진다. .row는 항상
+   #options 폭 전체를 쓰도록 고정해서 원래 의도한 부트스트랩 그리드가
+   내부에서 정상적으로 계산되게 한다. */
+#app-container #options > .row {
+    flex: 0 0 100%;
+    width: 100%;
+    margin: 0;
+}
+
+#app-container #options .form-group {
+    padding-left: 6px;
+    padding-right: 6px;
+    margin-bottom: 14px;
+}
+
+#app-container #options .form-group label {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #6b7280;
+    margin-bottom: 5px;
+    display: block;
+}
+
+#app-container #options .form-control {
+    border: 1px solid #d7dbe0;
+    border-radius: 7px;
+    font-size: 13px;
+}
+
+#app-container #options .form-control:focus {
+    border-color: #4A90E2;
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, .12);
+    outline: none;
+}
+
+#app-container #options .CodeMirror {
+    border: 1px solid #d7dbe0;
+    border-radius: 7px;
+}
+
+#app-container #options input[readonly] {
+    background: #f8f9fa;
+    color: #6b7280;
+    cursor: default;
+}
+
+/* ---- 섹션 제목 (관련 필드를 묶어서 구분) ---- */
+#app-container #options .vb-opt-section-title {
+    flex: 0 0 100%;
+    width: 100%;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: #4A90E2;
+    padding: 4px 6px;
+    margin: 10px 0 6px;
+    border-bottom: 1px solid #eef0f2;
+}
+
+#app-container #options .vb-opt-section-title:first-child {
+    margin-top: 0;
+}
+
+/* ---- 토글(스위치) 필드: 라벨 왼쪽 + 스위치 오른쪽인 한 줄짜리 설정 목록.
+   여러 개가 이어지면 구분선으로 묶여 하나의 리스트처럼 보인다. ---- */
+#app-container #options .form-group.vb-opt-toggle-row {
+    display: flex;
     align-items: center;
-    color: #cfcdcc;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 9px 10px;
+    margin-bottom: 0;
+    border-bottom: 1px solid #f1f3f5;
+}
+
+#app-container #options .form-group.vb-opt-toggle-row:last-child {
+    border-bottom: none;
+}
+
+#app-container #options .vb-opt-toggle-row label {
+    margin: 0;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: #374151;
+}
+
+#app-container #options .vb-opt-toggle-row .custom-control.custom-switch {
+    margin: 0;
+    flex: 0 0 auto;
+    transform: scale(1.15);
+    transform-origin: right center;
+}
+
+/* ---- label 없이 쓰이는 버튼도 이웃한 입력필드와 높이를 맞추기 위한 빈 라벨 ---- */
+#app-container #options .vb-opt-label-spacer {
+    margin-bottom: 5px;
+    display: block;
+    height: 14px;
+}
+
+/* ---- 코드에디터/시트처럼 덩치 큰 위젯을 감싸는 카드형 블록 ---- */
+#app-container #options .vb-opt-block {
+    background: #fbfbfc;
+    border: 1px solid #eef0f2;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+#app-container #options .vb-opt-block-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+#app-container #options .vb-opt-block-header label {
+    margin: 0;
+}
+
+#app-container .vb-empty-hint {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 60px 20px;
+    color: #9199a3;
+    text-align: center;
+    width: 100%;
+}
+
+#app-container .vb-empty-hint i {
+    font-size: 30px;
+    color: #d7dbe0;
+}
+
+#app-container .vb-empty-hint p {
+    margin: 0;
+    font-size: 12.5px;
+    line-height: 1.7;
 }

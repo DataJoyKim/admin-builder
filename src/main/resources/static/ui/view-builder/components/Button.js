@@ -80,12 +80,17 @@ class Button extends ViewObject {
  * Option Panel Setting
  * ======================================= */
     optionPanelView($panel, options) {
+        $panel.append(this.optionPanel.sectionTitle('기본'));
         $panel.append(this.optionPanel.input('component-id',{label:'컴포넌트명', size:'col-6', enabled:false}));
-        $panel.append(this.optionPanel.input('id',{label:'ID', size:'col-3'}));
+        $panel.append(this.optionPanel.input('id',{label:'ID', size:'col-6'}));
+
+        $panel.append(this.optionPanel.sectionTitle('표시'));
         $panel.append(this.optionPanel.input('icon',{label:'아이콘', size:'col-12'}));
         $panel.append(this.optionPanel.input('text',{label:'라벨', size:'col-12'}));
+
+        $panel.append(this.optionPanel.sectionTitle('동작'));
         $panel.append(this.optionPanel.input('action',{label:'Action', size:'col-8'}));
-        $panel.append(this.optionPanel.button('action-popup',{size:'col-4', icon:'fas fa-search', btnLabel:'Action 검색'}));
+        $panel.append(this.optionPanel.button('action-popup',{size:'col-4', icon:'fas fa-search', btnLabel:'검색'}));
     }
 
     optionPanelScript($el, options) {

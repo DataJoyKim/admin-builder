@@ -61,11 +61,14 @@ class CustomHtml extends ViewObject {
  * Option Panel Setting
  * ======================================= */
     optionPanelView($panel, options) {
+        $panel.append(this.optionPanel.sectionTitle('기본'));
         $panel.append(this.optionPanel.input('component-id',{label:'컴포넌트명', size:'col-6', enabled:false}));
-        $panel.append(this.optionPanel.input('id',{label:'ID', size:'col-5'}));
-        $panel.append(this.optionPanel.input('class',{label:'class 명', size:'col-6'}));
+        $panel.append(this.optionPanel.input('id',{label:'ID', size:'col-6'}));
+        $panel.append(this.optionPanel.input('class',{label:'class 명', size:'col-12'}));
+
+        $panel.append(this.optionPanel.sectionTitle('HTML 내용'));
         $panel.append($(`
-            <div class="form-group col-12">
+            <div class="form-group col-12 vb-opt-block">
                <label for="custom-html-content">Html 내용</label>
                 <textarea id="custom-html-content"></textarea>
             </div>

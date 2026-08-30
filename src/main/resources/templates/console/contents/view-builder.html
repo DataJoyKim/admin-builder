@@ -2,40 +2,33 @@
 <style th:fragment="style">
 </style>
 <div th:fragment="view">
-    <div id="app-container" style="margin:0; display:flex; height:100%; font-family:Arial, sans-serif;">
+    <div id="app-container">
         <div id="left-panel">
-            <div id="object-panel" >
-                <div class="row" style="margin-bottom:5px;">
-                    <div class="input-group col-12">
-                        <input type="text" class="form-control form-control-sm rounded-0" id="objectCode" placeholder="오브젝트코드 입력" spellcheck="false" autocomplete="off" data-watch="true" >
-                        <input type="text" class="form-control form-control-sm rounded-0" id="objectName" placeholder="" spellcheck="false" autocomplete="off" data-watch="true" disabled>
-                        <span class="input-group-append">
-                        <button type="button" class="btn btn-default btn-sm" onclick="openPopupObject()">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </span>
-                    </div>
+            <div id="object-panel">
+                <label class="vb-panel-label">오브젝트</label>
+                <div class="vb-object-input-group">
+                    <input type="text" class="vb-input" id="objectCode" placeholder="오브젝트코드 입력" spellcheck="false" autocomplete="off" data-watch="true">
+                    <button type="button" class="vb-icon-btn" onclick="openPopupObject()" title="오브젝트 찾기">
+                        <i class="fas fa-search"></i>
+                    </button>
                 </div>
+                <input type="text" class="vb-input vb-input-readonly" id="objectName" placeholder="오브젝트명" spellcheck="false" autocomplete="off" data-watch="true" disabled>
 
-                <div class="row">
-                    <div class="form-group col-12">
-                        <button type="button" class="btn btn-default btn-sm" onclick="createObject()">
-                            <i class="fas fa-plus-square"></i><span>Create</span>
-                        </button>
-                        <button type="button" class="btn btn-default btn-sm" onclick="load()">
-                            <i class="fas fa-download"></i><span>Load</span>
-                        </button>
-                        <button type="button" class="btn btn-default btn-sm" onclick="openPopupMenu()">
-                            <i class="fas fa-th-list"></i><span>Menu</span>
-                        </button>
-                    </div>
+                <div class="vb-object-actions">
+                    <button type="button" class="vb-btn" onclick="createObject()" title="새 오브젝트 생성">
+                        <i class="fas fa-plus-square"></i><span>생성</span>
+                    </button>
+                    <button type="button" class="vb-btn" onclick="load()" title="오브젝트 불러오기">
+                        <i class="fas fa-download"></i><span>불러오기</span>
+                    </button>
+                    <button type="button" class="vb-btn" onclick="openPopupMenu()" title="메뉴 관리">
+                        <i class="fas fa-th-list"></i><span>메뉴</span>
+                    </button>
                 </div>
             </div>
 
-            <hr style="border: none; border-top: 1px solid #ddd; margin: 10px 0;">
-
-            <h5>Component</h5>
-            <div id="component-panel" >
+            <h5><i class="fas fa-shapes"></i> Component</h5>
+            <div id="component-panel">
             </div>
         </div>
 
@@ -46,29 +39,30 @@
 
 
         <div id="right-panel">
-            <div class="form-group col-12">
-                <button type="button" class="btn btn-default btn-sm d-none" id="previewBtn" onclick="preview()">
-                    <i class="fas fa-eye"></i>Preview
+            <div class="vb-toolbar">
+                <button type="button" class="vb-btn d-none" id="previewBtn" onclick="preview()" title="미리보기">
+                    <i class="fas fa-eye"></i><span>Preview</span>
                 </button>
-                <button type="button" class="btn btn-default btn-sm d-none" id="cancelPreviewBtn" onclick="cancelPreview()">
-                    <i class="fas fa-undo"></i>Cancel
+                <button type="button" class="vb-btn d-none" id="cancelPreviewBtn" onclick="cancelPreview()" title="미리보기 종료">
+                    <i class="fas fa-undo"></i><span>Cancel</span>
                 </button>
-                <button type="button" class="btn btn-default btn-sm" onclick="openPopupCode()">
-                    <i class="fas fa-book"></i>Code
+                <button type="button" class="vb-btn" onclick="openPopupCode()" title="코드 보기">
+                    <i class="fas fa-book"></i><span>Code</span>
                 </button>
-                <button type="button" class="btn btn-default btn-sm" onclick="openPopupAction()">
-                    <i class="fas fa-layer-group"></i>Action
+                <button type="button" class="vb-btn" onclick="openPopupAction()" title="액션 설정">
+                    <i class="fas fa-layer-group"></i><span>Action</span>
                 </button>
-                <button type="button" class="btn btn-default btn-sm" onclick="save()">
-                    <i class="fas fa-save"></i>Save
+                <button type="button" class="vb-btn vb-btn-primary" onclick="save()" title="저장">
+                    <i class="fas fa-save"></i><span>Save</span>
                 </button>
             </div>
 
-            <hr style="border: none; border-top: 1px solid #ddd; margin: 10px 0;">
-
-            <h5>Option</h5>
+            <h5><i class="fas fa-sliders-h"></i> Option</h5>
             <div id="options">
-                컴포넌트를 선택하세요
+                <div class="vb-empty-hint">
+                    <i class="fas fa-mouse-pointer"></i>
+                    <p>캔버스에서 컴포넌트를 선택하면<br>속성을 편집할 수 있습니다.</p>
+                </div>
             </div>
         </div>
     </div>
