@@ -292,19 +292,24 @@
         padding: 40px 0 60px 0;
     }
 
+    /* #workflowGrid를 카드 폭(300px)에 딱 맞춰 고정하고, 그리드 자체를
+       margin:auto로 가운데 정렬한다. 카드(.step-item)는 그리드 폭을 그대로
+       채우기만 하면 되므로 카드 쪽에는 auto 마진이 전혀 없다.
+       (예전엔 flex(align-items:center) 또는 카드 자체에 margin:auto를 줘서
+       중앙 정렬했는데, 드래그 시 jQuery UI Sortable이 카드를 position:absolute로
+       바꾸면서 margin:auto로 계산된 오프셋을 반영하지 못해 카드가 그리드
+       왼쪽 끝(0)으로 튀어버리는 문제가 있었다 - "레이아웃 좌측에 노드 그림자가
+       생기는" 현상이 바로 이것이었다. 드래그 대상이 아닌 그리드 자체를
+       중앙 정렬하면 이 문제를 원천적으로 피할 수 있다.) */
     #workflowGrid {
         position: relative;
-        width: 100%;
+        width: 300px;
+        margin: 0 auto;
         min-height: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: flex-start;
     }
 
     #connectorLayer {
         overflow: visible;
-        z-index: 0;
     }
 
     .step-item {
@@ -322,7 +327,9 @@
         word-break: break-word;
         overflow-wrap: break-word;
         cursor: pointer;
-        z-index: 1;
+        /* z-index를 여기 주지 않는다: 주면 카드가 로컬 stacking context를 가져서
+           선택 시 뜨는 삭제버튼(.step-tools)이 상세창 딤(backdrop, z-index:4)보다
+           위로 못 올라가 클릭이 씹힌다. 화살표보다 위에 그려지는 건 DOM 순서로 해결한다. */
         transition: box-shadow .15s ease, border-color .15s ease;
     }
 
@@ -377,10 +384,11 @@
         border: 2px dashed #c7cbd1;
         color: #9199a3;
         cursor: pointer;
+        margin: 0 auto;
         /* step-item은 왼쪽에 26px 드래그 핸들이 있어 카드 내용 중심이 그만큼 오른쪽으로
-           치우쳐 있다. + 버튼도 같은 만큼 오른쪽으로 밀어야 화살표가 일직선으로 이어진다. */
-        margin: 0 0 0 26px;
-        z-index: 1;
+           치우쳐 있다. + 버튼도 같은 만큼(핸들 폭의 절반) 오른쪽으로 밀어야
+           화살표가 일직선으로 이어진다. */
+        left: 13px;
         transition: all .15s ease;
     }
 
@@ -430,6 +438,7 @@
         gap: 12px;
         border-top: 1px solid #eef0f2;
         border-bottom: 1px solid #eef0f2;
+        cursor: pointer;
     }
 
     .step-function-img {
@@ -476,15 +485,27 @@
         padding: 5px 9px;
         box-shadow: 0 2px 6px rgba(16, 24, 40, .12);
         opacity: 0;
-        pointer-events: none;
+        /* pointer-events는 항상 auto로 둬야 한다. 이 버튼은 카드 바깥(top:-34px)에
+           떠 있어서 카드 박스와 버튼 박스 사이에 빈 틈이 있는데, hover일 때만
+           auto로 바꾸면 마우스가 카드를 벗어나 버튼 쪽으로 이동하는 순간
+           :hover가 풀리면서 pointer-events가 다시 none이 되어 버튼이 클릭은커녕
+           자기 자신에 대한 hover조차 받을 수 없는(hit-test에서 제외되는) 상태에
+           빠져 버려 클릭이 전혀 먹히지 않았다.
+        */
+        pointer-events: auto;
         transition: opacity .12s ease;
-        z-index: 2;
+        /* 상세창 딤(.wf-drawer-backdrop, z-index:3)보다는 위에 있어야 선택된 노드의
+           삭제 버튼이 딤에 가려 클릭이 씹히지 않는다. 다만 상세창 패널 자체
+           (.wf-node-drawer, z-index:5)보다는 아래여야 한다 - 캔버스가 좁아서 카드가
+           상세창 패널 밑까지 걸치는 경우 버튼이 상세창 내용을 덮어버리는 것을 막기 위함.
+        */
+        z-index: 4;
     }
 
     .step-item:hover .step-tools,
-    .step-item.selected .step-tools {
+    .step-item.selected .step-tools,
+    .step-tools:hover {
         opacity: 1;
-        pointer-events: auto;
     }
 
     .step-tool {
@@ -604,7 +625,7 @@
         opacity: 0;
         pointer-events: none;
         transition: opacity .18s ease;
-        z-index: 4;
+        z-index: 3;
     }
 
     .wf-drawer-backdrop.show {
@@ -1200,12 +1221,17 @@
         layout.empty();
         closeNodeDrawer();
 
+        // 화살표 svg를 카드보다 먼저 넣어야(DOM 순서상 아래) z-index 없이도
+        // 카드가 화살표 위에 그려진다. z-index를 쓰면 노드 카드가 로컬 stacking
+        // context를 갖게 되어, 노드 선택 시 뜨는 삭제버튼이 상세창 딤(backdrop)보다
+        // 위로 올라올 수 없어 클릭이 씹히는 문제가 있었다.
+        layout.append(renderConnectLine());
+
         for(let data of response) {
             const itemId = STEP_ITEM_ID_PREFIX+data.id;
             layout.append(renderStepItem(itemId, data));
         }
         layout.append(renderAddStepItem());
-        layout.append(renderConnectLine());
 
         drawConnectors();
 
@@ -1322,6 +1348,10 @@
         });
 
         stepItemEl.on('dblclick', function(e) {
+            // step-function 영역(아이콘/기능명)을 더블클릭했을 때만 상세 팝업을 연다.
+            // step-message(IN/OUT) 영역 더블클릭은 무시하고 일반 단일클릭(상세창 열기)으로 처리한다.
+            if (!$(e.target).closest('.step-function').length) return;
+
             e.preventDefault();
             const $this = $(this);
             clearTimeout($this.data('clickTimer'));
