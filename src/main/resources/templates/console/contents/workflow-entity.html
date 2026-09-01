@@ -213,6 +213,7 @@
     #wfentity-app .wf-table-toolbar {
         display: flex;
         justify-content: flex-end;
+        gap: 6px;
         margin-bottom: 8px;
     }
 
@@ -515,12 +516,68 @@
     }
 
     function newRowEntityColumnGrid() {
+        const existingData = entityColumnGrid.getData();
+        const maxOrderNum = existingData.reduce((max, row) => Math.max(max, Number(row.orderNum) || 0), 0);
+
         entityColumnGrid.addRow({
             columnName:"(컬럼)",
             displayName:"(화면노출명)",
             columnType:"STRING",
-            orderNum:1
+            orderNum:maxOrderNum + 1
         });
+    }
+
+    function autoAddColumns() {
+        const dataSourceName = $("#entity-dataSourceName").val();
+        const tableName = $("#entity-tableName").val();
+
+        if (!dataSourceName) {
+            alert('데이터소스를 선택해주세요.');
+            return;
+        }
+        if (!tableName) {
+            alert('테이블명을 입력해주세요.');
+            return;
+        }
+
+        httpClient.get(`/console/api/datasource/database/${encodeURIComponent(dataSourceName)}/table/${encodeURIComponent(tableName)}/columns`, {},
+            function(response){
+                if (!response || response.length === 0) {
+                    alert('테이블의 컬럼 정보를 찾을 수 없습니다.');
+                    return;
+                }
+
+                const existingData = entityColumnGrid.getData();
+                const existingNames = existingData.map(row => row.columnName);
+                let maxOrderNum = existingData.reduce((max, row) => Math.max(max, Number(row.orderNum) || 0), 0);
+
+                let addedCount = 0;
+                for (const col of response) {
+                    if (existingNames.includes(col.columnName)) {
+                        continue;
+                    }
+
+                    maxOrderNum++;
+                    existingData.push({
+                        columnName: col.columnName,
+                        displayName: col.comment || col.columnName,
+                        useKey: !!col.primaryKey,
+                        columnType: col.columnType,
+                        orderNum: maxOrderNum
+                    });
+                    addedCount++;
+                }
+
+                entityColumnGrid.setData(existingData);
+
+                if (addedCount === 0) {
+                    alert('추가할 새로운 컬럼이 없습니다.');
+                }
+            },
+            function(error){
+                alert('error');
+            }
+        );
     }
 
     function setDatSourceAsDatabase() {
@@ -735,6 +792,7 @@
                             <div class="tab-pane fade show active" id="column-def" role="tabpanel" aria-labelledby="column-def-tab">
                                 <div class="wf-section-body">
                                     <div class="wf-table-toolbar">
+                                        <button type="button" class="wf-btn" onclick="autoAddColumns()"><i class="fas fa-magic"></i>자동컬럼추가</button>
                                         <button type="button" class="wf-btn" onclick="newRowEntityColumnGrid()"><i class="fas fa-plus"></i>컬럼 추가</button>
                                     </div>
                                     <div class="wf-table-wrap" id="entityColumnGrid"></div>

@@ -8,7 +8,11 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
+
 public interface ConsoleDatabaseMetaRepository extends JpaRepository<DataSourceDatabaseMeta, Long> {
+
+    Optional<DataSourceDatabaseMeta> findByDataSourceName(String dataSourceName);
 
     @Transactional
     @Modifying

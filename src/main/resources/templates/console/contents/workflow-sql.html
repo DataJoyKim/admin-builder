@@ -209,6 +209,7 @@
     #wfsql-app .wf-table-toolbar {
         display: flex;
         justify-content: flex-end;
+        gap: 6px;
         margin-bottom: 8px;
     }
 
@@ -464,6 +465,10 @@
             functionName = data.functionName;
             getQuery(functionName);
         });
+
+        $('#execute-tab').on('shown.bs.tab', function(){
+            syncExecuteParams();
+        });
     }
 
     function newParameter() {
@@ -473,6 +478,58 @@
             autoValueType:"DEFAULT",
             inOut:"IN"
         });
+    }
+
+    function extractSqlParamNames() {
+        const query = sqlEditor.getValue();
+        const regex = /#\{\s*([a-zA-Z0-9_]+)\s*\}/g;
+
+        const foundNames = [];
+        let match;
+        while ((match = regex.exec(query)) !== null) {
+            if (!foundNames.includes(match[1])) {
+                foundNames.push(match[1]);
+            }
+        }
+        return foundNames;
+    }
+
+    function autoAddParameters() {
+        const foundNames = extractSqlParamNames();
+
+        const keptData = queryParameterGrid.getData().filter(row => foundNames.includes(row.paramName));
+        const keptNames = keptData.map(row => row.paramName);
+
+        for (const paramName of foundNames) {
+            if (!keptNames.includes(paramName)) {
+                keptData.push({
+                    paramName: paramName,
+                    paramType: "STRING",
+                    autoValueType: "DEFAULT",
+                    inOut: "IN"
+                });
+            }
+        }
+
+        queryParameterGrid.setData(keptData);
+    }
+
+    function syncExecuteParams() {
+        const foundNames = extractSqlParamNames();
+
+        const keptData = executeGrid.getData().filter(row => foundNames.includes(row.key));
+        const keptKeys = keptData.map(row => row.key);
+
+        for (const paramName of foundNames) {
+            if (!keptKeys.includes(paramName)) {
+                keptData.push({
+                    key: paramName,
+                    value: ""
+                });
+            }
+        }
+
+        executeGrid.setData(keptData);
     }
 
     function initCodeEditor(id,mode) {
@@ -666,6 +723,7 @@
                         <div class="wf-section-header"><i class="fas fa-list"></i><span>SQL 파라미터</span></div>
                         <div class="wf-section-body">
                             <div class="wf-table-toolbar">
+                                <button type="button" class="wf-btn" onclick="autoAddParameters()"><i class="fas fa-magic"></i>자동파라미터추가</button>
                                 <button type="button" class="wf-btn" onclick="newParameter()"><i class="fas fa-plus"></i>파라미터 추가</button>
                             </div>
                             <div class="wf-table-wrap" id="queryParameterGrid"></div>

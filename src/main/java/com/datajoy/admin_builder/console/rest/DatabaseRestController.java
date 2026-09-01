@@ -1,16 +1,21 @@
 package com.datajoy.admin_builder.console.rest;
 
 import com.datajoy.admin_builder.datasource.ConnectValidation;
+import com.datajoy.admin_builder.datasource.LookupKey;
 import com.datajoy.admin_builder.datasource.database.DataSourceDatabaseRegister;
 import com.datajoy.admin_builder.datasource.database.DataSourceDatabaseMeta;
 import com.datajoy.admin_builder.datasource.database.DataSourceDatabaseValidator;
 import com.datajoy.admin_builder.datasource.database.DatabaseKind;
+import com.datajoy.admin_builder.datasource.database.schema.ColumnSchema;
+import com.datajoy.admin_builder.datasource.database.schema.TableSchemaReader;
 import com.datajoy.admin_builder.console.repository.ConsoleDatabaseMetaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.sql.DataSource;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -117,6 +122,29 @@ public class DatabaseRestController {
         ConnectValidation validate = dataSourceDatabaseValidator.validateConnect(metadata, DataSourceDatabaseRegister.getDataSourceMap());
 
         return new ResponseEntity<>(validate, HttpStatus.OK);
+    }
+
+    @GetMapping("/{dataSourceName}/table/{tableName}/columns")
+    public ResponseEntity<?> getTableColumns(
+            @PathVariable("dataSourceName") String dataSourceName,
+            @PathVariable("tableName") String tableName
+    ) {
+        DataSourceDatabaseMeta metadata = databaseMetaRepository.findByDataSourceName(dataSourceName)
+                .orElseThrow(RuntimeException::new);
+
+        DataSource dataSource = DataSourceDatabaseRegister.getDataSource(LookupKey.generateKey(dataSourceName));
+        if (dataSource == null) {
+            throw new RuntimeException("초기화되지 않은 데이터소스입니다. [dataSourceName:" + dataSourceName + "]");
+        }
+
+        try {
+            List<ColumnSchema> results = TableSchemaReader.readColumns(metadata.getDatabaseKind(), dataSource, tableName);
+
+            return new ResponseEntity<>(results, HttpStatus.OK);
+        }
+        catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @GetMapping("/summary")
