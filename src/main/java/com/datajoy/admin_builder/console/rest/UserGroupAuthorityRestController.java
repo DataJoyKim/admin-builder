@@ -42,9 +42,12 @@ public class UserGroupAuthorityRestController {
         Authority authority = authorityRepository.findById(authorityId)
                 .orElseThrow(RuntimeException::new);
 
+        Boolean lowerAuthorityGrant = Boolean.TRUE.equals(params.get("lowerAuthorityGrant"));
+
         UserGroupAuthority createdData = UserGroupAuthority.builder()
                 .authority(authority)
                 .userGroup(userGroup)
+                .lowerAuthorityGrant(lowerAuthorityGrant)
                 .build();
 
         return new ResponseEntity<>(repository.save(createdData), HttpStatus.OK);
@@ -64,7 +67,9 @@ public class UserGroupAuthorityRestController {
         Authority authority = authorityRepository.findById(authorityId)
                 .orElseThrow(RuntimeException::new);
 
-        savedData.update(userGroup, authority);
+        Boolean lowerAuthorityGrant = Boolean.TRUE.equals(params.get("lowerAuthorityGrant"));
+
+        savedData.update(userGroup, authority, lowerAuthorityGrant);
 
         repository.save(savedData);
 

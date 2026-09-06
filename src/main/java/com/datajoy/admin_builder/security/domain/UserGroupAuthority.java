@@ -26,8 +26,9 @@ public class UserGroupAuthority {
     @JoinColumn(name = "USER_GROUP_CODE")
     private UserGroup userGroup;
 
-    public void update(UserGroup userGroup, Authority authority) {
+    public void update(UserGroup userGroup, Authority authority, Boolean lowerAuthorityGrant) {
         this.userGroup = userGroup;
         this.authority = authority;
+        this.lowerAuthorityGrant = lowerAuthorityGrant;
     }
 }

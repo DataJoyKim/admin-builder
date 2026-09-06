@@ -10,10 +10,12 @@ import com.datajoy.admin_builder.security.repository.UserGroupAuthorityRepositor
 import com.datajoy.admin_builder.security.token.AuthTokenResponse;
 import com.datajoy.admin_builder.security.token.JwtProvider;
 import com.datajoy.admin_builder.user.User;
+import com.datajoy.admin_builder.user.UserGroup;
 import com.datajoy.admin_builder.user.UserGroupUser;
 import com.datajoy.admin_builder.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -25,6 +27,7 @@ public class AuthService {
     private final UserGroupAuthorityRepository userGroupAuthorityRepository;
     private final JwtProvider jwtProvider;
 
+    @Transactional(readOnly = true)
     public AuthenticatedUser authentication(String accessToken) throws SecurityBusinessException {
         if(accessToken == null) {
             throw new SecurityBusinessException(SecurityErrorMessage.NOT_LOGIN);
@@ -49,14 +52,28 @@ public class AuthService {
         List<UserGroupUser> userGroupUsers = userService.getUserGroupUser(authenticatedUser.getUserId());
 
         for(UserGroupUser userGroupUser : userGroupUsers) {
-            List<UserGroupAuthority> userGroupAuthorities = userGroupAuthorityRepository.findByUserGroupCode(userGroupUser.getUserGroup().getCode());
-
-            for(UserGroupAuthority userGroupAuthority : userGroupAuthorities) {
-                authenticatedUser.grantAuthority(userGroupAuthority.getAuthority());
-            }
+            grantUserGroupAuthorities(authenticatedUser, userGroupUser.getUserGroup());
         }
 
         return authenticatedUser;
+    }
+
+    // 자신이 속한 그룹의 권한은 그대로, 상위 그룹의 권한은 하위 전파(lowerAuthorityGrant)로 설정된 것만 부여한다.
+    private void grantUserGroupAuthorities(AuthenticatedUser authenticatedUser, UserGroup userGroup) {
+        List<UserGroupAuthority> userGroupAuthorities = userGroupAuthorityRepository.findByUserGroupCode(userGroup.getCode());
+        for(UserGroupAuthority userGroupAuthority : userGroupAuthorities) {
+            authenticatedUser.grantAuthority(userGroupAuthority.getAuthority());
+        }
+
+        for(UserGroup ancestor : userGroup.getAncestors()) {
+            List<UserGroupAuthority> ancestorAuthorities = userGroupAuthorityRepository.findByUserGroupCode(ancestor.getCode());
+
+            for(UserGroupAuthority ancestorAuthority : ancestorAuthorities) {
+                if(Boolean.TRUE.equals(ancestorAuthority.getLowerAuthorityGrant())) {
+                    authenticatedUser.grantAuthority(ancestorAuthority.getAuthority());
+                }
+            }
+        }
     }
 
     public AuthTokenResponse refreshToken(String refreshToken) throws SecurityBusinessException {
