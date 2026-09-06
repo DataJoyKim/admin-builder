@@ -42,6 +42,25 @@ spring:
         format_sql: true
         show_sql: true
 
+  quartz:
+    job-store-type: memory
+    # 여러 인스턴스로 배포(클러스터링)할 때는 아래처럼 전환한다:
+    # job-store-type: jdbc
+    # jdbc:
+    #   initialize-schema: always
+    # (jobStore.isClustered는 JDBC 기반 JobStore(JobStoreTX)에만 존재하는 속성이라
+    #  jdbc 모드로 전환할 때만 아래 한 줄을 함께 추가해야 한다. RAMJobStore(memory 모드)에는
+    #  해당 setter 자체가 없어 설정 시 기동 오류가 난다.)
+    # org.quartz.jobStore.isClustered: true
+    properties:
+      org:
+        quartz:
+          scheduler:
+            instanceName: AdminBuilderScheduler
+            instanceId: AUTO
+          threadPool:
+            threadCount: 5
+
 server:
   port: 8080
 

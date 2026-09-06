@@ -61,6 +61,26 @@ public class WorkflowService {
         }
     }
 
+    // 스케줄러 등 HTTP 요청/세션이 없는 시스템 트리거에서 워크플로우를 실행한다.
+    // 인증할 사용자 세션이 없으므로 useAuthValidation 여부와 무관하게 user=null로 실행한다.
+    public ResponseMessage executeBySystem(RequestMessage requestMessage) {
+        try {
+            Optional<Workflow> opWorkflow = workflowRepository.findByWorkflowCode(requestMessage.getHeader().getWorkflowCode());
+            if(opWorkflow.isEmpty()) {
+                throw new BusinessException(WorkflowErrorMessage.NOT_FOUND_WORKFLOW);
+            }
+
+            Workflow workflow = opWorkflow.get();
+
+            List<WorkflowFunction> functions = workflowFunctionRepository.findByWorkflowId(workflow.getId());
+
+            return executeFunction(requestMessage, null, functions);
+        }
+        catch (BusinessException e) {
+            return ResponseMessage.createErrorMessage(e.getStatus(), e.getCode(), e.getMsg());
+        }
+    }
+
     public void validateAuthorization(AuthenticatedUser user, Workflow workflow) throws BusinessException {
         List<WorkflowAuthority> workflowAuthorities = workflowAuthorityRepository.findByWorkflow(workflow);
         if(workflowAuthorities.isEmpty()) {
