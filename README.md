@@ -1,12 +1,14 @@
-# Overview
-Admin 페이지를 웹 콘솔에서 설정을 통해 생성해주는 서비스 입니다.<br>
-<br>
-정형화된 Admin 페이지를 단순 반복 개발하는 리소스를 최소화하여<br>
-의미있는 비즈니스 개발에 집중 할 수 있도록 지원합니다.  
+# Low-Code 애플리케이션 플랫폼 / App Builder 
+## Overview
+어드민, 백오피스, 업무 시스템을 구축하는 Low-code 애플리케이션 플랫폼입니다.
 
-# Tool
+``가치있는 일에 집중 할 수 있는 환경을 만듭니다.``
+
+## 효과
+
+## Tool
 Spring Boot, AdminLTE
 
-# License
+## License
 
 MIT License

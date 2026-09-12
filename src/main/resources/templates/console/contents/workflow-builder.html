@@ -327,9 +327,14 @@
         word-break: break-word;
         overflow-wrap: break-word;
         cursor: pointer;
-        /* z-index를 여기 주지 않는다: 주면 카드가 로컬 stacking context를 가져서
-           선택 시 뜨는 삭제버튼(.step-tools)이 상세창 딤(backdrop, z-index:4)보다
-           위로 못 올라가 클릭이 씹힌다. 화살표보다 위에 그려지는 건 DOM 순서로 해결한다. */
+        /* 상세창 딤(.wf-drawer-backdrop, z-index:3)보다 위에 둔다. 딤보다 아래면
+           상세창이 열린 상태에서 다른 노드를 클릭할 때 카드가 아니라 딤이 클릭을
+           받아 상세창이 닫혀버려서, 노드를 바로 갈아타지 못한다.
+           카드가 stacking context를 갖게 되므로 카드 안의 .step-tools는 카드 기준으로만
+           쌓이지만, 카드 자체가 이미 딤 위에 있어 버튼 클릭도 정상 동작한다.
+           상세창 패널(.wf-node-drawer, z-index:5)보다는 아래여야 패널을 가리지 않는다.
+           화살표(svg)보다 위에 그려지는 건 DOM 순서로도 유지된다. */
+        z-index: 4;
         transition: box-shadow .15s ease, border-color .15s ease;
     }
 
@@ -385,6 +390,8 @@
         color: #9199a3;
         cursor: pointer;
         margin: 0 auto;
+        /* 카드와 같은 이유로 딤 위에 둔다 - 상세창이 열린 상태에서도 단계 추가가 가능해야 한다. */
+        z-index: 4;
         /* step-item은 왼쪽에 26px 드래그 핸들이 있어 카드 내용 중심이 그만큼 오른쪽으로
            치우쳐 있다. + 버튼도 같은 만큼(핸들 폭의 절반) 오른쪽으로 밀어야
            화살표가 일직선으로 이어진다. */
@@ -494,12 +501,11 @@
         */
         pointer-events: auto;
         transition: opacity .12s ease;
-        /* 상세창 딤(.wf-drawer-backdrop, z-index:3)보다는 위에 있어야 선택된 노드의
-           삭제 버튼이 딤에 가려 클릭이 씹히지 않는다. 다만 상세창 패널 자체
-           (.wf-node-drawer, z-index:5)보다는 아래여야 한다 - 캔버스가 좁아서 카드가
-           상세창 패널 밑까지 걸치는 경우 버튼이 상세창 내용을 덮어버리는 것을 막기 위함.
-        */
-        z-index: 4;
+        /* 카드(.step-item, z-index:4) 안쪽 기준으로만 쌓인다. 카드가 이미 상세창 딤
+           위에 있으므로 딤에 가려 클릭이 씹히지 않고, 상세창 패널(z-index:5)보다는
+           카드 자체가 아래라 패널 내용을 덮지도 않는다. 여기 z-index는 같은 카드
+           안의 형제(드래그 핸들/본문) 위로 올리는 용도다. */
+        z-index: 1;
     }
 
     .step-item:hover .step-tools,
@@ -512,9 +518,21 @@
         cursor: pointer;
         color: #9199a3;
         font-size: 11px;
+        padding: 2px 3px;
     }
 
-    .step-tool:hover {
+    /* 상세설정과 삭제는 성격이 다른 동작이라 구분선으로 나눠 오클릭을 줄인다. */
+    .step-tool-delete {
+        border-left: 1px solid #e5e7eb;
+        padding-left: 10px;
+        margin-left: 2px;
+    }
+
+    .step-tool-detail:hover {
+        color: #4A90E2;
+    }
+
+    .step-tool-delete:hover {
         color: #dc2626;
     }
 
@@ -1300,8 +1318,6 @@
         return info ? info.icon : null;
     }
 
-    const STEP_CLICK_DELAY = 220; // 더블클릭과 구분하기 위한 단일클릭 지연시간(ms)
-
     function renderStepItem(id, data) {
         const stepItemEl = $(`
             <div class="step-item connector" id="${id}">
@@ -1326,38 +1342,26 @@
                     </div>
                 </div>
                 <span class="step-tools">
-                    <i class="step-tool fas fa-trash" title="삭제"></i>
+                    <i class="step-tool step-tool-detail fas fa-sliders-h" title="상세 설정"></i>
+                    <i class="step-tool step-tool-delete fas fa-trash" title="삭제"></i>
                 </span>
             </div>
         `);
 
-        stepItemEl.find('.step-tool').on('click', function(e) {
+        stepItemEl.find('.step-tool-detail').on('click', function(e) {
+            e.stopPropagation();
+
+            const d = getStepItemData(id);
+            if (d) openPopupFunctionSetting(d.functionType, d.functionName);
+        });
+
+        stepItemEl.find('.step-tool-delete').on('click', function(e) {
             e.stopPropagation();
             deleteFunction(id);
         });
 
-        // 단일클릭은 상세창을, 더블클릭은 기능 설정 팝업을 열어야 하는데
-        // 브라우저는 더블클릭 시에도 click 이벤트를 먼저 발생시키므로
-        // 지연 타이머로 두 동작이 동시에 뜨는 충돌을 막는다.
         stepItemEl.on('click', function() {
-            const $this = $(this);
-            clearTimeout($this.data('clickTimer'));
-            $this.data('clickTimer', setTimeout(function() {
-                openNodeDrawer(id);
-            }, STEP_CLICK_DELAY));
-        });
-
-        stepItemEl.on('dblclick', function(e) {
-            // step-function 영역(아이콘/기능명)을 더블클릭했을 때만 상세 팝업을 연다.
-            // step-message(IN/OUT) 영역 더블클릭은 무시하고 일반 단일클릭(상세창 열기)으로 처리한다.
-            if (!$(e.target).closest('.step-function').length) return;
-
-            e.preventDefault();
-            const $this = $(this);
-            clearTimeout($this.data('clickTimer'));
-
-            const d = getStepItemData(id);
-            if (d) openPopupFunctionSetting(d.functionType, d.functionName);
+            openNodeDrawer(id);
         });
 
         return stepItemEl;
