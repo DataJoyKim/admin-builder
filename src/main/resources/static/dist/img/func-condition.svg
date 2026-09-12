@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 44" width="44" height="44" role="img" aria-label="조건분기">
+    <rect width="44" height="44" rx="9" fill="#6366F1"/>
+    <g fill="none" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round">
+        <path d="M22 12 V19"/>
+        <path d="M22 19 C22 25 12 23 12 29"/>
+        <path d="M22 19 C22 25 32 23 32 29"/>
+    </g>
+    <circle cx="22" cy="11" r="3.1" fill="#ffffff"/>
+    <circle cx="12" cy="31" r="3.1" fill="#ffffff"/>
+    <circle cx="32" cy="31" r="3.1" fill="#ffffff"/>
+</svg>

@@ -10,6 +10,7 @@ import lombok.Getter;
 public class WorkflowFunctionResponse {
     private Long id;
     private Long workflowId;
+    private String nodeId;
     private String functionName;
     private String displayName;
     private FunctionType functionType;

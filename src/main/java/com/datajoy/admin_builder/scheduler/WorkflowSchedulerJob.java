@@ -8,10 +8,14 @@ import com.datajoy.admin_builder.scheduler.domain.SchedulerJobHistory;
 import com.datajoy.admin_builder.scheduler.domain.SchedulerJobWorkflow;
 import com.datajoy.admin_builder.workflow.WorkflowService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -35,6 +39,9 @@ public class WorkflowSchedulerJob implements Job {
 
     @Override
     public void execute(JobExecutionContext context) {
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+        HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getResponse();
+
         Long schedulerJobId = context.getJobDetail().getJobDataMap().getLong("schedulerJobId");
 
         SchedulerJob schedulerJob = schedulerJobRepository.findById(schedulerJobId).orElse(null);
@@ -61,7 +68,7 @@ public class WorkflowSchedulerJob implements Job {
             try {
                 RequestMessage requestMessage = buildRequestMessage(workflowCode, jobWorkflow.getRequestMessageJson());
 
-                ResponseMessage responseMessage = workflowService.executeBySystem(requestMessage);
+                ResponseMessage responseMessage = workflowService.execute(request, response, requestMessage);
 
                 if(ResultType.SUCCESS.equals(responseMessage.getResultType())) {
                     successCount++;

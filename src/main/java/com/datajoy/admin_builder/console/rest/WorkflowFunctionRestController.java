@@ -24,10 +24,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController("console.WorkflowFunctionRestController")
 @RequestMapping("/console/api/workflow-function")
 public class WorkflowFunctionRestController {
+    private static final String CONDITION_DISPLAY_NAME = "조건분기";
+
     @Autowired
     private WorkflowFunctionRepository repository;
     @Autowired
@@ -73,6 +76,8 @@ public class WorkflowFunctionRestController {
     private static WorkflowFunction createWorkflowFunction(Map<String, Object> params) {
         return WorkflowFunction.builder()
                 .workflowId(DataTypeUtil.valueLongOf(params.get("workflowId")))
+                // 흐름이 nodeId 로만 이어지므로 비어있는 채로 저장되면 안 된다.
+                .nodeId(resolveNodeId((String) params.get("nodeId")))
                 .functionName((String) params.get("functionName"))
                 .functionType(FunctionType.valueOf((String) params.get("functionType")))
                 .orderNum((Integer) params.get("orderNum"))
@@ -85,6 +90,7 @@ public class WorkflowFunctionRestController {
     private static void updateWorkflowFunction(Map<String, Object> params, WorkflowFunction workflowFunction) {
         workflowFunction.update(
                 DataTypeUtil.valueLongOf(params.get("workflowId")),
+                resolveNodeId((String) params.get("nodeId")),
                 (String) params.get("functionName"),
                 FunctionType.valueOf((String) params.get("functionType")),
                 (Integer) params.get("orderNum"),
@@ -92,6 +98,10 @@ public class WorkflowFunctionRestController {
                 (String) params.get("requestMessageId"),
                 (String) params.get("responseMessageId")
         );
+    }
+
+    private static String resolveNodeId(String nodeId) {
+        return (nodeId == null || nodeId.isBlank()) ? "node-" + UUID.randomUUID() : nodeId;
     }
 
     @GetMapping("")
@@ -106,6 +116,7 @@ public class WorkflowFunctionRestController {
             response.add(WorkflowFunctionResponse.builder()
                     .id(w.getId())
                     .workflowId(w.getWorkflowId())
+                    .nodeId(w.getNodeId())
                     .functionName(w.getFunctionName())
                     .displayName(displayName)
                     .functionType(w.getFunctionType())
@@ -151,6 +162,10 @@ public class WorkflowFunctionRestController {
             if(func.isPresent()){
                 displayName = func.get().getDisplayName();
             }
+        }
+        else if(FunctionType.CONDITION.equals(w.getFunctionType())) {
+            // 조건분기는 따로 등록해둔 기능이 없고 판정식 자체가 내용이라 고정 이름을 쓴다.
+            displayName = CONDITION_DISPLAY_NAME;
         }
         return displayName;
     }

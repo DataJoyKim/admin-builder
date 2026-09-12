@@ -19,6 +19,11 @@ public class WorkflowFunction {
     @Column(name = "WORKFLOW_ID", nullable = false)
     private Long workflowId;
 
+    // 워크플로우 안에서 노드를 식별하는 값. WorkflowEdge 가 이 값으로 노드를 연결한다.
+    // 저장 시 노드를 전부 지우고 다시 넣기 때문에 DB id 는 매번 바뀐다. 그래서 연결정보는 id 가 아니라 nodeId 를 쓴다.
+    @Column(length = 100)
+    private String nodeId;
+
     @Column(nullable = false, length = 100)
     private String functionName;
 
@@ -30,6 +35,7 @@ public class WorkflowFunction {
     @Column(length = 100)
     private ErrorResolveType errorResolveType;
 
+    // 연결정보가 없는 예전 워크플로우를 직선 흐름으로 해석할 때의 순서이자, 빌더 화면의 표시 순서.
     @Column
     private Integer orderNum;
 
@@ -42,8 +48,13 @@ public class WorkflowFunction {
     @Column(length = 100)
     private String responseMessageId;
 
+    public boolean isCondition() {
+        return FunctionType.CONDITION.equals(functionType);
+    }
+
     public void update(
             Long workflowId,
+            String nodeId,
             String functionName,
             FunctionType functionType,
             Integer orderNum,
@@ -52,6 +63,7 @@ public class WorkflowFunction {
             String responseMessageId
     ) {
         this.workflowId = workflowId;
+        this.nodeId = nodeId;
         this.functionName = functionName;
         this.functionType = functionType;
         this.orderNum = orderNum;

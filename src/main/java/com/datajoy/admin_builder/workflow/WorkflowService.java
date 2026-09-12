@@ -2,6 +2,7 @@ package com.datajoy.admin_builder.workflow;
 
 import com.datajoy.admin_builder.dto.RequestMessage;
 import com.datajoy.admin_builder.dto.ResponseMessage;
+import com.datajoy.admin_builder.executor.script.ScriptEngineExecuteException;
 import com.datajoy.admin_builder.function.*;
 import com.datajoy.admin_builder.function.code.ResultType;
 import com.datajoy.admin_builder.security.domain.AuthenticatedUser;
@@ -9,6 +10,7 @@ import com.datajoy.admin_builder.security.domain.GrantedAuthority;
 import com.datajoy.admin_builder.security.exception.SecurityBusinessException;
 import com.datajoy.admin_builder.security.service.AuthService;
 import com.datajoy.admin_builder.security.token.TokenCookie;
+import com.datajoy.admin_builder.workflow.code.BranchType;
 import com.datajoy.core.exception.BusinessException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -22,8 +24,11 @@ import java.util.*;
 public class WorkflowService {
     private final WorkflowRepository workflowRepository;
     private final WorkflowFunctionRepository workflowFunctionRepository;
+    private final WorkflowEdgeRepository workflowEdgeRepository;
+    private final WorkflowConditionRepository workflowConditionRepository;
     private final WorkflowAuthorityRepository workflowAuthorityRepository;
     private final FunctionFactory functionFactory;
+    private final ConditionEvaluator conditionEvaluator;
     private final AuthService authService;
 
     public ResponseMessage execute(
@@ -32,14 +37,7 @@ public class WorkflowService {
             RequestMessage requestMessage
     ) {
         try {
-            Optional<Workflow> opWorkflow = workflowRepository.findByWorkflowCode(requestMessage.getHeader().getWorkflowCode());
-            if(opWorkflow.isEmpty()) {
-                throw new BusinessException(WorkflowErrorMessage.NOT_FOUND_WORKFLOW);
-            }
-
-            Workflow workflow = opWorkflow.get();
-
-            List<WorkflowFunction> functions = workflowFunctionRepository.findByWorkflowId(workflow.getId());
+            Workflow workflow = findWorkflow(requestMessage);
 
             AuthenticatedUser user = null;
 
@@ -51,30 +49,10 @@ public class WorkflowService {
                 validateAuthorization(user, workflow);
             }
 
-            return executeFunction(requestMessage, user, functions);
+            return executeFunction(requestMessage, user, createGraph(workflow));
         }
         catch (SecurityBusinessException e) {
             return ResponseMessage.createErrorMessage(e.getStatus(), e.getErrorCode(), e.getErrorMsg());
-        }
-        catch (BusinessException e) {
-            return ResponseMessage.createErrorMessage(e.getStatus(), e.getCode(), e.getMsg());
-        }
-    }
-
-    // 스케줄러 등 HTTP 요청/세션이 없는 시스템 트리거에서 워크플로우를 실행한다.
-    // 인증할 사용자 세션이 없으므로 useAuthValidation 여부와 무관하게 user=null로 실행한다.
-    public ResponseMessage executeBySystem(RequestMessage requestMessage) {
-        try {
-            Optional<Workflow> opWorkflow = workflowRepository.findByWorkflowCode(requestMessage.getHeader().getWorkflowCode());
-            if(opWorkflow.isEmpty()) {
-                throw new BusinessException(WorkflowErrorMessage.NOT_FOUND_WORKFLOW);
-            }
-
-            Workflow workflow = opWorkflow.get();
-
-            List<WorkflowFunction> functions = workflowFunctionRepository.findByWorkflowId(workflow.getId());
-
-            return executeFunction(requestMessage, null, functions);
         }
         catch (BusinessException e) {
             return ResponseMessage.createErrorMessage(e.getStatus(), e.getCode(), e.getMsg());
@@ -114,39 +92,99 @@ public class WorkflowService {
         }
     }
 
+    private Workflow findWorkflow(RequestMessage requestMessage) throws BusinessException {
+        Optional<Workflow> opWorkflow = workflowRepository.findByWorkflowCode(requestMessage.getHeader().getWorkflowCode());
+        if(opWorkflow.isEmpty()) {
+            throw new BusinessException(WorkflowErrorMessage.NOT_FOUND_WORKFLOW);
+        }
+
+        return opWorkflow.get();
+    }
+
+    private WorkflowGraph createGraph(Workflow workflow) {
+        return WorkflowGraph.of(
+                workflowFunctionRepository.findByWorkflowId(workflow.getId()),
+                workflowEdgeRepository.findByWorkflowId(workflow.getId()),
+                workflowConditionRepository.findByWorkflowId(workflow.getId())
+        );
+    }
+
+    // 시작 노드부터 연결정보(WorkflowEdge)를 따라가며 실행한다.
+    // 조건분기 노드는 걸린 조건의 가지 하나로만 이어지므로 나머지 가지의 노드는 실행되지 않는다.
     private ResponseMessage executeFunction(
             RequestMessage requestMessage,
             AuthenticatedUser user,
-            List<WorkflowFunction> functions
-    ) {
+            WorkflowGraph graph
+    ) throws BusinessException {
         Map<String, List<Map<String, Object>>> messageStorage = requestMessage.getBody();
 
+        List<WorkflowFunction> executedFunctions = new ArrayList<>();
         int failureCnt = 0;
-        for(WorkflowFunction func : functions) {
-            FunctionExecutor executor = functionFactory.instance(func.getFunctionType());
+        int step = 0;
 
-            List<Map<String, Object>> params = messageStorage.get(func.getRequestMessageId());
+        WorkflowFunction current = graph.getStartNode();
+
+        while(current != null) {
+            if(++step > WorkflowGraph.MAX_EXECUTE_STEP) {
+                throw new BusinessException(WorkflowErrorMessage.EXCEED_MAX_EXECUTE_STEP);
+            }
+
+            List<Map<String, Object>> params = messageStorage.get(current.getRequestMessageId());
             if(params == null) {
                 params = new ArrayList<>();
             }
 
-            FunctionResult result = executor.execute(user, func.getFunctionName(), params);
+            if(current.isCondition()) {
+                current = nextOfCondition(graph, current, params);
+                continue;
+            }
+
+            FunctionExecutor executor = functionFactory.instance(current.getFunctionType());
+
+            FunctionResult result = executor.execute(user, current.getFunctionName(), params);
 
             if(ResultType.FAILURE.equals(result.getResultType())) {
                 failureCnt++;
             }
 
-            messageStorage.put(func.getResponseMessageId(), result.getResults());
+            messageStorage.put(current.getResponseMessageId(), result.getResults());
+            executedFunctions.add(current);
+
+            current = graph.next(current, BranchType.DEFAULT);
         }
 
         if(failureCnt == 0) {
-            return ResponseMessage.createSuccessMessage(createResponseData(functions, messageStorage));
+            return ResponseMessage.createSuccessMessage(createResponseData(executedFunctions, messageStorage));
         }
-        else if(failureCnt < functions.size()) {
+        else if(failureCnt < executedFunctions.size()) {
             return ResponseMessage.createErrorMessage(500, "E-EXE-002", "에러가 발생되었습니다.", messageStorage);
         }
         else {
             return ResponseMessage.createErrorMessage(500, "E-EXE-001", "에러가 발생되었습니다.", messageStorage);
+        }
+    }
+
+    // 조건은 if, else if ... 순서대로 판정해서 처음 참이 된 가지로 흐른다. 전부 거짓이면 else 가지로 흐른다.
+    private WorkflowFunction nextOfCondition(
+            WorkflowGraph graph,
+            WorkflowFunction condition,
+            List<Map<String, Object>> params
+    ) throws BusinessException {
+        for(WorkflowCondition workflowCondition : graph.conditionsOf(condition)) {
+            if(evaluate(workflowCondition.getConditionExpression(), params)) {
+                return graph.nextCase(condition, workflowCondition.getBranchId());
+            }
+        }
+
+        return graph.nextElse(condition);
+    }
+
+    private boolean evaluate(String conditionExpression, List<Map<String, Object>> params) throws BusinessException {
+        try {
+            return conditionEvaluator.evaluate(conditionExpression, params);
+        }
+        catch (ScriptEngineExecuteException e) {
+            throw new BusinessException(WorkflowErrorMessage.FAILURE_CONDITION_EVALUATE);
         }
     }
 
