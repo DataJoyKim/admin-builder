@@ -44,6 +44,9 @@ class WorkflowSaveIntegrationTest {
         node.put("isLogging", false);
         node.put("requestMessageId", "IN");
         node.put("responseMessageId", "OUT_" + nodeId);
+        // 빌더 캔버스에서의 위치. 실행에는 쓰이지 않지만 화면을 다시 열 때 그대로 살아나야 한다.
+        node.put("positionX", orderNum * 100);
+        node.put("positionY", orderNum * 200);
         return node;
     }
 
@@ -133,6 +136,67 @@ class WorkflowSaveIntegrationTest {
         assertEquals("node-3", graph.nextCase(branch, "c1").getNodeId());
         assertEquals("node-4", graph.nextCase(branch, "c2").getNodeId());
         assertEquals("node-5", graph.nextElse(branch).getNodeId());
+    }
+
+    @Test
+    public void 갈라진_가지가_같은_노드로_합쳐지게_저장된다() {
+        Map<String,Object> workflow = new HashMap<>();
+        workflow.put("id", "");
+        workflow.put("workflowCode", "TEST1000_R03");
+        workflow.put("displayName", "분기 합류 저장 확인");
+        workflow.put("note", "");
+        workflow.put("useAuthValidation", false);
+
+        // if -> A -> C, else -> B -> C. 빌더에서 C 를 하나만 두고 양쪽에서 이어놓은 모양이다.
+        Map<String,Object> params = new HashMap<>();
+        params.put("workflow", workflow);
+        params.put("workflowFunctions", List.of(
+                node("node-1", "CONDITION", "", 1),
+                node("node-2", "SQL", "A_STEP", 2),
+                node("node-3", "SQL", "B_STEP", 3),
+                node("node-4", "SQL", "C_STEP", 4)
+        ));
+        params.put("workflowEdges", List.of(
+                edge("node-1", "node-2", "CASE", "c1", 0),
+                edge("node-1", "node-3", "ELSE", null, 1),
+                edge("node-2", "node-4", "DEFAULT", null, 2),
+                edge("node-3", "node-4", "DEFAULT", null, 3)
+        ));
+        params.put("workflowConditions", List.of(condition("node-1", "c1", "params[0].grade === 'A'", 0)));
+        params.put("workflowAuthority", new ArrayList<Map<String,Object>>());
+
+        workflowRestController.save(params);
+
+        Workflow saved = workflowRepository.findByWorkflowCode("TEST1000_R03").orElseThrow();
+
+        List<WorkflowFunction> functions = workflowFunctionRepository.findByWorkflowId(saved.getId());
+        List<WorkflowEdge> edges = workflowEdgeRepository.findByWorkflowIdOrderByOrderNum(saved.getId());
+        List<WorkflowCondition> conditions = workflowConditionRepository.findByWorkflowIdOrderByOrderNum(saved.getId());
+
+        assertEquals(4, functions.size(), "노드");
+        assertEquals(4, edges.size(), "연결선");
+
+        WorkflowGraph graph = WorkflowGraph.of(functions, edges, conditions);
+
+        WorkflowFunction branch = graph.getStartNode();
+        assertEquals("node-1", branch.getNodeId());
+
+        WorkflowFunction ifNode = graph.nextCase(branch, "c1");
+        WorkflowFunction elseNode = graph.nextElse(branch);
+        assertEquals("node-2", ifNode.getNodeId());
+        assertEquals("node-3", elseNode.getNodeId());
+
+        // 어느 가지로 흘러도 같은 노드에 닿는다.
+        assertEquals("node-4", graph.next(ifNode, BranchType.DEFAULT).getNodeId());
+        assertEquals("node-4", graph.next(elseNode, BranchType.DEFAULT).getNodeId());
+
+        // 캔버스 위치도 그대로 돌아온다.
+        WorkflowFunction cNode = functions.stream()
+                .filter(f -> "node-4".equals(f.getNodeId()))
+                .findFirst()
+                .orElseThrow();
+        assertEquals(400, cNode.getPositionX());
+        assertEquals(800, cNode.getPositionY());
     }
 
     @Test

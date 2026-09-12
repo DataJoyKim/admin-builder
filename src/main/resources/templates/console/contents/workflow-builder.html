@@ -276,6 +276,8 @@
     }
 
     /* ============ Canvas ============ */
+    /* 캔버스는 노드를 자유롭게 놓는 평면이다. 화면 이동/확대는 스크롤이 아니라
+       #workflowContent 의 transform 으로 처리한다(연결선 좌표 계산이 단순해진다). */
     .wf-canvas-wrap {
         position: relative;
         flex: 1;
@@ -285,66 +287,293 @@
     .wf-canvas {
         position: absolute;
         top: 0; left: 0; right: 0; bottom: 0;
-        overflow: auto;
+        overflow: hidden;
         background-color: #fafbfc;
         background-image: radial-gradient(circle, #d7dce3 1.2px, transparent 1.2px);
         background-size: 20px 20px;
-        padding: 40px 0 60px 0;
+        cursor: grab;
+        /* 캔버스 전체를 한 층으로 올려둔다. 노드와 연결선의 앞뒤는 캔버스 안에서만 따지면 된다. */
+        z-index: 1;
     }
 
-    /* 분기가 생기면 흐름은 좌우로도 넓어진다. 그리드는 내용만큼 넓어지되(fit-content)
-       최소한 캔버스 폭은 차지하게 해서, 좁은 흐름은 가운데 정렬되고 넓은 흐름은 가로 스크롤된다. */
-    #workflowGrid {
-        position: relative;
-        width: fit-content;
-        min-width: 100%;
-        margin: 0 auto;
-        min-height: 100%;
+    .wf-canvas.is-panning {
+        cursor: grabbing;
+    }
+
+    /* 연결선을 끄는 중에는 이미 그려진 연결선이 마우스를 가로채면 안 된다(놓을 자리를 못 찾는다). */
+    .wf-canvas.is-connecting {
+        cursor: crosshair;
+    }
+
+    .wf-canvas.is-connecting .wf-edge {
+        pointer-events: none;
+    }
+
+    #workflowContent {
+        position: absolute;
+        top: 0; left: 0;
+        transform-origin: 0 0;
     }
 
     #connectorLayer {
+        position: absolute;
+        top: 0; left: 0;
         overflow: visible;
+        pointer-events: none;
     }
 
-    /* ============ Chain / branch layout ============ */
-    /* 체인(.wf-chain)은 위에서 아래로 이어지는 직선 흐름 한 줄이다.
-       조건분기 노드는 자기 카드 아래에 조건 개수만큼의 가지 + else 가지를 품는다.
-       체인 폭은 그릴 때 하위 분기 폭을 합산해서 px로 지정한다(chainWidth). */
-    .wf-chain {
-        position: relative;
-        margin: 0 auto;
+    /* ============ Connectors ============ */
+    .wf-edge-line {
+        fill: none;
+        stroke: #c7cbd1;
+        stroke-width: 2;
     }
 
-    /* 드래그 대상은 카드가 아니라 이 래퍼다. 조건분기 노드를 옮기면 하위 분기가 통째로 따라간다.
-       (카드 자체를 드래그 대상으로 두고 카드에 margin:auto를 주면, jQuery UI Sortable이
-        드래그 중 카드를 position:absolute로 바꾸면서 auto 마진 오프셋을 잃어 카드가 왼쪽 끝으로 튄다.
-        래퍼를 드래그 대상으로 두면 카드의 margin:auto는 건드려지지 않는다.) */
-    .wf-node-wrap {
-        position: relative;
-        width: 100%;
+    /* 선 자체는 얇아서 누르기 어렵다. 같은 경로를 투명하게 굵게 한 겹 깔아 클릭 영역으로 쓴다. */
+    .wf-edge-hit {
+        fill: none;
+        stroke: transparent;
+        stroke-width: 18;
+        pointer-events: stroke;
+        cursor: pointer;
     }
 
-    .wf-branch-row {
+    .wf-edge:hover .wf-edge-line {
+        stroke: #4A90E2;
+    }
+
+    .wf-edge-temp {
+        stroke: #4A90E2;
+        stroke-dasharray: 6 4;
+        pointer-events: none;
+    }
+
+    .wf-edge-remove {
+        opacity: 0;
+        pointer-events: none;
+        cursor: pointer;
+    }
+
+    .wf-edge:hover .wf-edge-remove {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .wf-edge-remove circle {
+        fill: #ffffff;
+        stroke: #d7dbe0;
+        stroke-width: 1;
+    }
+
+    .wf-edge-remove:hover circle {
+        stroke: #dc2626;
+    }
+
+    .wf-edge-remove path {
+        stroke: #9199a3;
+        stroke-width: 1.6;
+        stroke-linecap: round;
+    }
+
+    .wf-edge-remove:hover path {
+        stroke: #dc2626;
+    }
+
+    /* ============ Canvas tools ============ */
+    .wf-canvas-tools {
+        position: absolute;
+        left: 14px;
+        bottom: 14px;
         display: flex;
-        align-items: flex-start;
-        justify-content: center;
+        align-items: center;
+        gap: 2px;
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 4px;
+        box-shadow: 0 2px 8px rgba(16, 24, 40, .08);
+        z-index: 2;
     }
 
-    .wf-branch {
-        position: relative;
+    .wf-canvas-tools button {
+        border: none;
+        background: transparent;
+        color: #6b7280;
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 12px;
     }
 
-    .wf-branch-head {
-        position: relative;
-        /* 카드 왼쪽 드래그 핸들(26px) 때문에 카드 내용의 중심이 오른쪽으로 13px 치우쳐 있다.
-           가지 머리도 같은 만큼 밀어야 화살표 축과 일직선이 된다. */
-        left: 13px;
-        width: fit-content;
-        max-width: 100%;
-        margin: 0 auto 24px auto;
+    .wf-canvas-tools button:hover {
+        background: #f1f3f5;
+        color: #4A90E2;
+    }
+
+    .wf-canvas-tools-sep {
+        width: 1px;
+        height: 18px;
+        background: #eef0f2;
+        margin: 0 4px;
+    }
+
+    .wf-canvas-zoom {
+        font-size: 11.5px;
+        color: #9199a3;
+        width: 42px;
         text-align: center;
     }
 
+    .wf-canvas-hint {
+        position: absolute;
+        right: 14px;
+        bottom: 16px;
+        font-size: 11.5px;
+        color: #9199a3;
+        background: rgba(255, 255, 255, .86);
+        border-radius: 8px;
+        padding: 5px 10px;
+        z-index: 2;
+        pointer-events: none;
+    }
+
+    .wf-canvas-empty {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        color: #9199a3;
+        font-size: 13px;
+        z-index: 2;
+    }
+
+    .wf-canvas-empty button {
+        margin-top: 10px;
+    }
+
+    /* ============ Node ============ */
+    /* 노드는 캔버스 좌표(x, y)에 그대로 놓인다. 흐름은 연결선이 정하므로 배치는 보기 좋으라고 있는 값이다. */
+    .wf-node {
+        position: absolute;
+        width: 300px;
+    }
+
+    .wf-node.is-dragging {
+        z-index: 3;
+    }
+
+    .wf-node.is-drop-target > .step-item {
+        border-color: #4A90E2;
+        box-shadow: 0 0 0 3px rgba(74, 144, 226, .18);
+    }
+
+    .wf-node-badge {
+        position: absolute;
+        top: -10px;
+        left: 12px;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 2px 8px;
+        border-radius: 10px;
+        z-index: 1;
+    }
+
+    .wf-node-badge.is-start {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .wf-node-badge.is-orphan {
+        background: #fef3c7;
+        color: #b45309;
+    }
+
+    /* ============ Ports ============ */
+    /* 입력포트는 카드 위쪽 한 개. 들어오는 연결선은 몇 개든 여기로 모인다(분기 합류). */
+    .wf-port-in {
+        position: absolute;
+        top: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #ffffff;
+        border: 2px solid #c7cbd1;
+    }
+
+    .wf-node.is-drop-target .wf-port-in {
+        border-color: #4A90E2;
+        background: #eef5ff;
+    }
+
+    /* 출력포트는 카드 아래. 일반 노드는 한 개, 조건분기 노드는 조건 개수 + else 만큼 있다. */
+    .wf-ports {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        justify-content: center;
+        gap: 4px 10px;
+        padding-top: 2px;
+    }
+
+    .wf-port-out {
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        cursor: crosshair;
+    }
+
+    .wf-port-dot {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #ffffff;
+        border: 2px solid #c7cbd1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #c7cbd1;
+        font-size: 7px;
+    }
+
+    .wf-port-out:hover .wf-port-dot {
+        border-color: #4A90E2;
+        color: #4A90E2;
+        background: #eef5ff;
+    }
+
+    /* 아직 이어진 곳이 없는 포트만 + 로 보여준다(눌러서 다음 노드를 바로 만들 수 있다). */
+    .wf-port-dot i {
+        display: none;
+    }
+
+    .wf-port-out.is-empty .wf-port-dot i {
+        display: block;
+    }
+
+    .wf-port-label {
+        font-size: 10px;
+        font-weight: 700;
+        padding: 2px 8px;
+        border-radius: 10px;
+        background: #e0e7ff;
+        color: #4338ca;
+        max-width: 130px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .wf-port-out.is-else .wf-port-label {
+        background: #f1f3f5;
+        color: #6b7280;
+    }
+
+    /* ============ Branch label (drawer / condition card) ============ */
     .wf-branch-label {
         display: inline-block;
         padding: 3px 12px;
@@ -363,35 +592,46 @@
         color: #6b7280;
     }
 
-    .wf-branch-expression {
-        max-width: 280px;
-        margin: 6px auto 0 auto;
+    /* 조건분기 카드는 어떤 조건이 어떤 포트로 나가는지 카드 안에서 바로 읽혀야 한다. */
+    .wf-condition-lines {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        padding: 10px 12px 12px 12px;
+        border-top: 1px solid #eef0f2;
+    }
+
+    .wf-condition-line {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+    }
+
+    .wf-condition-line .wf-branch-label {
+        flex: 0 0 auto;
+        padding: 1px 9px;
+        font-size: 10px;
+    }
+
+    .wf-condition-line-expr {
         font-family: "Consolas", "Menlo", "Monaco", monospace;
-        font-size: 11px;
+        font-size: 11.5px;
         color: #4f46e5;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
 
-    .wf-branch-expression.is-empty {
+    .wf-condition-line-expr.is-empty {
         color: #c0c4cc;
         font-family: inherit;
-    }
-
-    .workflow-item-placeholder {
-        width: 300px;
-        height: 90px;
-        border: 2px dashed #4A90E2;
-        background: #eef5ff;
-        margin: 0 auto 40px auto;
-        border-radius: 12px;
     }
 
     .step-item {
         position: relative;
         background-color: #ffffff;
-        width: 300px;
+        width: 100%;
         border-radius: 12px;
         display: flex;
         flex-direction: row;
@@ -399,18 +639,10 @@
         font-size: 14px;
         border: 1px solid #e2e5ea;
         box-shadow: 0 1px 3px rgba(16, 24, 40, .07);
-        margin: 0 auto 40px auto;
+        margin: 0;
         word-break: break-word;
         overflow-wrap: break-word;
         cursor: pointer;
-        /* 상세창 딤(.wf-drawer-backdrop, z-index:3)보다 위에 둔다. 딤보다 아래면
-           상세창이 열린 상태에서 다른 노드를 클릭할 때 카드가 아니라 딤이 클릭을
-           받아 상세창이 닫혀버려서, 노드를 바로 갈아타지 못한다.
-           카드가 stacking context를 갖게 되므로 카드 안의 .step-tools는 카드 기준으로만
-           쌓이지만, 카드 자체가 이미 딤 위에 있어 버튼 클릭도 정상 동작한다.
-           상세창 패널(.wf-node-drawer, z-index:5)보다는 아래여야 패널을 가리지 않는다.
-           화살표(svg)보다 위에 그려지는 건 DOM 순서로도 유지된다. */
-        z-index: 4;
         transition: box-shadow .15s ease, border-color .15s ease;
     }
 
@@ -455,39 +687,17 @@
         cursor: grabbing;
     }
 
+    .wf-node.is-dragging .step-drag-handle {
+        background: #eef5ff;
+        color: #4A90E2;
+        cursor: grabbing;
+    }
+
     .step-body {
         flex: 1;
         min-width: 0;
         display: flex;
         flex-direction: column;
-    }
-
-    .add-step-item {
-        position: relative;
-        width: 56px;
-        height: 56px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: #ffffff;
-        border: 2px dashed #c7cbd1;
-        color: #9199a3;
-        cursor: pointer;
-        margin: 0 auto;
-        /* 카드와 같은 이유로 딤 위에 둔다 - 상세창이 열린 상태에서도 단계 추가가 가능해야 한다. */
-        z-index: 4;
-        /* step-item은 왼쪽에 26px 드래그 핸들이 있어 카드 내용 중심이 그만큼 오른쪽으로
-           치우쳐 있다. + 버튼도 같은 만큼(핸들 폭의 절반) 오른쪽으로 밀어야
-           화살표가 일직선으로 이어진다. */
-        left: 13px;
-        transition: all .15s ease;
-    }
-
-    .add-step-item:hover {
-        border-color: #4A90E2;
-        color: #4A90E2;
-        background-color: #eef5ff;
     }
 
     .step-message {
@@ -747,21 +957,6 @@
     }
 
     /* ============ Node detail drawer ============ */
-    .wf-drawer-backdrop {
-        position: absolute;
-        top: 0; left: 0; right: 380px; bottom: 0;
-        background: rgba(17, 24, 39, .06);
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity .18s ease;
-        z-index: 3;
-    }
-
-    .wf-drawer-backdrop.show {
-        opacity: 1;
-        pointer-events: auto;
-    }
-
     .wf-node-drawer {
         position: absolute;
         top: 0; right: 0; bottom: 0;
@@ -979,8 +1174,14 @@
     const EDGE_DEFAULT = 'DEFAULT';
     const EDGE_CASE = 'CASE';
     const EDGE_ELSE = 'ELSE';
-    const NODE_WIDTH = 300;   // .step-item 폭
-    const BRANCH_GAP = 48;    // 가지 사이 간격
+    const NODE_WIDTH = 300;        // .wf-node 폭
+    const NODE_HEIGHT = 150;       // 자동정렬/화면맞춤에서 쓰는 카드 높이 어림값
+    const LAYOUT_GAP_X = 60;       // 자동정렬 시 좌우 간격
+    const LAYOUT_GAP_Y = 230;      // 자동정렬 시 위아래 간격
+    const CANVAS_PADDING = 60;
+    const MIN_SCALE = 0.3;
+    const MAX_SCALE = 2;
+    const SVG_NS = 'http://www.w3.org/2000/svg';
 
     let workflowListData = [];
     let selectedWorkflowId = null;
@@ -991,24 +1192,33 @@
     let executeRowSeq = 0;
 
     /* ================= Workflow graph model =================
-       노드는 nodeId로 식별하고 흐름은 트리로 들고 있는다.
-       - nodeMap   : nodeId -> 노드 데이터
-       - rootChain : 시작 노드부터 이어지는 직선 흐름(nodeId 배열)
-       - 조건분기 노드는 conditions(if, else if ... 순서)와 branches(branchId -> 체인)를 가진다.
-         branches 에는 조건별 가지와 else 가지(BRANCH_ELSE)가 들어있다.
-       저장할 때 이 트리를 노드 + 조건 + 연결정보로 펼쳐서 보낸다. */
+       노드는 nodeId 로 식별하고, 흐름은 연결선 목록으로만 들고 있다.
+       - nodeMap  : nodeId -> 노드 데이터(캔버스 좌표 x, y 포함)
+       - edgeList : {sourceNodeId, targetNodeId, branchType, branchId}
+       트리가 아니라 그래프라서 갈라진 흐름이 같은 노드로 다시 합쳐질 수 있다
+       (if -> A -> C, else -> B -> C 처럼 C 를 하나만 두고 양쪽에서 쓴다).
+       저장할 때는 노드 + 조건 + 연결정보를 그대로 펼쳐서 보낸다. */
     let nodeMap = new Map();
-    let rootChain = [];
+    let edgeList = [];
     let nodeIdSeq = 0;
-    let dragSnapshot = null;
+
+    // 노드를 끌고 난 직후에는 클릭 이벤트가 한 번 더 오는데, 그걸로 상세창이 열리면 안 된다.
+    let suppressNodeClick = false;
+
+    // 캔버스 화면 이동/확대 상태. 스크롤 대신 #workflowContent 의 transform 으로 처리한다.
+    let viewScale = 1;
+    let viewX = 0;
+    let viewY = 0;
 
     $( document ).ready(function() {
         init();
 
+        bindCanvasInteraction();
+
         let connectorResizeTimer = null;
         $(window).on('resize', function() {
             clearTimeout(connectorResizeTimer);
-            connectorResizeTimer = setTimeout(drawConnectors, 100);
+            connectorResizeTimer = setTimeout(refreshCanvas, 100);
         });
 
         $(document).on("click", "#drawerTypeChip", function() {
@@ -1073,7 +1283,7 @@
 
     function toggleSidebar() {
         $("#wfSidebar").toggleClass('collapsed');
-        setTimeout(drawConnectors, 200); // 사이드바 접기/펼치기 트랜지션(.18s) 종료 후 화살표 재계산
+        setTimeout(refreshCanvas, 200); // 사이드바 접기/펼치기 트랜지션(.18s) 종료 후 캔버스 재계산
     }
 
     /* ================= Workflow CRUD ================= */
@@ -1100,58 +1310,50 @@
         );
     }
 
-    // 트리로 들고 있던 흐름을 노드 + 조건 + 연결정보로 펼친다.
-    // 체인 안에서는 앞 노드 -> 뒤 노드를 DEFAULT로, 조건분기는 자기 노드 -> 가지 첫 노드를 CASE/ELSE로 잇는다.
+    // 화면의 그래프를 그대로 노드 + 조건 + 연결정보로 펼친다.
+    // 노드 순서(orderNum)는 시작 노드부터 연결을 따라간 순서라, 서버도 같은 노드를 시작 노드로 잡는다.
     function collectWorkflowGraph() {
         const functions = [];
-        const edges = [];
         const conditions = [];
-        let orderNum = 0;
+        const edges = [];
 
-        function walk(chain, parentNodeId, branchType, branchId) {
-            let prevNodeId = null;
+        orderedNodeIds().forEach(function(nodeId, index) {
+            const node = getNode(nodeId);
+            if (!node) return;
 
-            for (const nodeId of chain) {
-                const node = getNode(nodeId);
-                if (!node) continue;
+            functions.push({
+                nodeId: node.nodeId,
+                functionName: node.functionName || '',
+                functionType: node.functionType,
+                orderNum: index + 1,
+                isLogging: node.isLogging === true,
+                requestMessageId: node.requestMessageId || '',
+                responseMessageId: node.responseMessageId || '',
+                positionX: Math.round(node.x),
+                positionY: Math.round(node.y)
+            });
 
-                functions.push({
-                    nodeId: node.nodeId,
-                    functionName: node.functionName || '',
-                    functionType: node.functionType,
-                    orderNum: ++orderNum,
-                    isLogging: node.isLogging === true,
-                    requestMessageId: node.requestMessageId || '',
-                    responseMessageId: node.responseMessageId || ''
-                });
-
-                if (prevNodeId) {
-                    edges.push({sourceNodeId: prevNodeId, targetNodeId: nodeId, branchType: EDGE_DEFAULT, branchId: null, orderNum: edges.length});
-                }
-                else if (parentNodeId) {
-                    edges.push({sourceNodeId: parentNodeId, targetNodeId: nodeId, branchType: branchType, branchId: branchId, orderNum: edges.length});
-                }
-
-                if (isConditionNode(node)) {
-                    node.conditions.forEach(function(condition, index) {
-                        conditions.push({
-                            nodeId: nodeId,
-                            branchId: condition.branchId,
-                            conditionExpression: condition.conditionExpression || '',
-                            orderNum: index
-                        });
-
-                        walk(branchOf(node, condition.branchId), nodeId, EDGE_CASE, condition.branchId);
+            if (isConditionNode(node)) {
+                node.conditions.forEach(function(condition, conditionIndex) {
+                    conditions.push({
+                        nodeId: node.nodeId,
+                        branchId: condition.branchId,
+                        conditionExpression: condition.conditionExpression || '',
+                        orderNum: conditionIndex
                     });
-
-                    walk(branchOf(node, BRANCH_ELSE), nodeId, EDGE_ELSE, null);
-                }
-
-                prevNodeId = nodeId;
+                });
             }
-        }
+        });
 
-        walk(rootChain, null, null, null);
+        validEdges().forEach(function(edge, index) {
+            edges.push({
+                sourceNodeId: edge.sourceNodeId,
+                targetNodeId: edge.targetNodeId,
+                branchType: edge.branchType,
+                branchId: edge.branchId || null,
+                orderNum: index
+            });
+        });
 
         return {functions:functions, edges:edges, conditions:conditions};
     }
@@ -1229,6 +1431,7 @@
 
         buildModel([], [], []);
         renderWorkflow();
+        fitView();
 
         currentAuthorityList = [];
         renderAuthorityChips();
@@ -1418,21 +1621,119 @@
         return 'node-' + (++nodeIdSeq);
     }
 
-    // 조건 가지들(판정 순서) + 마지막 else 가지.
-    function branchIds(node) {
-        return node.conditions.map(condition => condition.branchId).concat([BRANCH_ELSE]);
-    }
-
-    function branchOf(node, branchId) {
-        if (!node.branches[branchId]) {
-            node.branches[branchId] = [];
+    // 노드에서 나가는 포트. 일반 노드는 하나(DEFAULT), 조건분기 노드는 조건 개수(CASE) + else(ELSE).
+    function outPorts(node) {
+        if (!isConditionNode(node)) {
+            return [{branchType:EDGE_DEFAULT, branchId:null, label:'다음'}];
         }
 
-        return node.branches[branchId];
+        const ports = node.conditions.map(function(condition, index) {
+            return {
+                branchType: EDGE_CASE,
+                branchId: condition.branchId,
+                label: branchLabel(condition.branchId, index),
+                expression: condition.conditionExpression
+            };
+        });
+
+        ports.push({branchType:EDGE_ELSE, branchId:null, label:'else'});
+
+        return ports;
     }
 
-    function setBranch(node, branchId, chain) {
-        node.branches[branchId] = chain;
+    function portKey(nodeId, branchType, branchId) {
+        return nodeId + '|' + branchType + '|' + (branchId || '');
+    }
+
+    function edgeKeyOf(edge) {
+        return portKey(edge.sourceNodeId, edge.branchType, edge.branchId);
+    }
+
+    function findEdgeByPort(nodeId, port) {
+        const key = portKey(nodeId, port.branchType, port.branchId);
+
+        return edgeList.find(edge => edgeKeyOf(edge) === key) || null;
+    }
+
+    function incomingEdges(nodeId) {
+        return edgeList.filter(edge => edge.targetNodeId === nodeId);
+    }
+
+    function outgoingEdges(nodeId) {
+        return edgeList.filter(edge => edge.sourceNodeId === nodeId);
+    }
+
+    // 한 포트에서 나가는 길은 하나뿐이라, 이미 이어둔 곳이 있으면 갈아끼운다.
+    function connectNodes(sourceNodeId, port, targetNodeId) {
+        const key = portKey(sourceNodeId, port.branchType, port.branchId);
+
+        edgeList = edgeList.filter(edge => edgeKeyOf(edge) !== key);
+        edgeList.push({
+            sourceNodeId: sourceNodeId,
+            targetNodeId: targetNodeId,
+            branchType: port.branchType,
+            branchId: port.branchId || null
+        });
+    }
+
+    function disconnectEdge(edge) {
+        edgeList = edgeList.filter(item => item !== edge);
+    }
+
+    // 끊어진 연결(지워진 노드, 없어진 조건 가지)은 흐름에서도 저장에서도 뺀다.
+    function validEdges() {
+        return edgeList.filter(function(edge) {
+            const source = getNode(edge.sourceNodeId);
+            if (!source || !nodeMap.has(edge.targetNodeId)) return false;
+
+            return outPorts(source).some(port =>
+                port.branchType === edge.branchType && (port.branchId || null) === (edge.branchId || null));
+        });
+    }
+
+    // 시작 노드부터 연결을 따라간 순서. 저장할 때 orderNum 이 되는 값이다.
+    function orderedNodeIds() {
+        const all = Array.from(nodeMap.keys());
+        const visited = new Set();
+        const order = [];
+        const queue = all.filter(nodeId => incomingEdges(nodeId).length === 0);
+
+        while (queue.length > 0) {
+            const nodeId = queue.shift();
+            if (visited.has(nodeId)) continue;
+
+            visited.add(nodeId);
+            order.push(nodeId);
+
+            for (const edge of outgoingEdges(nodeId)) {
+                if (!visited.has(edge.targetNodeId)) {
+                    queue.push(edge.targetNodeId);
+                }
+            }
+        }
+
+        // 순환 안에만 있거나 어디에도 이어지지 않은 노드가 조용히 사라지지 않도록 뒤에 붙인다.
+        for (const nodeId of all) {
+            if (!visited.has(nodeId)) {
+                order.push(nodeId);
+            }
+        }
+
+        return order;
+    }
+
+    // 서버는 들어오는 연결이 없으면서 orderNum 이 가장 앞인 노드부터 실행한다. 화면도 같은 규칙으로 시작 노드를 고른다.
+    function startNodeId() {
+        const order = orderedNodeIds();
+
+        return order.find(nodeId => incomingEdges(nodeId).length === 0) || order[0] || null;
+    }
+
+    // 시작 노드는 초록 배지, 어디에도 이어지지 않아 실행되지 않는 노드는 주황 배지로 알려준다.
+    function nodeRole(nodeId) {
+        if (incomingEdges(nodeId).length > 0) return '';
+
+        return nodeId === startNodeId() ? 'start' : 'orphan';
     }
 
     function branchLabel(branchId, index) {
@@ -1464,7 +1765,8 @@
             requestMessageId: '',
             responseMessageId: '',
             conditions: [],
-            branches: {}
+            x: CANVAS_PADDING,
+            y: CANVAS_PADDING
         };
 
         if (functionType === CONDITION_TYPE) {
@@ -1474,10 +1776,9 @@
         return node;
     }
 
-    // 조건분기로 만들 때는 조건 하나(if)와 else 가지로 시작한다.
+    // 조건분기로 만들 때는 조건 하나(if)로 시작한다. else 가지는 항상 있다.
     function resetConditions(node) {
         node.conditions = [{branchId:'c1', conditionExpression:''}];
-        node.branches = {c1:[], ELSE:[]};
     }
 
     function loadWorkflowGraph(workflowId) {
@@ -1489,6 +1790,7 @@
                             function(conditions){
                                 buildModel(functions, edges, conditions);
                                 renderWorkflow();
+                                fitView();
                             },
                             function(error){
                                 alert('error');
@@ -1506,15 +1808,16 @@
         );
     }
 
-    // 서버에서 받은 노드 + 조건 + 연결정보를 화면이 쓰는 트리로 되돌린다.
-    // 연결정보가 하나도 없는(조건분기 도입 전) 워크플로우는 서버 실행 로직과 동일하게 orderNum 직선 흐름으로 본다.
+    // 서버에서 받은 노드 + 조건 + 연결정보를 화면 모델로 되돌린다.
     function buildModel(functions, edges, conditions) {
         nodeMap = new Map();
-        rootChain = [];
+        edgeList = [];
         nodeIdSeq = 0;
-        activeNodeId = null;
+        closeNodeDrawer();
 
         const ordered = (functions || []).slice().sort((a, b) => (a.orderNum || 0) - (b.orderNum || 0));
+        const orderedNodeIdList = [];
+        let hasMissingPosition = false;
 
         for (const f of ordered) {
             const nodeId = f.nodeId || createNodeId();
@@ -1526,9 +1829,18 @@
             node.requestMessageId = f.requestMessageId || '';
             node.responseMessageId = f.responseMessageId || '';
             node.conditions = [];
-            node.branches = {};
+
+            // 캔버스가 없던 시절에 저장된 노드는 좌표가 없다. 그런 워크플로우는 자동정렬로 배치를 잡아준다.
+            if (f.positionX == null || f.positionY == null) {
+                hasMissingPosition = true;
+            }
+            else {
+                node.x = Math.max(0, f.positionX);
+                node.y = Math.max(0, f.positionY);
+            }
 
             nodeMap.set(nodeId, node);
+            orderedNodeIdList.push(nodeId);
 
             const matched = /^node-(\d+)$/.exec(nodeId);
             if (matched) {
@@ -1545,289 +1857,337 @@
             node.conditions.push({branchId:c.branchId, conditionExpression:c.conditionExpression || ''});
         }
 
-        // 조건분기 노드는 조건이 최소 한 개는 있어야 화면에 가지를 그릴 수 있다.
+        // 조건분기 노드는 조건이 최소 한 개는 있어야 가지를 그릴 수 있다.
         for (const node of nodeMap.values()) {
             if (isConditionNode(node) && node.conditions.length === 0) {
                 resetConditions(node);
             }
         }
 
-        const outgoing = {};
-        const targetNodeIds = new Set();
-
         for (const e of (edges || [])) {
             if (!nodeMap.has(e.sourceNodeId) || !nodeMap.has(e.targetNodeId)) continue;
 
-            if (!outgoing[e.sourceNodeId]) {
-                outgoing[e.sourceNodeId] = {cases:{}};
-            }
-
-            const out = outgoing[e.sourceNodeId];
-            const branchType = e.branchType || EDGE_DEFAULT;
-
-            if (branchType === EDGE_CASE) {
-                out.cases[e.branchId] = e.targetNodeId;
-            }
-            else if (branchType === EDGE_ELSE) {
-                out.elseTarget = e.targetNodeId;
-            }
-            else {
-                out.defaultTarget = e.targetNodeId;
-            }
-
-            targetNodeIds.add(e.targetNodeId);
+            edgeList.push({
+                sourceNodeId: e.sourceNodeId,
+                targetNodeId: e.targetNodeId,
+                branchType: e.branchType || EDGE_DEFAULT,
+                branchId: e.branchId || null
+            });
         }
 
-        const visited = new Set();
+        // 연결정보가 생기기 전에 저장된 워크플로우는 orderNum 직선 흐름으로 읽어 연결선을 만들어준다.
+        if (edgeList.length === 0 && orderedNodeIdList.length > 1) {
+            for (let i = 0; i < orderedNodeIdList.length - 1; i++) {
+                if (isConditionNode(getNode(orderedNodeIdList[i]))) continue;
 
-        function buildChain(startNodeId) {
-            const chain = [];
-            let nodeId = startNodeId;
+                edgeList.push({
+                    sourceNodeId: orderedNodeIdList[i],
+                    targetNodeId: orderedNodeIdList[i + 1],
+                    branchType: EDGE_DEFAULT,
+                    branchId: null
+                });
+            }
+        }
 
-            while (nodeId && nodeMap.has(nodeId) && !visited.has(nodeId)) {
-                visited.add(nodeId);
-                chain.push(nodeId);
+        if (hasMissingPosition) {
+            layoutNodes();
+        }
+    }
 
+    // 연결을 따라 층을 매겨 위에서 아래로 늘어놓는다. 같은 층은 좌우로 나눠 놓는다.
+    function layoutNodes() {
+        const order = orderedNodeIds();
+        const layer = new Map();
+
+        for (const nodeId of order) {
+            layer.set(nodeId, 0);
+        }
+
+        // 층은 "들어오는 연결 중 가장 깊은 곳 + 1". 순환이 있어도 노드 수만큼만 돌고 멈춘다.
+        for (let pass = 0; pass < order.length; pass++) {
+            let changed = false;
+
+            for (const edge of validEdges()) {
+                const next = layer.get(edge.sourceNodeId) + 1;
+
+                if (next < order.length && next > layer.get(edge.targetNodeId)) {
+                    layer.set(edge.targetNodeId, next);
+                    changed = true;
+                }
+            }
+
+            if (!changed) break;
+        }
+
+        const rows = new Map();
+        for (const nodeId of order) {
+            const index = layer.get(nodeId);
+            if (!rows.has(index)) rows.set(index, []);
+            rows.get(index).push(nodeId);
+        }
+
+        let widest = 1;
+        for (const row of rows.values()) {
+            widest = Math.max(widest, row.length);
+        }
+
+        const totalWidth = widest * NODE_WIDTH + (widest - 1) * LAYOUT_GAP_X;
+
+        for (const [index, row] of rows) {
+            const rowWidth = row.length * NODE_WIDTH + (row.length - 1) * LAYOUT_GAP_X;
+            let x = CANVAS_PADDING + (totalWidth - rowWidth) / 2;
+
+            for (const nodeId of row) {
                 const node = getNode(nodeId);
-                const out = outgoing[nodeId] || {cases:{}};
-
-                if (isConditionNode(node)) {
-                    for (const condition of node.conditions) {
-                        node.branches[condition.branchId] = buildChain(out.cases[condition.branchId]);
-                    }
-                    node.branches[BRANCH_ELSE] = buildChain(out.elseTarget);
-                    nodeId = null;
-                }
-                else {
-                    nodeId = out.defaultTarget;
-                }
-            }
-
-            return chain;
-        }
-
-        const startNodeId = ordered.map(f => f.nodeId).find(nodeId => nodeMap.has(nodeId) && !targetNodeIds.has(nodeId));
-        rootChain = buildChain(startNodeId);
-
-        // 어느 흐름에도 연결되지 않은 노드가 남으면 조용히 사라지지 않도록 뒤에 이어붙인다.
-        for (const nodeId of nodeMap.keys()) {
-            if (!visited.has(nodeId)) {
-                visited.add(nodeId);
-                rootChain.push(nodeId);
+                node.x = Math.round(x);
+                node.y = CANVAS_PADDING + index * LAYOUT_GAP_Y;
+                x += NODE_WIDTH + LAYOUT_GAP_X;
             }
         }
     }
 
-    // 드래그로 DOM 순서가 바뀐 뒤, DOM을 읽어 트리를 다시 맞춘다.
-    function syncModelFromDom() {
-        $("#workflowGrid .wf-chain").each(function() {
-            const $chain = $(this);
+    function autoLayout() {
+        layoutNodes();
+        renderWorkflow();
+        fitView();
+    }
 
-            const nodeIds = $chain.children('.wf-node-wrap').map(function() {
-                return $(this).attr('data-node-id');
-            }).get();
+    /* ================= Canvas view (pan / zoom) ================= */
 
-            const parentNodeId = $chain.attr('data-parent-node-id');
+    // 캔버스 크기가 바뀌면 덮는 영역과 연결선을 다시 계산한다.
+    function refreshCanvas() {
+        updateCanvasSize();
+        applyViewTransform();
+        drawConnectors();
+    }
 
-            if (!parentNodeId) {
-                rootChain = nodeIds;
+    function applyViewTransform() {
+        $("#workflowContent").css('transform', `translate(${viewX}px, ${viewY}px) scale(${viewScale})`);
+        $("#zoomLabel").text(Math.round(viewScale * 100) + '%');
+
+        // 배경 격자도 같이 움직여야 캔버스가 실제로 끌려오는 것처럼 보인다.
+        const gridSize = 20 * viewScale;
+        $("#workflowCanvas").css({
+            'background-size': gridSize + 'px ' + gridSize + 'px',
+            'background-position': viewX + 'px ' + viewY + 'px'
+        });
+    }
+
+    // 연결선 svg 는 노드가 놓인 영역 전체를 덮어야 한다(덮지 못한 부분의 선은 잘려 보인다).
+    function updateCanvasSize() {
+        const $canvas = $("#workflowCanvas");
+
+        let width = ($canvas.width() || 900) / viewScale;
+        let height = ($canvas.height() || 600) / viewScale;
+
+        for (const node of nodeMap.values()) {
+            width = Math.max(width, node.x + NODE_WIDTH + CANVAS_PADDING);
+            height = Math.max(height, node.y + nodeHeight(node.nodeId) + CANVAS_PADDING);
+        }
+
+        $("#workflowContent").css({width:width + 'px', height:height + 'px'});
+
+        const svg = document.getElementById('connectorLayer');
+        if (svg) {
+            svg.setAttribute('width', width);
+            svg.setAttribute('height', height);
+        }
+    }
+
+    function nodeHeight(nodeId) {
+        const el = document.querySelector(`.wf-node[data-node-id="${nodeId}"]`);
+
+        return el ? el.offsetHeight : NODE_HEIGHT;
+    }
+
+    function zoomAt(factor, clientX, clientY) {
+        const rect = document.getElementById('workflowCanvas').getBoundingClientRect();
+        const nextScale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, viewScale * factor));
+
+        // 확대해도 마우스가 가리키던 지점은 제자리에 있어야 한다.
+        const anchorX = (clientX - rect.left - viewX) / viewScale;
+        const anchorY = (clientY - rect.top - viewY) / viewScale;
+
+        viewX = clientX - rect.left - anchorX * nextScale;
+        viewY = clientY - rect.top - anchorY * nextScale;
+        viewScale = nextScale;
+
+        updateCanvasSize();
+        applyViewTransform();
+    }
+
+    function zoomBy(factor) {
+        const rect = document.getElementById('workflowCanvas').getBoundingClientRect();
+
+        zoomAt(factor, rect.left + rect.width / 2, rect.top + rect.height / 2);
+    }
+
+    // 모든 노드가 한 화면에 들어오도록 배율과 위치를 맞춘다.
+    function fitView() {
+        if (nodeMap.size === 0) {
+            viewScale = 1;
+            viewX = 0;
+            viewY = 0;
+            updateCanvasSize();
+            applyViewTransform();
+            return;
+        }
+
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+
+        for (const node of nodeMap.values()) {
+            minX = Math.min(minX, node.x);
+            minY = Math.min(minY, node.y);
+            maxX = Math.max(maxX, node.x + NODE_WIDTH);
+            maxY = Math.max(maxY, node.y + nodeHeight(node.nodeId));
+        }
+
+        const $canvas = $("#workflowCanvas");
+        const viewWidth = Math.max(200, ($canvas.width() || 900) - CANVAS_PADDING * 2);
+        const viewHeight = Math.max(200, ($canvas.height() || 600) - CANVAS_PADDING * 2);
+
+        viewScale = Math.min(1, Math.min(viewWidth / (maxX - minX), viewHeight / (maxY - minY)));
+        viewScale = Math.max(MIN_SCALE, viewScale);
+
+        viewX = CANVAS_PADDING + (viewWidth - (maxX - minX) * viewScale) / 2 - minX * viewScale;
+        viewY = CANVAS_PADDING + (viewHeight - (maxY - minY) * viewScale) / 2 - minY * viewScale;
+
+        updateCanvasSize();
+        applyViewTransform();
+    }
+
+    // 화면 좌표 -> 캔버스 좌표.
+    function toContentPoint(clientX, clientY) {
+        const rect = document.getElementById('workflowCanvas').getBoundingClientRect();
+
+        return {
+            x: (clientX - rect.left - viewX) / viewScale,
+            y: (clientY - rect.top - viewY) / viewScale
+        };
+    }
+
+    function bindCanvasInteraction() {
+        const $canvas = $("#workflowCanvas");
+
+        $canvas.on('mousedown', function(e) {
+            // 노드나 연결선을 누른 게 아니면 캔버스를 끄는 것으로 본다.
+            if ($(e.target).closest('.wf-node, .wf-edge').length > 0) return;
+
+            startPan(e);
+        });
+
+        $canvas.on('wheel', function(e) {
+            const event = e.originalEvent;
+            event.preventDefault();
+
+            if (event.ctrlKey || event.metaKey) {
+                zoomAt(event.deltaY < 0 ? 1.1 : 1 / 1.1, event.clientX, event.clientY);
             }
             else {
-                const parent = getNode(parentNodeId);
-                if (parent) {
-                    setBranch(parent, $chain.attr('data-branch-id'), nodeIds);
-                }
+                viewX -= event.deltaX;
+                viewY -= event.deltaY;
+                applyViewTransform();
             }
         });
     }
 
-    // 조건분기 노드는 흐름을 여러 갈래로 가르기 때문에 그 뒤에 노드가 더 붙으면 갈 길이 없어진다.
-    // 조건분기는 항상 자기 체인의 마지막이어야 한다.
-    function validateChains() {
-        let valid = true;
+    function startPan(event) {
+        const startX = event.clientX;
+        const startY = event.clientY;
+        const originX = viewX;
+        const originY = viewY;
+        let moved = false;
 
-        function check(chain) {
-            chain.forEach(function(nodeId, index) {
-                const node = getNode(nodeId);
-                if (!isConditionNode(node)) return;
+        $("#workflowCanvas").addClass('is-panning');
 
-                if (index !== chain.length - 1) {
-                    valid = false;
-                }
+        $(document).on('mousemove.wfpan', function(e) {
+            if (!moved && Math.abs(e.clientX - startX) + Math.abs(e.clientY - startY) < 3) return;
 
-                eachBranchChain(node, check);
-            });
-        }
+            moved = true;
+            viewX = originX + (e.clientX - startX);
+            viewY = originY + (e.clientY - startY);
+            applyViewTransform();
+        });
 
-        check(rootChain);
+        $(document).on('mouseup.wfpan', function() {
+            $(document).off('mousemove.wfpan mouseup.wfpan');
+            $("#workflowCanvas").removeClass('is-panning');
 
-        return valid;
-    }
-
-    function eachBranchChain(node, callback) {
-        for (const branchId of branchIds(node)) {
-            callback(branchOf(node, branchId), branchId);
-        }
-    }
-
-    function createModelSnapshot() {
-        const nodes = [];
-        for (const node of nodeMap.values()) {
-            nodes.push(JSON.parse(JSON.stringify(node)));
-        }
-
-        return {nodes:nodes, rootChain:rootChain.slice()};
-    }
-
-    function restoreModelSnapshot(snapshot) {
-        if (!snapshot) return;
-
-        nodeMap = new Map();
-        for (const node of snapshot.nodes) {
-            nodeMap.set(node.nodeId, node);
-        }
-        rootChain = snapshot.rootChain.slice();
+            // 빈 곳을 그냥 클릭하면 상세창을 닫는다.
+            if (!moved) {
+                closeNodeDrawer();
+            }
+        });
     }
 
     /* ================= Canvas rendering ================= */
 
     function renderWorkflow() {
-        const $grid = $("#workflowGrid");
+        const $content = $("#workflowContent");
 
-        $grid.empty();
-        closeNodeDrawer();
+        $content.empty();
 
-        // 화살표 svg를 카드보다 먼저 넣어야(DOM 순서상 아래) 카드가 화살표 위에 그려진다.
-        $grid.append(renderConnectLine());
-        $grid.append(renderChain(rootChain, null, null));
+        // 연결선 svg 를 노드보다 먼저 넣어야(DOM 순서상 아래) 노드가 선 위에 그려진다.
+        $content.append(renderConnectLine());
 
-        setChainSortable();
+        for (const node of nodeMap.values()) {
+            $content.append(renderNode(node));
+        }
+
+        $("#workflowEmpty").toggle(nodeMap.size === 0);
+
+        updateCanvasSize();
+        applyViewTransform();
         drawConnectors();
-    }
 
-    function renderChain(chain, parentNodeId, branchId) {
-        const $chain = $(`<div class="wf-chain"></div>`);
-        $chain.attr('data-parent-node-id', parentNodeId || '');
-        $chain.attr('data-branch-id', branchId || '');
-        $chain.css('width', chainWidth(chain) + 'px');
-
-        for (const nodeId of chain) {
-            $chain.append(renderNodeWrap(nodeId));
+        if (activeNodeId) {
+            $(`#${STEP_ITEM_ID_PREFIX}${activeNodeId}`).addClass('selected');
         }
-
-        // 조건분기로 끝나는 체인은 여기서 더 이어지지 않고 각 가지로 흐름이 넘어간다.
-        const lastNode = chain.length > 0 ? getNode(chain[chain.length - 1]) : null;
-        if (!isConditionNode(lastNode)) {
-            $chain.append(renderAddStepItem(parentNodeId, branchId));
-        }
-
-        return $chain;
     }
 
-    function renderNodeWrap(nodeId) {
-        const node = getNode(nodeId);
+    function renderNode(node) {
+        const $node = $(`<div class="wf-node"></div>`)
+            .attr('data-node-id', node.nodeId)
+            .css({left:node.x + 'px', top:node.y + 'px'});
 
-        const $wrap = $(`<div class="wf-node-wrap"></div>`);
-        $wrap.attr('data-node-id', nodeId);
-        $wrap.append(renderStepItem(nodeId, node));
+        $node.append(renderStepItem(node.nodeId, node));
+        $node.append(renderOutPorts(node));
 
-        if (isConditionNode(node)) {
-            $wrap.append(renderBranchRow(node));
-        }
-
-        return $wrap;
+        return $node;
     }
 
-    function renderBranchRow(node) {
-        const $row = $(`<div class="wf-branch-row"></div>`);
-        $row.css('gap', BRANCH_GAP + 'px');
+    function renderOutPorts(node) {
+        const $ports = $(`<div class="wf-ports"></div>`);
 
-        branchIds(node).forEach(function(branchId, index) {
-            $row.append(renderBranch(node, branchId, index));
-        });
+        for (const port of outPorts(node)) {
+            const connected = !!findEdgeByPort(node.nodeId, port);
 
-        return $row;
-    }
-
-    function renderBranch(node, branchId, index) {
-        const chain = branchOf(node, branchId);
-        const isElse = branchId === BRANCH_ELSE;
-
-        const $branch = $(`<div class="wf-branch"></div>`);
-        $branch.attr('data-branch-id', branchId);
-        $branch.css('width', chainWidth(chain) + 'px');
-
-        const $head = $(`<div class="wf-branch-head"></div>`);
-        $head.append(`<span class="wf-branch-label ${isElse ? 'is-else' : 'is-case'}">${branchLabel(branchId, index)}</span>`);
-
-        if (!isElse) {
-            const expression = node.conditions[index] ? node.conditions[index].conditionExpression : '';
-
-            $head.append($(`<div class="wf-branch-expression"></div>`)
+            const $port = $(`<span class="wf-port-out"></span>`)
                 .attr('data-node-id', node.nodeId)
-                .attr('data-branch-id', branchId)
-                .toggleClass('is-empty', !expression)
-                .text(expression || '조건식 없음'));
-        }
+                .attr('data-port-key', portKey(node.nodeId, port.branchType, port.branchId))
+                .toggleClass('is-empty', !connected)
+                .toggleClass('is-else', port.branchType === EDGE_ELSE)
+                .attr('title', connected
+                    ? '끌어서 연결을 다른 노드로 옮깁니다'
+                    : '끌어서 노드에 연결하거나, 눌러서 다음 노드를 만듭니다');
 
-        $branch.append($head);
-        $branch.append(renderChain(chain, node.nodeId, branchId));
-
-        return $branch;
-    }
-
-    // 체인 폭 = 그 안의 조건분기가 좌우로 벌어지는 폭까지 감안한 폭.
-    // 이 값을 px로 박아둬야 가지끼리 겹치지 않고 캔버스도 필요한 만큼만 넓어진다.
-    function chainWidth(chain) {
-        let width = NODE_WIDTH;
-
-        for (const nodeId of chain) {
-            const node = getNode(nodeId);
-            if (!isConditionNode(node)) continue;
-
-            const ids = branchIds(node);
-            let branchesWidth = BRANCH_GAP * (ids.length - 1);
-
-            for (const branchId of ids) {
-                branchesWidth += chainWidth(branchOf(node, branchId));
+            if (isConditionNode(node)) {
+                $port.append(`<span class="wf-port-label">${escapeHtml(port.label)}</span>`);
             }
 
-            width = Math.max(width, branchesWidth);
+            $port.append(`<span class="wf-port-dot"><i class="fas fa-plus"></i></span>`);
+
+            bindPortInteraction($port, node, port);
+
+            $ports.append($port);
         }
 
-        return width;
+        return $ports;
     }
 
-    function renderAddStepItem(parentNodeId, branchId) {
-        const $add = $(`
-            <div class="add-step-item" title="단계 추가">
-                <i class="fas fa-plus"></i>
-            </div>
-        `);
-
-        $add.on('click', function() {
-            addStepItem(parentNodeId, branchId);
-        });
-
-        return $add;
-    }
-
+    // 연결선은 화살촉 없이 선으로만 그린다. 흐름 방향은 카드 아래 출력포트와 위 입력포트가 알려준다.
     function renderConnectLine() {
-        return $(`
-            <svg id="connectorLayer" width="100%" height="100%" style="position:absolute; top:0; left:0; pointer-events:none;">
-                <defs>
-                    <!-- orient="auto"는 화살표 도형이 오른쪽(+x)을 향해 그려져 있다고 가정하고
-                         경로 진행 방향 각도만큼 회전시킨다. 세로선(아래 방향, 90도 회전)에
-                         맞춰 화살표를 아래쪽을 향하도록 그려두면 회전이 90도 더 들어가
-                         옆으로 돌아간 것처럼(끝부분이 찌그러진 것처럼) 보이는 문제가 있었다.
-                         그래서 화살표를 오른쪽을 향하도록 그려서 orient="auto"가 올바르게
-                         회전시키도록 수정했다. -->
-                    <marker id="connectorArrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
-                        <path d="M0,0 L0,8 L7,4 Z" fill="#c7cbd1"></path>
-                    </marker>
-                </defs>
-            </svg>
-        `);
+        return $(`<svg id="connectorLayer" width="100%" height="100%"></svg>`);
     }
 
     function renderStepItem(nodeId, node) {
@@ -1847,17 +2207,49 @@
             deleteNode(nodeId);
         });
 
-        stepItemEl.on('click', function() {
+        // 노드 이동은 왼쪽 손잡이로만 한다. 카드 본문은 눌러도 움직이지 않고 상세창만 열린다.
+        stepItemEl.find('.step-drag-handle').on('mousedown', function(e) {
+            if (e.button !== 0) return;
+
+            e.preventDefault();
+            e.stopPropagation();
+            startNodeDrag(node, e);
+        });
+
+        stepItemEl.on('click', function(e) {
+            if ($(e.target).closest('.step-tool').length > 0) return;
+
+            if (suppressNodeClick) {
+                suppressNodeClick = false;
+                return;
+            }
+
             openNodeDrawer(nodeId);
         });
 
         return stepItemEl;
     }
 
+    function renderNodeBadge(nodeId) {
+        const role = nodeRole(nodeId);
+
+        if (role === 'start') {
+            return `<span class="wf-node-badge is-start">시작</span>`;
+        }
+
+        if (role === 'orphan') {
+            return `<span class="wf-node-badge is-orphan">미연결</span>`;
+        }
+
+        return '';
+    }
+
     function renderFunctionStepItem(nodeId, node) {
         return $(`
             <div class="step-item" id="${STEP_ITEM_ID_PREFIX}${nodeId}">
-                <div class="step-drag-handle" title="드래그하여 순서 이동"><i class="fas fa-grip-vertical"></i></div>
+                ${renderNodeBadge(nodeId)}
+                <span class="wf-port-in" data-node-id="${nodeId}"></span>
+                <div class="step-drag-handle" title="드래그하여 위치 이동"><i class="fas fa-grip-vertical"></i></div>
                 <div class="step-body">
                     <div class="step-message">
                         <span class="step-message-type message-in">IN</span>
@@ -1886,10 +2278,13 @@
     }
 
     // 조건분기 노드는 내보낼 메시지가 없어 OUT 줄이 없고, 따로 만들어둘 기능도 없어 상세설정 버튼도 없다.
+    // 대신 어떤 조건이 어떤 포트로 나가는지 카드 안에 그대로 보여준다.
     function renderConditionStepItem(nodeId, node) {
         return $(`
             <div class="step-item step-item-condition" id="${STEP_ITEM_ID_PREFIX}${nodeId}">
-                <div class="step-drag-handle" title="드래그하여 순서 이동"><i class="fas fa-grip-vertical"></i></div>
+                ${renderNodeBadge(nodeId)}
+                <span class="wf-port-in" data-node-id="${nodeId}"></span>
+                <div class="step-drag-handle" title="드래그하여 위치 이동"><i class="fas fa-grip-vertical"></i></div>
                 <div class="step-body">
                     <div class="step-message">
                         <span class="step-message-type message-in">IN</span>
@@ -1903,6 +2298,7 @@
                             <font class="function-display-name">조건분기</font>
                         </span>
                     </div>
+                    <div class="wf-condition-lines" name="view-conditionLines">${conditionLinesHtml(node)}</div>
                 </div>
                 <span class="step-tools">
                     <i class="step-tool step-tool-delete fas fa-trash" title="삭제"></i>
@@ -1911,19 +2307,26 @@
         `);
     }
 
-    function hasConditionExpression(node) {
-        return node.conditions.length > 0 && !!node.conditions[0].conditionExpression;
-    }
+    function conditionLinesHtml(node) {
+        const lines = node.conditions.map(function(condition, index) {
+            const expression = condition.conditionExpression || '';
 
-    // 카드에는 첫 조건식만 보여주고, else if 가 더 있으면 개수로 알려준다.
-    function conditionSummary(node) {
-        if (!hasConditionExpression(node)) {
-            return '조건식을 입력하세요';
-        }
+            return `
+                <div class="wf-condition-line">
+                    <span class="wf-branch-label is-case">${branchLabel(condition.branchId, index)}</span>
+                    <span class="wf-condition-line-expr ${expression ? '' : 'is-empty'}">${escapeHtml(expression || '조건식 없음')}</span>
+                </div>
+            `;
+        });
 
-        const first = node.conditions[0].conditionExpression;
+        lines.push(`
+            <div class="wf-condition-line">
+                <span class="wf-branch-label is-else">else</span>
+                <span class="wf-condition-line-expr is-empty">위 조건에 모두 걸리지 않을 때</span>
+            </div>
+        `);
 
-        return node.conditions.length > 1 ? `${first} 외 ${node.conditions.length - 1}개` : first;
+        return lines.join('');
     }
 
     function escapeHtml(text) {
@@ -1944,16 +2347,11 @@
         $item.find(`[name="view-functionType"]`).attr('src', getFunctionIconPath(node.functionType));
 
         if (isConditionNode(node)) {
-            $item.find(`[name="view-conditionSummary"]`)
-                .text(conditionSummary(node))
-                .toggleClass('is-empty', !hasConditionExpression(node));
-        }
-    }
+            $item.find(`[name="view-conditionLines"]`).html(conditionLinesHtml(node));
 
-    function updateBranchExpressionView(nodeId, branchId, expression) {
-        $(`.wf-branch-expression[data-node-id="${nodeId}"][data-branch-id="${branchId}"]`)
-            .text(expression || '조건식 없음')
-            .toggleClass('is-empty', !expression);
+            // 카드 높이가 바뀌면 포트 위치도 따라 움직인다.
+            drawConnectors();
+        }
     }
 
     function getFunctionTypeInfo(functionType) {
@@ -1965,266 +2363,344 @@
         return info ? info.icon : '';
     }
 
-    /* ================= Node add / delete / move ================= */
+    /* ================= Node drag / connect ================= */
 
-    function addStepItem(parentNodeId, branchId) {
-        openFunctionTypeModal(null, function(selectedCode) {
-            const nodeId = createNodeId();
+    function startNodeDrag(node, event) {
+        const $el = $(`.wf-node[data-node-id="${node.nodeId}"]`);
+        const startX = event.clientX;
+        const startY = event.clientY;
+        const originX = node.x;
+        const originY = node.y;
+        let moved = false;
 
-            nodeMap.set(nodeId, createNode(nodeId, selectedCode));
+        $(document).on('mousemove.wfnode', function(e) {
+            if (!moved && Math.abs(e.clientX - startX) + Math.abs(e.clientY - startY) < 3) return;
 
-            targetChain(parentNodeId, branchId).push(nodeId);
-
-            renderWorkflow();
-            openNodeDrawer(nodeId);
-
-            if (selectedCode === CONDITION_TYPE) {
-                $("#drawerConditionList textarea").first().trigger('focus');
+            if (!moved) {
+                moved = true;
+                $el.addClass('is-dragging');
             }
-            else {
-                $("#drawerFunctionName").trigger('focus');
-            }
+
+            node.x = Math.max(0, Math.round(originX + (e.clientX - startX) / viewScale));
+            node.y = Math.max(0, Math.round(originY + (e.clientY - startY) / viewScale));
+
+            $el.css({left:node.x + 'px', top:node.y + 'px'});
+            drawConnectors();
+        });
+
+        $(document).on('mouseup.wfnode', function() {
+            $(document).off('mousemove.wfnode mouseup.wfnode');
+            $el.removeClass('is-dragging');
+
+            if (!moved) return;
+
+            // 손을 뗀 자리에서 클릭이 한 번 더 오므로, 그 한 번만 무시한다.
+            suppressNodeClick = true;
+            setTimeout(function() { suppressNodeClick = false; }, 0);
+
+            updateCanvasSize();
+            drawConnectors();
         });
     }
 
-    function targetChain(parentNodeId, branchId) {
-        if (!parentNodeId) {
-            return rootChain;
-        }
+    function bindPortInteraction($port, node, port) {
+        $port.on('mousedown', function(e) {
+            if (e.button !== 0) return;
 
-        return branchOf(getNode(parentNodeId), branchId);
+            e.preventDefault();
+            e.stopPropagation();
+            startConnectDrag(node, port, e);
+        });
     }
 
-    function deleteNode(nodeId) {
-        const node = getNode(nodeId);
-        if (!node) return;
+    // 출력포트에서 끌어다 다른 노드에 놓으면 연결된다. 이미 이어진 포트를 다시 끌면 연결이 옮겨간다.
+    // 빈 곳에 놓거나 끌지 않고 그냥 누르면 그 자리에 새 노드를 만들어 이어준다.
+    function startConnectDrag(node, port, event) {
+        const svg = document.getElementById('connectorLayer');
+        const from = portPoint(node, portKey(node.nodeId, port.branchType, port.branchId));
+        const temp = createSvgPath('wf-edge-line wf-edge-temp', edgePath(from, from));
 
-        const childCount = countBranchNodes(node);
-        if (childCount > 0 && !confirm(`가지 안의 노드 ${childCount}개도 함께 삭제됩니다. 삭제하시겠습니까?`)) {
-            return;
-        }
+        svg.appendChild(temp);
+        $("#workflowCanvas").addClass('is-connecting');
 
-        removeFromChains(rootChain, nodeId);
-        removeNodeData(node);
+        let moved = false;
 
-        renderWorkflow();
-    }
+        $(document).on('mousemove.wfport', function(e) {
+            if (!moved && Math.abs(e.clientX - event.clientX) + Math.abs(e.clientY - event.clientY) < 3) return;
 
-    function countBranchNodes(node) {
-        if (!isConditionNode(node)) return 0;
+            moved = true;
+            temp.setAttribute('d', edgePath(from, toContentPoint(e.clientX, e.clientY)));
 
-        let count = 0;
-        eachBranchChain(node, function(chain) {
-            count += countChainNodes(chain);
+            const target = nodeElementAt(e.clientX, e.clientY);
+
+            $('.wf-node').removeClass('is-drop-target');
+            if (target && target.getAttribute('data-node-id') !== node.nodeId) {
+                $(target).addClass('is-drop-target');
+            }
         });
 
-        return count;
-    }
+        $(document).on('mouseup.wfport', function(e) {
+            $(document).off('mousemove.wfport mouseup.wfport');
+            $('.wf-node').removeClass('is-drop-target');
+            $("#workflowCanvas").removeClass('is-connecting');
+            temp.remove();
 
-    function countChainNodes(chain) {
-        let count = 0;
-
-        for (const nodeId of chain) {
-            count++;
-
-            const node = getNode(nodeId);
-            if (isConditionNode(node)) {
-                count += countBranchNodes(node);
-            }
-        }
-
-        return count;
-    }
-
-    function removeFromChains(chain, nodeId) {
-        const index = chain.indexOf(nodeId);
-        if (index >= 0) {
-            chain.splice(index, 1);
-            return true;
-        }
-
-        for (const id of chain) {
-            const node = getNode(id);
-            if (!isConditionNode(node)) continue;
-
-            for (const branchId of branchIds(node)) {
-                if (removeFromChains(branchOf(node, branchId), nodeId)) {
-                    return true;
+            if (!moved) {
+                if (!findEdgeByPort(node.nodeId, port)) {
+                    addNodeFromPort(node, port, null);
                 }
+                return;
             }
-        }
 
-        return false;
-    }
+            const target = nodeElementAt(e.clientX, e.clientY);
+            const targetNodeId = target ? target.getAttribute('data-node-id') : null;
 
-    function removeNodeData(node) {
-        if (isConditionNode(node)) {
-            eachBranchChain(node, removeChainData);
-        }
+            if (targetNodeId) {
+                if (targetNodeId === node.nodeId) return;
 
-        nodeMap.delete(node.nodeId);
+                connectNodes(node.nodeId, port, targetNodeId);
+                renderWorkflow();
+                return;
+            }
 
-        if (activeNodeId === node.nodeId) {
-            closeNodeDrawer();
-        }
-    }
-
-    function removeChainData(chain) {
-        for (const nodeId of chain) {
-            const node = getNode(nodeId);
-            if (node) removeNodeData(node);
-        }
-    }
-
-    function setChainSortable() {
-        $("#workflowGrid .wf-chain").sortable({
-            handle: ".step-drag-handle",
-            cancel: ".step-tool",
-            cursor: "move",
-            placeholder: "workflow-item-placeholder",
-            tolerance: "pointer",
-            items: "> .wf-node-wrap",
-            connectWith: "#workflowGrid .wf-chain",
-            start: function(event, ui) {
-                dragSnapshot = createModelSnapshot();
-
-                // 자기 자신의 하위 가지로는 옮길 수 없다(자기 안에 자기를 넣는 꼴).
-                ui.item.find('.wf-chain').sortable('option', 'disabled', true);
-            },
-            sort: function() {
-                // 드래그 도중에도 다시 그리지 않으면 카드는 실시간으로 움직이는데
-                // 화살표는 드롭 전 좌표에 멈춰있어 서로 어긋나 보인다(찌그러진 것처럼 보임).
-                drawConnectors();
-            },
-            stop: function(event, ui) {
-                ui.item.find('.wf-chain').sortable('option', 'disabled', false);
-
-                syncModelFromDom();
-
-                if (!validateChains()) {
-                    alert("조건분기 노드 뒤에는 노드를 놓을 수 없습니다. 조건 가지 안으로 옮겨주세요.");
-                    restoreModelSnapshot(dragSnapshot);
-                }
-
-                dragSnapshot = null;
-
-                // 드래그 뒷정리가 끝난 다음 틱에 다시 그린다.
-                // stop 안에서 곧바로 DOM을 비우면 jQuery UI 가 정리 중인 엘리먼트를 잃어버린다.
-                setTimeout(renderWorkflow, 0);
+            if (isCanvasBackgroundAt(e.clientX, e.clientY)) {
+                addNodeFromPort(node, port, toContentPoint(e.clientX, e.clientY));
             }
         });
+    }
+
+    function nodeElementAt(clientX, clientY) {
+        const el = document.elementFromPoint(clientX, clientY);
+
+        return el ? el.closest('.wf-node') : null;
+    }
+
+    // 캔버스의 빈 바닥인지. 상세창이나 도구 위에서 손을 뗀 경우를 걸러낸다.
+    function isCanvasBackgroundAt(clientX, clientY) {
+        const el = document.elementFromPoint(clientX, clientY);
+        if (!el) return false;
+
+        return el.id === 'workflowCanvas' || !!el.closest('#workflowContent');
     }
 
     /* ================= Connectors ================= */
 
     function drawConnectors() {
         const svg = document.getElementById('connectorLayer');
-        const grid = document.getElementById('workflowGrid');
-        if (!svg || !grid) return;
+        if (!svg) return;
 
-        // svg의 height:100%는 flex 컨테이너(auto height)를 기준으로 정확히 계산되지 않아
-        // 화살표가 중간에 잘리는 문제가 있어 실제 그리드 크기로 명시적으로 지정한다.
-        // 주의: grid.scrollWidth/scrollHeight는 쓰면 안 된다 - svg 자신이 grid의 자식이라
-        // 이전에 지정해둔 svg 크기가 grid의 스크롤 크기에 그대로 반영되어, 한 번 커지면
-        // 다시 줄어들지 않는 자기증식 버그가 생긴다(사이드바 접었다 펴면 화살표가 어긋남).
-        // absolute 포지션인 svg는 auto-height 계산에서 제외되므로 getBoundingClientRect가 안전하다.
-        const gridRect = grid.getBoundingClientRect();
-        svg.setAttribute('width', gridRect.width);
-        svg.setAttribute('height', gridRect.height);
-
-        const defs = svg.querySelector('defs');
         svg.innerHTML = '';
-        if (defs) svg.appendChild(defs);
 
-        const container = svg.getBoundingClientRect();
+        for (const edge of validEdges()) {
+            const source = getNode(edge.sourceNodeId);
+            const target = getNode(edge.targetNodeId);
 
-        // 1) 체인 안에서 위아래로 이어지는 직선 흐름
-        grid.querySelectorAll('.wf-chain').forEach(function(chain) {
-            const items = Array.from(chain.children).filter(el =>
-                el.classList.contains('wf-node-wrap') || el.classList.contains('add-step-item'));
+            const from = portPoint(source, edgeKeyOf(edge));
+            const to = inPortPoint(target);
 
-            for (let i = 0; i < items.length - 1; i++) {
-                const from = anchorOf(items[i]);
-                const to = anchorOf(items[i + 1]);
-
-                drawLine(svg, container, from.x, from.bottom, to.x, to.top);
-            }
-        });
-
-        // 2) 조건분기 노드에서 각 가지로 갈라지는 흐름
-        grid.querySelectorAll('.wf-node-wrap').forEach(function(wrap) {
-            const row = wrap.querySelector(':scope > .wf-branch-row');
-            if (!row) return;
-
-            const from = anchorOf(wrap);
-
-            row.querySelectorAll(':scope > .wf-branch').forEach(function(branch) {
-                const head = branch.querySelector(':scope > .wf-branch-head');
-                const headRect = head.getBoundingClientRect();
-                const headX = headRect.left + headRect.width / 2;
-
-                drawElbow(svg, container, from.x, from.bottom, headX, headRect.top);
-
-                const chain = branch.querySelector(':scope > .wf-chain');
-                const first = chain.children[0];
-                if (!first) return;
-
-                const to = anchorOf(first);
-                drawLine(svg, container, headX, headRect.bottom, to.x, to.top);
-            });
-        });
+            svg.appendChild(createEdgeElement(edge, from, to));
+        }
     }
 
-    // 연결선의 기준점. 카드는 왼쪽에 드래그 핸들(26px)이 붙어있어 카드 전체 폭의 중앙이
-    // 실제 보이는 내용(아이콘/텍스트)의 중앙보다 왼쪽으로 치우친다. 그래서 x는 step-body 기준으로 잡는다.
-    // 또 조건분기 래퍼는 하위 가지까지 품고 있으므로 위/아래 좌표는 래퍼가 아니라 카드 기준이어야 한다.
-    function anchorOf(el) {
-        const card = el.classList.contains('wf-node-wrap')
-            ? el.querySelector(':scope > .step-item')
-            : el;
+    // 포트의 캔버스 좌표.
+    function portPoint(node, key) {
+        const el = document.querySelector(`.wf-port-out[data-port-key="${key}"] .wf-port-dot`);
 
-        const body = card.querySelector(':scope > .step-body') || card;
+        return el ? anchorPoint(node, el) : {x:node.x + NODE_WIDTH / 2, y:node.y + NODE_HEIGHT};
+    }
 
-        const cardRect = card.getBoundingClientRect();
-        const bodyRect = body.getBoundingClientRect();
+    function inPortPoint(node) {
+        const el = document.querySelector(`.wf-port-in[data-node-id="${node.nodeId}"]`);
+
+        return el ? anchorPoint(node, el) : {x:node.x + NODE_WIDTH / 2, y:node.y};
+    }
+
+    // 노드 안에서 포트가 실제로 그려진 자리의 한가운데.
+    // offsetLeft 로 재면 안 된다. 그 값은 배치 좌표라 입력포트에 걸린 translateX(-50%) 같은
+    // transform 이 반영되지 않아, 화살표 끝이 원 중앙에서 반지름만큼 오른쪽으로 밀렸다.
+    // 그려진 위치를 노드 기준으로 재고, 캔버스 확대비율만 되돌리면 테두리 두께까지 알아서 맞는다.
+    function anchorPoint(node, el) {
+        const nodeEl = document.querySelector(`.wf-node[data-node-id="${node.nodeId}"]`);
+        if (!nodeEl) {
+            return {x:node.x + NODE_WIDTH / 2, y:node.y};
+        }
+
+        const portRect = el.getBoundingClientRect();
+        const nodeRect = nodeEl.getBoundingClientRect();
 
         return {
-            x: bodyRect.left + bodyRect.width / 2,
-            top: cardRect.top,
-            bottom: cardRect.bottom
+            x: node.x + (portRect.left + portRect.width / 2 - nodeRect.left) / viewScale,
+            y: node.y + (portRect.top + portRect.height / 2 - nodeRect.top) / viewScale
         };
     }
 
-    function drawLine(svg, container, x1, y1, x2, y2) {
-        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-        line.setAttribute("x1", x1 - container.left);
-        line.setAttribute("y1", y1 - container.top);
-        line.setAttribute("x2", x2 - container.left);
-        line.setAttribute("y2", y2 - container.top);
-        line.setAttribute("stroke", "#c7cbd1");
-        line.setAttribute("stroke-width", "2");
-        line.setAttribute("marker-end", "url(#connectorArrow)");
+    function edgePath(from, to) {
+        const curve = Math.max(40, Math.abs(to.y - from.y) / 2);
 
-        svg.appendChild(line);
+        return `M ${from.x} ${from.y} C ${from.x} ${from.y + curve}, ${to.x} ${to.y - curve}, ${to.x} ${to.y}`;
     }
 
-    // 조건분기에서 좌우로 갈라지는 연결선. 내려갔다가 옆으로 꺾고 다시 내려온다.
-    function drawElbow(svg, container, x1, y1, x2, y2) {
-        const sx = x1 - container.left;
-        const sy = y1 - container.top;
-        const ex = x2 - container.left;
-        const ey = y2 - container.top;
-        const my = sy + (ey - sy) / 2;
+    // 3차 베지에의 가운데 지점. 연결선 삭제 버튼을 여기에 놓는다.
+    function edgeMidPoint(from, to) {
+        const curve = Math.max(40, Math.abs(to.y - from.y) / 2);
 
-        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-        path.setAttribute("d", `M ${sx} ${sy} L ${sx} ${my} L ${ex} ${my} L ${ex} ${ey}`);
-        path.setAttribute("fill", "none");
-        path.setAttribute("stroke", "#c7cbd1");
-        path.setAttribute("stroke-width", "2");
-        path.setAttribute("stroke-linejoin", "round");
-        path.setAttribute("marker-end", "url(#connectorArrow)");
+        return {
+            x: (from.x + 3 * from.x + 3 * to.x + to.x) / 8,
+            y: (from.y + 3 * (from.y + curve) + 3 * (to.y - curve) + to.y) / 8
+        };
+    }
 
-        svg.appendChild(path);
+    function createSvgPath(className, d) {
+        const path = document.createElementNS(SVG_NS, 'path');
+        path.setAttribute('class', className);
+        path.setAttribute('d', d);
+
+        return path;
+    }
+
+    function createEdgeElement(edge, from, to) {
+        const group = document.createElementNS(SVG_NS, 'g');
+        group.setAttribute('class', 'wf-edge');
+
+        const d = edgePath(from, to);
+
+        group.appendChild(createSvgPath('wf-edge-hit', d));
+        group.appendChild(createSvgPath('wf-edge-line', d));
+        group.appendChild(createEdgeRemoveButton(edge, edgeMidPoint(from, to)));
+
+        return group;
+    }
+
+    function createEdgeRemoveButton(edge, point) {
+        const button = document.createElementNS(SVG_NS, 'g');
+        button.setAttribute('class', 'wf-edge-remove');
+        button.setAttribute('transform', `translate(${point.x}, ${point.y})`);
+
+        const circle = document.createElementNS(SVG_NS, 'circle');
+        circle.setAttribute('r', '9');
+
+        const cross = document.createElementNS(SVG_NS, 'path');
+        cross.setAttribute('d', 'M -3.5 -3.5 L 3.5 3.5 M 3.5 -3.5 L -3.5 3.5');
+        cross.setAttribute('fill', 'none');
+
+        button.appendChild(circle);
+        button.appendChild(cross);
+
+        button.addEventListener('mousedown', function(e) {
+            e.stopPropagation();
+        });
+
+        button.addEventListener('click', function(e) {
+            e.stopPropagation();
+            disconnectEdge(edge);
+            renderWorkflow();
+        });
+
+        return button;
+    }
+
+    /* ================= Node add / delete ================= */
+
+    // 캔버스 한가운데에 아무 데도 이어지지 않은 노드를 하나 만든다.
+    function addFloatingNode() {
+        const rect = document.getElementById('workflowCanvas').getBoundingClientRect();
+        const center = toContentPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
+
+        openFunctionTypeModal(null, function(selectedCode) {
+            createAndOpenNode(selectedCode, {
+                x: Math.max(0, Math.round(center.x - NODE_WIDTH / 2)),
+                y: Math.max(0, Math.round(center.y - NODE_HEIGHT / 2))
+            }, null, null);
+        });
+    }
+
+    function addNodeFromPort(sourceNode, port, dropPoint) {
+        const position = dropPoint
+            ? {x:Math.max(0, Math.round(dropPoint.x - NODE_WIDTH / 2)), y:Math.max(0, Math.round(dropPoint.y))}
+            : emptyPositionBelow(sourceNode);
+
+        openFunctionTypeModal(null, function(selectedCode) {
+            createAndOpenNode(selectedCode, position, sourceNode.nodeId, port);
+        });
+    }
+
+    function createAndOpenNode(functionType, position, sourceNodeId, port) {
+        const nodeId = createNodeId();
+        const node = createNode(nodeId, functionType);
+
+        node.x = position.x;
+        node.y = position.y;
+
+        nodeMap.set(nodeId, node);
+
+        if (sourceNodeId && port) {
+            connectNodes(sourceNodeId, port, nodeId);
+        }
+
+        renderWorkflow();
+        openNodeDrawer(nodeId);
+
+        if (functionType === CONDITION_TYPE) {
+            $("#drawerConditionList textarea").first().trigger('focus');
+        }
+        else {
+            $("#drawerFunctionName").trigger('focus');
+        }
+    }
+
+    // 바로 아래가 비어있으면 거기, 이미 노드가 있으면 옆으로 밀어서 자리를 잡는다.
+    function emptyPositionBelow(sourceNode) {
+        let x = sourceNode.x;
+        const y = sourceNode.y + LAYOUT_GAP_Y;
+
+        while (isOccupied(x, y)) {
+            x += NODE_WIDTH + LAYOUT_GAP_X;
+        }
+
+        return {x:Math.max(0, x), y:y};
+    }
+
+    function isOccupied(x, y) {
+        for (const node of nodeMap.values()) {
+            if (Math.abs(node.x - x) < NODE_WIDTH && Math.abs(node.y - y) < NODE_HEIGHT) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    function deleteNode(nodeId) {
+        const node = getNode(nodeId);
+        if (!node) return;
+
+        const outgoing = outgoingEdges(nodeId);
+        const incoming = incomingEdges(nodeId);
+
+        if (outgoing.length + incoming.length > 0 && !confirm("노드를 삭제하면 연결선도 함께 지워집니다. 삭제하시겠습니까?")) {
+            return;
+        }
+
+        // 중간 노드를 지우면 앞뒤가 끊긴다. 나가는 길이 하나뿐이면 앞 노드를 그 길로 이어붙여 흐름을 살린다.
+        const passThroughNodeId = outgoing.length === 1 ? outgoing[0].targetNodeId : null;
+
+        edgeList = edgeList.filter(edge => edge.sourceNodeId !== nodeId);
+
+        for (const edge of edgeList) {
+            if (edge.targetNodeId === nodeId && passThroughNodeId && passThroughNodeId !== edge.sourceNodeId) {
+                edge.targetNodeId = passThroughNodeId;
+            }
+        }
+
+        edgeList = edgeList.filter(edge => edge.targetNodeId !== nodeId);
+
+        nodeMap.delete(nodeId);
+
+        if (activeNodeId === nodeId) {
+            closeNodeDrawer();
+        }
+
+        renderWorkflow();
     }
 
     /* ================= Node detail drawer ================= */
@@ -2238,14 +2714,12 @@
         refreshDrawerFields(getNode(nodeId) || {});
 
         $("#nodeDrawer").addClass("open");
-        $("#drawerBackdrop").addClass("show");
     }
 
     function closeNodeDrawer() {
         activeNodeId = null;
         $(".step-item").removeClass("selected");
         $("#nodeDrawer").removeClass("open");
-        $("#drawerBackdrop").removeClass("show");
     }
 
     function refreshDrawerFields(node) {
@@ -2290,7 +2764,6 @@
                 .on('input', function() {
                     condition.conditionExpression = this.value;
                     updateStepItemView(node.nodeId);
-                    updateBranchExpressionView(node.nodeId, condition.branchId, this.value);
                 });
 
             $row.find('.wf-condition-remove').on('click', function() {
@@ -2314,10 +2787,7 @@
         const node = getNode(activeNodeId);
         if (!isConditionNode(node)) return;
 
-        const branchId = createBranchId(node);
-
-        node.conditions.push({branchId:branchId, conditionExpression:''});
-        node.branches[branchId] = [];
+        node.conditions.push({branchId:createBranchId(node), conditionExpression:''});
 
         const nodeId = node.nodeId;
 
@@ -2336,14 +2806,18 @@
             return;
         }
 
-        const count = countChainNodes(branchOf(node, branchId));
-        if (count > 0 && !confirm(`이 조건의 가지에 있는 노드 ${count}개도 함께 삭제됩니다. 삭제하시겠습니까?`)) {
+        // 조건을 지우면 그 조건에 딸린 연결선도 갈 곳이 없어진다. 노드 자체는 그대로 둔다.
+        const port = {branchType:EDGE_CASE, branchId:branchId};
+        const edge = findEdgeByPort(nodeId, port);
+
+        if (edge && !confirm("이 조건에 이어둔 연결선도 함께 지워집니다. 삭제하시겠습니까?")) {
             return;
         }
 
-        removeChainData(branchOf(node, branchId));
+        if (edge) {
+            disconnectEdge(edge);
+        }
 
-        delete node.branches[branchId];
         node.conditions = node.conditions.filter(condition => condition.branchId !== branchId);
 
         renderWorkflow();
@@ -2369,59 +2843,33 @@
         openFunctionTypeModal(node.functionType, function(selectedCode) {
             if (selectedCode === node.functionType) return;
 
-            if (isConditionNode(node) && countBranchNodes(node) > 0) {
-                alert("가지에 노드가 남아있어 유형을 바꿀 수 없습니다. 가지를 먼저 비워주세요.");
+            const willBeCondition = selectedCode === CONDITION_TYPE;
+
+            // 일반 노드와 조건분기 노드는 나가는 포트 구성이 달라서 기존 연결을 그대로 둘 수 없다.
+            // 들어오는 연결은 입력포트 하나로 같으니 그대로 둔다.
+            if (outgoingEdges(node.nodeId).length > 0
+                && !confirm("기능 유형을 바꾸면 이 노드에서 나가는 연결선이 지워집니다. 바꾸시겠습니까?")) {
                 return;
             }
 
-            if (selectedCode === CONDITION_TYPE && !isLastOfChain(node.nodeId)) {
-                alert("조건분기는 흐름의 마지막 노드만 지정할 수 있습니다. 뒤에 있는 노드를 옮기거나 지운 뒤 변경해주세요.");
-                return;
-            }
+            edgeList = edgeList.filter(edge => edge.sourceNodeId !== node.nodeId);
 
             const nodeId = node.nodeId;
 
             node.functionType = selectedCode;
             node.conditions = [];
-            node.branches = {};
 
-            if (selectedCode === CONDITION_TYPE) {
+            if (willBeCondition) {
                 node.displayName = '조건분기';
                 resetConditions(node);
+            }
+            else if (node.displayName === '조건분기') {
+                node.displayName = '(기능생성필요)';
             }
 
             renderWorkflow();
             openNodeDrawer(nodeId);
         });
-    }
-
-    function isLastOfChain(nodeId) {
-        let last = false;
-
-        function check(chain) {
-            const index = chain.indexOf(nodeId);
-            if (index >= 0) {
-                last = index === chain.length - 1;
-                return true;
-            }
-
-            for (const id of chain) {
-                const node = getNode(id);
-                if (!isConditionNode(node)) continue;
-
-                for (const branchId of branchIds(node)) {
-                    if (check(branchOf(node, branchId))) {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
-
-        check(rootChain);
-
-        return last;
     }
 
     function openDrawerFunctionSetting() {
@@ -2522,11 +2970,32 @@
             </div>
 
             <div class="wf-canvas-wrap">
-                <div class="wf-canvas">
-                    <div id="workflowGrid"></div>
+                <div class="wf-canvas" id="workflowCanvas">
+                    <div id="workflowContent"></div>
                 </div>
 
-                <div class="wf-drawer-backdrop" id="drawerBackdrop" onclick="closeNodeDrawer()"></div>
+                <div class="wf-canvas-empty" id="workflowEmpty" style="display:none;">
+                    노드가 없습니다.
+                    <div>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="addFloatingNode()">
+                            <i class="fas fa-plus"></i> 첫 노드 추가
+                        </button>
+                    </div>
+                </div>
+
+                <div class="wf-canvas-tools">
+                    <button type="button" onclick="addFloatingNode()" title="노드 추가"><i class="fas fa-plus"></i></button>
+                    <button type="button" onclick="autoLayout()" title="자동정렬"><i class="fas fa-project-diagram"></i></button>
+                    <span class="wf-canvas-tools-sep"></span>
+                    <button type="button" onclick="zoomBy(1/1.2)" title="축소"><i class="fas fa-search-minus"></i></button>
+                    <span class="wf-canvas-zoom" id="zoomLabel">100%</span>
+                    <button type="button" onclick="zoomBy(1.2)" title="확대"><i class="fas fa-search-plus"></i></button>
+                    <button type="button" onclick="fitView()" title="화면맞춤"><i class="fas fa-expand"></i></button>
+                </div>
+
+                <div class="wf-canvas-hint">
+                    포트를 끌어 다른 노드에 놓으면 연결됩니다. 여러 갈래를 같은 노드로 모을 수 있습니다.
+                </div>
 
                 <aside class="wf-node-drawer" id="nodeDrawer">
                     <div class="wf-drawer-header">

@@ -12,4 +12,13 @@ public class DataTypeUtil {
 
         return id;
     }
+
+    // 화면에서 넘어오는 숫자는 Integer 로 올 때도, 소수점이 붙어 Double 로 올 때도 있다.
+    public static Integer valueIntegerOf(Object value) {
+        if(value instanceof Number) {
+            return ((Number) value).intValue();
+        }
+
+        return null;
+    }
 }

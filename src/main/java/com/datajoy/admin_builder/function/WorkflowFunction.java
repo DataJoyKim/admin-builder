@@ -48,6 +48,13 @@ public class WorkflowFunction {
     @Column(length = 100)
     private String responseMessageId;
 
+    // 빌더 캔버스에서의 노드 위치. 실행에는 쓰이지 않고, 화면을 다시 열었을 때 배치를 그대로 되살리는 용도다.
+    @Column
+    private Integer positionX;
+
+    @Column
+    private Integer positionY;
+
     public boolean isCondition() {
         return FunctionType.CONDITION.equals(functionType);
     }
@@ -60,7 +67,9 @@ public class WorkflowFunction {
             Integer orderNum,
             Boolean isLogging,
             String requestMessageId,
-            String responseMessageId
+            String responseMessageId,
+            Integer positionX,
+            Integer positionY
     ) {
         this.workflowId = workflowId;
         this.nodeId = nodeId;
@@ -70,5 +79,7 @@ public class WorkflowFunction {
         this.isLogging = isLogging;
         this.requestMessageId = requestMessageId;
         this.responseMessageId = responseMessageId;
+        this.positionX = positionX;
+        this.positionY = positionY;
     }
 }

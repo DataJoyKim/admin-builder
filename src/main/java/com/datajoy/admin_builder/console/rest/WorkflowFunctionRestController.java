@@ -84,6 +84,8 @@ public class WorkflowFunctionRestController {
                 .isLogging((Boolean) params.get("isLogging"))
                 .requestMessageId((String) params.get("requestMessageId"))
                 .responseMessageId((String) params.get("responseMessageId"))
+                .positionX(DataTypeUtil.valueIntegerOf(params.get("positionX")))
+                .positionY(DataTypeUtil.valueIntegerOf(params.get("positionY")))
                 .build();
     }
 
@@ -96,7 +98,9 @@ public class WorkflowFunctionRestController {
                 (Integer) params.get("orderNum"),
                 (Boolean) params.get("isLogging"),
                 (String) params.get("requestMessageId"),
-                (String) params.get("responseMessageId")
+                (String) params.get("responseMessageId"),
+                DataTypeUtil.valueIntegerOf(params.get("positionX")),
+                DataTypeUtil.valueIntegerOf(params.get("positionY"))
         );
     }
 
@@ -125,6 +129,8 @@ public class WorkflowFunctionRestController {
                     .isLogging(w.getIsLogging())
                     .requestMessageId(w.getRequestMessageId())
                     .responseMessageId(w.getResponseMessageId())
+                    .positionX(w.getPositionX())
+                    .positionY(w.getPositionY())
                     .build());
         }
 

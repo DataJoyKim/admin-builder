@@ -109,6 +109,33 @@ class WorkflowGraphTest {
     }
 
     @Test
+    public void 갈라진_가지가_같은_노드로_다시_합쳐진다() {
+        // if -> A -> C, else -> B -> C. C 는 하나만 두고 양쪽 가지에서 같이 쓴다.
+        WorkflowFunction branch = node("n1", FunctionType.CONDITION, 1);
+        WorkflowFunction aNode = node("n2", FunctionType.SQL, 2);
+        WorkflowFunction bNode = node("n3", FunctionType.SQL, 3);
+        WorkflowFunction mergedNode = node("n4", FunctionType.SQL, 4);
+
+        WorkflowGraph graph = WorkflowGraph.of(
+                List.of(branch, aNode, bNode, mergedNode),
+                List.of(
+                        edge("n1", "n2", BranchType.CASE, "c1", 0),
+                        edge("n1", "n3", BranchType.ELSE, null, 1),
+                        edge("n2", "n4", BranchType.DEFAULT, null, 2),
+                        edge("n3", "n4", BranchType.DEFAULT, null, 3)
+                ),
+                List.of(condition("n1", "c1", "params[0].grade === 'A'", 0))
+        );
+
+        // 들어오는 연결이 둘이어도 시작 노드 판정에는 영향이 없다.
+        assertEquals(branch, graph.getStartNode());
+
+        assertEquals(mergedNode, graph.next(graph.nextCase(branch, "c1"), BranchType.DEFAULT));
+        assertEquals(mergedNode, graph.next(graph.nextElse(branch), BranchType.DEFAULT));
+        assertNull(graph.next(mergedNode, BranchType.DEFAULT));
+    }
+
+    @Test
     public void 삭제된_노드를_가리키는_연결은_흐름에서_빠진다() {
         WorkflowFunction start = node("n1", FunctionType.SQL, 1);
 

@@ -19,5 +19,7 @@ public class WorkflowFunctionResponse {
     private Boolean isLogging;
     private String requestMessageId;
     private String responseMessageId;
+    private Integer positionX;
+    private Integer positionY;
 
 }

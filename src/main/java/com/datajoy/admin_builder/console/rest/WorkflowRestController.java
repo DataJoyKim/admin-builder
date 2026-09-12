@@ -3,6 +3,7 @@ package com.datajoy.admin_builder.console.rest;
 import com.datajoy.admin_builder.function.WorkflowFunction;
 import com.datajoy.admin_builder.function.WorkflowFunctionRepository;
 import com.datajoy.admin_builder.function.code.FunctionType;
+import com.datajoy.admin_builder.util.DataTypeUtil;
 import com.datajoy.admin_builder.workflow.Workflow;
 import com.datajoy.admin_builder.workflow.WorkflowAuthority;
 import com.datajoy.admin_builder.workflow.WorkflowAuthorityRepository;
@@ -91,6 +92,9 @@ public class WorkflowRestController {
                     .isLogging((Boolean) param.get("isLogging"))
                     .requestMessageId((String) param.get("requestMessageId"))
                     .responseMessageId((String) param.get("responseMessageId"))
+                    // 캔버스 배치는 빌더 화면에서만 쓰는 값이라 없으면 없는 대로 저장한다.
+                    .positionX(DataTypeUtil.valueIntegerOf(param.get("positionX")))
+                    .positionY(DataTypeUtil.valueIntegerOf(param.get("positionY")))
                     .build();
 
             workflowFunctionRepository.save(workflowFunction);
