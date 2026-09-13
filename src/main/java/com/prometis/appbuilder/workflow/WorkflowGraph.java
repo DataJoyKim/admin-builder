@@ -15,17 +15,20 @@ public class WorkflowGraph {
     private final Map<String, WorkflowNode> nodes;
     private final Map<String, List<WorkflowEdge>> outgoingEdges;
     private final Map<String, List<WorkflowCondition>> conditions;
+    private final Map<String, WorkflowErrorResponse> errorResponses;
     private final WorkflowNode startNode;
 
     private WorkflowGraph(
             Map<String, WorkflowNode> nodes,
             Map<String, List<WorkflowEdge>> outgoingEdges,
             Map<String, List<WorkflowCondition>> conditions,
+            Map<String, WorkflowErrorResponse> errorResponses,
             WorkflowNode startNode
     ) {
         this.nodes = nodes;
         this.outgoingEdges = outgoingEdges;
         this.conditions = conditions;
+        this.errorResponses = errorResponses;
         this.startNode = startNode;
     }
 
@@ -37,6 +40,15 @@ public class WorkflowGraph {
             List<WorkflowNode> functions,
             List<WorkflowEdge> edges,
             List<WorkflowCondition> conditions
+    ) {
+        return of(functions, edges, conditions, List.of());
+    }
+
+    public static WorkflowGraph of(
+            List<WorkflowNode> functions,
+            List<WorkflowEdge> edges,
+            List<WorkflowCondition> conditions,
+            List<WorkflowErrorResponse> errorResponses
     ) {
         List<WorkflowNode> orderedFunctions = sortByOrderNum(functions);
 
@@ -66,6 +78,7 @@ public class WorkflowGraph {
                 nodes,
                 outgoingEdges,
                 resolveConditions(nodes, conditions),
+                resolveErrorResponses(nodes, errorResponses),
                 findStartNode(nodes, targetNodeIds)
         );
     }
@@ -79,6 +92,13 @@ public class WorkflowGraph {
      */
     public List<WorkflowCondition> conditionsOf(WorkflowNode node) {
         return conditions.getOrDefault(node.getNodeId(), List.of());
+    }
+
+    /**
+     * 에러메시지 노드의 설정. 설정 없이 저장된 노드면 null.
+     */
+    public WorkflowErrorResponse errorResponseOf(WorkflowNode node) {
+        return errorResponses.get(node.getNodeId());
     }
 
     /**
@@ -158,6 +178,23 @@ public class WorkflowGraph {
         }
 
         return conditionsByNode;
+    }
+
+    private static Map<String, WorkflowErrorResponse> resolveErrorResponses(
+            Map<String, WorkflowNode> nodes,
+            List<WorkflowErrorResponse> errorResponses
+    ) {
+        Map<String, WorkflowErrorResponse> errorResponsesByNode = new HashMap<>();
+
+        for(WorkflowErrorResponse errorResponse : (errorResponses == null ? List.<WorkflowErrorResponse>of() : errorResponses)) {
+            if(!nodes.containsKey(errorResponse.getNodeId())) {
+                continue;
+            }
+
+            errorResponsesByNode.put(errorResponse.getNodeId(), errorResponse);
+        }
+
+        return errorResponsesByNode;
     }
 
     private static WorkflowNode findStartNode(Map<String, WorkflowNode> nodes, Set<String> targetNodeIds) {

@@ -5,10 +5,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 
 @SpringBootApplication
-public class AdminBuilderApplication {
+public class AppBuilderApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(AdminBuilderApplication.class, args);
+		SpringApplication.run(AppBuilderApplication.class, args);
 	}
 
 }

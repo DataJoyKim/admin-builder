@@ -30,6 +30,7 @@ import java.util.UUID;
 @RequestMapping("/console/api/workflow-node")
 public class WorkflowNodeRestController {
     private static final String CONDITION_DISPLAY_NAME = "조건분기";
+    private static final String ERROR_MESSAGE_DISPLAY_NAME = "에러메시지";
 
     @Autowired
     private WorkflowNodeRepository repository;
@@ -172,6 +173,9 @@ public class WorkflowNodeRestController {
         else if(FunctionType.CONDITION.equals(w.getFunctionType())) {
             // 조건분기는 따로 등록해둔 기능이 없고 판정식 자체가 내용이라 고정 이름을 쓴다.
             displayName = CONDITION_DISPLAY_NAME;
+        }
+        else if(FunctionType.ERROR_MESSAGE.equals(w.getFunctionType())) {
+            displayName = ERROR_MESSAGE_DISPLAY_NAME;
         }
         return displayName;
     }

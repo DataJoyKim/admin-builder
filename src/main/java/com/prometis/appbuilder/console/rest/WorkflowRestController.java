@@ -11,6 +11,8 @@ import com.prometis.appbuilder.workflow.WorkflowCondition;
 import com.prometis.appbuilder.workflow.WorkflowConditionRepository;
 import com.prometis.appbuilder.workflow.WorkflowEdge;
 import com.prometis.appbuilder.workflow.WorkflowEdgeRepository;
+import com.prometis.appbuilder.workflow.WorkflowErrorResponse;
+import com.prometis.appbuilder.workflow.WorkflowErrorResponseRepository;
 import com.prometis.appbuilder.workflow.WorkflowRepository;
 import com.prometis.appbuilder.workflow.code.BranchType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +36,8 @@ public class WorkflowRestController {
     @Autowired
     private WorkflowConditionRepository workflowConditionRepository;
     @Autowired
+    private WorkflowErrorResponseRepository workflowErrorResponseRepository;
+    @Autowired
     private WorkflowAuthorityRepository workflowAuthorityRepository;
 
     @Transactional
@@ -43,6 +47,7 @@ public class WorkflowRestController {
         List<Map<String,Object>> workflowNodeParams = (List<Map<String,Object>>) params.get("workflowNodes");
         List<Map<String,Object>> workflowEdgeParams = (List<Map<String,Object>>) params.get("workflowEdges");
         List<Map<String,Object>> workflowConditionParams = (List<Map<String,Object>>) params.get("workflowConditions");
+        List<Map<String,Object>> workflowErrorResponseParams = (List<Map<String,Object>>) params.get("workflowErrorResponses");
         List<Map<String,Object>> workflowAuthorityParams = (List<Map<String,Object>>) params.get("workflowAuthority");
 
         Long id = (workflowParams.get("id") == null || ((String) workflowParams.get("id")).isEmpty())
@@ -85,7 +90,7 @@ public class WorkflowRestController {
             WorkflowNode workflowNode = WorkflowNode.builder()
                     .workflowId(savedWorkflow.getId())
                     .nodeId(nodeId)
-                    // 조건분기 노드는 별도로 만들어둔 기능이 없으므로 노드 식별자를 기능명으로 대신 채운다.
+                    // 조건분기/에러메시지 노드는 별도로 만들어둔 기능이 없으므로 노드 식별자를 기능명으로 대신 채운다.
                     .functionName(resolveFunctionName((String) param.get("functionName"), functionType, nodeId))
                     .functionType(functionType)
                     .orderNum((Integer) param.get("orderNum"))
@@ -139,6 +144,23 @@ public class WorkflowRestController {
             }
         }
 
+        workflowErrorResponseRepository.deleteByWorkflowId(savedWorkflow.getId());
+
+        if(workflowErrorResponseParams != null) {
+            for(Map<String,Object> param : workflowErrorResponseParams) {
+                WorkflowErrorResponse workflowErrorResponse = WorkflowErrorResponse.builder()
+                        .workflowId(savedWorkflow.getId())
+                        .nodeId((String) param.get("nodeId"))
+                        .status(DataTypeUtil.valueIntegerOf(param.get("status")))
+                        .code((String) param.get("code"))
+                        .message((String) param.get("message"))
+                        .contents((String) param.get("contents"))
+                        .build();
+
+                workflowErrorResponseRepository.save(workflowErrorResponse);
+            }
+        }
+
         workflowAuthorityRepository.deleteByWorkflowId(savedWorkflow.getId());
 
         for(Map<String,Object> param : workflowAuthorityParams) {
@@ -162,7 +184,9 @@ public class WorkflowRestController {
             return functionName;
         }
 
-        return FunctionType.CONDITION.equals(functionType) ? nodeId : functionName;
+        boolean isControlNode = FunctionType.CONDITION.equals(functionType) || FunctionType.ERROR_MESSAGE.equals(functionType);
+
+        return isControlNode ? nodeId : functionName;
     }
 
     private static BranchType resolveBranchType(String branchType) {
@@ -178,6 +202,7 @@ public class WorkflowRestController {
         workflowNodeRepository.deleteByWorkflowId(workflow.getId());
         workflowEdgeRepository.deleteByWorkflowId(workflow.getId());
         workflowConditionRepository.deleteByWorkflowId(workflow.getId());
+        workflowErrorResponseRepository.deleteByWorkflowId(workflow.getId());
         workflowAuthorityRepository.deleteByWorkflowId(workflow.getId());
         repository.deleteById(workflow.getId());
 

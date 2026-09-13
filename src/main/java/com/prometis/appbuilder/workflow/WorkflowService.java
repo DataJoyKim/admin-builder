@@ -26,6 +26,7 @@ public class WorkflowService {
     private final WorkflowNodeRepository workflowNodeRepository;
     private final WorkflowEdgeRepository workflowEdgeRepository;
     private final WorkflowConditionRepository workflowConditionRepository;
+    private final WorkflowErrorResponseRepository workflowErrorResponseRepository;
     private final WorkflowAuthorityRepository workflowAuthorityRepository;
     private final NodeExecutorFactory nodeExecutorFactory;
     private final ConditionEvaluator conditionEvaluator;
@@ -105,7 +106,8 @@ public class WorkflowService {
         return WorkflowGraph.of(
                 workflowNodeRepository.findByWorkflowId(workflow.getId()),
                 workflowEdgeRepository.findByWorkflowId(workflow.getId()),
-                workflowConditionRepository.findByWorkflowId(workflow.getId())
+                workflowConditionRepository.findByWorkflowId(workflow.getId()),
+                workflowErrorResponseRepository.findByWorkflowId(workflow.getId())
         );
     }
 
@@ -137,6 +139,11 @@ public class WorkflowService {
             if(current.isCondition()) {
                 current = nextOfCondition(graph, current, params);
                 continue;
+            }
+
+            // 에러메시지 노드에 닿으면 뒤로 이어진 노드가 있더라도 더 실행하지 않고 설정된 에러응답으로 끝낸다.
+            if(current.isErrorMessage()) {
+                return errorResponseOf(graph, current, messageStorage);
             }
 
             NodeExecutor executor = nodeExecutorFactory.instance(current.getFunctionType());
@@ -177,6 +184,19 @@ public class WorkflowService {
         }
 
         return graph.nextElse(condition);
+    }
+
+    private ResponseMessage errorResponseOf(
+            WorkflowGraph graph,
+            WorkflowNode node,
+            Map<String, List<Map<String, Object>>> messageStorage
+    ) throws BusinessException {
+        WorkflowErrorResponse errorResponse = graph.errorResponseOf(node);
+        if(errorResponse == null) {
+            throw new BusinessException(WorkflowErrorMessage.NOT_SETTING_ERROR_RESPONSE);
+        }
+
+        return errorResponse.toResponseMessage(messageStorage);
     }
 
     private boolean evaluate(String conditionExpression, List<Map<String, Object>> params) throws BusinessException {

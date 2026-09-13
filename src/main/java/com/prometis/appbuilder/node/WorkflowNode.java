@@ -4,6 +4,8 @@ import com.prometis.appbuilder.node.code.ErrorResolveType;
 import com.prometis.appbuilder.node.code.FunctionType;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -27,7 +29,10 @@ public class WorkflowNode {
     @Column(nullable = false, length = 100)
     private String functionName;
 
+    // H2 는 STRING 열거형을 ENUM 컬럼으로 만들고, ddl-auto update 는 그 허용값을 늘려주지 않는다.
+    // 그러면 기능유형을 추가할 때마다 저장이 깨지므로 일반 문자열 컬럼으로 둔다.
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(nullable = false, length = 100)
     private FunctionType functionType;
 
@@ -57,6 +62,10 @@ public class WorkflowNode {
 
     public boolean isCondition() {
         return FunctionType.CONDITION.equals(functionType);
+    }
+
+    public boolean isErrorMessage() {
+        return FunctionType.ERROR_MESSAGE.equals(functionType);
     }
 
     public void update(

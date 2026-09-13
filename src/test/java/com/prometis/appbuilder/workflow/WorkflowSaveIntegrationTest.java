@@ -33,6 +33,8 @@ class WorkflowSaveIntegrationTest {
     private WorkflowEdgeRepository workflowEdgeRepository;
     @Autowired
     private WorkflowConditionRepository workflowConditionRepository;
+    @Autowired
+    private WorkflowErrorResponseRepository workflowErrorResponseRepository;
 
     private Map<String,Object> node(String nodeId, String functionType, String functionName, int orderNum) {
         Map<String,Object> node = new HashMap<>();
@@ -196,6 +198,78 @@ class WorkflowSaveIntegrationTest {
                 .orElseThrow();
         assertEquals(400, cNode.getPositionX());
         assertEquals(800, cNode.getPositionY());
+    }
+
+    @Test
+    public void 에러메시지_노드의_설정이_저장되고_그래프로_다시_읽힌다() {
+        Map<String,Object> workflow = new HashMap<>();
+        workflow.put("id", "");
+        workflow.put("workflowCode", "TEST1000_R04");
+        workflow.put("displayName", "에러메시지 저장 확인");
+        workflow.put("note", "");
+        workflow.put("useAuthValidation", false);
+
+        Map<String,Object> errorResponse = new HashMap<>();
+        errorResponse.put("nodeId", "node-2");
+        errorResponse.put("status", 422);
+        errorResponse.put("code", "E-EVAL-001");
+        errorResponse.put("message", "F 등급은 저장할 수 없습니다.");
+        errorResponse.put("contents", "IN, OUT_node-1");
+
+        Map<String,Object> params = new HashMap<>();
+        params.put("workflow", workflow);
+        params.put("workflowNodes", List.of(
+                node("node-1", "CONDITION", "", 1),
+                node("node-2", "ERROR_MESSAGE", "", 2),
+                node("node-3", "SQL", "SAVE_STEP", 3)
+        ));
+        params.put("workflowEdges", List.of(
+                edge("node-1", "node-2", "CASE", "c1", 0),
+                edge("node-1", "node-3", "ELSE", null, 1)
+        ));
+        params.put("workflowConditions", List.of(condition("node-1", "c1", "params[0].grade === 'F'", 0)));
+        params.put("workflowErrorResponses", List.of(errorResponse));
+        params.put("workflowAuthority", new ArrayList<Map<String,Object>>());
+
+        workflowRestController.save(params);
+
+        Workflow saved = workflowRepository.findByWorkflowCode("TEST1000_R04").orElseThrow();
+
+        List<WorkflowNode> functions = workflowNodeRepository.findByWorkflowId(saved.getId());
+        List<WorkflowErrorResponse> errorResponses = workflowErrorResponseRepository.findByWorkflowId(saved.getId());
+
+        assertEquals(1, errorResponses.size(), "에러응답");
+
+        // 에러메시지 노드도 따로 만들어둔 기능이 없어 노드 식별자를 기능명으로 대신 채운다.
+        WorkflowNode errorNode = functions.stream()
+                .filter(WorkflowNode::isErrorMessage)
+                .findFirst()
+                .orElseThrow();
+        assertEquals("node-2", errorNode.getFunctionName());
+
+        WorkflowGraph graph = WorkflowGraph.of(
+                functions,
+                workflowEdgeRepository.findByWorkflowIdOrderByOrderNum(saved.getId()),
+                workflowConditionRepository.findByWorkflowIdOrderByOrderNum(saved.getId()),
+                errorResponses
+        );
+
+        WorkflowErrorResponse loaded = graph.errorResponseOf(graph.nextCase(graph.getStartNode(), "c1"));
+        assertEquals(422, loaded.getStatus());
+        assertEquals("E-EVAL-001", loaded.getCode());
+        assertEquals("F 등급은 저장할 수 없습니다.", loaded.getMessage());
+        assertEquals("IN, OUT_node-1", loaded.getContents());
+
+        // 다시 저장할 때 에러메시지 노드를 빼면 설정도 남지 않는다.
+        workflow.put("id", String.valueOf(saved.getId()));
+        params.put("workflowNodes", List.of(node("node-1", "SQL", "A", 1)));
+        params.put("workflowEdges", new ArrayList<Map<String,Object>>());
+        params.put("workflowConditions", new ArrayList<Map<String,Object>>());
+        params.put("workflowErrorResponses", new ArrayList<Map<String,Object>>());
+
+        workflowRestController.save(params);
+
+        assertTrue(workflowErrorResponseRepository.findByWorkflowId(saved.getId()).isEmpty(), "에러응답");
     }
 
     @Test
