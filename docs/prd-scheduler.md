@@ -3,7 +3,7 @@
 
 ### 요구사항
 1) 스케줄러는 Spring Quartz를 사용한다.
-2) 스케줄러는 com.datajoy.admin_builder.scheduler 에서 개발한다.
+2) 스케줄러는 com.prometis.appbuilder.scheduler 에서 개발한다.
 3) 현재는 개발PC에 작동시키기때문에 1대인데 추 후 서버에 올라가면 여러대가 될수있어 클러스터링을 고려한다. 
    - 설정으로 클러스터링을 할수있어야한다.
 4) 스케줄러는 워크플로우ID와 Job을 설정하고 해당 Job이 실행되면 워크플로우ID 기반으로 워크플로우를 실행한다.

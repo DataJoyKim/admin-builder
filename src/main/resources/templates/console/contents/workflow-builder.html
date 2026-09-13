@@ -342,6 +342,15 @@
         stroke: #4A90E2;
     }
 
+    .wf-edge-arrow {
+        fill: #c7cbd1;
+        stroke: none;
+    }
+
+    .wf-edge:hover .wf-edge-arrow {
+        fill: #4A90E2;
+    }
+
     .wf-edge-temp {
         stroke: #4A90E2;
         stroke-dasharray: 6 4;
@@ -1294,7 +1303,7 @@
         httpClient.post(`/console/api/workflow/save`,{},
             {
                 workflow:getContent(),
-                workflowFunctions:graph.functions,
+                workflowNodes:graph.functions,
                 workflowEdges:graph.edges,
                 workflowConditions:graph.conditions,
                 workflowAuthority:currentAuthorityList
@@ -1782,7 +1791,7 @@
     }
 
     function loadWorkflowGraph(workflowId) {
-        httpClient.get(`/console/api/workflow-function`, {workflowId:workflowId},
+        httpClient.get(`/console/api/workflow-node`, {workflowId:workflowId},
             function(functions){
                 httpClient.get(`/console/api/workflow-edge`, {workflowId:workflowId},
                     function(edges){
@@ -2498,8 +2507,23 @@
             const from = portPoint(source, edgeKeyOf(edge));
             const to = inPortPoint(target);
 
-            svg.appendChild(createEdgeElement(edge, from, to));
+            svg.appendChild(createEdgeElement(edge, from, arrowTipPoint(target, to)));
         }
+    }
+
+    // 화살표 크기와, 화살표 끝과 입력포트 원 사이의 여백.
+    const ARROW_LENGTH = 10;
+    const ARROW_HALF_WIDTH = 5;
+    const ARROW_GAP = 2;
+
+    // 노드 DOM 이 연결선 위에 그려지므로 원 중앙까지 그으면 화살표가 원에 가려진다.
+    // 원 위쪽 테두리에서 여백만큼 떨어진 곳을 화살표 끝으로 삼는다.
+    // 연결선은 항상 위에서 아래로 수직으로 들어오기 때문에(edgePath 의 끝 제어점이 바로 위) y 만 올리면 된다.
+    function arrowTipPoint(node, inPoint) {
+        const el = document.querySelector(`.wf-port-in[data-node-id="${node.nodeId}"]`);
+        const radius = el ? el.getBoundingClientRect().height / 2 / viewScale : 8;
+
+        return {x:inPoint.x, y:inPoint.y - radius - ARROW_GAP};
     }
 
     // 포트의 캔버스 좌표.
@@ -2558,14 +2582,19 @@
         return path;
     }
 
-    function createEdgeElement(edge, from, to) {
+    // tip 은 화살표 끝. 선은 화살표 밑변까지만 긋는다(끝까지 그으면 선 두께가 뾰족한 끝 밖으로 삐져나온다).
+    // 밑변과 1px 겹치게 해서 선과 화살표 사이가 벌어져 보이지 않게 한다.
+    function createEdgeElement(edge, from, tip) {
         const group = document.createElementNS(SVG_NS, 'g');
         group.setAttribute('class', 'wf-edge');
 
+        const to = {x:tip.x, y:tip.y - ARROW_LENGTH + 1};
         const d = edgePath(from, to);
 
         group.appendChild(createSvgPath('wf-edge-hit', d));
         group.appendChild(createSvgPath('wf-edge-line', d));
+        group.appendChild(createSvgPath('wf-edge-arrow',
+            `M ${tip.x} ${tip.y} L ${tip.x - ARROW_HALF_WIDTH} ${tip.y - ARROW_LENGTH} L ${tip.x + ARROW_HALF_WIDTH} ${tip.y - ARROW_LENGTH} Z`));
         group.appendChild(createEdgeRemoveButton(edge, edgeMidPoint(from, to)));
 
         return group;

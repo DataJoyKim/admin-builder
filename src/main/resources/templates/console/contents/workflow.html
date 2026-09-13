@@ -34,7 +34,7 @@
                 grid.setSheetData('workflowExecute', [{"key":"_seq","value":"1"},{"key":"_status","value":"R"}]);
             });
 
-            grid.initSheet('workflowFunctionGrid', "100%","500px",
+            grid.initSheet('workflowNodeGrid', "100%","500px",
             [
                 {name: "id", title:"ID", type: "number", width: 20, editing: false, inserting: false},
                 {name: "functionType", title:"type", type: "select", width: 50, items: codes["FunctionType"], valueField: "code", textField: "name" },
@@ -50,13 +50,13 @@
                 inserting: true,
                 editing: true,
                 onItemInserting: function(args) {
-                    insertWorkflowFunction($("#id").val(), args.item);
+                    insertWorkflowNode($("#id").val(), args.item);
                 },
                 onItemUpdated: function(args) {
-                    updateWorkflowFunction($("#id").val(),args.item);
+                    updateWorkflowNode($("#id").val(),args.item);
                 },
                 onItemDeleting: function(args) {
-                    deleteWorkflowFunction($("#id").val(), args.item);
+                    deleteWorkflowNode($("#id").val(), args.item);
                 }
             });
 
@@ -130,7 +130,7 @@
             httpClient.get(`/console/api/workflow/${item.id}`, {},
                 function(response){
                     setContentData(response);
-                    getWorkflowFunction(item.id);
+                    getWorkflowNode(item.id);
                     getWorkflowAuthority(item.id);
                 },
                 function(error){
@@ -215,10 +215,10 @@
                 });
           }
 
-        function getWorkflowFunction(workflowId) {
-            httpClient.get(`/console/api/workflow-function`, {workflowId:workflowId},
+        function getWorkflowNode(workflowId) {
+            httpClient.get(`/console/api/workflow-node`, {workflowId:workflowId},
                 function(response){
-                    grid.setSheetData('workflowFunctionGrid', response);
+                    grid.setSheetData('workflowNodeGrid', response);
                 },
                 function(error){
                     alert('error');
@@ -226,8 +226,8 @@
             );
         }
 
-        function insertWorkflowFunction(workflowId, item) {
-            httpClient.post(`/console/api/workflow-function`,{},
+        function insertWorkflowNode(workflowId, item) {
+            httpClient.post(`/console/api/workflow-node`,{},
                 {
                    workflowId:workflowId,
                    functionName:item.functionName,
@@ -239,7 +239,7 @@
                 },
                 function(response){
                     alert("생성 완료되었습니다.");
-                    getWorkflowFunction(workflowId);
+                    getWorkflowNode(workflowId);
                 },
                 function(error){
                     alert('error');
@@ -247,8 +247,8 @@
             );
         }
 
-        function updateWorkflowFunction(workflowId, item) {
-          httpClient.put(`/console/api/workflow-function/${item.id}`, {},
+        function updateWorkflowNode(workflowId, item) {
+          httpClient.put(`/console/api/workflow-node/${item.id}`, {},
               {
                    workflowId:workflowId,
                    functionName:item.functionName,
@@ -260,7 +260,7 @@
               },
               function(response){
                   alert("변경 완료되었습니다.");
-                  getWorkflowFunction(workflowId);
+                  getWorkflowNode(workflowId);
               },
               function(error){
                   alert('error');
@@ -268,11 +268,11 @@
           );
         }
 
-        function deleteWorkflowFunction(workflowId, item) {
-          httpClient.delete(`/console/api/workflow-function/${item.id}`, {},
+        function deleteWorkflowNode(workflowId, item) {
+          httpClient.delete(`/console/api/workflow-node/${item.id}`, {},
               function(response){
                   alert("삭제 완료되었습니다.");
-                  getWorkflowFunction(workflowId);
+                  getWorkflowNode(workflowId);
               },
               function(error){
                   alert('error');
@@ -429,7 +429,7 @@
                             </div>
                         </div>
                         <div class="card-body">
-                            <div id="workflowFunctionGrid"></div>
+                            <div id="workflowNodeGrid"></div>
                         </div>
                     </div>
                     <div class="tab-pane fade" id="workflow-access-control" role="tabpanel" aria-labelledby="workflow-access-control-tab">
